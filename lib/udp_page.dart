@@ -26,7 +26,7 @@ class _UdpPageState extends State<UdpPage> {
   final receivedDataList = listSignal<String>([]);
   final sentDataList = listSignal<String>([]);
   final messageToSend = "Teste 123".toSignal();
-  final maxServerTimeout = const Duration(seconds: 10);
+  final maxServerTimeout = const Duration(seconds: 60);
   final currentTimer = 0.toSignal();
 
   late UDP udpServer;
