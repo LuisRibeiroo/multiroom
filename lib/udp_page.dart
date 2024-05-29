@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -54,13 +55,24 @@ class _UdpPageState extends State<UdpPage> {
 
   Future<void> _startServer() async {
     try {
-      udpServer = await UDP.bind(
-        Endpoint.loopback(
-          port: Port(
-            int.parse(serverPort.value),
+      if (Platform.isWindows) {
+        udpServer = await UDP.bind(
+          Endpoint.multicast(
+            InternetAddress(serverPort.value),
+            port: Port(
+              int.parse(serverPort.value),
+            ),
           ),
-        ),
-      );
+        );
+      } else {
+        udpServer = await UDP.bind(
+          Endpoint.loopback(
+            port: Port(
+              int.parse(serverPort.value),
+            ),
+          ),
+        );
+      }
 
       isServerRunning.value = true;
 
