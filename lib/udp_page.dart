@@ -68,6 +68,7 @@ class _UdpPageState extends State<UdpPage> {
           timer.cancel();
           udpServer.close();
           isServerRunning.value = false;
+          currentTimer.value = currentTimer.initialValue;
         }
       },
     );
@@ -86,6 +87,8 @@ class _UdpPageState extends State<UdpPage> {
 
   Future<void> _stopServer() async {
     udpServer.close();
+    isServerRunning.value = false;
+    currentTimer.value = currentTimer.initialValue;
   }
 
   Future<void> _sendMessage() async {
@@ -160,9 +163,6 @@ class _UdpPageState extends State<UdpPage> {
                                   isServerRunning.value
                                       ? await _stopServer()
                                       : await _startServer();
-
-                                  isServerRunning.value =
-                                      !isServerRunning.value;
                                 },
                               ),
                             ),
