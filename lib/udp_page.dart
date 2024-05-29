@@ -57,7 +57,9 @@ class _UdpPageState extends State<UdpPage> {
 
     udpServer = await UDP.bind(
       Endpoint.loopback(
-        port: Port(int.parse(serverPort.value)),
+        port: Port(
+          int.parse(serverPort.value),
+        ),
       ),
     );
 
