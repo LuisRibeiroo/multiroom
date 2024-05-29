@@ -53,6 +53,8 @@ class _UdpPageState extends State<UdpPage> {
   }
 
   Future<void> _startServer() async {
+    isServerRunning.value = true;
+
     udpServer = await UDP.bind(
       Endpoint.loopback(
         port: Port(int.parse(serverPort.value)),
@@ -62,6 +64,11 @@ class _UdpPageState extends State<UdpPage> {
     Timer.periodic(
       const Duration(seconds: 1),
       (timer) {
+        if (isServerRunning.value == false) {
+          timer.cancel();
+          return;
+        }
+
         currentTimer.value = timer.tick;
 
         if (currentTimer.value == maxServerTimeout.inSeconds) {
@@ -120,9 +127,11 @@ class _UdpPageState extends State<UdpPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                LocalData(
-                  networkName: networkName.value,
-                  localIp: localIp.value,
+                Flexible(
+                  child: LocalData(
+                    networkName: networkName.value,
+                    localIp: localIp.value,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Flexible(
@@ -190,10 +199,8 @@ class _UdpPageState extends State<UdpPage> {
                             "Dados Recebidos",
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
-                          ConstrainedBox(
-                            constraints: const BoxConstraints.tightForFinite(
-                              height: 150,
-                            ),
+                          SizedBox(
+                            height: 150,
                             child: ListView.builder(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 12.0),
