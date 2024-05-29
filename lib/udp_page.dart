@@ -29,7 +29,7 @@ class _UdpPageState extends State<UdpPage> {
   final maxServerTimeout = const Duration(seconds: 60);
   final currentTimer = 0.toSignal();
 
-  late UDP udpServer;
+  UDP? udpServer;
 
   Future<void> _checkPermissions() async {
     await [
@@ -53,64 +53,86 @@ class _UdpPageState extends State<UdpPage> {
   }
 
   Future<void> _startServer() async {
-    isServerRunning.value = true;
-
-    udpServer = await UDP.bind(
-      Endpoint.loopback(
-        port: Port(
-          int.parse(serverPort.value),
+    try {
+      udpServer = await UDP.bind(
+        Endpoint.loopback(
+          port: Port(
+            int.parse(serverPort.value),
+          ),
         ),
-      ),
-    );
+      );
 
-    Timer.periodic(
-      const Duration(seconds: 1),
-      (timer) {
-        if (isServerRunning.value == false) {
-          timer.cancel();
-          return;
-        }
+      isServerRunning.value = true;
 
-        currentTimer.value = timer.tick;
+      Timer.periodic(
+        const Duration(seconds: 1),
+        (timer) {
+          if (isServerRunning.value == false) {
+            timer.cancel();
+            return;
+          }
 
-        if (currentTimer.value == maxServerTimeout.inSeconds) {
-          timer.cancel();
-          udpServer.close();
-          isServerRunning.value = false;
-          currentTimer.value = currentTimer.initialValue;
-        }
-      },
-    );
+          currentTimer.value = timer.tick;
 
-    udpServer.asStream(timeout: maxServerTimeout).listen((datagram) {
-      final data = String.fromCharCodes(datagram?.data ?? <int>[]);
+          if (currentTimer.value >= maxServerTimeout.inSeconds) {
+            timer.cancel();
+            udpServer?.close();
+            isServerRunning.value = false;
+            currentTimer.value = currentTimer.initialValue;
+          }
+        },
+      );
 
-      debugPrint("Data received: $data");
+      udpServer?.asStream(timeout: maxServerTimeout).listen((datagram) {
+        final data = String.fromCharCodes(datagram?.data ?? <int>[]);
 
-      receivedDataList.add("[${receivedDataList.length + 1}] $data");
+        debugPrint("Data received: $data");
 
-      _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-          duration: Durations.medium3, curve: Curves.easeInOut);
-    });
+        receivedDataList.add("[${receivedDataList.length + 1}] $data");
+
+        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+            duration: Durations.medium3, curve: Curves.easeInOut);
+      });
+
+      debugPrint(
+          ">>>>>> Listening on: ${udpServer?.local.address?.address}:${udpServer?.local.port?.value}");
+    } catch (exception) {
+      debugPrint(exception.toString());
+    }
   }
 
   Future<void> _stopServer() async {
-    udpServer.close();
+    udpServer?.close();
     isServerRunning.value = false;
     currentTimer.value = currentTimer.initialValue;
   }
 
   Future<void> _sendMessage() async {
-    var sender =
-        await UDP.bind(Endpoint.any(port: Port(int.parse(senderPort.value))));
+    try {
+      final sender = await UDP.bind(
+        Endpoint.any(
+          port: Port(
+            int.parse(senderPort.value),
+          ),
+        ),
+      );
 
-    final dataLength = await sender.send(messageToSend.value.codeUnits,
-        Endpoint.loopback(port: Port(int.parse(senderPort.value))));
+      final dataLength = await sender.send(
+        messageToSend.value.codeUnits,
+        Endpoint.loopback(
+          port: Port(
+            int.parse(senderPort.value),
+          ),
+        ),
+      );
 
-    sender.close();
+      sender.close();
 
-    debugPrint(
-        "SENT [${senderPort.value}][$dataLength] -> ${messageToSend.value}");
+      debugPrint(
+          "SENT [${senderPort.value}][$dataLength] -> ${messageToSend.value}");
+    } catch (exception) {
+      debugPrint(exception.toString());
+    }
   }
 
   @override
