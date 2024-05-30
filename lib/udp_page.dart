@@ -55,24 +55,13 @@ class _UdpPageState extends State<UdpPage> {
 
   Future<void> _startServer() async {
     try {
-      if (Platform.isWindows) {
-        udpServer = await UDP.bind(
-          Endpoint.multicast(
-            InternetAddress(serverPort.value),
-            port: Port(
-              int.parse(serverPort.value),
-            ),
+      udpServer = await UDP.bind(
+        Endpoint.loopback(
+          port: Port(
+            int.parse(serverPort.value),
           ),
-        );
-      } else {
-        udpServer = await UDP.bind(
-          Endpoint.loopback(
-            port: Port(
-              int.parse(serverPort.value),
-            ),
-          ),
-        );
-      }
+        ),
+      );
 
       isServerRunning.value = true;
 
