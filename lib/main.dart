@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:routefly/routefly.dart';
 
-import 'core/theme.dart';
-import 'udp_page.dart';
+import 'app/core/theme.dart';
+import 'routes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,7 +13,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Multiroom',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -22,7 +23,9 @@ class MyApp extends StatelessWidget {
         colorScheme: MaterialTheme.darkHighContrastScheme().toColorScheme(),
       ),
       themeMode: ThemeMode.dark,
-      home: const UdpPage(),
+      routerConfig: Routefly.routerConfig(
+        routes: routes,
+      ),
     );
   }
 }
