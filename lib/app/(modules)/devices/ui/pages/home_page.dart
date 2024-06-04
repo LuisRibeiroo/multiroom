@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/widgets/loading_overlay.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
@@ -40,78 +41,82 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Multiroom'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        scrolledUnderElevation: 0,
-      ),
-      body: Watch(
-        (_) => SingleChildScrollView(
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Card.filled(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
-                    child: Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                enabled: _controller.isConnected.value == false,
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  labelText: 'IP do Host',
+    return Watch(
+      (_) => LoadingOverlay(
+        state: _controller.state,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Multiroom'),
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            scrolledUnderElevation: 0,
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Card.filled(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
+                      child: Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  enabled:
+                                      _controller.isConnected.value == false,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    labelText: 'IP do Host',
+                                  ),
+                                  onChanged: _controller.host.set,
+                                  initialValue: _controller.host.peek(),
+                                  inputFormatters: [
+                                    MaskTextInputFormatterExt.ip(),
+                                  ],
                                 ),
-                                onChanged: _controller.host.set,
-                                initialValue: _controller.host.peek(),
-                                inputFormatters: [
-                                  MaskTextInputFormatterExt.ip(),
-                                ],
                               ),
-                            ),
-                            8.asSpace,
-                            Text(
-                              ":${_controller.port.value}",
-                              style: context.textTheme.titleLarge,
-                            ),
-                          ],
-                        ),
-                        12.asSpace,
-                        Watch(
-                          (_) => AnimatedSwitcher(
-                            duration: Durations.medium1,
-                            child: ElevatedButton(
-                              key: ValueKey(_controller.isConnected.value),
-                              onPressed: _controller.toggleConnection,
-                              child: Text(
-                                _controller.isConnected.value
-                                    ? "Desconectar"
-                                    : "Conectar",
+                              8.asSpace,
+                              Text(
+                                ":${_controller.port.value}",
+                                style: context.textTheme.titleLarge,
+                              ),
+                            ],
+                          ),
+                          12.asSpace,
+                          Watch(
+                            (_) => AnimatedSwitcher(
+                              duration: Durations.medium1,
+                              child: ElevatedButton(
+                                key: ValueKey(_controller.isConnected.value),
+                                onPressed: _controller.toggleConnection,
+                                child: Text(
+                                  _controller.isConnected.value
+                                      ? "Desconectar"
+                                      : "Conectar",
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
           ),
+          floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.arrow_forward_rounded),
+            onPressed: () =>
+                Routefly.pushNavigate(routePaths.devices.ui.pages.deviceInfo),
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.arrow_forward_rounded),
-        onPressed: () =>
-            Routefly.pushNavigate(routePaths.devices.ui.pages.deviceInfo),
       ),
     );
   }
