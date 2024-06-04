@@ -1,10 +1,9 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../../injector.dart';
+import '../../../../../routes.dart';
 import '../../interactor/controllers/home_page_controller.dart';
 
 class HomePage extends StatefulWidget {
@@ -35,6 +34,11 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.arrow_forward_rounded),
+        onPressed: () =>
+            Routefly.pushNavigate(routePaths.devices.ui.pages.deviceInfo),
       ),
     );
   }

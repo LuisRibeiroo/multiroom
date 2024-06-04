@@ -1,6 +1,7 @@
 import 'package:routefly/routefly.dart';
 
-import 'app/(modules)/devices/ui/pages/home_page.dart' as a1;
+import 'app/(modules)/devices/ui/pages/device_info_page.dart' as a1;
+import 'app/(modules)/devices/ui/pages/home_page.dart' as a2;
 import 'app/(modules)/udp/ui/pages/udp_page.dart' as a0;
 
 List<RouteEntity> get routes => [
@@ -14,12 +15,21 @@ List<RouteEntity> get routes => [
     ),
   ),
   RouteEntity(
+    key: '/devices/ui/pages/device_info',
+    uri: Uri.parse('/devices/ui/pages/device_info'),
+    routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
+      ctx,
+      settings,
+      const a1.DeviceInfoPage(),
+    ),
+  ),
+  RouteEntity(
     key: '/devices/ui/pages/home',
     uri: Uri.parse('/devices/ui/pages/home'),
     routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
       ctx,
       settings,
-      const a1.HomePage(),
+      const a2.HomePage(),
     ),
   ),
 ];
@@ -42,6 +52,7 @@ const routePaths = (
       path: '/devices/ui',
       pages: (
         path: '/devices/ui/pages',
+        deviceInfo: '/devices/ui/pages/device_info',
         home: '/devices/ui/pages/home',
       ),
     ),

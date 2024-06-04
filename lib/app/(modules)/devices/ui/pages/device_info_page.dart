@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 
-import 'device_model.dart';
-import 'equalization_model.dart';
-import 'mocks.dart';
+import '../../../../../device_model.dart';
+import '../../../../../equalization_model.dart';
+import '../../../../../mocks.dart';
 
 class DeviceInfoPage extends StatefulWidget {
   const DeviceInfoPage({
     super.key,
-    required this.device,
   });
 
-  final DeviceModel device;
+  // final DeviceModel device;
 
   @override
   State<DeviceInfoPage> createState() => _DeviceInfoPageState();
@@ -23,6 +22,8 @@ class _DeviceInfoPageState extends State<DeviceInfoPage> {
   final isMuted = false.toSignal();
   final isEditingVolume = false.toSignal();
   final isEditingBalance = false.toSignal();
+
+  final device = DeviceModel.empty();
 
   @override
   void initState() {
@@ -42,14 +43,14 @@ class _DeviceInfoPageState extends State<DeviceInfoPage> {
         appBar: AppBar(
           centerTitle: false,
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.device.name),
+          title: Text(device.name),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(0),
             child: Row(
               children: [
                 const SizedBox(width: 75),
                 Text(
-                  widget.device.zone,
+                  device.zone,
                   style: Theme.of(context).textTheme.labelLarge,
                 ),
                 Container(
@@ -62,7 +63,7 @@ class _DeviceInfoPageState extends State<DeviceInfoPage> {
                   ),
                 ),
                 Text(
-                  widget.device.input,
+                  device.input,
                   style: Theme.of(context).textTheme.labelLarge,
                 ),
               ],

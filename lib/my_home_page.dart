@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 
-import 'device_info_page.dart';
+import 'app/(modules)/devices/ui/pages/device_info_page.dart';
 import 'device_model.dart';
 import 'mocks.dart';
 
@@ -78,8 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) =>
-                                DeviceInfoPage(device: device),
+                            builder: (context) => const DeviceInfoPage(),
                           ),
                         );
                       },
