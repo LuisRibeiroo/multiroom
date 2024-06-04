@@ -1,12 +1,12 @@
 import 'package:routefly/routefly.dart';
 
-import 'app/modules/devices/ui/pages/udp_page.dart' as a1;
-import 'app/modules/(udp)/ui/pages/udp_page.dart' as a0;
+import 'app/(modules)/devices/ui/pages/home_page.dart' as a1;
+import 'app/(modules)/udp/ui/pages/udp_page.dart' as a0;
 
 List<RouteEntity> get routes => [
   RouteEntity(
-    key: '/modules/udp/ui/pages/udp',
-    uri: Uri.parse('/modules/udp/ui/pages/udp'),
+    key: '/udp/ui/pages/udp',
+    uri: Uri.parse('/udp/ui/pages/udp'),
     routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
       ctx,
       settings,
@@ -14,38 +14,35 @@ List<RouteEntity> get routes => [
     ),
   ),
   RouteEntity(
-    key: '/modules/devices/ui/pages/udp',
-    uri: Uri.parse('/modules/devices/ui/pages/udp'),
+    key: '/devices/ui/pages/home',
+    uri: Uri.parse('/devices/ui/pages/home'),
     routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
       ctx,
       settings,
-      const a1.UdpPage(),
+      const a1.HomePage(),
     ),
   ),
 ];
 
 const routePaths = (
   path: '/',
-  modules: (
-    path: '/modules',
-    udp: (
-      path: '/modules/udp',
-      ui: (
-        path: '/modules/udp/ui',
-        pages: (
-          path: '/modules/udp/ui/pages',
-          udp: '/modules/udp/ui/pages/udp',
-        ),
+  udp: (
+    path: '/udp',
+    ui: (
+      path: '/udp/ui',
+      pages: (
+        path: '/udp/ui/pages',
+        udp: '/udp/ui/pages/udp',
       ),
     ),
-    devices: (
-      path: '/modules/devices',
-      ui: (
-        path: '/modules/devices/ui',
-        pages: (
-          path: '/modules/devices/ui/pages',
-          udp: '/modules/devices/ui/pages/udp',
-        ),
+  ),
+  devices: (
+    path: '/devices',
+    ui: (
+      path: '/devices/ui',
+      pages: (
+        path: '/devices/ui/pages',
+        home: '/devices/ui/pages/home',
       ),
     ),
   ),
