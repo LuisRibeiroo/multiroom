@@ -1,3 +1,1 @@
-class HomePageController {
-  
-}
+class HomePageController {}
