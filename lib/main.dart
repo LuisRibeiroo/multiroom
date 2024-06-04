@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:multiroom/injector.dart';
 import 'package:routefly/routefly.dart';
+import 'package:toastification/toastification.dart';
 
 import 'app/core/theme.dart';
 import 'routes.dart';
@@ -8,7 +10,9 @@ import 'routes.dart';
 void main() {
   EquatableConfig.stringify = true;
 
-  runApp(const MyApp());
+  injector.commit();
+
+  runApp(const ToastificationWrapper(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

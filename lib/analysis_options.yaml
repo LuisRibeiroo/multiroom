@@ -23,9 +23,10 @@ linter:
   rules:
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
-    avoid_unused_constructor_parameters: true
-    prefer_const_constructors: true
-    sort_constructors_first: true
-    sort_unnamed_constructors_first: true
+    - avoid_void_async
+    - avoid_unused_constructor_parameters
+    - prefer_const_constructors
+    - sort_constructors_first
+    - sort_unnamed_constructors_first
 # Additional information about this file can be found at
 # https://dart.dev/tools/analysis
