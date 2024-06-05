@@ -10,8 +10,8 @@ class HomePageController extends BaseController {
 
   late Socket _socket;
 
-  final host = "127.000.000.001".toSignal(debugLabel: "host");
-  final port = 4999.toSignal(debugLabel: "port");
+  final host = "127.0.0.1".toSignal(debugLabel: "host");
+  final port = "4999".toSignal(debugLabel: "port");
   final isConnected = false.toSignal(debugLabel: "isConnected");
 
   Future<void> toggleConnection() async {
@@ -21,13 +21,10 @@ class HomePageController extends BaseController {
     } else {
       try {
         _socket = await run(
-          () => Future.delayed(
-            const Duration(seconds: 2),
-            () => Socket.connect(
-              host.value,
-              port.value,
-              timeout: const Duration(seconds: 5),
-            ),
+          () => Socket.connect(
+            host.value,
+            int.parse(port.value),
+            timeout: const Duration(seconds: 5),
           ),
         );
 

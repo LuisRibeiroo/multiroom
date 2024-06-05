@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:multiroom/app/core/widgets/loading_overlay.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:routefly/routefly.dart';
@@ -9,7 +10,6 @@ import 'package:signals/signals_flutter.dart';
 
 import '../../../../../injector.dart';
 import '../../../../../routes.dart';
-import '../../../../core/extensions/build_context_extensions.dart';
 import '../../../../core/extensions/mask_text_input_formatter_extension.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../interactor/controllers/home_page_controller.dart';
@@ -66,7 +66,8 @@ class _HomePageState extends State<HomePage> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Expanded(
+                              Flexible(
+                                flex: 2,
                                 child: TextFormField(
                                   enabled:
                                       _controller.isConnected.value == false,
@@ -82,10 +83,22 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               8.asSpace,
-                              Text(
-                                ":${_controller.port.value}",
-                                style: context.textTheme.titleLarge,
-                              ),
+                              Flexible(
+                                child: TextFormField(
+                                  enabled:
+                                      _controller.isConnected.value == false,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    labelText: 'Porta',
+                                  ),
+                                  initialValue: _controller.port.peek(),
+                                  onChanged: _controller.port.set,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(4)
+                                  ],
+                                ),
+                              )
                             ],
                           ),
                           12.asSpace,
