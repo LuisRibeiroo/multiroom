@@ -19,7 +19,7 @@ dependencies:
   multi_dropdown: ^2.1.4
   network_info_plus: ^5.0.3
   permission_handler: ^11.3.1
-  routefly: ^1.0.9
+  routefly: ^2.0.2
   signals: ^5.2.2
   toastification: ^2.0.0
   udp: ^5.0.3

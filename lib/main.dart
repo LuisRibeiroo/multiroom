@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:multiroom/injector.dart';
 import 'package:routefly/routefly.dart';
 import 'package:toastification/toastification.dart';
 
 import 'app/core/theme.dart';
-import 'routes.dart';
+import 'injector.dart';
+import 'routes.g.dart';
 
 void main() {
   EquatableConfig.stringify = true;

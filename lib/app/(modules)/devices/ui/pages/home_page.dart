@@ -3,17 +3,16 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:multiroom/app/(modules)/devices/ui/widgets/device_info_header.dart';
-import 'package:multiroom/app/core/widgets/loading_overlay.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../../injector.dart';
-import '../../../../../routes.dart';
 import '../../../../core/extensions/mask_text_input_formatter_extension.dart';
 import '../../../../core/extensions/number_extensions.dart';
+import '../../../../core/widgets/loading_overlay.dart';
 import '../../interactor/controllers/home_page_controller.dart';
+import '../widgets/device_controls.dart';
+import '../widgets/device_info_header.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -62,7 +61,9 @@ class _HomePageState extends State<HomePage> {
                   Card.filled(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 12),
+                        horizontal: 14,
+                        vertical: 18,
+                      ),
                       child: Column(
                         children: [
                           Row(
@@ -122,22 +123,38 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  18.asSpace,
-                  DeviceInfoHeader(
-                    device: _controller.device.value,
-                    currentZone: _controller.currentZone.value,
-                    currentInput: _controller.currentInput.value,
-                    onChangeZone: _controller.currentZone.set,
-                    onChangeInput: _controller.currentInput.set,
+                  24.asSpace,
+                  AnimatedSwitcher(
+                    duration: Durations.medium1,
+                    child: _controller.device.value.isEmpty
+                        ? const SizedBox.shrink()
+                        : DeviceInfoHeader(
+                            device: _controller.device.value,
+                            currentZone: _controller.currentZone.value,
+                            currentInput: _controller.currentInput.value,
+                            onChangeZone: _controller.setCurrentZone,
+                            onChangeInput: _controller.setCurrentInput,
+                          ),
+                  ),
+                  12.asSpace,
+                  AnimatedSwitcher(
+                    duration: Durations.medium1,
+                    child: _controller.device.value.isEmpty
+                        ? const SizedBox.shrink()
+                        : DeviceControls(
+                            device: _controller.device.value,
+                            currentZone: _controller.currentZone.value,
+                            currentInput: _controller.currentInput.value,
+                            equalizers: _controller.equalizers,
+                            onChangeBalance: _controller.setBalance,
+                            onChangeVolume: _controller.setVolume,
+                            onChangeEqualizer: _controller.setEqualizer,
+                            onUpdateFrequency: _controller.setFrequency,
+                          ),
                   ),
                 ],
               ),
             ),
-          ),
-          floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.arrow_forward_rounded),
-            onPressed: () =>
-                Routefly.pushNavigate(routePaths.devices.ui.pages.deviceInfo),
           ),
         ),
       ),

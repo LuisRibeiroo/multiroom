@@ -13,15 +13,15 @@ class Frequency extends Equatable {
     );
   }
 
-  static List<Frequency> build() => const [
-        Frequency(name: "32", value: 50),
-        Frequency(name: "64", value: 50),
-        Frequency(name: "125", value: 50),
-        Frequency(name: "250", value: 50),
-        Frequency(name: "500", value: 50),
-        Frequency(name: "1000", value: 50),
-        Frequency(name: "2000", value: 50),
-        Frequency(name: "4000", value: 50),
+  static List<Frequency> build() => [
+        const Frequency(name: "32", value: 50),
+        const Frequency(name: "64", value: 50),
+        const Frequency(name: "125", value: 50),
+        const Frequency(name: "250", value: 50),
+        const Frequency(name: "500", value: 50),
+        const Frequency(name: "1000", value: 50),
+        const Frequency(name: "2000", value: 50),
+        const Frequency(name: "4000", value: 50),
       ];
 
   final String name;

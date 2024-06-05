@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:multiroom/app/core/models/equalizer_model.dart';
+import 'package:multiroom/app/core/models/frequency.dart';
 import 'package:multiroom/app/core/models/zone_model.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -15,14 +17,46 @@ class HomePageController extends BaseController {
         return;
       }
 
-      currentZone.value = value.zones.first;
-      currentInput.value = value.inputs.first;
+      untracked(() {
+        currentZone.value = value.zones.first;
+        currentInput.value = value.inputs.first;
+      });
+    });
+
+    currentZone.subscribe((value) {
+      if (value.isEmpty) {
+        return;
+      }
+
+      final idx = device.value.zones
+          .indexWhere((zone) => currentZone.value.name == zone.name);
+
+      device.value.zones[idx] = value;
+    });
+
+    currentInput.subscribe((value) {
+      if (value.isEmpty) {
+        return;
+      }
+
+      final idx = device.value.inputs
+          .indexWhere((input) => currentInput.value.name == input.name);
+
+      device.value.inputs[idx] = value;
     });
   }
 
   late Socket _socket;
 
-  final host = "127.0.0.1".toSignal(debugLabel: "host");
+  final equalizers = [
+    EqualizerModel.builder(name: "Rock"),
+    EqualizerModel.builder(name: "Pop"),
+    EqualizerModel.builder(name: "Jazz"),
+    EqualizerModel.builder(name: "Classic"),
+    EqualizerModel.builder(name: "Flat"),
+  ];
+
+  final host = "192.168.0.12".toSignal(debugLabel: "host");
   final port = "4998".toSignal(debugLabel: "port");
   final isConnected = false.toSignal(debugLabel: "isConnected");
   final device = DeviceModel.empty().toSignal(debugLabel: "device");
@@ -56,5 +90,41 @@ class HomePageController extends BaseController {
         setError(exception as Exception);
       }
     }
+  }
+
+  void setCurrentZone(ZoneModel zone) {
+    currentZone.value = zone;
+  }
+
+  void setCurrentInput(InputModel input) {
+    currentInput.value = input;
+  }
+
+  void setBalance(double balance) {
+    currentZone.value = currentZone.value.copyWith(balance: balance.toInt());
+  }
+
+  void setVolume(double volume) {
+    currentZone.value = currentZone.value.copyWith(volume: volume.toInt());
+  }
+
+  void setEqualizer(int equalizerIndex) {
+    currentZone.value =
+        currentZone.value.copyWith(equalizer: equalizers[equalizerIndex]);
+  }
+
+  void setFrequency(
+    EqualizerModel equalizer,
+    Frequency frequency,
+  ) {
+    final freqIndex =
+        equalizer.frequencies.indexWhere((freq) => freq.name == frequency.name);
+    final f = equalizer.frequencies[freqIndex];
+    final tempList = List<Frequency>.from(equalizer.frequencies);
+
+    tempList[freqIndex] = f.copyWith(value: frequency.value.toInt());
+
+    currentZone.value = currentZone.value
+        .copyWith(equalizer: equalizer.copyWith(frequencies: tempList));
   }
 }

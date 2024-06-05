@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 
 import '../../../../core/enums/device_type.dart';
-import '../../../../core/models/frequency.dart';
 import '../../../../core/models/input_model.dart';
 import '../../../../core/models/net_address_model.dart';
 import '../../../../core/models/zone_model.dart';
@@ -12,7 +11,6 @@ class DeviceModel extends Equatable {
     required this.netAddress,
     required this.inputs,
     required this.zones,
-    required this.equalizers,
     required this.version,
     required this.type,
   });
@@ -23,7 +21,6 @@ class DeviceModel extends Equatable {
       netAddress: NetAddressModel.empty(),
       inputs: const [],
       zones: const [],
-      equalizers: const [],
       version: '',
       type: DeviceType.master,
     );
@@ -46,7 +43,6 @@ class DeviceModel extends Equatable {
         8,
         (idx) => ZoneModel.builder(name: "Zona ${idx + 1}"),
       ),
-      equalizers: Frequency.build(),
       version: "1.0.0",
       type: DeviceType.master,
       netAddress: NetAddressModel(
@@ -62,7 +58,6 @@ class DeviceModel extends Equatable {
   final NetAddressModel netAddress;
   final List<InputModel> inputs;
   final List<ZoneModel> zones;
-  final List<Frequency> equalizers;
   final String version;
   final DeviceType type;
 
@@ -73,7 +68,6 @@ class DeviceModel extends Equatable {
     NetAddressModel? netAddress,
     List<InputModel>? inputs,
     List<ZoneModel>? zones,
-    List<Frequency>? equalizers,
     String? version,
     DeviceType? type,
   }) {
@@ -82,7 +76,6 @@ class DeviceModel extends Equatable {
       netAddress: netAddress ?? this.netAddress,
       inputs: inputs ?? this.inputs,
       zones: zones ?? this.zones,
-      equalizers: equalizers ?? this.equalizers,
       version: version ?? this.version,
       type: type ?? this.type,
     );
@@ -94,7 +87,6 @@ class DeviceModel extends Equatable {
         netAddress,
         inputs,
         zones,
-        equalizers,
         version,
         type,
       ];

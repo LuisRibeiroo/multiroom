@@ -356,10 +356,10 @@ packages:
     dependency: "direct main"
     description:
       name: routefly
-      sha256: b1ecd47943331b1dba744911a91907020a0b2dcdad0a0a8a40c94a418367b5bf
+      sha256: "5fb052aac074fafad62c2da25efcc4084b0b4f63ac89483d5b873da0be0ff2b7"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.9"
+    version: "2.0.2"
   signals:
     dependency: "direct main"
     description:

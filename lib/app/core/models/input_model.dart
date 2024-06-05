@@ -23,6 +23,8 @@ class InputModel extends Equatable {
   final String name;
   final bool active;
 
+  bool get isEmpty => this == InputModel.empty();
+
   InputModel copyWith({
     String? name,
     bool? active,
