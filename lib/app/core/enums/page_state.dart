@@ -36,6 +36,6 @@ class ErrorState<T extends Exception> implements PageState {
 
   @override
   String toString() {
-    return runtimeType.toString();
+    return "$runtimeType [$exception]";
   }
 }
