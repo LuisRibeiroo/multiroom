@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:multiroom/app/core/extensions/list_extensions.dart';
 import 'package:multiroom/app/core/models/equalizer_model.dart';
 import 'package:multiroom/app/core/models/frequency.dart';
 import 'package:multiroom/app/core/models/zone_model.dart';
@@ -20,6 +21,8 @@ class HomePageController extends BaseController {
       untracked(() {
         currentZone.value = value.zones.first;
         currentInput.value = value.inputs.first;
+
+        equalizers.addOrReplace(currentZone.value.equalizer);
       });
     });
 
@@ -48,13 +51,12 @@ class HomePageController extends BaseController {
 
   late Socket _socket;
 
-  final equalizers = [
-    EqualizerModel.builder(name: "Rock"),
-    EqualizerModel.builder(name: "Pop"),
-    EqualizerModel.builder(name: "Jazz"),
-    EqualizerModel.builder(name: "Classic"),
-    EqualizerModel.builder(name: "Flat"),
-  ];
+  final equalizers = listSignal([
+    EqualizerModel.builder(name: "Rock", value: 80),
+    EqualizerModel.builder(name: "Pop", value: 60),
+    EqualizerModel.builder(name: "Jazz", value: 65),
+    EqualizerModel.builder(name: "Flat", value: 50),
+  ]);
 
   final host = "192.168.0.12".toSignal(debugLabel: "host");
   final port = "4998".toSignal(debugLabel: "port");
@@ -118,11 +120,11 @@ class HomePageController extends BaseController {
     Frequency frequency,
   ) {
     final freqIndex =
-        equalizer.frequencies.indexWhere((freq) => freq.name == frequency.name);
-    final f = equalizer.frequencies[freqIndex];
+        equalizer.frequencies.indexWhere((f) => f.name == frequency.name);
     final tempList = List<Frequency>.from(equalizer.frequencies);
 
-    tempList[freqIndex] = f.copyWith(value: frequency.value.toInt());
+    tempList[freqIndex] = equalizer.frequencies[freqIndex]
+        .copyWith(value: frequency.value.toInt());
 
     currentZone.value = currentZone.value
         .copyWith(equalizer: equalizer.copyWith(frequencies: tempList));

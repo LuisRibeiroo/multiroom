@@ -145,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                             device: _controller.device.value,
                             currentZone: _controller.currentZone.value,
                             currentInput: _controller.currentInput.value,
-                            equalizers: _controller.equalizers,
+                            equalizers: _controller.equalizers.value,
                             onChangeBalance: _controller.setBalance,
                             onChangeVolume: _controller.setVolume,
                             onChangeEqualizer: _controller.setEqualizer,

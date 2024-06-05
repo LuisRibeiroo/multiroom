@@ -19,7 +19,7 @@ class ZoneModel extends Equatable {
       isStereo: true,
       volume: 50,
       balance: 0,
-      equalizer: EqualizerModel.builder(name: "Custom"),
+      equalizer: EqualizerModel.builder(name: "Custom", value: 10),
     );
   }
 

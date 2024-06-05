@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
-import 'package:multiroom/app/(modules)/devices/interactor/models/device_model.dart';
-import 'package:multiroom/app/core/extensions/number_extensions.dart';
-import 'package:multiroom/app/core/models/frequency.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../core/extensions/build_context_extensions.dart';
+import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/models/equalizer_model.dart';
+import '../../../../core/models/frequency.dart';
+import '../../../../core/models/zone_model.dart';
 
 class EqualizerCard extends StatefulWidget {
   const EqualizerCard({
     super.key,
-    required this.device,
+    required this.zone,
     required this.equalizers,
     required this.currentEqualizer,
     required this.onChangeEqualizer,
     required this.onUpdateFrequency,
   });
 
-  final DeviceModel device;
+  final ZoneModel zone;
   final List<EqualizerModel> equalizers;
   final EqualizerModel currentEqualizer;
   final Function(int) onChangeEqualizer;
@@ -46,7 +46,10 @@ class _EqualizerCardState extends State<EqualizerCard> {
 
     _equalizerController
       ..setOptions(_equalizerOptions)
-      ..setSelectedOptions([_equalizerOptions.first]);
+      ..setSelectedOptions([
+        _equalizerOptions.firstWhere((value) =>
+            value.value == widget.equalizers.indexOf(widget.currentEqualizer))
+      ]);
   }
 
   @override
@@ -97,7 +100,7 @@ class _EqualizerCardState extends State<EqualizerCard> {
                   itemBuilder: (_, index) => Column(
                     children: [
                       Text(
-                        widget.currentEqualizer.frequencies[index].name,
+                        "${widget.currentEqualizer.frequencies[index].name}db",
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       Watch((context) {

@@ -56,7 +56,7 @@ class _DeviceControlsState extends State<DeviceControls> {
               onChanged: widget.onChangeBalance,
             ),
             EqualizerCard(
-              device: widget.device,
+              zone: widget.currentZone,
               equalizers: widget.equalizers,
               currentEqualizer: widget.currentZone.equalizer,
               onChangeEqualizer: widget.onChangeEqualizer,
