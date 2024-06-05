@@ -63,7 +63,7 @@ class _EqualizerCardState extends State<EqualizerCard> {
           children: [
             Text(
               "Equalizador",
-              style: Theme.of(context).textTheme.titleLarge,
+              style: context.textTheme.titleLarge,
             ),
             12.asSpace,
             MultiSelectDropDown(
@@ -97,60 +97,43 @@ class _EqualizerCardState extends State<EqualizerCard> {
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: widget.currentEqualizer.frequencies.length,
-                  itemBuilder: (_, index) => Column(
-                    children: [
-                      Text(
-                        "${widget.currentEqualizer.frequencies[index].name}db",
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      Watch((context) {
-                        return Expanded(
-                          child: SizedBox(
-                            child: RotatedBox(
-                              quarterTurns: 3,
-                              child: Slider(
-                                min: 0,
-                                max: 100,
-                                divisions: 100 ~/ 5,
-                                value: widget
-                                    .currentEqualizer.frequencies[index].value
-                                    .toDouble(),
-                                onChanged: (v) {
-                                  widget.onUpdateFrequency(
-                                    widget.currentEqualizer,
-                                    widget.currentEqualizer.frequencies[index]
-                                        .copyWith(
-                                      value: v.toInt(),
-                                    ),
-                                  );
-                                },
-                                // onChanged: (v) {
-                                //   final f = widget
-                                //       .currentEqualizer.frequencies[index];
+                  itemBuilder: (_, index) {
+                    final current = widget.currentEqualizer.frequencies[index];
 
-                                //   final tempList = List<Frequency>.from(
-                                //       widget.currentEqualizer.frequencies);
-
-                                //   tempList[index] =
-                                //       f.copyWith(value: v.toInt());
-
-                                //   widget.onChangeEqualizer(
-                                //     widget.currentEqualizer.copyWith(
-                                //       frequencies: tempList,
-                                //     ),
-                                //   );
-                                // },
+                    return Column(
+                      children: [
+                        Text(
+                          "${current.name}db",
+                          style: context.textTheme.bodyMedium,
+                        ),
+                        Watch(
+                          (_) => Expanded(
+                            child: SizedBox(
+                              child: RotatedBox(
+                                quarterTurns: 3,
+                                child: Slider(
+                                  min: 0,
+                                  max: 100,
+                                  divisions: 100 ~/ 5,
+                                  value: current.value.toDouble(),
+                                  onChanged: (v) {
+                                    widget.onUpdateFrequency(
+                                      widget.currentEqualizer,
+                                      current.copyWith(value: v.toInt()),
+                                    );
+                                  },
+                                ),
                               ),
                             ),
                           ),
-                        );
-                      }),
-                      Text(
-                        "${widget.currentEqualizer.frequencies[index].value.round()}",
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                    ],
-                  ),
+                        ),
+                        Text(
+                          "${current.value.round()}",
+                          style: context.textTheme.labelLarge,
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
