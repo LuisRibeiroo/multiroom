@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 import 'package:toastification/toastification.dart';
 
-import 'app/core/theme.dart';
+import 'app/core/theme/theme.dart';
 import 'injector.dart';
 import 'routes.g.dart';
 
