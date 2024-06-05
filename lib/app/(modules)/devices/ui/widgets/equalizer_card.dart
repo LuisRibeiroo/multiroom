@@ -6,19 +6,16 @@ import '../../../../core/extensions/build_context_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/models/equalizer_model.dart';
 import '../../../../core/models/frequency.dart';
-import '../../../../core/models/zone_model.dart';
 
 class EqualizerCard extends StatefulWidget {
   const EqualizerCard({
     super.key,
-    required this.zone,
     required this.equalizers,
     required this.currentEqualizer,
     required this.onChangeEqualizer,
     required this.onUpdateFrequency,
   });
 
-  final ZoneModel zone;
   final List<EqualizerModel> equalizers;
   final EqualizerModel currentEqualizer;
   final Function(int) onChangeEqualizer;

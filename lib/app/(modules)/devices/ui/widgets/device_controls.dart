@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/(modules)/devices/ui/widgets/equalizer_card.dart';
 
 import '../../../../core/models/equalizer_model.dart';
 import '../../../../core/models/frequency.dart';
 import '../../../../core/models/input_model.dart';
 import '../../../../core/models/zone_model.dart';
 import '../../interactor/models/device_model.dart';
+import 'equalizer_card.dart';
 import 'slider_card.dart';
 
 class DeviceControls extends StatefulWidget {
@@ -56,7 +56,6 @@ class _DeviceControlsState extends State<DeviceControls> {
               onChanged: widget.onChangeBalance,
             ),
             EqualizerCard(
-              zone: widget.currentZone,
               equalizers: widget.equalizers,
               currentEqualizer: widget.currentZone.equalizer,
               onChangeEqualizer: widget.onChangeEqualizer,
