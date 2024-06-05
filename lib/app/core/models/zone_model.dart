@@ -49,7 +49,6 @@ class ZoneModel extends Equatable {
   bool get isEmpty => this == ZoneModel.empty();
 
   ZoneModel copyWith({
-    String? id,
     String? name,
     bool? active,
     ZoneMode? mode,
@@ -58,7 +57,7 @@ class ZoneModel extends Equatable {
     EqualizerModel? equalizer,
   }) {
     return ZoneModel(
-      id: id ?? this.id,
+      id: id,
       name: name ?? this.name,
       active: active ?? this.active,
       mode: mode ?? this.mode,

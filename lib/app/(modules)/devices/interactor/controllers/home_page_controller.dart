@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:multiroom/app/(modules)/devices/interactor/utils/multiroom_command_builder.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../core/enums/page_state.dart';
@@ -107,25 +108,53 @@ class HomePageController extends BaseController {
 
   void setCurrentInput(InputModel input) {
     currentInput.value = input;
+
+    _debounceSendCommand(
+      MultiroomCommandBuilder.setZoneChannel(
+        zone: currentZone.value,
+        input: input,
+      ),
+    );
   }
 
-  void setBalance(double balance) {
-    currentZone.value = currentZone.value.copyWith(balance: balance.toInt());
+  void setBalance(int balance) {
+    currentZone.value = currentZone.value.copyWith(balance: balance);
+
+    _debounceSendCommand(
+      MultiroomCommandBuilder.setBalance(
+        zone: currentZone.value,
+        balance: balance,
+      ),
+    );
   }
 
-  void setVolume(double volume) {
-    currentZone.value = currentZone.value.copyWith(volume: volume.toInt());
+  void setVolume(int volume) {
+    currentZone.value = currentZone.value.copyWith(volume: volume);
 
-    debouncer(() {
-      _socket.writeln("$volume");
-
-      _logger.d("Enviado >>> $volume");
-    });
+    _debounceSendCommand(
+      MultiroomCommandBuilder.setVolume(
+        zone: currentZone.value,
+        volume: volume,
+      ),
+    );
   }
 
-  void setEqualizer(int equalizerIndex) {
+  Future<void> setEqualizer(int equalizerIndex) async {
     currentZone.value =
         currentZone.value.copyWith(equalizer: equalizers[equalizerIndex]);
+
+    for (var freq in currentZone.value.equalizer.frequencies) {
+      _debounceSendCommand(
+        MultiroomCommandBuilder.setEqualizer(
+          zone: currentZone.value,
+          frequency: freq,
+          gain: freq.value,
+        ),
+      );
+
+      // Delay to avoid sending commands too fast
+      await Future.delayed(Durations.medium1);
+    }
   }
 
   void setFrequency(
@@ -141,5 +170,20 @@ class HomePageController extends BaseController {
 
     currentZone.value = currentZone.value
         .copyWith(equalizer: equalizer.copyWith(frequencies: tempList));
+
+    _debounceSendCommand(
+      MultiroomCommandBuilder.setEqualizer(
+        zone: currentZone.value,
+        frequency: frequency,
+        gain: frequency.value,
+      ),
+    );
+  }
+
+  void _debounceSendCommand(String cmd) {
+    debouncer(() {
+      _socket.writeln(cmd);
+      _logger.d("Enviado >>> $cmd");
+    });
   }
 }

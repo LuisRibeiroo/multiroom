@@ -37,7 +37,7 @@ class DeviceModel extends Equatable {
       name: name,
       inputs: List.generate(
         8,
-        (idx) => InputModel.builder(name: "Input ${idx + 1}"),
+        (idx) => InputModel.builder(index: idx + 1, name: "Input ${idx + 1}"),
       ),
       zones: List.generate(
         8,

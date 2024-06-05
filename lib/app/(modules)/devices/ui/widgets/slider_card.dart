@@ -15,7 +15,7 @@ class SliderCard extends StatelessWidget {
   final String title;
   final String caption;
   final num value;
-  final Function(double) onChanged;
+  final Function(int) onChanged;
   final int min;
   final int max;
 
@@ -32,7 +32,7 @@ class SliderCard extends StatelessWidget {
             ),
             Slider(
               value: value.toDouble(),
-              onChanged: onChanged,
+              onChanged: (v) => onChanged(v.toInt()),
               min: min.toDouble(),
               max: max.toDouble(),
             ),

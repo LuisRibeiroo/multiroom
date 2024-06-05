@@ -22,8 +22,8 @@ class DeviceControls extends StatefulWidget {
   final List<EqualizerModel> equalizers;
   final ZoneModel currentZone;
   final InputModel currentInput;
-  final Function(double) onChangeVolume;
-  final Function(double) onChangeBalance;
+  final Function(int) onChangeVolume;
+  final Function(int) onChangeBalance;
   final Function(int) onChangeEqualizer;
   final Function(EqualizerModel, Frequency) onUpdateFrequency;
 
@@ -47,7 +47,8 @@ class _DeviceControlsState extends State<DeviceControls> {
             ),
             SliderCard(
               title: "Balanço",
-              min: -100,
+              min: 0,
+              max: 100,
               caption: "${widget.currentZone.balance}",
               value: widget.currentZone.balance,
               onChanged: widget.onChangeBalance,
