@@ -4,7 +4,6 @@ import '../../../../core/models/equalizer_model.dart';
 import '../../../../core/models/frequency.dart';
 import '../../../../core/models/input_model.dart';
 import '../../../../core/models/zone_model.dart';
-import '../../interactor/models/device_model.dart';
 import 'equalizer_card.dart';
 import 'slider_card.dart';
 
@@ -12,7 +11,6 @@ class DeviceControls extends StatefulWidget {
   const DeviceControls({
     super.key,
     required this.equalizers,
-    required this.device,
     required this.currentZone,
     required this.currentInput,
     required this.onChangeVolume,
@@ -22,7 +20,6 @@ class DeviceControls extends StatefulWidget {
   });
 
   final List<EqualizerModel> equalizers;
-  final DeviceModel device;
   final ZoneModel currentZone;
   final InputModel currentInput;
   final Function(double) onChangeVolume;

@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                     child: _controller.device.value.isEmpty
                         ? const SizedBox.shrink()
                         : DeviceControls(
-                            device: _controller.device.value,
+                            key: ValueKey(_controller.currentZone.value.name),
                             currentZone: _controller.currentZone.value,
                             currentInput: _controller.currentInput.value,
                             equalizers: _controller.equalizers.value,
