@@ -1,8 +1,18 @@
 sealed class PageState {}
 
-class InitialState implements PageState {}
+class InitialState implements PageState {
+  @override
+  String toString() {
+    return runtimeType.toString();
+  }
+}
 
-class LoadingState implements PageState {}
+class LoadingState implements PageState {
+  @override
+  String toString() {
+    return runtimeType.toString();
+  }
+}
 
 class SuccessState<R> implements PageState {
   const SuccessState({
@@ -10,6 +20,11 @@ class SuccessState<R> implements PageState {
   });
 
   final R data;
+
+  @override
+  String toString() {
+    return runtimeType.toString();
+  }
 }
 
 class ErrorState<T extends Exception> implements PageState {
@@ -18,4 +33,9 @@ class ErrorState<T extends Exception> implements PageState {
   });
 
   final T exception;
+
+  @override
+  String toString() {
+    return runtimeType.toString();
+  }
 }

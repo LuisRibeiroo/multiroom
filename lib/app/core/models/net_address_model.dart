@@ -8,6 +8,15 @@ class NetAddressModel extends Equatable {
     required this.gateway,
   });
 
+  factory NetAddressModel.empty() {
+    return const NetAddressModel(
+      ip: '',
+      port: 0,
+      mask: '',
+      gateway: '',
+    );
+  }
+
   final String ip;
   final int port;
   final String mask;

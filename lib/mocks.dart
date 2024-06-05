@@ -1,9 +1,9 @@
 import 'package:signals/signals.dart';
 
-import 'device_model.dart';
+import 'old_device_model.dart';
 import 'equalization_model.dart';
 
-final devicesList = listSignal<DeviceModel>([]);
+final devicesList = listSignal<OldDeviceModel>([]);
 
 final equalizations = [
   EqualizationModel(

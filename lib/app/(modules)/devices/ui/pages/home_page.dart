@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:multiroom/app/(modules)/devices/ui/widgets/device_details_header.dart';
 import 'package:multiroom/app/core/widgets/loading_overlay.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:routefly/routefly.dart';
@@ -46,6 +47,7 @@ class _HomePageState extends State<HomePage> {
         state: _controller.state,
         child: Scaffold(
           appBar: AppBar(
+            leading: Image.asset("assets/logo.png"),
             title: const Text('Multiroom'),
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             scrolledUnderElevation: 0,
@@ -119,7 +121,13 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
-                  )
+                  ),
+                  18.asSpace,
+                  DeviceDetailsHeader(
+                    device: _controller.device.value,
+                    currentZone: _controller.currentZone.value,
+                    currentInput: _controller.currentInput.value,
+                  ),
                 ],
               ),
             ),

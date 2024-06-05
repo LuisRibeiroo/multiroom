@@ -9,6 +9,26 @@ class ZoneModel extends Equatable {
     required this.balance,
   });
 
+  factory ZoneModel.empty() {
+    return const ZoneModel(
+      name: '',
+      active: false,
+      isStereo: false,
+      volume: 0,
+      balance: 0,
+    );
+  }
+
+  factory ZoneModel.builder({required String name}) {
+    return ZoneModel(
+      name: name,
+      active: true,
+      isStereo: true,
+      volume: 50,
+      balance: 0,
+    );
+  }
+
   final String name;
   final bool active;
   final bool isStereo;

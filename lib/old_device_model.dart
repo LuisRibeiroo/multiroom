@@ -1,5 +1,5 @@
-class DeviceModel {
-  const DeviceModel({
+class OldDeviceModel {
+  const OldDeviceModel({
     required this.name,
     required this.zone,
     required this.input,
@@ -15,8 +15,8 @@ class DeviceModel {
   final int balance;
   final List<int> equalizer;
 
-  factory DeviceModel.empty() {
-    return const DeviceModel(
+  factory OldDeviceModel.empty() {
+    return const OldDeviceModel(
       name: 'Dispositivo Teste',
       zone: 'Zona 1.0 M1',
       input: 'Input 1',

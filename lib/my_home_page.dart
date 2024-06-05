@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 
 import 'app/(modules)/devices/ui/pages/device_info_page.dart';
-import 'device_model.dart';
+import 'old_device_model.dart';
 import 'mocks.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -88,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => devicesList.add(DeviceModel.empty()),
+        onPressed: () => devicesList.add(OldDeviceModel.empty()),
         tooltip: 'Adicionar dispositivo',
         child: const Icon(Icons.add_to_queue_rounded),
       ),

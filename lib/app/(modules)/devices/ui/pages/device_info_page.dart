@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 
-import '../../../../../device_model.dart';
+import '../../../../../old_device_model.dart';
 import '../../../../../equalization_model.dart';
 import '../../../../../mocks.dart';
 
@@ -23,7 +23,7 @@ class _DeviceInfoPageState extends State<DeviceInfoPage> {
   final isEditingVolume = false.toSignal();
   final isEditingBalance = false.toSignal();
 
-  final device = DeviceModel.empty();
+  final device = OldDeviceModel.empty();
 
   @override
   void initState() {

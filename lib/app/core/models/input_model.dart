@@ -6,6 +6,20 @@ class InputModel extends Equatable {
     required this.active,
   });
 
+  factory InputModel.empty() {
+    return const InputModel(
+      name: '',
+      active: false,
+    );
+  }
+
+  factory InputModel.builder({required String name}) {
+    return InputModel(
+      name: name,
+      active: false,
+    );
+  }
+
   final String name;
   final bool active;
 
