@@ -1,0 +1,4 @@
+enum ZoneMode {
+  stereo,
+  mono;
+}

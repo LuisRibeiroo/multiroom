@@ -1,22 +1,25 @@
 import 'package:equatable/equatable.dart';
+import 'package:multiroom/app/core/enums/zone_mode.dart';
 
 import 'equalizer_model.dart';
 
 class ZoneModel extends Equatable {
   const ZoneModel({
+    required this.id,
     required this.name,
     required this.active,
-    required this.isStereo,
+    required this.mode,
     required this.volume,
     required this.balance,
     required this.equalizer,
   });
 
-  factory ZoneModel.builder({required String name}) {
+  factory ZoneModel.builder({required int index, required String name}) {
     return ZoneModel(
+      id: "Z$index",
       name: name,
       active: true,
-      isStereo: true,
+      mode: ZoneMode.stereo,
       volume: 50,
       balance: 0,
       equalizer: EqualizerModel.builder(name: "Custom", value: 10),
@@ -25,18 +28,20 @@ class ZoneModel extends Equatable {
 
   factory ZoneModel.empty() {
     return ZoneModel(
+      id: 'Z0',
       name: '',
       active: false,
-      isStereo: false,
+      mode: ZoneMode.stereo,
       volume: 0,
       balance: 0,
       equalizer: EqualizerModel.empty(),
     );
   }
 
+  final String id;
   final String name;
   final bool active;
-  final bool isStereo;
+  final ZoneMode mode;
   final int volume;
   final int balance;
   final EqualizerModel equalizer;
@@ -44,17 +49,19 @@ class ZoneModel extends Equatable {
   bool get isEmpty => this == ZoneModel.empty();
 
   ZoneModel copyWith({
+    String? id,
     String? name,
     bool? active,
-    bool? isStereo,
+    ZoneMode? mode,
     int? volume,
     int? balance,
     EqualizerModel? equalizer,
   }) {
     return ZoneModel(
+      id: id ?? this.id,
       name: name ?? this.name,
       active: active ?? this.active,
-      isStereo: isStereo ?? this.isStereo,
+      mode: mode ?? this.mode,
       volume: volume ?? this.volume,
       balance: balance ?? this.balance,
       equalizer: equalizer ?? this.equalizer,
@@ -63,9 +70,10 @@ class ZoneModel extends Equatable {
 
   @override
   List<Object?> get props => [
+        id,
         name,
         active,
-        isStereo,
+        mode,
         volume,
         balance,
         equalizer,

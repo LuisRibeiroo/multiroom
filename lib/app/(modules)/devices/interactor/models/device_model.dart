@@ -41,7 +41,7 @@ class DeviceModel extends Equatable {
       ),
       zones: List.generate(
         8,
-        (idx) => ZoneModel.builder(name: "Zona ${idx + 1}"),
+        (idx) => ZoneModel.builder(index: idx + 1, name: "Zona ${idx + 1}"),
       ),
       version: "1.0.0",
       type: DeviceType.master,
