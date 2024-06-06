@@ -1,3 +1,5 @@
+import 'package:multiroom/app/core/extensions/string_extensions.dart';
+
 import '../../../../core/enums/device_type.dart';
 import '../../../../core/enums/multiroom_commands.dart';
 import '../../../../core/enums/zone_mode.dart';
@@ -6,6 +8,9 @@ import '../../../../core/models/input_model.dart';
 import '../../../../core/models/zone_model.dart';
 
 abstract final class MultiroomCommandBuilder {
+  static String parseResponse(String response) =>
+      response.isNotNullOrEmpty ? response.split("=").last : "";
+
   static String get configs => MultiroomCommands.mrCfgShow.value;
 
   static String get params => MultiroomCommands.mrParShow.value;

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:multiroom/app/(modules)/devices/interactor/utils/multiroom_command_builder.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../core/enums/page_state.dart';
@@ -14,6 +13,7 @@ import '../../../../core/models/input_model.dart';
 import '../../../../core/models/zone_model.dart';
 import '../../../../core/utils/debouncer.dart';
 import '../models/device_model.dart';
+import '../utils/multiroom_command_builder.dart';
 
 class HomePageController extends BaseController {
   HomePageController() : super(InitialState()) {
@@ -71,7 +71,8 @@ class HomePageController extends BaseController {
   final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
   final currentInput = InputModel.empty().toSignal(debugLabel: "currentInput");
 
-  final debouncer = Debouncer(delay: Durations.short4);
+  final _writeDebouncer = Debouncer(delay: Durations.short4);
+  final _readDebouncer = Debouncer(delay: Durations.short4);
 
   Future<void> toggleConnection() async {
     if (isConnected.value) {
@@ -181,9 +182,21 @@ class HomePageController extends BaseController {
   }
 
   void _debounceSendCommand(String cmd) {
-    debouncer(() {
+    _writeDebouncer(() {
       _socket.writeln(cmd);
       _logger.d("Enviado >>> $cmd");
     });
+  }
+
+  String _debounceReadCommand(String cmd) {
+    _readDebouncer(() {
+      _socket.writeln(cmd);
+      _logger.d("Enviado >>> $cmd");
+
+      _socket.timeout(const Duration(seconds: 3));
+      _logger.d("Enviado >>> $cmd");
+    });
+
+    return "";
   }
 }
