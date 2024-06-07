@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -17,20 +19,18 @@ import '../utils/multiroom_command_builder.dart';
 
 class HomePageController extends BaseController {
   HomePageController() : super(InitialState()) {
-    device.subscribe((value) {
+    device.subscribe((value) async {
       if (value.isEmpty) {
         return;
       }
 
-      untracked(() {
-        currentZone.value = value.zones.first;
-        currentInput.value = value.inputs.first;
+      currentZone.value = value.zones.first;
+      currentInput.value = value.inputs.first;
 
-        equalizers.addOrReplace(currentZone.value.equalizer);
-      });
+      equalizers.addOrReplace(currentZone.value.equalizer);
     });
 
-    currentZone.subscribe((value) {
+    currentZone.subscribe((value) async {
       if (value.isEmpty) {
         return;
       }
@@ -39,6 +39,10 @@ class HomePageController extends BaseController {
           .indexWhere((zone) => currentZone.value.name == zone.name);
 
       device.value.zones[idx] = value;
+
+      if (currentZone.previousValue!.id != currentZone.value.id) {
+        await run(_updateAllDeviceData);
+      }
     });
 
     currentInput.subscribe((value) {
@@ -64,7 +68,7 @@ class HomePageController extends BaseController {
 
   final _logger = Logger();
 
-  final host = "192.168.0.12".toSignal(debugLabel: "host");
+  final host = "192.168.0.11".toSignal(debugLabel: "host");
   final port = "4998".toSignal(debugLabel: "port");
   final isConnected = false.toSignal(debugLabel: "isConnected");
   final device = DeviceModel.empty().toSignal(debugLabel: "device");
@@ -72,14 +76,16 @@ class HomePageController extends BaseController {
   final currentInput = InputModel.empty().toSignal(debugLabel: "currentInput");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
-  final _readDebouncer = Debouncer(delay: Durations.short4);
+  late StreamIterator<Uint8List> streamIterator;
 
   Future<void> toggleConnection() async {
     if (isConnected.value) {
       _socket.close();
       isConnected.value = false;
 
-      device.value = DeviceModel.empty();
+      device.value = device.initialValue;
+      currentZone.value = currentZone.initialValue;
+      currentInput.value = currentInput.initialValue;
     } else {
       try {
         _socket = await run(
@@ -90,6 +96,8 @@ class HomePageController extends BaseController {
           ),
         );
 
+        streamIterator = StreamIterator(_socket);
+
         isConnected.value = true;
 
         device.value = DeviceModel.builder(
@@ -98,6 +106,7 @@ class HomePageController extends BaseController {
           port: int.parse(port.value),
         );
       } catch (exception) {
+        _logger.e(exception);
         setError(exception as Exception);
       }
     }
@@ -111,7 +120,7 @@ class HomePageController extends BaseController {
     currentInput.value = input;
 
     _debounceSendCommand(
-      MultiroomCommandBuilder.setZoneChannel(
+      MultiroomCommandBuilder.setChannel(
         zone: currentZone.value,
         input: input,
       ),
@@ -181,22 +190,121 @@ class HomePageController extends BaseController {
     );
   }
 
-  void _debounceSendCommand(String cmd) {
-    _writeDebouncer(() {
-      _socket.writeln(cmd);
-      _logger.d("Enviado >>> $cmd");
-    });
+  void _writeCommand(String cmd) {
+    _socket.writeln(cmd);
+    _logger.d("SENT >>> $cmd");
   }
 
-  String _debounceReadCommand(String cmd) {
-    _readDebouncer(() {
-      _socket.writeln(cmd);
-      _logger.d("Enviado >>> $cmd");
+  void _debounceSendCommand(String cmd) {
+    _writeDebouncer(() => _writeCommand(cmd));
+  }
 
-      _socket.timeout(const Duration(seconds: 3));
-      _logger.d("Enviado >>> $cmd");
-    });
+  Future<String> _readCommand(String cmd) async {
+    _socket.writeln(cmd);
+    _logger.d("SENT >>> $cmd");
 
-    return "";
+    return await _listenOnIterator();
+  }
+
+  Future<void> _updateAllDeviceData() async {
+    _writeCommand("UPDATE ALL DATA");
+
+    final channel = await _readCommand(
+        MultiroomCommandBuilder.getChannel(zone: currentZone.value));
+
+    // final volume = await _readCommand(
+    //     MultiroomCommandBuilder.getVolume(zone: currentZone.value));
+
+    // final balance = await _readCommand(
+    //     MultiroomCommandBuilder.getBalance(zone: currentZone.value));
+
+    // final f32 = await _readCommand(
+    //   MultiroomCommandBuilder.getEqualizer(
+    //     zone: currentZone.value,
+    //     frequency: currentZone.value.equalizer.frequencies[0],
+    //   ),
+    // );
+    // final f64 = await _readCommand(
+    //   MultiroomCommandBuilder.getEqualizer(
+    //     zone: currentZone.value,
+    //     frequency: currentZone.value.equalizer.frequencies[1],
+    //   ),
+    // );
+
+    // final f125 = await _readCommand(
+    //   MultiroomCommandBuilder.getEqualizer(
+    //     zone: currentZone.value,
+    //     frequency: currentZone.value.equalizer.frequencies[2],
+    //   ),
+    // );
+    // final f250 = await _readCommand(
+    //   MultiroomCommandBuilder.getEqualizer(
+    //     zone: currentZone.value,
+    //     frequency: currentZone.value.equalizer.frequencies[3],
+    //   ),
+    // );
+    // final f500 = await _readCommand(
+    //   MultiroomCommandBuilder.getEqualizer(
+    //     zone: currentZone.value,
+    //     frequency: currentZone.value.equalizer.frequencies[4],
+    //   ),
+    // );
+    // final f1000 = await _readCommand(
+    //   MultiroomCommandBuilder.getEqualizer(
+    //     zone: currentZone.value,
+    //     frequency: currentZone.value.equalizer.frequencies[5],
+    //   ),
+    // );
+    // final f2000 = await _readCommand(
+    //   MultiroomCommandBuilder.getEqualizer(
+    //     zone: currentZone.value,
+    //     frequency: currentZone.value.equalizer.frequencies[6],
+    //   ),
+    // );
+    // final f4000 = await _readCommand(
+    //   MultiroomCommandBuilder.getEqualizer(
+    //     zone: currentZone.value,
+    //     frequency: currentZone.value.equalizer.frequencies[7],
+    //   ),
+    // );
+    // final f8000 = await _readCommand(
+    //   MultiroomCommandBuilder.getEqualizer(
+    //     zone: currentZone.value,
+    //     frequency: currentZone.value.equalizer.frequencies[8],
+    //   ),
+    // );
+    // final f16000 = await _readCommand(
+    //   MultiroomCommandBuilder.getEqualizer(
+    //     zone: currentZone.value,
+    //     frequency: currentZone.value.equalizer.frequencies[9],
+    //   ),
+    // );
+
+    _logger.d("""
+      channel => $channel
+      """);
+    // volume => $volume
+    // balance => $balance
+    // f32 => $f32
+    // f64 => $f64
+    // f125 => $f125
+    // f250 => $f250
+    // f500 => $f500
+    // f1000 => $f1000
+    // f2000 => $f2000
+    // f4000 => $f4000
+    // f8000 => $f8000
+    // f16000 => $f16000
+  }
+
+  Future<String> _listenOnIterator() async {
+    while (await streamIterator.moveNext() == false) {
+      await Future.delayed(Durations.short2);
+    }
+
+    final stringResponse = String.fromCharCodes(streamIterator.current);
+    _logger.d("RECEIVED <<< $stringResponse");
+
+    return stringResponse;
   }
 }

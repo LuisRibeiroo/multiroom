@@ -8,13 +8,6 @@ class OldDeviceModel {
     required this.equalizer,
   });
 
-  final String name;
-  final String zone;
-  final String input;
-  final int volume;
-  final int balance;
-  final List<int> equalizer;
-
   factory OldDeviceModel.empty() {
     return const OldDeviceModel(
       name: 'Dispositivo Teste',
@@ -25,4 +18,11 @@ class OldDeviceModel {
       equalizer: [],
     );
   }
+
+  final String name;
+  final String zone;
+  final String input;
+  final int volume;
+  final int balance;
+  final List<int> equalizer;
 }

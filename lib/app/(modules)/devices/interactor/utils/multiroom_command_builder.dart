@@ -38,12 +38,12 @@ abstract final class MultiroomCommandBuilder {
   }) =>
       "${MultiroomCommands.mrZoneModeSet.value},${zone.id},${mode.name}";
 
-  static String getZoneChannel({
+  static String getChannel({
     required ZoneModel zone,
   }) =>
       "${MultiroomCommands.mrZoneChannelGet.value},${zone.id}";
 
-  static String setZoneChannel({
+  static String setChannel({
     required ZoneModel zone,
     required InputModel input,
   }) =>

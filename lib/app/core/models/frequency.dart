@@ -22,6 +22,8 @@ class Frequency extends Equatable {
         Frequency(name: "1000", value: value),
         Frequency(name: "2000", value: value),
         Frequency(name: "4000", value: value),
+        Frequency(name: "8000", value: value),
+        Frequency(name: "16000", value: value),
       ];
 
   final String name;
