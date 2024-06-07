@@ -24,9 +24,22 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _controller = injector.get<HomePageController>();
 
+  late final TextEditingController _hostEditingController;
+  late final TextEditingController _portEditingController;
+
   @override
   void initState() {
     super.initState();
+
+    _hostEditingController =
+        TextEditingController(text: _controller.host.peek());
+    _portEditingController =
+        TextEditingController(text: _controller.port.peek());
+
+    effect(() {
+      _hostEditingController.text = _controller.host.value;
+      _portEditingController.text = _controller.port.value;
+    });
 
     scheduleMicrotask(() async {
       if (Platform.isAndroid || Platform.isAndroid) {
@@ -79,7 +92,7 @@ class _HomePageState extends State<HomePage> {
                                     labelText: 'IP do Host',
                                   ),
                                   onChanged: _controller.host.set,
-                                  initialValue: _controller.host.peek(),
+                                  controller: _hostEditingController,
                                   inputFormatters: [
                                     MaskTextInputFormatterExt.ip(),
                                   ],
@@ -94,8 +107,8 @@ class _HomePageState extends State<HomePage> {
                                     border: OutlineInputBorder(),
                                     labelText: 'Porta',
                                   ),
-                                  initialValue: _controller.port.peek(),
                                   onChanged: _controller.port.set,
+                                  controller: _portEditingController,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: [
                                     LengthLimitingTextInputFormatter(4)
@@ -105,19 +118,44 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                           12.asSpace,
-                          Watch(
-                            (_) => AnimatedSwitcher(
-                              duration: Durations.medium1,
-                              child: ElevatedButton(
-                                key: ValueKey(_controller.isConnected.value),
-                                onPressed: _controller.toggleConnection,
-                                child: Text(
-                                  _controller.isConnected.value
-                                      ? "Desconectar"
-                                      : "Conectar",
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Flexible(
+                                child: Watch(
+                                  (_) => AnimatedSwitcher(
+                                    duration: Durations.medium1,
+                                    child: ElevatedButton(
+                                      key: ValueKey(
+                                          _controller.isServerListening.value),
+                                      onPressed: _controller.toggleUdpServer,
+                                      child: Text(
+                                        _controller.isServerListening.value
+                                            ? "Parar"
+                                            : "Iniciar escuta",
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                              Flexible(
+                                child: Watch(
+                                  (_) => AnimatedSwitcher(
+                                    duration: Durations.medium1,
+                                    child: ElevatedButton(
+                                      key: ValueKey(
+                                          _controller.isConnected.value),
+                                      onPressed: _controller.toggleConnection,
+                                      child: Text(
+                                        _controller.isConnected.value
+                                            ? "Desconectar"
+                                            : "Conectar",
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),

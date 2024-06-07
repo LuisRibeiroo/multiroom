@@ -4,7 +4,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:udp/udp.dart';
 
 import '../../../../core/enums/page_state.dart';
 import '../../../../core/extensions/list_extensions.dart';
@@ -19,6 +21,8 @@ import '../utils/multiroom_command_builder.dart';
 
 class HomePageController extends BaseController {
   HomePageController() : super(InitialState()) {
+    _init();
+
     device.subscribe((value) async {
       if (value.isEmpty) {
         return;
@@ -57,6 +61,7 @@ class HomePageController extends BaseController {
     });
   }
 
+  late UDP udpServer;
   late Socket _socket;
 
   final equalizers = listSignal([
@@ -68,15 +73,38 @@ class HomePageController extends BaseController {
 
   final _logger = Logger();
 
-  final host = "192.168.0.11".toSignal(debugLabel: "host");
+  final _serverTimeOut = const Duration(seconds: 30);
+
+  final host = "192.168.0.101".toSignal(debugLabel: "host");
   final port = "4998".toSignal(debugLabel: "port");
   final isConnected = false.toSignal(debugLabel: "isConnected");
+  final isServerListening = false.toSignal(debugLabel: "isServerListening");
   final device = DeviceModel.empty().toSignal(debugLabel: "device");
   final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
   final currentInput = InputModel.empty().toSignal(debugLabel: "currentInput");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
   late StreamIterator<Uint8List> streamIterator;
+
+  Future<void> _init() async {
+    _logger.d("LOCAL IP --> ${await NetworkInfo().getWifiIP()}");
+
+    udpServer = await UDP.bind(
+      Endpoint.unicast(
+        InternetAddress.anyIPv4,
+        port: const Port(4055),
+      ),
+    );
+
+    effect(() {
+      if (isServerListening.value) {
+        _logger.d("UDP SERVER CLOSED");
+      } else {
+        _logger.d(
+            "UDP LISTENING ON --> ${udpServer.local.address?.address}:${udpServer.local.port?.value} ");
+      }
+    });
+  }
 
   Future<void> toggleConnection() async {
     if (isConnected.value) {
@@ -105,6 +133,36 @@ class HomePageController extends BaseController {
           ip: host.value,
           port: int.parse(port.value),
         );
+      } catch (exception) {
+        _logger.e(exception);
+        setError(exception as Exception);
+      }
+    }
+  }
+
+  Future<void> toggleUdpServer() async {
+    if (isServerListening.value) {
+      udpServer.close();
+      isServerListening.value = false;
+    } else {
+      try {
+        isServerListening.value = true;
+        udpServer.asStream(timeout: _serverTimeOut).listen((datagram) {
+          if (datagram == null) {
+            return;
+          }
+
+          final data = String.fromCharCodes(datagram.data);
+
+          _logger.d(
+              "UDP DATA RECEIVED --> $data | FROM ${datagram.address.address}:${datagram.port}");
+
+          host.value = datagram.address.address;
+          port.value = 4998.toString();
+
+          udpServer.close();
+          isServerListening.value = false;
+        });
       } catch (exception) {
         _logger.e(exception);
         setError(exception as Exception);
@@ -190,9 +248,18 @@ class HomePageController extends BaseController {
     );
   }
 
-  void _writeCommand(String cmd) {
+  Future<void> _writeCommand(String cmd) async {
     _socket.writeln(cmd);
     _logger.d("SENT >>> $cmd");
+
+    if (await streamIterator.moveNext()) {
+      final stringResponse = String.fromCharCodes(streamIterator.current);
+      _logger.d("RECEIVED <<< $stringResponse");
+
+      if (stringResponse.contains("OK") == false) {
+        setError(Exception("Resposta não esperada: $stringResponse"));
+      }
+    }
   }
 
   void _debounceSendCommand(String cmd) {
@@ -207,7 +274,7 @@ class HomePageController extends BaseController {
   }
 
   Future<void> _updateAllDeviceData() async {
-    _writeCommand("UPDATE ALL DATA");
+    // _writeCommand("UPDATE ALL DATA");
 
     final channel = await _readCommand(
         MultiroomCommandBuilder.getChannel(zone: currentZone.value));
