@@ -15,6 +15,7 @@ class DeviceInfoHeader extends StatefulWidget {
     required this.currentChannel,
     required this.onChangeZone,
     required this.onChangeChannel,
+    required this.channelController,
   });
 
   final DeviceModel device;
@@ -22,6 +23,7 @@ class DeviceInfoHeader extends StatefulWidget {
   final ChannelModel currentChannel;
   final Function(ZoneModel) onChangeZone;
   final Function(ChannelModel) onChangeChannel;
+  final MultiSelectController<int> channelController;
 
   @override
   State<DeviceInfoHeader> createState() => _DeviceInfoHeaderState();
@@ -29,9 +31,7 @@ class DeviceInfoHeader extends StatefulWidget {
 
 class _DeviceInfoHeaderState extends State<DeviceInfoHeader> {
   final _zoneController = MultiSelectController<int>();
-  final _channelController = MultiSelectController<int>();
   late final List<ValueItem<int>> _zoneOptions;
-  late final List<ValueItem<int>> _channelOptions;
 
   @override
   void initState() {
@@ -45,22 +45,21 @@ class _DeviceInfoHeaderState extends State<DeviceInfoHeader> {
       ),
     );
 
-    _channelOptions = List.generate(
-      widget.currentZone.channels.length,
-      (idx) => ValueItem(
-        label: widget.currentZone.channels[idx].name,
-        value: idx,
-      ),
-    );
-
     _zoneController.setOptions(_zoneOptions);
+
     if (_zoneOptions.isNotEmpty) {
       _zoneController.setSelectedOptions([_zoneOptions.first]);
     }
 
-    _channelController.setOptions(_channelOptions);
-    if (_channelOptions.isNotEmpty) {
-      _channelController.setSelectedOptions([_channelOptions.first]);
+    if (widget.channelController.options.isNotEmpty) {
+      widget.channelController.setSelectedOptions(
+        [
+          widget.channelController.options.firstWhere(
+            (value) => value.label == widget.currentChannel.name,
+            orElse: () => widget.channelController.options.first,
+          ),
+        ],
+      );
     }
   }
 
@@ -117,8 +116,8 @@ class _DeviceInfoHeaderState extends State<DeviceInfoHeader> {
                             context.colorScheme.surface.withOpacity(.9),
                         hint: "Selecione o input",
                         selectionType: SelectionType.single,
-                        controller: _channelController,
-                        options: _channelOptions,
+                        controller: widget.channelController,
+                        options: widget.channelController.options,
                         suffixIcon:
                             const Icon(Icons.keyboard_arrow_down_rounded),
                         clearIcon: const Icon(Icons.clear, size: 0),

@@ -9,8 +9,8 @@ class ChannelModel extends Equatable {
 
   factory ChannelModel.empty() {
     return const ChannelModel(
-      id: 'CH0',
-      name: '',
+      id: "CH1",
+      name: "",
       active: false,
     );
   }
