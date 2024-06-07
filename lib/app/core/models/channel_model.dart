@@ -1,22 +1,22 @@
 import 'package:equatable/equatable.dart';
 
-class InputModel extends Equatable {
-  const InputModel({
+class ChannelModel extends Equatable {
+  const ChannelModel({
     required this.id,
     required this.name,
     required this.active,
   });
 
-  factory InputModel.empty() {
-    return const InputModel(
+  factory ChannelModel.empty() {
+    return const ChannelModel(
       id: 'CH0',
       name: '',
       active: false,
     );
   }
 
-  factory InputModel.builder({required int index, required String name}) {
-    return InputModel(
+  factory ChannelModel.builder({required int index, required String name}) {
+    return ChannelModel(
       id: "CH$index",
       name: name,
       active: false,
@@ -27,13 +27,13 @@ class InputModel extends Equatable {
   final String name;
   final bool active;
 
-  bool get isEmpty => this == InputModel.empty();
+  bool get isEmpty => this == ChannelModel.empty();
 
-  InputModel copyWith({
+  ChannelModel copyWith({
     String? name,
     bool? active,
   }) {
-    return InputModel(
+    return ChannelModel(
       id: id,
       name: name ?? this.name,
       active: active ?? this.active,

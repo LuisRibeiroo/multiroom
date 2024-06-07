@@ -44,8 +44,11 @@ class _EqualizerCardState extends State<EqualizerCard> {
     _equalizerController
       ..setOptions(_equalizerOptions)
       ..setSelectedOptions([
-        _equalizerOptions.firstWhere((value) =>
-            value.value == widget.equalizers.indexOf(widget.currentEqualizer))
+        _equalizerOptions.firstWhere(
+          (value) =>
+              value.value == widget.equalizers.indexOf(widget.currentEqualizer),
+          orElse: () => _equalizerOptions.last,
+        )
       ]);
   }
 

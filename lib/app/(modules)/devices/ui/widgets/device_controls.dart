@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/models/equalizer_model.dart';
 import '../../../../core/models/frequency.dart';
-import '../../../../core/models/input_model.dart';
+import '../../../../core/models/channel_model.dart';
 import '../../../../core/models/zone_model.dart';
 import 'equalizer_card.dart';
 import 'slider_card.dart';
@@ -12,7 +12,7 @@ class DeviceControls extends StatefulWidget {
     super.key,
     required this.equalizers,
     required this.currentZone,
-    required this.currentInput,
+    required this.currentChannel,
     required this.onChangeVolume,
     required this.onChangeBalance,
     required this.onChangeEqualizer,
@@ -21,7 +21,7 @@ class DeviceControls extends StatefulWidget {
 
   final List<EqualizerModel> equalizers;
   final ZoneModel currentZone;
-  final InputModel currentInput;
+  final ChannelModel currentChannel;
   final Function(int) onChangeVolume;
   final Function(int) onChangeBalance;
   final Function(int) onChangeEqualizer;

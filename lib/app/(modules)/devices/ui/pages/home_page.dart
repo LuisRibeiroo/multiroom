@@ -128,7 +128,9 @@ class _HomePageState extends State<HomePage> {
                                     child: ElevatedButton(
                                       key: ValueKey(
                                           _controller.isServerListening.value),
-                                      onPressed: _controller.toggleUdpServer,
+                                      onPressed: _controller.isConnected.value
+                                          ? null
+                                          : _controller.toggleUdpServer,
                                       child: Text(
                                         _controller.isServerListening.value
                                             ? "Parar"
@@ -157,6 +159,11 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ],
                           ),
+                          ElevatedButton(
+                            key: ValueKey(_controller.isConnected.value),
+                            onPressed: _controller.test,
+                            child: const Text("Teste"),
+                          ),
                         ],
                       ),
                     ),
@@ -169,9 +176,9 @@ class _HomePageState extends State<HomePage> {
                         : DeviceInfoHeader(
                             device: _controller.device.value,
                             currentZone: _controller.currentZone.value,
-                            currentInput: _controller.currentInput.value,
+                            currentChannel: _controller.currentChannel.value,
                             onChangeZone: _controller.setCurrentZone,
-                            onChangeInput: _controller.setCurrentInput,
+                            onChangeChannel: _controller.setCurrentChannel,
                           ),
                   ),
                   12.asSpace,
@@ -182,7 +189,7 @@ class _HomePageState extends State<HomePage> {
                         : DeviceControls(
                             key: ValueKey(_controller.currentZone.value.name),
                             currentZone: _controller.currentZone.value,
-                            currentInput: _controller.currentInput.value,
+                            currentChannel: _controller.currentChannel.value,
                             equalizers: _controller.equalizers.value,
                             onChangeBalance: _controller.setBalance,
                             onChangeVolume: _controller.setVolume,

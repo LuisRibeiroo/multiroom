@@ -1,15 +1,13 @@
-import 'package:multiroom/app/core/extensions/string_extensions.dart';
-
 import '../../../../core/enums/device_type.dart';
 import '../../../../core/enums/multiroom_commands.dart';
 import '../../../../core/enums/zone_mode.dart';
+import '../../../../core/models/channel_model.dart';
 import '../../../../core/models/frequency.dart';
-import '../../../../core/models/input_model.dart';
 import '../../../../core/models/zone_model.dart';
 
 abstract final class MultiroomCommandBuilder {
-  static String parseResponse(String response) =>
-      response.isNotNullOrEmpty ? response.split("=").last : "";
+  static String? parseResponse(String response) =>
+      response.split("=").lastOrNull?.replaceAll("\n", "") ?? response;
 
   static String get configs => MultiroomCommands.mrCfgShow.value;
 
@@ -45,9 +43,9 @@ abstract final class MultiroomCommandBuilder {
 
   static String setChannel({
     required ZoneModel zone,
-    required InputModel input,
+    required ChannelModel channel,
   }) =>
-      "${MultiroomCommands.mrZoneChannelSet.value},${zone.id},${input.id}";
+      "${MultiroomCommands.mrZoneChannelSet.value},${zone.id},${channel.id}";
 
   static String getMute({
     required ZoneModel zone,
