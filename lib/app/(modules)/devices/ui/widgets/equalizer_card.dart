@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
 import 'package:signals/signals_flutter.dart';
@@ -14,42 +16,36 @@ class EqualizerCard extends StatefulWidget {
     required this.currentEqualizer,
     required this.onChangeEqualizer,
     required this.onUpdateFrequency,
+    required this.equalizerController,
   });
 
   final List<EqualizerModel> equalizers;
   final EqualizerModel currentEqualizer;
   final Function(int) onChangeEqualizer;
   final Function(EqualizerModel, Frequency) onUpdateFrequency;
+  final MultiSelectController<int> equalizerController;
 
   @override
   State<EqualizerCard> createState() => _EqualizerCardState();
 }
 
 class _EqualizerCardState extends State<EqualizerCard> {
-  final _equalizerController = MultiSelectController<int>();
-  late final List<ValueItem<int>> _equalizerOptions;
-
   @override
   void initState() {
     super.initState();
 
-    _equalizerOptions = List.generate(
-      widget.equalizers.length,
-      (idx) => ValueItem(
-        label: widget.equalizers[idx].name,
-        value: idx,
-      ),
-    );
-
-    _equalizerController
-      ..setOptions(_equalizerOptions)
-      ..setSelectedOptions([
-        _equalizerOptions.firstWhere(
-          (value) =>
-              value.value == widget.equalizers.indexOf(widget.currentEqualizer),
-          orElse: () => _equalizerOptions.last,
-        )
-      ]);
+    scheduleMicrotask(() {
+      if (widget.equalizerController.options.isNotEmpty) {
+        widget.equalizerController.setSelectedOptions(
+          [
+            widget.equalizerController.options.firstWhere(
+              (value) => value.label == widget.currentEqualizer.name,
+              orElse: () => widget.equalizerController.options.first,
+            ),
+          ],
+        );
+      }
+    });
   }
 
   @override
@@ -74,8 +70,8 @@ class _EqualizerCardState extends State<EqualizerCard> {
                   context.colorScheme.surface.withOpacity(.9),
               selectionType: SelectionType.single,
               hint: "Selecione um equalizador",
-              controller: _equalizerController,
-              options: _equalizerOptions,
+              controller: widget.equalizerController,
+              options: widget.equalizerController.options,
               suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
               clearIcon: const Icon(Icons.clear, size: 0),
               onOptionSelected: (options) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multi_dropdown/multiselect_dropdown.dart';
 
 import '../../../../core/models/equalizer_model.dart';
 import '../../../../core/models/frequency.dart';
@@ -17,6 +18,7 @@ class DeviceControls extends StatefulWidget {
     required this.onChangeBalance,
     required this.onChangeEqualizer,
     required this.onUpdateFrequency,
+    required this.equalizerController,    
   });
 
   final List<EqualizerModel> equalizers;
@@ -26,6 +28,7 @@ class DeviceControls extends StatefulWidget {
   final Function(int) onChangeBalance;
   final Function(int) onChangeEqualizer;
   final Function(EqualizerModel, Frequency) onUpdateFrequency;
+  final MultiSelectController<int> equalizerController;
 
   @override
   State<DeviceControls> createState() => _DeviceControlsState();
@@ -58,6 +61,7 @@ class _DeviceControlsState extends State<DeviceControls> {
               currentEqualizer: widget.currentZone.equalizer,
               onChangeEqualizer: widget.onChangeEqualizer,
               onUpdateFrequency: widget.onUpdateFrequency,
+              equalizerController: widget.equalizerController,
             ),
           ],
         ),

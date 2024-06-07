@@ -159,6 +159,11 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ],
                           ),
+                          ElevatedButton(
+                            key: ValueKey(_controller.isConnected.value),
+                            onPressed: _controller.test,
+                            child: const Text("Teste"),
+                          )
                         ],
                       ),
                     ),
@@ -191,6 +196,8 @@ class _HomePageState extends State<HomePage> {
                             onChangeVolume: _controller.setVolume,
                             onChangeEqualizer: _controller.setEqualizer,
                             onUpdateFrequency: _controller.setFrequency,
+                            equalizerController:
+                                _controller.equalizerController,
                           ),
                   ),
                 ],

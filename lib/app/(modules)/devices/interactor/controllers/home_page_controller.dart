@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
+import 'package:multiroom/app/core/extensions/string_extensions.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:toastification/toastification.dart';
@@ -25,6 +26,25 @@ class HomePageController extends BaseController {
   HomePageController() : super(InitialState()) {
     _initUdp();
 
+    equalizerController.setOptions(
+      List.generate(
+        equalizers.length,
+        (idx) => ValueItem(
+          label: equalizers[idx].name,
+          value: idx,
+        ),
+      ),
+    );
+
+    equalizerController.setSelectedOptions(
+      [
+        equalizerController.options.firstWhere(
+          (opt) => opt.label == currentZone.value.equalizer.name,
+          orElse: () => equalizerController.options.first,
+        ),
+      ],
+    );
+
     device.subscribe((value) async {
       if (value.isEmpty) {
         return;
@@ -35,21 +55,22 @@ class HomePageController extends BaseController {
       equalizers.addOrReplace(currentZone.value.equalizer);
     });
 
-    currentZone.subscribe((value) async {
-      if (value.isEmpty) {
+    currentZone.subscribe((newZone) async {
+      if (newZone.isEmpty) {
         return;
       }
 
       final idx = device.value.zones
           .indexWhere((zone) => currentZone.value.name == zone.name);
 
-      channels.set(value.channels);
+      channels.set(newZone.channels);
 
       untracked(() {
-        device.value.zones[idx] = value;
+        device.value.zones[idx] = newZone;
       });
 
       if (currentZone.previousValue!.id != currentZone.value.id) {
+        _logger.d("UPDATE ALL DATA");
         await run(_updateAllDeviceData);
       }
     });
@@ -72,12 +93,12 @@ class HomePageController extends BaseController {
       }
 
       untracked(() {
-        final id = channel.id.replaceAll(RegExp("[^0-9]"), "");
+        final id = int.parse(channel.id.numbersOnly);
 
         channelController.setSelectedOptions(
           [
             channelController.options.firstWhere(
-              (opt) => opt.value == int.parse(id) - 1,
+              (opt) => opt.value == id - 1,
               orElse: () => channelController.options.first,
             ),
           ],
@@ -118,10 +139,11 @@ class HomePageController extends BaseController {
   final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
   final currentChannel =
       ChannelModel.empty().toSignal(debugLabel: "currentChannel");
-  final channelController = MultiSelectController<int>();
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
   late StreamIterator<Uint8List> streamIterator;
+  final channelController = MultiSelectController<int>();
+  final equalizerController = MultiSelectController<int>();
 
   Future<void> _initUdp() async {
     _logger.d("LOCAL IP --> ${await NetworkInfo().getWifiIP()}");
@@ -141,6 +163,10 @@ class HomePageController extends BaseController {
         _logger.d("UDP SERVER CLOSED");
       }
     });
+  }
+
+  Future<void> test() async {
+    _readCommand(MultiroomCommandBuilder.getZoneMode(zone: currentZone.value));
   }
 
   Future<void> toggleConnection() async {
@@ -262,10 +288,25 @@ class HomePageController extends BaseController {
   }
 
   Future<void> setEqualizer(int equalizerIndex) async {
+    if (equalizerIndex == equalizers.indexOf(currentZone.value.equalizer)) {
+      _logger.d(
+          "SET EQUALIZER [SAME EQUALIZER] --> ${currentZone.value.equalizer.name}");
+      return;
+    }
+
     currentZone.value =
         currentZone.value.copyWith(equalizer: equalizers[equalizerIndex]);
 
-    for (var freq in currentZone.value.equalizer.frequencies) {
+    equalizerController.setSelectedOptions(
+      [
+        equalizerController.options.firstWhere(
+          (opt) => opt.label == currentZone.value.equalizer.name,
+          orElse: () => equalizerController.options.first,
+        ),
+      ],
+    );
+
+    for (final freq in currentZone.value.equalizer.frequencies) {
       _debounceSendCommand(
         MultiroomCommandBuilder.setEqualizer(
           zone: currentZone.value,
@@ -275,7 +316,7 @@ class HomePageController extends BaseController {
       );
 
       // Delay to avoid sending commands too fast
-      await Future.delayed(Durations.medium1);
+      await Future.delayed(Durations.medium3);
     }
   }
 
@@ -302,19 +343,17 @@ class HomePageController extends BaseController {
     );
   }
 
-  Future<void> _writeCommand(String cmd) async {
-    _socket.writeln(cmd);
-    _logger.d("SENT >>> $cmd");
+  Future<void> _debounceSendCommand(String cmd) async {
+    _writeDebouncer(() async {
+      _socket.writeln(cmd);
+      _logger.d("SENT >>> $cmd");
 
-    try {
-      await _listenOnIterator();
-    } catch (exception) {
-      setError(Exception("Erro no comando [$cmd] --> $exception"));
-    }
-  }
-
-  void _debounceSendCommand(String cmd) {
-    _writeDebouncer(() => _writeCommand(cmd));
+      try {
+        await _listenOnIterator();
+      } catch (exception) {
+        setError(Exception("Erro no comando [$cmd] --> $exception"));
+      }
+    });
   }
 
   Future<String> _readCommand(String cmd) async {
@@ -327,15 +366,15 @@ class HomePageController extends BaseController {
   Future<void> _updateAllDeviceData() async {
     final channelStr = await _readCommand(
         MultiroomCommandBuilder.getChannel(zone: currentZone.value));
-    await Future.delayed(Durations.short4);
+    await Future.delayed(Durations.medium4);
 
     final volume = await _readCommand(
         MultiroomCommandBuilder.getVolume(zone: currentZone.value));
-    await Future.delayed(Durations.short4);
+    await Future.delayed(Durations.medium4);
 
     final balance = await _readCommand(
         MultiroomCommandBuilder.getBalance(zone: currentZone.value));
-    await Future.delayed(Durations.short4);
+    await Future.delayed(Durations.medium4);
 
     final f32 = await _readCommand(
       MultiroomCommandBuilder.getEqualizer(
@@ -343,7 +382,7 @@ class HomePageController extends BaseController {
         frequency: currentZone.value.equalizer.frequencies[0],
       ),
     );
-    await Future.delayed(Durations.short4);
+    await Future.delayed(Durations.medium4);
 
     final f64 = await _readCommand(
       MultiroomCommandBuilder.getEqualizer(
@@ -351,7 +390,7 @@ class HomePageController extends BaseController {
         frequency: currentZone.value.equalizer.frequencies[1],
       ),
     );
-    await Future.delayed(Durations.short4);
+    await Future.delayed(Durations.medium4);
 
     final f125 = await _readCommand(
       MultiroomCommandBuilder.getEqualizer(
@@ -359,7 +398,7 @@ class HomePageController extends BaseController {
         frequency: currentZone.value.equalizer.frequencies[2],
       ),
     );
-    await Future.delayed(Durations.short4);
+    await Future.delayed(Durations.medium4);
 
     final f250 = await _readCommand(
       MultiroomCommandBuilder.getEqualizer(
@@ -367,7 +406,7 @@ class HomePageController extends BaseController {
         frequency: currentZone.value.equalizer.frequencies[3],
       ),
     );
-    await Future.delayed(Durations.short4);
+    await Future.delayed(Durations.medium4);
 
     final f500 = await _readCommand(
       MultiroomCommandBuilder.getEqualizer(
@@ -375,7 +414,7 @@ class HomePageController extends BaseController {
         frequency: currentZone.value.equalizer.frequencies[4],
       ),
     );
-    await Future.delayed(Durations.short4);
+    await Future.delayed(Durations.medium4);
 
     final f1000 = await _readCommand(
       MultiroomCommandBuilder.getEqualizer(
@@ -383,7 +422,7 @@ class HomePageController extends BaseController {
         frequency: currentZone.value.equalizer.frequencies[5],
       ),
     );
-    await Future.delayed(Durations.short4);
+    await Future.delayed(Durations.medium4);
 
     final f2000 = await _readCommand(
       MultiroomCommandBuilder.getEqualizer(
@@ -391,7 +430,7 @@ class HomePageController extends BaseController {
         frequency: currentZone.value.equalizer.frequencies[6],
       ),
     );
-    await Future.delayed(Durations.short4);
+    await Future.delayed(Durations.medium4);
 
     final f4000 = await _readCommand(
       MultiroomCommandBuilder.getEqualizer(
@@ -399,7 +438,7 @@ class HomePageController extends BaseController {
         frequency: currentZone.value.equalizer.frequencies[7],
       ),
     );
-    await Future.delayed(Durations.short4);
+    await Future.delayed(Durations.medium4);
 
     final f8000 = await _readCommand(
       MultiroomCommandBuilder.getEqualizer(
@@ -407,7 +446,7 @@ class HomePageController extends BaseController {
         frequency: currentZone.value.equalizer.frequencies[8],
       ),
     );
-    await Future.delayed(Durations.short4);
+    await Future.delayed(Durations.medium4);
 
     final f16000 = await _readCommand(
       MultiroomCommandBuilder.getEqualizer(
@@ -422,6 +461,7 @@ class HomePageController extends BaseController {
       (c) => c.id.trim() == channelStr.trim(),
       orElse: () => currentChannel.value.copyWith(name: channelStr),
     );
+
     currentZone.value = currentZone.value.copyWith(
       volume: int.tryParse(volume) ?? currentZone.value.volume,
       balance: int.tryParse(balance) ?? currentZone.value.balance,
@@ -445,7 +485,7 @@ class HomePageController extends BaseController {
   Future<String> _listenOnIterator() async {
     try {
       while (await streamIterator.moveNext() == false) {
-        await Future.delayed(Durations.short2);
+        await Future.delayed(Durations.medium1);
       }
 
       final response = String.fromCharCodes(streamIterator.current);
@@ -453,10 +493,7 @@ class HomePageController extends BaseController {
 
       return MultiroomCommandBuilder.parseResponse(response)!;
     } catch (exception) {
-      await streamIterator.cancel();
-      streamIterator = StreamIterator(_socket);
-
-      throw Exception("Erro ao ler resposta");
+      throw Exception("Erro ao ler resposta [$exception]");
     }
   }
 }
