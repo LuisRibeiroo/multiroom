@@ -31,10 +31,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    _hostEditingController =
-        TextEditingController(text: _controller.host.peek());
-    _portEditingController =
-        TextEditingController(text: _controller.port.peek());
+    _hostEditingController = TextEditingController(text: _controller.host.peek());
+    _portEditingController = TextEditingController(text: _controller.port.peek());
 
     effect(() {
       _hostEditingController.text = _controller.host.value;
@@ -66,8 +64,7 @@ class _HomePageState extends State<HomePage> {
           ),
           body: SingleChildScrollView(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
+              padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -85,8 +82,7 @@ class _HomePageState extends State<HomePage> {
                               Flexible(
                                 flex: 2,
                                 child: TextFormField(
-                                  enabled:
-                                      _controller.isConnected.value == false,
+                                  enabled: _controller.isConnected.value == false,
                                   decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
                                     labelText: 'IP do Host',
@@ -101,8 +97,7 @@ class _HomePageState extends State<HomePage> {
                               8.asSpace,
                               Flexible(
                                 child: TextFormField(
-                                  enabled:
-                                      _controller.isConnected.value == false,
+                                  enabled: _controller.isConnected.value == false,
                                   decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
                                     labelText: 'Porta',
@@ -110,9 +105,7 @@ class _HomePageState extends State<HomePage> {
                                   onChanged: _controller.port.set,
                                   controller: _portEditingController,
                                   keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    LengthLimitingTextInputFormatter(4)
-                                  ],
+                                  inputFormatters: [LengthLimitingTextInputFormatter(4)],
                                 ),
                               )
                             ],
@@ -126,15 +119,10 @@ class _HomePageState extends State<HomePage> {
                                   (_) => AnimatedSwitcher(
                                     duration: Durations.medium1,
                                     child: ElevatedButton(
-                                      key: ValueKey(
-                                          _controller.isServerListening.value),
-                                      onPressed: _controller.isConnected.value
-                                          ? null
-                                          : _controller.toggleUdpServer,
+                                      key: ValueKey(_controller.isServerListening.value),
+                                      onPressed: _controller.isConnected.value ? null : _controller.toggleUdpServer,
                                       child: Text(
-                                        _controller.isServerListening.value
-                                            ? "Parar"
-                                            : "Iniciar escuta",
+                                        _controller.isServerListening.value ? "Parar" : "Iniciar escuta",
                                       ),
                                     ),
                                   ),
@@ -145,13 +133,10 @@ class _HomePageState extends State<HomePage> {
                                   (_) => AnimatedSwitcher(
                                     duration: Durations.medium1,
                                     child: ElevatedButton(
-                                      key: ValueKey(
-                                          _controller.isConnected.value),
+                                      key: ValueKey(_controller.isConnected.value),
                                       onPressed: _controller.toggleConnection,
                                       child: Text(
-                                        _controller.isConnected.value
-                                            ? "Desconectar"
-                                            : "Conectar",
+                                        _controller.isConnected.value ? "Desconectar" : "Conectar",
                                       ),
                                     ),
                                   ),
@@ -188,16 +173,14 @@ class _HomePageState extends State<HomePage> {
                     child: _controller.device.value.isEmpty
                         ? const SizedBox.shrink()
                         : DeviceControls(
-                            key: ValueKey(_controller.currentZone.value.name),
                             currentZone: _controller.currentZone.value,
-                            currentChannel: _controller.currentChannel.value,
+                            currentEqualizer: _controller.currentEqualizer.value,
                             equalizers: _controller.equalizers.value,
                             onChangeBalance: _controller.setBalance,
                             onChangeVolume: _controller.setVolume,
                             onChangeEqualizer: _controller.setEqualizer,
                             onUpdateFrequency: _controller.setFrequency,
-                            equalizerController:
-                                _controller.equalizerController,
+                            equalizerController: _controller.equalizerController,
                           ),
                   ),
                 ],

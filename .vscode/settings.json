@@ -1,4 +1,8 @@
 {
-    "dart.flutterSdkPath": "/Users/luis.ribeiro/.puro/envs/personal/flutter",
-    "dart.sdkPath": "/Users/luis.ribeiro/.puro/envs/personal/flutter/bin/cache/dart-sdk"
+  "[dart]": {
+    "editor.rulers": [80, 120]
+  },
+  "dart.lineLength": 120,
+  "dart.flutterSdkPath": "/Users/luis.ribeiro/.puro/envs/personal/flutter",
+  "dart.sdkPath": "/Users/luis.ribeiro/.puro/envs/personal/flutter/bin/cache/dart-sdk"
 }

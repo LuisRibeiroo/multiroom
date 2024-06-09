@@ -25,4 +25,18 @@ extension ListExt<E> on List<E>? {
       this!.insert(idx, item);
     }
   }
+
+  void replaceWhere(bool Function(E) test, E element) {
+    if (this == null) {
+      return;
+    }
+
+    for (E element in this!) {
+      if (test(element)) {
+        final idx = this!.indexOf(element);
+        this!.remove(element);
+        this!.insert(idx, element);
+      }
+    }
+  }
 }

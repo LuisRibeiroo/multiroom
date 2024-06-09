@@ -21,8 +21,8 @@ class EqualizerCard extends StatefulWidget {
 
   final List<EqualizerModel> equalizers;
   final EqualizerModel currentEqualizer;
-  final Function(int) onChangeEqualizer;
-  final Function(EqualizerModel, Frequency) onUpdateFrequency;
+  final Function(String) onChangeEqualizer;
+  final Function(Frequency) onUpdateFrequency;
   final MultiSelectController<int> equalizerController;
 
   @override
@@ -75,7 +75,7 @@ class _EqualizerCardState extends State<EqualizerCard> {
               suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
               clearIcon: const Icon(Icons.clear, size: 0),
               onOptionSelected: (options) {
-                widget.onChangeEqualizer(options.first.value!);
+                widget.onChangeEqualizer(options.first.label);
               },
               singleSelectItemStyle: context.textTheme.titleSmall!.copyWith(
                 color: context.colorScheme.onSurface,
@@ -114,7 +114,6 @@ class _EqualizerCardState extends State<EqualizerCard> {
                                   value: current.value.toDouble(),
                                   onChanged: (v) {
                                     widget.onUpdateFrequency(
-                                      widget.currentEqualizer,
                                       current.copyWith(value: v.toInt()),
                                     );
                                   },

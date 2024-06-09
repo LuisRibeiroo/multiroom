@@ -3,7 +3,6 @@ import 'package:multi_dropdown/multiselect_dropdown.dart';
 
 import '../../../../core/models/equalizer_model.dart';
 import '../../../../core/models/frequency.dart';
-import '../../../../core/models/channel_model.dart';
 import '../../../../core/models/zone_model.dart';
 import 'equalizer_card.dart';
 import 'slider_card.dart';
@@ -13,21 +12,21 @@ class DeviceControls extends StatefulWidget {
     super.key,
     required this.equalizers,
     required this.currentZone,
-    required this.currentChannel,
+    required this.currentEqualizer,
     required this.onChangeVolume,
     required this.onChangeBalance,
     required this.onChangeEqualizer,
     required this.onUpdateFrequency,
-    required this.equalizerController,    
+    required this.equalizerController,
   });
 
   final List<EqualizerModel> equalizers;
   final ZoneModel currentZone;
-  final ChannelModel currentChannel;
+  final EqualizerModel currentEqualizer;
   final Function(int) onChangeVolume;
   final Function(int) onChangeBalance;
-  final Function(int) onChangeEqualizer;
-  final Function(EqualizerModel, Frequency) onUpdateFrequency;
+  final Function(String) onChangeEqualizer;
+  final Function(Frequency) onUpdateFrequency;
   final MultiSelectController<int> equalizerController;
 
   @override
@@ -58,7 +57,7 @@ class _DeviceControlsState extends State<DeviceControls> {
             ),
             EqualizerCard(
               equalizers: widget.equalizers,
-              currentEqualizer: widget.currentZone.equalizer,
+              currentEqualizer: widget.currentEqualizer,
               onChangeEqualizer: widget.onChangeEqualizer,
               onUpdateFrequency: widget.onUpdateFrequency,
               equalizerController: widget.equalizerController,

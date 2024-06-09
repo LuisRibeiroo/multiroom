@@ -17,6 +17,14 @@ class EqualizerModel extends Equatable {
         frequencies: Frequency.build(value),
       );
 
+  factory EqualizerModel.custom({
+    required List<Frequency> frequencies,
+  }) =>
+      EqualizerModel(
+        name: "Custom",
+        frequencies: frequencies,
+      );
+
   factory EqualizerModel.empty() {
     return const EqualizerModel(
       name: '',
@@ -26,6 +34,8 @@ class EqualizerModel extends Equatable {
 
   final String name;
   final List<Frequency> frequencies;
+
+  bool get isEmpty => this == EqualizerModel.empty();
 
   EqualizerModel copyWith({
     String? name,
@@ -39,7 +49,11 @@ class EqualizerModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        name,
         frequencies,
       ];
+
+  @override
+  String toString() {
+    return "$EqualizerModel($name, $frequencies)";
+  }
 }
