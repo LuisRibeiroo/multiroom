@@ -47,7 +47,7 @@ class HomePageController extends BaseController {
         device.value.zones[idx] = newZone;
 
         if (currentZone.previousValue!.id != currentZone.value.id) {
-          _logger.d("UPDATE ALL DATA");
+          _logger.i("UPDATE ALL DATA");
           await run(_updateAllDeviceData);
         }
       });
@@ -164,7 +164,7 @@ class HomePageController extends BaseController {
     final localip = await NetworkInfo().getWifiIP();
 
     // host.value = localip ?? "";
-    _logger.d("LOCAL IP --> $localip");
+    _logger.i("LOCAL IP --> $localip");
 
     udpServer = await UDP.bind(
       Endpoint.unicast(
@@ -175,9 +175,9 @@ class HomePageController extends BaseController {
 
     effect(() {
       if (isServerListening.value) {
-        _logger.d("UDP LISTENING ON --> ${udpServer.local.address?.address}:${udpServer.local.port?.value} ");
+        _logger.i("UDP LISTENING ON --> ${udpServer.local.address?.address}:${udpServer.local.port?.value} ");
       } else {
-        _logger.d("UDP SERVER CLOSED");
+        _logger.i("UDP SERVER CLOSED");
       }
     });
   }
@@ -233,7 +233,7 @@ class HomePageController extends BaseController {
 
           final data = String.fromCharCodes(datagram.data);
 
-          _logger.d("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
+          _logger.i("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
 
           host.value = datagram.address.address;
           port.value = 4998.toString();
@@ -261,7 +261,7 @@ class HomePageController extends BaseController {
 
   void setCurrentChannel(ChannelModel channel) {
     if (channel.id == currentChannel.value.id) {
-      _logger.d("SET CHANNEL [SAME CHANNEL] --> ${channel.id}");
+      _logger.i("SET CHANNEL [SAME CHANNEL] --> ${channel.id}");
       return;
     }
 
@@ -305,7 +305,7 @@ class HomePageController extends BaseController {
 
   Future<void> setEqualizer(String equalizerName) async {
     if (equalizerName == currentEqualizer.value.name) {
-      _logger.d("SET EQUALIZER [SAME EQUALIZER] --> $equalizerName");
+      _logger.i("SET EQUALIZER [SAME EQUALIZER] --> $equalizerName");
       return;
     }
 
@@ -347,7 +347,7 @@ class HomePageController extends BaseController {
   Future<void> _debounceSendCommand(String cmd) async {
     _writeDebouncer(() async {
       _socket.writeln(cmd);
-      _logger.d(">>> $cmd");
+      _logger.i(">>> $cmd");
 
       try {
         await _listenOnIterator();
@@ -359,7 +359,7 @@ class HomePageController extends BaseController {
 
   Future<String> _readCommand(String cmd) async {
     _socket.writeln(cmd);
-    _logger.d(">>> $cmd");
+    _logger.i(">>> $cmd");
 
     return await _listenOnIterator();
   }
@@ -491,7 +491,7 @@ class HomePageController extends BaseController {
       }
 
       final response = String.fromCharCodes(streamIterator.current);
-      _logger.d("<<< $response");
+      _logger.i("<<< $response");
 
       return MultiroomCommandBuilder.parseResponse(response)!;
     } catch (exception) {
