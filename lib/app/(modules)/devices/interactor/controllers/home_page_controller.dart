@@ -146,7 +146,7 @@ class HomePageController extends BaseController {
 
   final _serverTimeOut = const Duration(seconds: 30);
 
-  final host = "192.168.0.19".toSignal(debugLabel: "host");
+  final host = "192.168.0.22".toSignal(debugLabel: "host");
   final port = "4998".toSignal(debugLabel: "port");
   final isConnected = false.toSignal(debugLabel: "isConnected");
   final isServerListening = false.toSignal(debugLabel: "isServerListening");
