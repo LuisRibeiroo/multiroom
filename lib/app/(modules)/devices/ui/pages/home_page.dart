@@ -7,8 +7,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../../injector.dart';
-import '../../../../core/extensions/mask_text_input_formatter_extension.dart';
 import '../../../../core/extensions/number_extensions.dart';
+import '../../../../core/extensions/text_input_formatter_extensions.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../interactor/controllers/home_page_controller.dart';
 import '../widgets/device_controls.dart';
@@ -89,9 +89,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   onChanged: _controller.host.set,
                                   controller: _hostEditingController,
-                                  inputFormatters: [
-                                    MaskTextInputFormatterExt.ip(),
-                                  ],
+                                  inputFormatters: TextInputFormatterExt.ip(),
                                 ),
                               ),
                               8.asSpace,

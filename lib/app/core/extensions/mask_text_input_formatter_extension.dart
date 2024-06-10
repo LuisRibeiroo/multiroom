@@ -10,9 +10,4 @@ extension MaskTextInputFormatterExt on MaskTextInputFormatter {
         mask: "###,##",
         filter: {"#": RegExp(r'[0-9]')},
       );
-
-  static MaskTextInputFormatter ip() => MaskTextInputFormatter(
-        mask: "###.###.###.###",
-        filter: {"#": RegExp(r'[0-9]')},
-      );
 }
