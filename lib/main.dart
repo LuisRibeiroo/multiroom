@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:routefly/routefly.dart';
 import 'package:toastification/toastification.dart';
 
@@ -8,7 +9,14 @@ import 'injector.dart';
 import 'routes.g.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   EquatableConfig.stringify = true;
+
+  // Lock the orientation to landscape
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
 
   injector.commit();
 
