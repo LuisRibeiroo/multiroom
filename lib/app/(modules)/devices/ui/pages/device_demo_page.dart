@@ -10,19 +10,19 @@ import '../../../../../injector.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/extensions/text_input_formatter_extensions.dart';
 import '../../../../core/widgets/loading_overlay.dart';
-import '../../interactor/controllers/home_page_controller.dart';
+import '../../interactor/controllers/device_demo_page_controller.dart';
 import '../widgets/device_controls.dart';
 import '../widgets/device_info_header.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class DeviceDemoPage extends StatefulWidget {
+  const DeviceDemoPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<DeviceDemoPage> createState() => _DeviceDemoPageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final _controller = injector.get<HomePageController>();
+class _DeviceDemoPageState extends State<DeviceDemoPage> {
+  final _controller = injector.get<DeviceDemoPageController>();
 
   late final TextEditingController _hostEditingController;
   late final TextEditingController _portEditingController;

@@ -21,8 +21,8 @@ import '../../../../core/utils/debouncer.dart';
 import '../models/device_model.dart';
 import '../utils/multiroom_command_builder.dart';
 
-class HomePageController extends BaseController {
-  HomePageController() : super(InitialState()) {
+class DeviceDemoPageController extends BaseController {
+  DeviceDemoPageController() : super(InitialState()) {
     _initUdp();
 
     currentEqualizer.value = equalizers.last;
@@ -499,5 +499,5 @@ class HomePageController extends BaseController {
     }
   }
 
-  Future<void> _delayBetweenCmd() => Future.delayed(Durations.medium2);
+  Future<void> _delayBetweenCmd() => Future.delayed(Duration.zero);
 }
