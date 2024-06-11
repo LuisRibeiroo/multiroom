@@ -10,7 +10,8 @@ class HomePageController extends BaseController {
   final password = "".toSignal();
 
   void onTapAccess() {
-    final test = "!Control@061".getMd5;
+    // final test = "!Control@061".getMd5;
+    final test = "123".getMd5;
 
     run(
       () => test == password.value.getMd5,

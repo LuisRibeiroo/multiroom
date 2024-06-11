@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:multiroom/app/core/enums/page_state.dart';
 import 'package:multiroom/app/core/widgets/loading_overlay.dart';
+import 'package:multiroom/routes.g.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -24,8 +25,9 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     effect(() {
-      if (_controller.state is SuccessState) {
-        Routefly.pushNavigate("");
+      if (_controller.state.value is SuccessState) {
+        Routefly.pop(context);
+        Routefly.pushNavigate(routePaths.scanner.ui.pages.scanner);
       }
     });
   }

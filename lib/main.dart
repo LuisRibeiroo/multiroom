@@ -17,6 +17,7 @@ void main() {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+  SystemChannels.textInput.invokeMethod('TextInput.hide');
 
   injector.commit();
 
