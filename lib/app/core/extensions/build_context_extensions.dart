@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 extension ContextExt on BuildContext {
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
   TextTheme get textTheme => Theme.of(this).textTheme;
+  IconThemeData get iconTheme => Theme.of(this).iconTheme;
 
   Future<T?> showCustomModalBottomSheet<T>({
     required Widget child,
