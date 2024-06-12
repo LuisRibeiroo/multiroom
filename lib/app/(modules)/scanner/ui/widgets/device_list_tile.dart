@@ -50,7 +50,10 @@ class DeviceListTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 IconButton.outlined(
-                  onPressed: () => Routefly.pushNavigate(routePaths.devices.ui.pages.deviceConfiguration),
+                  onPressed: () => Routefly.pushNavigate(
+                    routePaths.devices.ui.pages.deviceConfiguration,
+                    arguments: device,
+                  ),
                   icon: const Icon(Icons.tune_rounded),
                 ),
                 Row(

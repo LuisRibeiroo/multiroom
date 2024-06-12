@@ -20,8 +20,8 @@ class ScannerPageController extends BaseController {
 
   late UDP udpServer;
 
-  final isUdpListening = false.toSignal(debugLabel: "isServerListening", autoDispose: true);
-  final devicesList = listSignal<DeviceModel>([], debugLabel: "devicesList", autoDispose: true);
+  final isUdpListening = false.toSignal(debugLabel: "isUdpListening");
+  final devicesList = listSignal<DeviceModel>([], debugLabel: "devicesList");
 
   Future<void> init() async {
     udpServer = await UDP.bind(
@@ -64,7 +64,7 @@ class ScannerPageController extends BaseController {
       devicesList.add(
         DeviceModel.builder(
           serialNumber: Random().nextInt(99999).toString(),
-          name: "",
+          name: "Master 1",
           ip: "192.168.0.1",
           version: "1.0",
           type: DeviceType.master,
@@ -133,7 +133,11 @@ class ScannerPageController extends BaseController {
     }
   }
 
+  @override
   void dispose() {
-    udpServer.close();
+    super.dispose();
+
+    devicesList.value = <DeviceModel>[];
+    isUdpListening.value = isUdpListening.initialValue;
   }
 }

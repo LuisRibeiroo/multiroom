@@ -21,7 +21,7 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
       printTime: true,
     ),
   );
-  
+
   late final SignalValueNotifier<PageState> _stateNotifier;
 
   /// Obtém o estado atual mantido pelo `_stateNotifier`.
@@ -72,5 +72,10 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
 
   void setError(Exception exception) {
     _update(ErrorState(exception: exception));
+  }
+
+  @mustCallSuper
+  void dispose() {
+    _update(InitialState());
   }
 }
