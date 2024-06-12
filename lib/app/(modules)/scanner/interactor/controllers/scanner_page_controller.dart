@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:signals/signals_flutter.dart';
@@ -39,7 +40,7 @@ class ScannerPageController extends BaseController {
 
         logger.i("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
 
-        _addDevice(datagram.address.address);
+        _addDevice(ip: datagram.address.address, data: data);
       });
 
       await Future.delayed(const Duration(seconds: 2));
@@ -49,6 +50,7 @@ class ScannerPageController extends BaseController {
           const Duration(seconds: 1),
           () => devicesList.add(
             TechnicianDeviceModel(
+              serialNumber: "${i + 1}",
               ip: "192.168.0.${i + 1}",
               version: "1.0",
               type: DeviceType.master,
@@ -78,13 +80,32 @@ class ScannerPageController extends BaseController {
     devicesList[devicesList.indexOf(device)] = device.copyWith(type: DeviceType.fromString(value));
   }
 
-  Future<void> _addDevice(String deviceIp) async {
-    final device = await _getDeviceDetails(deviceIp);
+  Future<void> _addDevice({required String ip, required String data}) async {
+    final mode = await _getDeviceMode(ip);
+    String serialNumber = "";
+    String firmware = "";
 
-    devicesList.add(device);
+    switch (jsonDecode(data)) {
+      case {"serialNumber": final value}:
+        serialNumber = value;
+
+      case {"fwVersion": final value}:
+        firmware = value;
+    }
+
+    devicesList.add(
+      TechnicianDeviceModel(
+        serialNumber: serialNumber,
+        ip: ip,
+        active: true,
+        masterName: "",
+        version: firmware,
+        type: DeviceType.fromString(mode),
+      ),
+    );
   }
 
-  Future<TechnicianDeviceModel> _getDeviceDetails(String ip) async {
+  Future<String> _getDeviceMode(String ip) async {
     final Socket socket;
 
     try {
@@ -101,16 +122,7 @@ class ScannerPageController extends BaseController {
       socket.writeLog(MultiroomCommandBuilder.expansionMode);
       final deviceMode = MultiroomCommandBuilder.parseResponse(await streamIterator.readSync());
 
-      // socket.writeLog(MultiroomCommandBuilder.expansionMode);
-      // final version = await streamIterator.readSync();
-
-      return TechnicianDeviceModel(
-        ip: ip,
-        active: true,
-        masterName: "",
-        version: "1.0",
-        type: DeviceType.fromString(deviceMode),
-      );
+      return deviceMode;
     } catch (exception) {
       logger.e(exception);
       setError(exception as Exception);

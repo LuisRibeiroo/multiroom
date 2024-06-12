@@ -3,6 +3,7 @@ import 'package:multiroom/app/core/enums/device_type.dart';
 
 class TechnicianDeviceModel extends Equatable {
   const TechnicianDeviceModel({
+    required this.serialNumber,
     required this.ip,
     required this.version,
     required this.type,
@@ -11,6 +12,7 @@ class TechnicianDeviceModel extends Equatable {
   });
 
   factory TechnicianDeviceModel.empty() => const TechnicianDeviceModel(
+        serialNumber: "",
         ip: "",
         version: "",
         type: DeviceType.master,
@@ -19,9 +21,11 @@ class TechnicianDeviceModel extends Equatable {
       );
 
   factory TechnicianDeviceModel.builder({
+    required String serialNumber,
     required String ip,
   }) =>
       TechnicianDeviceModel(
+        serialNumber: serialNumber,
         ip: ip,
         version: "",
         type: DeviceType.master,
@@ -29,6 +33,7 @@ class TechnicianDeviceModel extends Equatable {
         active: true,
       );
 
+  final String serialNumber;
   final String ip;
   final String version;
   final DeviceType type;
@@ -38,6 +43,7 @@ class TechnicianDeviceModel extends Equatable {
   bool get isEmpty => this == TechnicianDeviceModel.empty();
 
   TechnicianDeviceModel copyWith({
+    String? serialNumber,
     String? ip,
     String? version,
     DeviceType? type,
@@ -45,6 +51,7 @@ class TechnicianDeviceModel extends Equatable {
     bool? active,
   }) {
     return TechnicianDeviceModel(
+      serialNumber: serialNumber ?? this.serialNumber,
       ip: ip ?? this.ip,
       version: version ?? this.version,
       type: type ?? this.type,
@@ -55,6 +62,7 @@ class TechnicianDeviceModel extends Equatable {
 
   @override
   List<Object?> get props => [
+        serialNumber,
         ip,
         version,
         type,
