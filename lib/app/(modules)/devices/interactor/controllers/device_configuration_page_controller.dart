@@ -37,6 +37,9 @@ class DeviceConfigurationPageController extends BaseController {
   }
 
   void onChangeZoneMode(ZoneWrapperModel zone, bool isStereo) {
+    isEditingZone.value = false;
+    editingZone.value = editingZone.initialValue;
+
     editingWrapper.value = zone.copyWith(mode: isStereo ? ZoneMode.stereo : ZoneMode.mono);
 
     device.value = device.value
@@ -86,6 +89,9 @@ class DeviceConfigurationPageController extends BaseController {
 
     deviceName.value = deviceName.initialValue;
     device.value = device.initialValue;
+    editingWrapper.value = editingWrapper.initialValue;
+    editingZone.value = editingZone.initialValue;
     isEditingDevice.value = isEditingDevice.initialValue;
+    isEditingZone.value = isEditingZone.initialValue;
   }
 }
