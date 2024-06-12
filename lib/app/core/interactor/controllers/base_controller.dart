@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:logger/logger.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../enums/page_state.dart';
 
-abstract class BaseController<T extends PageState>
-    implements ValueListenable<PageState> {
+abstract class BaseController<T extends PageState> implements ValueListenable<PageState> {
   /// Cria uma instância de `BaseController` com um estado inicial fornecido.
   ///
   /// [initialState] O estado inicial para o controlador.
@@ -16,6 +16,12 @@ abstract class BaseController<T extends PageState>
     );
   }
 
+  final logger = Logger(
+    printer: SimplePrinter(
+      printTime: true,
+    ),
+  );
+  
   late final SignalValueNotifier<PageState> _stateNotifier;
 
   /// Obtém o estado atual mantido pelo `_stateNotifier`.
@@ -58,8 +64,7 @@ abstract class BaseController<T extends PageState>
 
       return result as R;
     } catch (e) {
-      _update(
-          setSucces ? ErrorState(exception: e as Exception) : InitialState());
+      _update(setSucces ? ErrorState(exception: e as Exception) : InitialState());
 
       return Future.error(e);
     }

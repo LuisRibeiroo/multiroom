@@ -1,24 +1,23 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../../core/enums/device_type.dart';
-import '../../../../core/models/net_address_model.dart';
-import '../../../../core/models/zone_model.dart';
+import '../enums/device_type.dart';
+import 'zone_model.dart';
 
 class DeviceModel extends Equatable {
   const DeviceModel({
     required this.name,
-    required this.netAddress,
+    required this.ip,
     required this.zones,
     required this.version,
     required this.type,
   });
 
   factory DeviceModel.empty() {
-    return DeviceModel(
-      name: '',
-      netAddress: NetAddressModel.empty(),
-      zones: const [],
-      version: '',
+    return const DeviceModel(
+      name: "",
+      ip: "",
+      zones: [],
+      version: "",
       type: DeviceType.master,
     );
   }
@@ -26,10 +25,7 @@ class DeviceModel extends Equatable {
   factory DeviceModel.builder({
     required String name,
     required String ip,
-    required int port,
   }) {
-    final separatedIp = ip.split(".");
-
     return DeviceModel(
       name: name,
       zones: List.generate(
@@ -38,17 +34,12 @@ class DeviceModel extends Equatable {
       ),
       version: "1.0.0",
       type: DeviceType.master,
-      netAddress: NetAddressModel(
-        ip: ip,
-        port: port,
-        mask: "255.255.255.0",
-        gateway: separatedIp.sublist(0, 3).join(".1"),
-      ),
+      ip: ip,
     );
   }
 
   final String name;
-  final NetAddressModel netAddress;
+  final String ip;
   final List<ZoneModel> zones;
   final String version;
   final DeviceType type;
@@ -57,14 +48,14 @@ class DeviceModel extends Equatable {
 
   DeviceModel copyWith({
     String? name,
-    NetAddressModel? netAddress,
+    String? ip,
     List<ZoneModel>? zones,
     String? version,
     DeviceType? type,
   }) {
     return DeviceModel(
       name: name ?? this.name,
-      netAddress: netAddress ?? this.netAddress,
+      ip: ip ?? this.ip,
       zones: zones ?? this.zones,
       version: version ?? this.version,
       type: type ?? this.type,
@@ -74,7 +65,7 @@ class DeviceModel extends Equatable {
   @override
   List<Object?> get props => [
         name,
-        netAddress,
+        ip,
         zones,
         version,
         type,

@@ -37,11 +37,15 @@ class MyApp extends StatelessWidget {
       ),
       darkTheme: ThemeData(
         colorScheme: MaterialTheme.darkHighContrastScheme().toColorScheme(),
+        appBarTheme: AppBarTheme(
+          backgroundColor: MaterialTheme.darkHighContrastScheme().inversePrimary,
+          scrolledUnderElevation: 0,
+        ),
       ),
       themeMode: ThemeMode.dark,
       routerConfig: Routefly.routerConfig(
         routes: routes,
-        initialPath: routePaths.home.ui.pages.home,
+        initialPath: routePaths.scanner.ui.pages.scanner,
       ),
     );
   }

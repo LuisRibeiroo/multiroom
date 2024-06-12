@@ -18,7 +18,7 @@ import '../../../../core/models/equalizer_model.dart';
 import '../../../../core/models/frequency.dart';
 import '../../../../core/models/zone_model.dart';
 import '../../../../core/utils/debouncer.dart';
-import '../models/device_model.dart';
+import '../../../../core/models/device_model.dart';
 import '../utils/multiroom_command_builder.dart';
 
 class DeviceDemoPageController extends BaseController {
@@ -210,7 +210,6 @@ class DeviceDemoPageController extends BaseController {
         device.value = DeviceModel.builder(
           name: "Master 1",
           ip: host.value,
-          port: int.parse(port.value),
         );
       } catch (exception) {
         _logger.e(exception);

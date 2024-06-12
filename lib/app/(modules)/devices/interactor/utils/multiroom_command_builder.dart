@@ -6,8 +6,7 @@ import '../../../../core/models/frequency.dart';
 import '../../../../core/models/zone_model.dart';
 
 abstract final class MultiroomCommandBuilder {
-  static String? parseResponse(String response) =>
-      response.split("=").lastOrNull?.replaceAll("\n", "") ?? response;
+  static String parseResponse(String response) => response.split("=").lastOrNull?.replaceAll("\n", "") ?? response;
 
   static String get configs => MultiroomCommands.mrCfgShow.value;
 
@@ -15,8 +14,7 @@ abstract final class MultiroomCommandBuilder {
 
   static String get expansionMode => MultiroomCommands.mrExpModeGet.value;
 
-  static String get setDefaultConfigs =>
-      MultiroomCommands.mrCfgDefaultSet.value;
+  static String get setDefaultConfigs => MultiroomCommands.mrCfgDefaultSet.value;
 
   static String get setDefaultParams => MultiroomCommands.mrParDefaultSet.value;
 
