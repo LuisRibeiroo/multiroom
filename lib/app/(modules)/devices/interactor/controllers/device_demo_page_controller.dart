@@ -492,7 +492,7 @@ class DeviceDemoPageController extends BaseController {
       final response = String.fromCharCodes(streamIterator.current);
       _logger.i("<<< $response");
 
-      return MultiroomCommandBuilder.parseResponse(response)!;
+      return MultiroomCommandBuilder.parseResponse(response);
     } catch (exception) {
       throw Exception("Erro ao ler resposta [$exception]");
     }
