@@ -40,16 +40,6 @@ class ScannerPageController extends BaseController {
         logger.i("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
 
         _addDevice(datagram.address.address);
-
-        // udpServer.close();
-        // isServerListening.value = false;
-
-        // toastification.show(
-        //   type: ToastificationType.success,
-        //   title: const Text("Conexão recebida"),
-        //   description: Text("IP: ${datagram.address.address}"),
-        //   autoCloseDuration: const Duration(seconds: 2),
-        // );
       });
 
       await Future.delayed(const Duration(seconds: 2));
