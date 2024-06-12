@@ -32,7 +32,7 @@ class DeviceDemoPageController extends BaseController {
         return;
       }
 
-      currentZone.value = value.zones.first;
+      // currentZone.value = value.zones.first;
     });
 
     currentZone.subscribe((newZone) async {
@@ -40,17 +40,17 @@ class DeviceDemoPageController extends BaseController {
         return;
       }
 
-      final idx = device.value.zones.indexWhere((zone) => currentZone.value.name == zone.name);
-      channels.set(newZone.channels);
+      // final idx = device.value.zones.indexWhere((zone) => currentZone.value.name == zone.name);
+      // channels.set(newZone.channels);
 
-      untracked(() async {
-        device.value.zones[idx] = newZone;
+      // untracked(() async {
+      //   device.value.zones[idx] = newZone;
 
-        if (currentZone.previousValue!.id != currentZone.value.id) {
-          _logger.i("UPDATE ALL DATA");
-          await run(_updateAllDeviceData);
-        }
-      });
+      //   if (currentZone.previousValue!.id != currentZone.value.id) {
+      //     _logger.i("UPDATE ALL DATA");
+      //     await run(_updateAllDeviceData);
+      //   }
+      // });
     });
 
     channels.subscribe((newValue) {

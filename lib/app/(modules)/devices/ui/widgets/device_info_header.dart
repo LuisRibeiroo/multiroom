@@ -40,7 +40,7 @@ class _DeviceInfoHeaderState extends State<DeviceInfoHeader> {
     _zoneOptions = List.generate(
       widget.device.zones.length,
       (idx) => ValueItem(
-        label: widget.device.zones[idx].name,
+        label: "",//widget.device.zones[idx].name,
         value: idx,
       ),
     );
@@ -87,21 +87,17 @@ class _DeviceInfoHeaderState extends State<DeviceInfoHeader> {
                     children: [
                       MultiSelectDropDown(
                         fieldBackgroundColor: context.colorScheme.surface,
-                        optionsBackgroundColor:
-                            context.colorScheme.surface.withOpacity(.9),
+                        optionsBackgroundColor: context.colorScheme.surface.withOpacity(.9),
                         selectionType: SelectionType.single,
                         hint: "Selecione a zona",
                         controller: _zoneController,
                         options: _zoneOptions,
-                        suffixIcon:
-                            const Icon(Icons.keyboard_arrow_down_rounded),
+                        suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                         clearIcon: const Icon(Icons.clear, size: 0),
                         onOptionSelected: (options) {
-                          widget.onChangeZone(
-                              widget.device.zones[options.first.value!]);
+                          // widget.onChangeZone(widget.device.zones[options.first.value!]);
                         },
-                        singleSelectItemStyle:
-                            context.textTheme.titleSmall!.copyWith(
+                        singleSelectItemStyle: context.textTheme.titleSmall!.copyWith(
                           color: context.colorScheme.onSurface,
                         ),
                         selectedOptionIcon: Icon(
@@ -112,21 +108,17 @@ class _DeviceInfoHeaderState extends State<DeviceInfoHeader> {
                       8.asSpace,
                       MultiSelectDropDown(
                         fieldBackgroundColor: context.colorScheme.surface,
-                        optionsBackgroundColor:
-                            context.colorScheme.surface.withOpacity(.9),
+                        optionsBackgroundColor: context.colorScheme.surface.withOpacity(.9),
                         hint: "Selecione o input",
                         selectionType: SelectionType.single,
                         controller: widget.channelController,
                         options: widget.channelController.options,
-                        suffixIcon:
-                            const Icon(Icons.keyboard_arrow_down_rounded),
+                        suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                         clearIcon: const Icon(Icons.clear, size: 0),
                         onOptionSelected: (options) {
-                          widget.onChangeChannel(widget
-                              .currentZone.channels[options.first.value!]);
+                          widget.onChangeChannel(widget.currentZone.channels[options.first.value!]);
                         },
-                        singleSelectItemStyle:
-                            context.textTheme.titleSmall!.copyWith(
+                        singleSelectItemStyle: context.textTheme.titleSmall!.copyWith(
                           color: context.colorScheme.onSurface,
                         ),
                         selectedOptionIcon: Icon(

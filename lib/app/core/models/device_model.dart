@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../enums/device_type.dart';
-import 'zone_model.dart';
+import 'zone_wrapper_model.dart';
 
 class DeviceModel extends Equatable {
   const DeviceModel({
@@ -38,7 +38,7 @@ class DeviceModel extends Equatable {
       name: name,
       zones: List.generate(
         8,
-        (idx) => ZoneModel.builder(index: idx + 1, name: "Zona ${idx + 1}"),
+        (idx) => ZoneWrapperModel.builder(index: idx + 1, name: "Zona ${idx + 1}"),
       ),
       version: version ?? "",
       type: type ?? DeviceType.master,
@@ -49,7 +49,7 @@ class DeviceModel extends Equatable {
   final String serialNumber;
   final String name;
   final String ip;
-  final List<ZoneModel> zones;
+  final List<ZoneWrapperModel> zones;
   final String version;
   final DeviceType type;
   final String masterName;
@@ -61,7 +61,7 @@ class DeviceModel extends Equatable {
     String? serialNumber,
     String? name,
     String? ip,
-    List<ZoneModel>? zones,
+    List<ZoneWrapperModel>? zones,
     String? version,
     DeviceType? type,
     String? masterName,
