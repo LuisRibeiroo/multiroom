@@ -208,6 +208,7 @@ class DeviceDemoPageController extends BaseController {
         isConnected.value = true;
 
         device.value = DeviceModel.builder(
+          serialNumber: "",
           name: "Master 1",
           ip: host.value,
         );

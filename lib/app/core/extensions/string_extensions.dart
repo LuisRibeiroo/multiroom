@@ -10,6 +10,18 @@ extension StringExt on String? {
 
   String get numbersOnly => isNullOrEmpty ? "" : this!.replaceAll(RegExp(r'[^0-9]'), '');
 
+  String get capitalize {
+    if(isNullOrEmpty){
+      return "";
+    }
+
+    if(this!.length == 1){
+      return this!.toUpperCase();
+    }
+
+    return "${this![0].toUpperCase()}${this!.substring(1)}";
+  }
+
   String get toPhone {
     if (isNullOrEmpty) {
       return "";

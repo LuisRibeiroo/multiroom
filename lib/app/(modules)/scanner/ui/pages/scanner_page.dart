@@ -8,7 +8,7 @@ import '../../../../core/extensions/build_context_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../interactor/controllers/scanner_page_controller.dart';
-import '../widgets/device_master_indicator.dart';
+import '../widgets/device_list_tile.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({super.key});
@@ -74,76 +74,13 @@ class _ScannerPageState extends State<ScannerPage> {
                 : ListView.builder(
                     padding: const EdgeInsets.all(12),
                     itemCount: _controller.devicesList.length,
-                    itemBuilder: (_, index) {
-                      final device = _controller.devicesList[index];
-
-                      return Watch(
-                        (_) => Card.filled(
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 12.0),
-                            child: Row(
-                              children: [
-                                Checkbox.adaptive(
-                                  value: device.active,
-                                  onChanged: (value) => _controller.onChangeActive(device, value!),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        device.ip,
-                                        style: context.textTheme.titleMedium,
-                                      ),
-                                      Text(
-                                        "Ver ${device.version}",
-                                        style: context.textTheme.labelMedium,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                12.asSpace,
-                                Column(
-                                  children: [
-                                    RadioMenuButton(
-                                      value: "master",
-                                      groupValue: device.type.name,
-                                      onChanged: (value) => _controller.onChangeType(device, value!),
-                                      child: const Text("Master"),
-                                    ),
-                                    RadioMenuButton(
-                                      value: "slave1",
-                                      groupValue: device.type.name,
-                                      onChanged: (value) => _controller.onChangeType(device, value!),
-                                      child: const Text("Slave1"),
-                                    ),
-                                    RadioMenuButton(
-                                      value: "slave2",
-                                      groupValue: device.type.name,
-                                      onChanged: (value) => _controller.onChangeType(device, value!),
-                                      child: const Text("Slave2"),
-                                    ),
-                                  ],
-                                ),
-                                12.asSpace,
-                                Column(
-                                  children: [
-                                    DeviceMasterIndicator(
-                                      label: "M1",
-                                      type: device.type,
-                                    ),
-                                    DeviceMasterIndicator(
-                                      label: "M2",
-                                      type: device.type,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                    itemBuilder: (_, index) => Watch(
+                      (_) => DeviceListTile(
+                        device: _controller.devicesList[index],
+                        onChangeActive: _controller.onChangeActive,
+                        onChangeType: _controller.onChangeType,
+                      ),
+                    ),
                   ),
           ),
         ),

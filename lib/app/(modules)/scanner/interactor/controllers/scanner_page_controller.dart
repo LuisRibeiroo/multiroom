@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:signals/signals_flutter.dart';
@@ -9,9 +8,11 @@ import '../../../../core/enums/device_type.dart';
 import '../../../../core/enums/page_state.dart';
 import '../../../../core/extensions/socket_extensions.dart';
 import '../../../../core/extensions/stream_iterator_extensions.dart';
+import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/interactor/controllers/base_controller.dart';
+import '../../../../core/models/device_model.dart';
+import '../../../../core/utils/datagram_data_parser.dart';
 import '../../../devices/interactor/utils/multiroom_command_builder.dart';
-import '../models/technician_device_model.dart';
 
 class ScannerPageController extends BaseController {
   ScannerPageController() : super(InitialState());
@@ -19,7 +20,7 @@ class ScannerPageController extends BaseController {
   late UDP udpServer;
 
   final isUdpListening = false.toSignal(debugLabel: "isServerListening", autoDispose: true);
-  final devicesList = listSignal<TechnicianDeviceModel>([], debugLabel: "devicesList", autoDispose: true);
+  final devicesList = listSignal<DeviceModel>([], debugLabel: "devicesList", autoDispose: true);
 
   Future<void> init() async {
     udpServer = await UDP.bind(
@@ -43,21 +44,21 @@ class ScannerPageController extends BaseController {
         _addDevice(ip: datagram.address.address, data: data);
       });
 
-      await Future.delayed(const Duration(seconds: 2));
+      // await Future.delayed(const Duration(seconds: 2));
 
-      for (int i = 0; i < 10; i++) {
-        await Future.delayed(
-          const Duration(seconds: 1),
-          () => devicesList.add(
-            TechnicianDeviceModel(
-              serialNumber: "${i + 1}",
-              ip: "192.168.0.${i + 1}",
-              version: "1.0",
-              type: DeviceType.master,
-            ),
-          ),
-        );
-      }
+      // for (int i = 0; i < 10; i++) {
+      //   await Future.delayed(
+      //     const Duration(seconds: 1),
+      //     () => devicesList.add(
+      //       DeviceModel(
+      //         serialNumber: "${i + 1}",
+      //         ip: "192.168.0.${i + 1}",
+      //         version: "1.0",
+      //         type: DeviceType.master,
+      //       ),
+      //     ),
+      //   );
+      // }
     } catch (exception) {
       logger.e(exception);
       setError(exception as Exception);
@@ -72,34 +73,24 @@ class ScannerPageController extends BaseController {
     });
   }
 
-  void onChangeActive(TechnicianDeviceModel device, bool value) {
+  void onChangeActive(DeviceModel device, bool value) {
     devicesList[devicesList.indexOf(device)] = device.copyWith(active: value);
   }
 
-  void onChangeType(TechnicianDeviceModel device, String value) {
+  void onChangeType(DeviceModel device, String value) {
     devicesList[devicesList.indexOf(device)] = device.copyWith(type: DeviceType.fromString(value));
   }
 
   Future<void> _addDevice({required String ip, required String data}) async {
     final mode = await _getDeviceMode(ip);
-    String serialNumber = "";
-    String firmware = "";
-
-    switch (jsonDecode(data)) {
-      case {"serialNumber": final value}:
-        serialNumber = value;
-
-      case {"fwVersion": final value}:
-        firmware = value;
-    }
+    final (serialNumber, firmware) = DatagramDataParser.getSerialAndFirmware(data);
 
     devicesList.add(
-      TechnicianDeviceModel(
-        serialNumber: serialNumber,
+      DeviceModel.builder(
         ip: ip,
-        active: true,
-        masterName: "",
+        serialNumber: serialNumber,
         version: firmware,
+        name: "${mode.capitalize} ${serialNumber.substring(0, 3)}",
         type: DeviceType.fromString(mode),
       ),
     );
