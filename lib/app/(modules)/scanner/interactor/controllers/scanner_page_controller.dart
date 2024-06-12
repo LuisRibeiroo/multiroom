@@ -17,8 +17,8 @@ class ScannerPageController extends BaseController {
 
   late UDP udpServer;
 
-  final isUdpListening = false.toSignal(debugLabel: "isServerListening");
-  final devicesList = listSignal<TechnicianDeviceModel>([], debugLabel: "devicesList");
+  final isUdpListening = false.toSignal(debugLabel: "isServerListening", autoDispose: true);
+  final devicesList = listSignal<TechnicianDeviceModel>([], debugLabel: "devicesList", autoDispose: true);
 
   Future<void> init() async {
     udpServer = await UDP.bind(

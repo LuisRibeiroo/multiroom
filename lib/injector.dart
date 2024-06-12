@@ -8,6 +8,6 @@ final injector = AutoInjector(
   on: (injector) {
     injector.addLazySingleton(DeviceDemoPageController.new);
     injector.addLazySingleton(HomePageController.new);
-    injector.addLazySingleton(ScannerPageController.new);
+    injector.addInstance(ScannerPageController());
   },
 );
