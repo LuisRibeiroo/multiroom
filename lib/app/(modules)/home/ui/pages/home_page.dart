@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/enums/page_state.dart';
-import 'package:multiroom/app/core/widgets/loading_overlay.dart';
-import 'package:multiroom/routes.g.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../../injector.dart';
+import '../../../../../routes.g.dart';
+import '../../../../core/enums/page_state.dart';
 import '../../../../core/extensions/build_context_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../interactor/controllers/home_page_controller.dart';
@@ -26,6 +25,9 @@ class _HomePageState extends State<HomePage> {
 
     effect(() {
       if (_controller.state.value is SuccessState) {
+        _controller.errorMessage.value = "";
+        _controller.state.value = InitialState();
+
         Routefly.pop(context);
         Routefly.pushNavigate(routePaths.scanner.ui.pages.scanner);
       }
@@ -50,6 +52,7 @@ class _HomePageState extends State<HomePage> {
               Icons.device_unknown_rounded,
               size: 80,
             ),
+            12.asSpace,
             Text(
               'Voce ainda não possui dispositivos',
               style: context.textTheme.titleLarge,
@@ -73,9 +76,8 @@ class _HomePageState extends State<HomePage> {
                   onTap: () {
                     Routefly.pop(context);
                     context.showCustomModalBottomSheet(
-                      child: LoadingOverlay(
-                        state: _controller.state,
-                        child: Padding(
+                      child: Watch(
+                        (_) => Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24.0),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -87,13 +89,14 @@ class _HomePageState extends State<HomePage> {
                               8.asSpace,
                               TextFormField(
                                 obscureText: true,
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
+                                decoration: InputDecoration(
+                                  border: const OutlineInputBorder(),
                                   labelText: 'Senha',
+                                  errorText: _controller.errorMessage.value,
                                 ),
                                 onChanged: _controller.password.set,
                               ),
-                              24.asSpace,
+                              12.asSpace,
                               ElevatedButton(
                                 onPressed: _controller.onTapAccess,
                                 child: const Text("Acessar"),
