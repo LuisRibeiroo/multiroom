@@ -55,7 +55,7 @@ class DeviceConfigurationPageController extends BaseController {
             .copyWith(monoZones: (left: zone.copyWith(name: value), right: editingWrapper.value.monoZones.right));
       } else {
         editingWrapper.value = editingWrapper.value
-            .copyWith(monoZones: (right: zone.copyWith(name: value), left: editingWrapper.value.monoZones.right));
+            .copyWith(monoZones: (right: zone.copyWith(name: value), left: editingWrapper.value.monoZones.left));
       }
     }
   }
@@ -67,6 +67,8 @@ class DeviceConfigurationPageController extends BaseController {
       isEditingZone.value = true;
       editingWrapper.value = wrapper;
       editingZone.value = zone;
+
+      return;
     }
 
     if (isEditingZone.value == false) {
