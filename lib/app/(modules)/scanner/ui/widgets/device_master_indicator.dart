@@ -20,7 +20,7 @@ class DeviceMasterIndicator extends StatelessWidget {
       child: Container(
         key: ValueKey("$label$type"),
         margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           color: type != DeviceType.master ? context.colorScheme.primaryContainer : Colors.transparent,

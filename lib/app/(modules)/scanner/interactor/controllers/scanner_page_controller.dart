@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:signals/signals_flutter.dart';
 import 'package:udp/udp.dart';
@@ -59,6 +60,16 @@ class ScannerPageController extends BaseController {
       //     ),
       //   );
       // }
+
+      devicesList.add(
+        DeviceModel.builder(
+          serialNumber: Random().nextInt(99999).toString(),
+          name: "",
+          ip: "192.168.0.1",
+          version: "1.0",
+          type: DeviceType.master,
+        ),
+      );
     } catch (exception) {
       logger.e(exception);
       setError(exception as Exception);

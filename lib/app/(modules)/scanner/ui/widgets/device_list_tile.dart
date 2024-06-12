@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/(modules)/scanner/ui/widgets/device_master_indicator.dart';
-import 'package:multiroom/app/core/extensions/build_context_extensions.dart';
-import 'package:multiroom/app/core/extensions/number_extensions.dart';
-import 'package:multiroom/app/core/models/device_model.dart';
+import 'package:routefly/routefly.dart';
+
+import '../../../../../routes.g.dart';
+import '../../../../core/extensions/build_context_extensions.dart';
+import '../../../../core/extensions/number_extensions.dart';
+import '../../../../core/models/device_model.dart';
+import 'device_master_indicator.dart';
 
 class DeviceListTile extends StatelessWidget {
   const DeviceListTile({
@@ -20,10 +23,10 @@ class DeviceListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card.filled(
       child: Padding(
-        padding: const EdgeInsets.only(right: 12.0),
+        padding: const EdgeInsets.only(top: 12.0, bottom: 12.0, right: 12.0),
         child: Row(
           children: [
-            Checkbox.adaptive(
+            Checkbox(
               value: device.active,
               onChanged: (value) => onChangeActive(device, value!),
             ),
@@ -44,37 +47,51 @@ class DeviceListTile extends StatelessWidget {
             ),
             12.asSpace,
             Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                RadioMenuButton(
-                  value: "master",
-                  groupValue: device.type.name,
-                  onChanged: (value) => onChangeType(device, value!),
-                  child: const Text("Master"),
+                IconButton.outlined(
+                  onPressed: () => Routefly.pushNavigate(routePaths.devices.ui.pages.deviceConfiguration),
+                  icon: const Icon(Icons.tune_rounded),
                 ),
-                RadioMenuButton(
-                  value: "slave1",
-                  groupValue: device.type.name,
-                  onChanged: (value) => onChangeType(device, value!),
-                  child: const Text("Slave1"),
-                ),
-                RadioMenuButton(
-                  value: "slave2",
-                  groupValue: device.type.name,
-                  onChanged: (value) => onChangeType(device, value!),
-                  child: const Text("Slave2"),
-                ),
-              ],
-            ),
-            12.asSpace,
-            Column(
-              children: [
-                DeviceMasterIndicator(
-                  label: "M1",
-                  type: device.type,
-                ),
-                DeviceMasterIndicator(
-                  label: "M2",
-                  type: device.type,
+                Row(
+                  children: [
+                    Column(
+                      children: [
+                        RadioMenuButton(
+                          value: "master",
+                          groupValue: device.type.name,
+                          onChanged: (value) => onChangeType(device, value!),
+                          child: const Text("Master"),
+                        ),
+                        RadioMenuButton(
+                          value: "slave1",
+                          groupValue: device.type.name,
+                          onChanged: (value) => onChangeType(device, value!),
+                          child: const Text("Slave1"),
+                        ),
+                        RadioMenuButton(
+                          value: "slave2",
+                          groupValue: device.type.name,
+                          onChanged: (value) => onChangeType(device, value!),
+                          child: const Text("Slave2"),
+                        ),
+                      ],
+                    ),
+                    12.asSpace,
+                    Column(
+                      children: [
+                        8.asSpace,
+                        DeviceMasterIndicator(
+                          label: "M1",
+                          type: device.type,
+                        ),
+                        DeviceMasterIndicator(
+                          label: "M2",
+                          type: device.type,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
