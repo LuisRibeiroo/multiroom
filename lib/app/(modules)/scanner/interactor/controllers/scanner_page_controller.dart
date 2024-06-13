@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:signals/signals_flutter.dart';
 import 'package:udp/udp.dart';
@@ -14,6 +13,7 @@ import '../../../../core/interactor/controllers/base_controller.dart';
 import '../../../../core/models/device_model.dart';
 import '../../../../core/utils/datagram_data_parser.dart';
 import '../../../../core/utils/multiroom_command_builder.dart';
+import '../models/network_device_model.dart';
 
 class ScannerPageController extends BaseController {
   ScannerPageController() : super(InitialState());
@@ -21,9 +21,15 @@ class ScannerPageController extends BaseController {
   late UDP udpServer;
 
   final isUdpListening = false.toSignal(debugLabel: "isUdpListening");
-  final devicesList = listSignal<DeviceModel>([], debugLabel: "devicesList");
+  final localDevices = listSignal<DeviceModel>([], debugLabel: "localDevices");
+  final networkDevices = listSignal<NetworkDeviceModel>([], debugLabel: "networkDevices");
+  final deviceType = NetworkDeviceType.master.toSignal(debugLabel: "deviceType");
 
   Future<void> init() async {
+    _startUdpServer();
+  }
+
+  Future<void> _startUdpServer() async {
     udpServer = await UDP.bind(
       Endpoint.unicast(
         InternetAddress.anyIPv4,
@@ -33,19 +39,27 @@ class ScannerPageController extends BaseController {
 
     try {
       isUdpListening.value = true;
-      udpServer.asStream().listen((datagram) {
-        if (datagram == null) {
-          return;
-        }
+      udpServer.asStream().listen(
+        (datagram) {
+          if (datagram == null) {
+            return;
+          }
 
-        final data = String.fromCharCodes(datagram.data);
+          final data = String.fromCharCodes(datagram.data);
 
-        logger.i("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
+          logger.i("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
 
-        _addDevice(ip: datagram.address.address, data: data);
-      });
+          final (serialNumber, firmware) = DatagramDataParser.getSerialAndFirmware(data);
 
-      // await Future.delayed(const Duration(seconds: 2));
+          networkDevices.add(
+            NetworkDeviceModel(
+              ip: datagram.address.address,
+              serialNumber: serialNumber,
+              firmware: firmware,
+            ),
+          );
+        },
+      );
 
       // for (int i = 0; i < 10; i++) {
       //   await Future.delayed(
@@ -61,53 +75,67 @@ class ScannerPageController extends BaseController {
       //   );
       // }
 
-      devicesList.add(
-        DeviceModel.builder(
-          serialNumber: Random().nextInt(99999).toString(),
-          name: "Master 1",
-          ip: "192.168.0.1",
-          version: "1.0",
-          type: DeviceType.master,
+      await Future.delayed(
+        const Duration(seconds: 2),
+        () => networkDevices.add(
+          const NetworkDeviceModel(
+            ip: "192.188.0.1",
+            serialNumber: "123456",
+            firmware: "1.0",
+          ),
         ),
+      );
+      // localDevices.add(
+      //   DeviceModel.builder(
+      //     serialNumber: Random().nextInt(99999).toString(),
+      //     name: "Master 1",
+      //     ip: "192.168.0.1",
+      //     version: "1.0",
+      //     type: DeviceType.master,
+      //   ),
+      // );
+
+      disposables.add(
+        effect(() {
+          if (isUdpListening.value) {
+            logger.i("UDP LISTENING ON --> ${udpServer.local.address?.address}:${udpServer.local.port?.value} ");
+          } else {
+            logger.i("UDP SERVER CLOSED");
+          }
+        }),
       );
     } catch (exception) {
       logger.e(exception);
       setError(exception as Exception);
     }
-
-    effect(() {
-      if (isUdpListening.value) {
-        logger.i("UDP LISTENING ON --> ${udpServer.local.address?.address}:${udpServer.local.port?.value} ");
-      } else {
-        logger.i("UDP SERVER CLOSED");
-      }
-    });
   }
 
   void onChangeActive(DeviceModel device, bool value) {
-    devicesList[devicesList.indexOf(device)] = device.copyWith(active: value);
+    localDevices[localDevices.indexOf(device)] = device.copyWith(active: value);
   }
 
   void onChangeType(DeviceModel device, String value) {
-    devicesList[devicesList.indexOf(device)] = device.copyWith(type: DeviceType.fromString(value));
+    localDevices[localDevices.indexOf(device)] = device.copyWith(type: DeviceType.fromString(value));
   }
 
-  Future<void> _addDevice({required String ip, required String data}) async {
-    final mode = await _getDeviceMode(ip);
-    final (serialNumber, firmware) = DatagramDataParser.getSerialAndFirmware(data);
+  Future<void> onConfirmAddDevice(NetworkDeviceModel netDevice) async {
+    // final deviceMode = await _setDeviceMode(
+    //   netDevice.ip,
+    //   DeviceType.fromString(deviceType.value.name.lettersOnly),
+    // );
 
-    devicesList.add(
+    localDevices.add(
       DeviceModel.builder(
-        ip: ip,
-        serialNumber: serialNumber,
-        version: firmware,
-        name: "${mode.capitalize} ${serialNumber.substring(0, 3)}",
-        type: DeviceType.fromString(mode),
+        ip: netDevice.ip,
+        serialNumber: netDevice.serialNumber,
+        version: netDevice.firmware,
+        name: deviceType.value.readable,
+        type: DeviceType.fromString(deviceType.value.name.lettersOnly),
       ),
     );
   }
 
-  Future<String> _getDeviceMode(String ip) async {
+  Future<String> _setDeviceMode(String ip, DeviceType type) async {
     final Socket socket;
 
     try {
@@ -120,6 +148,13 @@ class ScannerPageController extends BaseController {
       );
 
       final streamIterator = StreamIterator(socket);
+
+      socket.writeLog(MultiroomCommandBuilder.setExpansionMode(type: type));
+      final response = MultiroomCommandBuilder.parseResponse(await streamIterator.readSync());
+
+      if (response.contains("OK") == false) {
+        throw Exception("Erro ao configurar dispositivo, tente novamente.");
+      }
 
       socket.writeLog(MultiroomCommandBuilder.expansionMode);
       final deviceMode = MultiroomCommandBuilder.parseResponse(await streamIterator.readSync());
@@ -137,7 +172,11 @@ class ScannerPageController extends BaseController {
   void dispose() {
     super.dispose();
 
-    devicesList.value = <DeviceModel>[];
+    udpServer.closed ? null : udpServer.close();
     isUdpListening.value = isUdpListening.initialValue;
+    deviceType.value = deviceType.initialValue;
+
+    localDevices.value = <DeviceModel>[];
+    networkDevices.value = <NetworkDeviceModel>[];
   }
 }

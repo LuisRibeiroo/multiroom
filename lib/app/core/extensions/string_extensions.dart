@@ -9,13 +9,14 @@ extension StringExt on String? {
   String or(String other) => isNullOrEmpty ? other : this!;
 
   String get numbersOnly => isNullOrEmpty ? "" : this!.replaceAll(RegExp(r'[^0-9]'), '');
+  String get lettersOnly => isNullOrEmpty ? "" : this!.replaceAll(RegExp(r'[^a-zA-Z]'), '');
 
   String get capitalize {
-    if(isNullOrEmpty){
+    if (isNullOrEmpty) {
       return "";
     }
 
-    if(this!.length == 1){
+    if (this!.length == 1) {
       return this!.toUpperCase();
     }
 

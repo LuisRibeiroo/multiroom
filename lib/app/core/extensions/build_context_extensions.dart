@@ -4,6 +4,7 @@ extension ContextExt on BuildContext {
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
   TextTheme get textTheme => Theme.of(this).textTheme;
   IconThemeData get iconTheme => Theme.of(this).iconTheme;
+  Size get size => MediaQuery.sizeOf(this);
 
   Future<T?> showCustomModalBottomSheet<T>({
     required Widget child,
@@ -19,34 +20,37 @@ extension ContextExt on BuildContext {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 22),
-            child: Container(
-              height: 4,
-              width: 32,
-              decoration: BoxDecoration(
-                color: Theme.of(this).colorScheme.onSurface,
-                borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(12),
-                  right: Radius.circular(12),
+      builder: (_) => SizedBox(
+        width: size.width,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 22),
+              child: Container(
+                height: 4,
+                width: 32,
+                decoration: BoxDecoration(
+                  color: Theme.of(this).colorScheme.onSurface,
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(12),
+                    right: Radius.circular(12),
+                  ),
                 ),
               ),
             ),
-          ),
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(this).size.height * .3,
-              maxHeight: MediaQuery.of(this).size.height * maxHeight,
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(this).size.height * .3,
+                maxHeight: MediaQuery.of(this).size.height * maxHeight,
+              ),
+              child: Padding(
+                padding: MediaQuery.of(this).viewInsets,
+                child: child,
+              ),
             ),
-            child: Padding(
-              padding: MediaQuery.of(this).viewInsets,
-              child: child,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

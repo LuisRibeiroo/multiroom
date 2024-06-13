@@ -1,12 +1,10 @@
 enum DeviceType {
   master,
-  slave1,
-  slave2;
+  slave;
 
   static fromString(String value) => switch (value.toLowerCase()) {
         "master" => master,
-        "slave1" => slave1,
-        "slave2" => slave2,
+        "slave" => slave,
         _ => master,
       };
 }

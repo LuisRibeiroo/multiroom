@@ -22,6 +22,8 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
     ),
   );
 
+  final disposables = <Function?>[];
+
   late final SignalValueNotifier<PageState> _stateNotifier;
 
   /// Obtém o estado atual mantido pelo `_stateNotifier`.
@@ -77,5 +79,9 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
   @mustCallSuper
   void dispose() {
     _update(InitialState());
+
+    for (final d in disposables) {
+      d?.call();
+    }
   }
 }
