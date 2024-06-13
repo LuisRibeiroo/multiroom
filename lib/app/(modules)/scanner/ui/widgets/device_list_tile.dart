@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/enums/device_type.dart';
 import 'package:routefly/routefly.dart';
 
 import '../../../../../routes.g.dart';
+import '../../../../core/enums/device_type.dart';
 import '../../../../core/extensions/build_context_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
