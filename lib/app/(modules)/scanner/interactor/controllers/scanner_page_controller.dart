@@ -45,14 +45,24 @@ class ScannerPageController extends BaseController {
   }
 
   Future<void> _startUdpServer() async {
-    udpServer = await UDP.bind(
-      Endpoint.unicast(
-        InternetAddress.anyIPv4,
-        port: const Port(4055),
-      ),
+    disposables.add(
+      effect(() {
+        if (isUdpListening.value) {
+          logger.i("UDP LISTENING ON --> ${udpServer.local.address?.address}:${udpServer.local.port?.value} ");
+        } else {
+          logger.i("UDP SERVER CLOSED");
+        }
+      }),
     );
 
     try {
+      udpServer = await UDP.bind(
+        Endpoint.unicast(
+          InternetAddress.anyIPv4,
+          port: const Port(4055),
+        ),
+      );
+
       isUdpListening.value = true;
       udpServer.asStream().listen(
         (datagram) {
@@ -108,16 +118,6 @@ class ScannerPageController extends BaseController {
       //     type: DeviceType.master,
       //   ),
       // );
-
-      disposables.add(
-        effect(() {
-          if (isUdpListening.value) {
-            logger.i("UDP LISTENING ON --> ${udpServer.local.address?.address}:${udpServer.local.port?.value} ");
-          } else {
-            logger.i("UDP SERVER CLOSED");
-          }
-        }),
-      );
     } catch (exception) {
       logger.e(exception);
       setError(exception as Exception);
