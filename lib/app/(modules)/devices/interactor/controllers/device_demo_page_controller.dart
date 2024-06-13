@@ -19,7 +19,7 @@ import '../../../../core/models/frequency.dart';
 import '../../../../core/models/zone_model.dart';
 import '../../../../core/utils/debouncer.dart';
 import '../../../../core/models/device_model.dart';
-import '../utils/multiroom_command_builder.dart';
+import '../../../../core/utils/multiroom_command_builder.dart';
 
 class DeviceDemoPageController extends BaseController {
   DeviceDemoPageController() : super(InitialState()) {

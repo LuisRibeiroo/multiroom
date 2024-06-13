@@ -1,9 +1,9 @@
-import '../../../../core/enums/device_type.dart';
-import '../../../../core/enums/multiroom_commands.dart';
-import '../../../../core/enums/zone_mode.dart';
-import '../../../../core/models/channel_model.dart';
-import '../../../../core/models/frequency.dart';
-import '../../../../core/models/zone_model.dart';
+import '../enums/device_type.dart';
+import '../enums/multiroom_commands.dart';
+import '../enums/zone_mode.dart';
+import '../models/channel_model.dart';
+import '../models/frequency.dart';
+import '../models/zone_model.dart';
 
 abstract final class MultiroomCommandBuilder {
   static String parseResponse(String response) => response.split("=").lastOrNull?.replaceAll("\n", "") ?? response;

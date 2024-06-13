@@ -13,7 +13,7 @@ import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/interactor/controllers/base_controller.dart';
 import '../../../../core/models/device_model.dart';
 import '../../../../core/utils/datagram_data_parser.dart';
-import '../../../devices/interactor/utils/multiroom_command_builder.dart';
+import '../../../../core/utils/multiroom_command_builder.dart';
 
 class ScannerPageController extends BaseController {
   ScannerPageController() : super(InitialState());
