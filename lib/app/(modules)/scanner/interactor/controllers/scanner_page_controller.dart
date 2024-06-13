@@ -32,14 +32,16 @@ class ScannerPageController extends BaseController {
   Future<void> init() async {
     _startUdpServer();
 
-    disposables.addAll([
-      isMasterAvailable.call,
-      effect(() {
-        isMasterAvailable.value = localDevices.every((d) => d.type != DeviceType.master);
-        slave1Available.value = localDevices.where((d) => d.type == DeviceType.slave).isEmpty;
-        slave2Available.value = localDevices.where((d) => d.type == DeviceType.slave).length < 2;
-      }),
-    ]);
+    disposables.addAll(
+      [
+        isMasterAvailable.call,
+        effect(() {
+          isMasterAvailable.value = localDevices.every((d) => d.type != DeviceType.master);
+          slave1Available.value = localDevices.where((d) => d.type == DeviceType.slave).isEmpty;
+          slave2Available.value = localDevices.where((d) => d.type == DeviceType.slave).length < 2;
+        }),
+      ],
+    );
   }
 
   Future<void> _startUdpServer() async {
