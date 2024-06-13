@@ -25,6 +25,8 @@ class ScannerPageController extends BaseController {
   final networkDevices = listSignal<NetworkDeviceModel>([], debugLabel: "networkDevices");
   final deviceType = NetworkDeviceType.master.toSignal(debugLabel: "deviceType");
 
+  Computed<bool> get hasAnyMaster => computed(() => localDevices.any((d) => d.type == DeviceType.master));
+
   Future<void> init() async {
     _startUdpServer();
   }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/enums/device_type.dart';
 import 'package:routefly/routefly.dart';
 
 import '../../../../../routes.g.dart';
 import '../../../../core/extensions/build_context_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
+import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/models/device_model.dart';
 import 'device_master_indicator.dart';
 
@@ -39,8 +41,54 @@ class DeviceListTile extends StatelessWidget {
                     style: context.textTheme.titleMedium,
                   ),
                   Text(
-                    "Ver ${device.version}",
+                    "Versão: ${device.version}",
                     style: context.textTheme.labelMedium,
+                  ),
+                  Text(
+                    "Serial: ${device.serialNumber}",
+                    style: context.textTheme.labelMedium,
+                  ),
+                ],
+              ),
+            ),
+            12.asSpace,
+            // FIXME: Descobrir como definir qual item está ativo
+            Flexible(
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: context.colorScheme.surface,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: context.colorScheme.primary,
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: Center(child: Text(device.type.name.capitalize)),
+                        ),
+                      )
+                    ],
+                  ),
+                  Visibility.maintain(
+                    visible: device.type != DeviceType.master,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        DeviceMasterIndicator(
+                          label: "M1",
+                          type: device.type,
+                        ),
+                        8.asSpace,
+                        DeviceMasterIndicator(
+                          label: "M2",
+                          type: device.type,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -49,52 +97,12 @@ class DeviceListTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                IconButton.outlined(
+                IconButton(
                   onPressed: () => Routefly.pushNavigate(
                     routePaths.devices.ui.pages.deviceConfiguration,
                     arguments: device,
                   ),
                   icon: const Icon(Icons.tune_rounded),
-                ),
-                Row(
-                  children: [
-                    Column(
-                      children: [
-                        RadioMenuButton(
-                          value: "master",
-                          groupValue: device.type.name,
-                          onChanged: (value) => onChangeType(device, value!),
-                          child: const Text("Master"),
-                        ),
-                        RadioMenuButton(
-                          value: "slave1",
-                          groupValue: device.type.name,
-                          onChanged: (value) => onChangeType(device, value!),
-                          child: const Text("Slave1"),
-                        ),
-                        RadioMenuButton(
-                          value: "slave2",
-                          groupValue: device.type.name,
-                          onChanged: (value) => onChangeType(device, value!),
-                          child: const Text("Slave2"),
-                        ),
-                      ],
-                    ),
-                    12.asSpace,
-                    Column(
-                      children: [
-                        8.asSpace,
-                        DeviceMasterIndicator(
-                          label: "M1",
-                          type: device.type,
-                        ),
-                        DeviceMasterIndicator(
-                          label: "M2",
-                          type: device.type,
-                        ),
-                      ],
-                    ),
-                  ],
                 ),
               ],
             ),

@@ -15,26 +15,11 @@ class DeviceMasterIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: Durations.short3,
-      child: Container(
-        key: ValueKey("$label$type"),
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: type != DeviceType.master ? context.colorScheme.primaryContainer : Colors.transparent,
-          border: Border.all(
-            color: type != DeviceType.master ? Colors.transparent : context.colorScheme.primaryContainer,
-          ),
-        ),
-        child: Text(
-          label,
-          style: context.textTheme.bodyLarge!.copyWith(
-            color: type != DeviceType.master ? context.colorScheme.onPrimaryContainer : context.colorScheme.primary,
-          ),
-        ),
-      ),
+    return Chip(
+      visualDensity: VisualDensity.compact,
+      padding: const EdgeInsets.all(2),
+      backgroundColor: type != DeviceType.master ? context.colorScheme.inversePrimary : Colors.transparent,
+      label: Text(label, style: context.textTheme.bodyLarge),
     );
   }
 }
