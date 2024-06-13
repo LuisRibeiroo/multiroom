@@ -24,6 +24,7 @@ class _ScannerPageState extends State<ScannerPage> {
 
   void _showNetworkDevicesBottomSheet() {
     context.showCustomModalBottomSheet(
+      isScrollControlled: false,
       child: Watch(
         (_) => Column(
           mainAxisSize: MainAxisSize.min,

@@ -5,6 +5,7 @@ extension ContextExt on BuildContext {
   TextTheme get textTheme => Theme.of(this).textTheme;
   IconThemeData get iconTheme => Theme.of(this).iconTheme;
   Size get size => MediaQuery.sizeOf(this);
+  MediaQueryData get mediaQuery => MediaQuery.of(this);
 
   Future<T?> showCustomModalBottomSheet<T>({
     required Widget child,
@@ -31,7 +32,7 @@ extension ContextExt on BuildContext {
                 height: 4,
                 width: 32,
                 decoration: BoxDecoration(
-                  color: Theme.of(this).colorScheme.onSurface,
+                  color: colorScheme.onSurface,
                   borderRadius: const BorderRadius.horizontal(
                     left: Radius.circular(12),
                     right: Radius.circular(12),
@@ -41,11 +42,11 @@ extension ContextExt on BuildContext {
             ),
             ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: MediaQuery.of(this).size.height * .3,
-                maxHeight: MediaQuery.of(this).size.height * maxHeight,
+                minHeight: size.height * .3,
+                maxHeight: size.height * maxHeight - 1,
               ),
               child: Padding(
-                padding: MediaQuery.of(this).viewInsets,
+                padding: mediaQuery.viewInsets,
                 child: child,
               ),
             ),

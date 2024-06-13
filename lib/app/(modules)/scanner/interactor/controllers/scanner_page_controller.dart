@@ -61,30 +61,29 @@ class ScannerPageController extends BaseController {
         },
       );
 
-      // for (int i = 0; i < 10; i++) {
-      //   await Future.delayed(
-      //     const Duration(seconds: 1),
-      //     () => devicesList.add(
-      //       DeviceModel(
-      //         serialNumber: "${i + 1}",
-      //         ip: "192.168.0.${i + 1}",
-      //         version: "1.0",
-      //         type: DeviceType.master,
-      //       ),
-      //     ),
-      //   );
-      // }
-
-      await Future.delayed(
-        const Duration(seconds: 2),
-        () => networkDevices.add(
-          const NetworkDeviceModel(
-            ip: "192.188.0.1",
-            serialNumber: "123456",
-            firmware: "1.0",
+      for (int i = 0; i < 10; i++) {
+        await Future.delayed(
+          const Duration(seconds: 1),
+          () => networkDevices.add(
+            NetworkDeviceModel(
+              ip: "192.168.0.${i + 1}",
+              serialNumber: "123456-$i",
+              firmware: "1.0",
+            ),
           ),
-        ),
-      );
+        );
+      }
+
+      // await Future.delayed(
+      //   const Duration(seconds: 2),
+      //   () => networkDevices.add(
+      //     const NetworkDeviceModel(
+      //       ip: "192.188.0.1",
+      //       serialNumber: "123456",
+      //       firmware: "1.0",
+      //     ),
+      //   ),
+      // );
       // localDevices.add(
       //   DeviceModel.builder(
       //     serialNumber: Random().nextInt(99999).toString(),
