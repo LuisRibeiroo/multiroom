@@ -38,11 +38,13 @@ class NetworkDeviceModel extends Equatable {
 }
 
 enum NetworkDeviceType {
+  undefined,
   master,
   slave1,
   slave2;
 
   String get readable => switch (this) {
+        undefined => "Não definido",
         master => "Master 1",
         slave1 => "Slave 1",
         slave2 => "Slave 2",

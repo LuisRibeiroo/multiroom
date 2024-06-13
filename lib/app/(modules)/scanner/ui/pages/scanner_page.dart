@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -55,47 +56,14 @@ class _ScannerPageState extends State<ScannerPage> {
 
                               context.showCustomModalBottomSheet(
                                 child: Watch(
-                                  (_) => Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Modo",
-                                        style: context.textTheme.titleLarge,
-                                      ),
-                                      12.asSpace,
-                                      Wrap(
-                                        spacing: 24,
-                                        alignment: WrapAlignment.center,
-                                        runAlignment: WrapAlignment.center,
-                                        children: [
-                                          ChoiceChip(
-                                            label: const Text("Master"),
-                                            selected: _controller.deviceType.value == NetworkDeviceType.master,
-                                            onSelected: (_) => _controller.deviceType.set(NetworkDeviceType.master),
-                                          ),
-                                          ChoiceChip(
-                                            label: const Text("Slave 1"),
-                                            selected: _controller.deviceType.value == NetworkDeviceType.slave1,
-                                            onSelected: (_) => _controller.deviceType.set(NetworkDeviceType.slave1),
-                                          ),
-                                          ChoiceChip(
-                                            label: const Text("Slave 2"),
-                                            selected: _controller.deviceType.value == NetworkDeviceType.slave2,
-                                            onSelected: (_) => _controller.deviceType.set(NetworkDeviceType.slave2),
-                                          ),
-                                        ],
-                                      ),
-                                      24.asSpace,
-                                      ElevatedButton.icon(
-                                        icon: const Icon(Icons.add_rounded),
-                                        label: const Text("Adicionar"),
-                                        onPressed: () {
-                                          Routefly.pop(context);
-                                          _controller.onConfirmAddDevice(netDevice);
-                                        },
-                                      )
-                                    ],
+                                  (_) => TypeSelectionBottomSheet(
+                                    netDevice: netDevice,
+                                    deviceType: _controller.deviceType.value,
+                                    onChangeType: _controller.deviceType.set,
+                                    onTapConfirm: _controller.onConfirmAddDevice,
+                                    masterAvailable: _controller.isMasterAvailable.value,
+                                    slave1Available: _controller.slave1Available.value,
+                                    slave2Available: _controller.slave2Available.value,
                                   ),
                                 ),
                               );
@@ -192,5 +160,74 @@ class _ScannerPageState extends State<ScannerPage> {
     super.dispose();
 
     _controller.dispose();
+  }
+}
+
+class TypeSelectionBottomSheet extends StatelessWidget {
+  const TypeSelectionBottomSheet({
+    super.key,
+    required this.netDevice,
+    required this.deviceType,
+    required this.onChangeType,
+    required this.onTapConfirm,
+    required this.masterAvailable,
+    required this.slave1Available,
+    required this.slave2Available,
+  });
+
+  final NetworkDeviceModel netDevice;
+  final NetworkDeviceType deviceType;
+  final Function(NetworkDeviceType) onChangeType;
+  final Function(NetworkDeviceModel) onTapConfirm;
+  final bool masterAvailable;
+  final bool slave1Available;
+  final bool slave2Available;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          "Modo",
+          style: context.textTheme.titleLarge,
+        ),
+        12.asSpace,
+        Wrap(
+          spacing: 24,
+          alignment: WrapAlignment.center,
+          runAlignment: WrapAlignment.center,
+          children: [
+            ChoiceChip(
+              label: Text(NetworkDeviceType.master.readable),
+              selected: deviceType == NetworkDeviceType.master,
+              onSelected: masterAvailable ? (_) => onChangeType(NetworkDeviceType.master) : null,
+            ),
+            ChoiceChip(
+              label: Text(NetworkDeviceType.slave1.readable),
+              selected: deviceType == NetworkDeviceType.slave1,
+              onSelected: slave1Available ? (_) => onChangeType(NetworkDeviceType.slave1) : null,
+            ),
+            ChoiceChip(
+              label: Text(NetworkDeviceType.slave2.readable),
+              selected: deviceType == NetworkDeviceType.slave2,
+              onSelected: slave2Available ? (_) => onChangeType(NetworkDeviceType.slave2) : null,
+            ),
+          ],
+        ),
+        24.asSpace,
+        ElevatedButton.icon(
+          icon: const Icon(Icons.add_rounded),
+          label: const Text("Adicionar"),
+          onPressed: deviceType != NetworkDeviceType.undefined
+              ? () {
+                  Routefly.pop(context);
+                  onTapConfirm(netDevice);
+                }
+              : null,
+        )
+      ],
+    );
   }
 }

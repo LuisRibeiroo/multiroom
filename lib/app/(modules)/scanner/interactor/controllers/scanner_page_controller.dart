@@ -23,12 +23,23 @@ class ScannerPageController extends BaseController {
   final isUdpListening = false.toSignal(debugLabel: "isUdpListening");
   final localDevices = listSignal<DeviceModel>([], debugLabel: "localDevices");
   final networkDevices = listSignal<NetworkDeviceModel>([], debugLabel: "networkDevices");
-  final deviceType = NetworkDeviceType.master.toSignal(debugLabel: "deviceType");
+  final deviceType = NetworkDeviceType.undefined.toSignal(debugLabel: "deviceType");
 
-  Computed<bool> get hasAnyMaster => computed(() => localDevices.any((d) => d.type == DeviceType.master));
+  final isMasterAvailable = true.toSignal(debugLabel: "isMasterAvailable");
+  final slave1Available = true.toSignal(debugLabel: "slave1Available");
+  final slave2Available = true.toSignal(debugLabel: "slave2Available");
 
   Future<void> init() async {
     _startUdpServer();
+
+    disposables.addAll([
+      isMasterAvailable.call,
+      effect(() {
+        isMasterAvailable.value = localDevices.every((d) => d.type != DeviceType.master);
+        slave1Available.value = localDevices.where((d) => d.type == DeviceType.slave).isEmpty;
+        slave2Available.value = localDevices.where((d) => d.type == DeviceType.slave).length < 2;
+      }),
+    ]);
   }
 
   Future<void> _startUdpServer() async {
@@ -134,6 +145,8 @@ class ScannerPageController extends BaseController {
         type: DeviceType.fromString(deviceType.value.name.lettersOnly),
       ),
     );
+
+    deviceType.value = deviceType.initialValue;
   }
 
   Future<String> _setDeviceMode(String ip, DeviceType type) async {
