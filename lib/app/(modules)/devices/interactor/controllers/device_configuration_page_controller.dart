@@ -121,6 +121,10 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
   }
 
+  void removeDevice() {
+    settings.removeDevice(device.value.serialNumber);
+  }
+
   Future<void> _readCommand(String cmd) async {
     final response = MrCmdBuilder.parseResponse(await socketSender(cmd));
 

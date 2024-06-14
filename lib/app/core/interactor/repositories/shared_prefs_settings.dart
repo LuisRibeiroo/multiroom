@@ -45,6 +45,20 @@ class SharedPrefsSettings implements SettingsContract {
   }
 
   @override
+  void removeDevice(String id) {
+    final currentList = devices;
+    final index = currentList.indexWhere((d) => d.serialNumber == id);
+
+    if (index != -1) {
+      currentList.removeAt(index);
+
+      final jsonDevices = currentList.map((d) => jsonEncode(d.toMap())).toList();
+
+      _prefs.setStringList("devices", jsonDevices).ignore();
+    }
+  }
+
+  @override
   List<DeviceModel> get devices {
     final jsonDevices = _prefs.getStringList("devices");
 

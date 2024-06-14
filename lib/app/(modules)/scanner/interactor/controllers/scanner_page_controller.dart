@@ -44,8 +44,10 @@ class ScannerPageController extends BaseController {
         effect(() {
           hasAvailableSlots.value = localDevices.length < 3;
           isMasterAvailable.value = localDevices.every((d) => d.type != DeviceType.master);
-          slave1Available.value = localDevices.where((d) => d.type == DeviceType.slave).isEmpty;
-          slave2Available.value = localDevices.where((d) => d.type == DeviceType.slave).length < 2;
+          slave1Available.value =
+              isMasterAvailable.peek() == false && localDevices.where((d) => d.type == DeviceType.slave).isEmpty;
+          slave2Available.value =
+              slave1Available.value == false && localDevices.where((d) => d.type == DeviceType.slave).length == 1;
 
           if (hasAvailableSlots.value == false) {
             stopUdpServer();
@@ -164,6 +166,8 @@ class ScannerPageController extends BaseController {
         localDevices.value = settings.devices;
       },
     );
+
+    untracked(localDevices.clear);
   }
 
   Future<void> onConfirmAddDevice(NetworkDeviceModel netDevice) async {

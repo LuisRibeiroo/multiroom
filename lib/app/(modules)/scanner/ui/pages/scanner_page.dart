@@ -138,42 +138,43 @@ class _ScannerPageState extends State<ScannerPage> {
               24.asSpace,
             ],
           ),
-          body: AnimatedSwitcher(
-            duration: Durations.short4,
-            child: _controller.localDevices.isEmpty
-                ? Center(
-                    key: const ValueKey("empty"),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Spacer(),
-                        const Icon(
-                          Icons.settings_input_antenna_rounded,
-                          size: 80,
-                        ),
-                        Text(
-                          'Procurando dispositivos',
-                          style: context.textTheme.titleLarge,
-                        ),
-                        12.asSpace,
-                        const CircularProgressIndicator(),
-                        const Spacer(),
-                        40.asSpace,
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: _controller.localDevices.length,
-                    itemBuilder: (_, index) => Watch(
-                      (_) => DeviceListTile(
-                        device: _controller.localDevices[index],
-                        onChangeActive: _controller.onChangeActive,
-                        onChangeType: _controller.onChangeType,
-                        onTapConfigDevice: _controller.onTapConfigDevice,
-                      ),
-                    ),
+          body: Watch(
+            (_) => Visibility(
+              visible: _controller.localDevices.isEmpty,
+              replacement: ListView.builder(
+                padding: const EdgeInsets.all(12),
+                itemCount: _controller.localDevices.length,
+                itemBuilder: (_, index) => Watch(
+                  (_) => DeviceListTile(
+                    device: _controller.localDevices[index],
+                    onChangeActive: _controller.onChangeActive,
+                    onChangeType: _controller.onChangeType,
+                    onTapConfigDevice: _controller.onTapConfigDevice,
                   ),
+                ),
+              ),
+              child: Center(
+                key: const ValueKey("empty"),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Spacer(),
+                    const Icon(
+                      Icons.settings_input_antenna_rounded,
+                      size: 80,
+                    ),
+                    Text(
+                      'Procurando dispositivos',
+                      style: context.textTheme.titleLarge,
+                    ),
+                    12.asSpace,
+                    const CircularProgressIndicator(),
+                    const Spacer(),
+                    40.asSpace,
+                  ],
+                ),
+              ),
+            ),
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: _showNetworkDevicesBottomSheet,

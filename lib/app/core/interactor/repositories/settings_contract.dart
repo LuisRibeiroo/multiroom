@@ -7,4 +7,5 @@ abstract class SettingsContract {
   List<DeviceModel> get devices;
   void saveDevice(DeviceModel device);
   void saveDevices(List<DeviceModel> value);
+  void removeDevice(String id);
 }

@@ -66,9 +66,52 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                                 style: context.textTheme.titleMedium,
                               ),
                               12.asSpace,
+                              const Spacer(),
+                              IconButton.filled(
+                                onPressed: () {
+                                  context.showCustomModalBottomSheet(
+                                    isScrollControlled: false,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Tem certeza que deseja remover o dispositivo \"${_controller.device.value.name}\"?",
+                                            style: context.textTheme.bodyLarge,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          24.asSpace,
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              OutlinedButton(
+                                                onPressed: () {
+                                                  Routefly.pop(context);
+                                                },
+                                                child: const Text("Cancelar"),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  _controller.removeDevice();
+
+                                                  Routefly.pop(context);
+                                                  Routefly.pop(context);
+                                                },
+                                                child: const Text("Sim"),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.delete_rounded),
+                              ),
                             ],
                           ),
-                          8.asSpace,
+                          12.asSpace,
                           Row(
                             children: [
                               Expanded(
