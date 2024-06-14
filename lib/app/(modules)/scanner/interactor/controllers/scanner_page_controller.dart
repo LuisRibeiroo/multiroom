@@ -44,7 +44,7 @@ class ScannerPageController extends BaseController {
           slave2Available.value = localDevices.where((d) => d.type == DeviceType.slave).length < 2;
 
           if (hasAvailableSlots.value == false) {
-            _stopUdpServer();
+            stopUdpServer();
           }
         }),
         effect(() {
@@ -133,7 +133,7 @@ class ScannerPageController extends BaseController {
     }
   }
 
-  void _stopUdpServer() {
+  void stopUdpServer() {
     if (_udpServer.closed == false) {
       _udpServer.close();
     }
@@ -206,7 +206,7 @@ class ScannerPageController extends BaseController {
   void dispose() {
     super.dispose();
 
-    _stopUdpServer();
+    stopUdpServer();
     isUdpListening.value = isUdpListening.initialValue;
     deviceType.value = deviceType.initialValue;
 

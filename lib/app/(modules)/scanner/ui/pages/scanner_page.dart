@@ -123,6 +123,13 @@ class _ScannerPageState extends State<ScannerPage> {
             actions: [
               Visibility(
                 visible: _controller.isUdpListening.value,
+                child: IconButton(
+                  icon: const Icon(Icons.cancel_rounded),
+                  onPressed: _controller.stopUdpServer,
+                ),
+              ),
+              Visibility(
+                visible: _controller.isUdpListening.value,
                 child: const SizedBox.square(
                   dimension: 20,
                   child: CircularProgressIndicator(),
