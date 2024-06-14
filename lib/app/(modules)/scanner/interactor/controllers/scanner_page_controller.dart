@@ -4,12 +4,14 @@ import 'dart:io';
 import 'package:signals/signals_flutter.dart';
 import 'package:udp/udp.dart';
 
+import '../../../../../injector.dart';
 import '../../../../core/enums/device_type.dart';
 import '../../../../core/enums/page_state.dart';
 import '../../../../core/extensions/socket_extensions.dart';
 import '../../../../core/extensions/stream_iterator_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/interactor/controllers/base_controller.dart';
+import '../../../../core/interactor/repositories/settings_contract.dart';
 import '../../../../core/models/device_model.dart';
 import '../../../../core/utils/datagram_data_parser.dart';
 import '../../../../core/utils/multiroom_command_builder.dart';
@@ -19,6 +21,8 @@ class ScannerPageController extends BaseController {
   ScannerPageController() : super(InitialState());
 
   late UDP _udpServer;
+
+  final settings = injector.get<SettingsContract>();
 
   final isUdpListening = false.toSignal(debugLabel: "isUdpListening");
   final localDevices = listSignal<DeviceModel>([], debugLabel: "localDevices");

@@ -2,13 +2,16 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:routefly/routefly.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
+import 'app/core/interactor/repositories/settings_contract.dart';
+import 'app/core/interactor/repositories/shared_prefs_settings.dart';
 import 'app/core/theme/theme.dart';
 import 'injector.dart';
 import 'routes.g.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   EquatableConfig.stringify = true;
@@ -19,6 +22,9 @@ void main() {
   ]);
   SystemChannels.textInput.invokeMethod('TextInput.hide');
 
+  final sharedPrefs = await SharedPreferences.getInstance();
+
+  injector.addLazySingleton<SettingsContract>(() => SharedPrefsSettings(sharedPrefs));
   injector.commit();
 
   runApp(const ToastificationWrapper(child: MyApp()));
