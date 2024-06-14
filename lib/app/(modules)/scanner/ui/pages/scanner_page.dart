@@ -105,8 +105,9 @@ class _ScannerPageState extends State<ScannerPage> {
     super.initState();
 
     scheduleMicrotask(() async {
+      await _controller.init();
+
       if (_controller.localDevices.isEmpty) {
-        await _controller.init();
         _showNetworkDevicesBottomSheet();
       }
     });

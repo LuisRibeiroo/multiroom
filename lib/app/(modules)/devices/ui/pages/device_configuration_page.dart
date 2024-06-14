@@ -7,11 +7,10 @@ import '../../../../../injector.dart';
 import '../../../../core/extensions/build_context_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
-import '../../../../core/models/zone_model.dart';
-import '../../../../core/models/zone_wrapper_model.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../../scanner/ui/widgets/device_master_indicator.dart';
 import '../../interactor/controllers/device_configuration_page_controller.dart';
+import '../widgets/zone_name_edit_tile.dart';
 
 class DeviceConfigurationPage extends StatefulWidget {
   const DeviceConfigurationPage({super.key});
@@ -54,11 +53,9 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                         children: [
                           Row(
                             children: [
-                              Visibility(
-                                child: DeviceMasterIndicator(
-                                  type: _controller.device.value.type,
-                                  label: _controller.device.value.masterName.or("M1"),
-                                ),
+                              DeviceMasterIndicator(
+                                type: _controller.device.value.type,
+                                label: _controller.device.value.masterName.or("M"),
                               ),
                               12.asSpace,
                               Column(
@@ -66,16 +63,16 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                                 children: [
                                   Text(
                                     _controller.device.value.ip,
-                                    style: context.textTheme.titleLarge,
+                                    style: context.textTheme.bodyLarge,
                                   ),
                                   4.asSpace,
                                   Text(
                                     _controller.device.value.serialNumber,
-                                    style: context.textTheme.titleMedium,
+                                    style: context.textTheme.bodyMedium,
                                   ),
                                   Text(
                                     "V ${_controller.device.value.version}",
-                                    style: context.textTheme.titleMedium,
+                                    style: context.textTheme.bodyMedium,
                                   ),
                                 ],
                               ),
@@ -164,13 +161,13 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                       controller: _zonesExpandableController,
                       theme: ExpandableThemeData(
                         iconColor: context.colorScheme.onSurface,
-                        iconPadding: const EdgeInsets.symmetric(vertical: 24, horizontal: 18.0),
+                        iconPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18.0),
                       ),
                       header: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 18.0),
+                        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18.0),
                         child: Text(
                           "Zonas",
-                          style: context.textTheme.titleLarge,
+                          style: context.textTheme.titleMedium,
                         ),
                       ),
                       collapsed: const SizedBox.shrink(),
@@ -265,55 +262,5 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
     super.dispose();
 
     _controller.dispose();
-  }
-}
-
-class ZoneNameEditTile extends StatelessWidget {
-  const ZoneNameEditTile({
-    super.key,
-    required this.wrapper,
-    required this.zone,
-    required this.isEditing,
-    required this.onChangeZoneName,
-    required this.toggleEditing,
-    this.label = "",
-  });
-
-  final String label;
-  final ZoneWrapperModel wrapper;
-  final ZoneModel zone;
-  final bool isEditing;
-  final Function(ZoneModel, String) onChangeZoneName;
-  final Function(ZoneWrapperModel, ZoneModel) toggleEditing;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: TextFormField(
-            enabled: isEditing,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelText: label,
-            ),
-            initialValue: zone.name,
-            onChanged: (value) => onChangeZoneName(zone, value),
-            style: context.textTheme.titleSmall,
-          ),
-        ),
-        12.asSpace,
-        IconButton(
-          onPressed: () => toggleEditing(wrapper, zone),
-          icon: AnimatedSwitcher(
-            duration: Durations.short3,
-            child: Icon(
-              key: ValueKey(isEditing),
-              isEditing ? Icons.check_rounded : Icons.edit_rounded,
-            ),
-          ),
-        ),
-      ],
-    );
   }
 }
