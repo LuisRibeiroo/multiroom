@@ -47,6 +47,13 @@ class ScannerPageController extends BaseController {
             _stopUdpServer();
           }
         }),
+        effect(() {
+          if (isUdpListening.value) {
+            logger.i("UDP LISTENING ON --> ${_udpServer.local.address?.address}:${_udpServer.local.port?.value} ");
+          } else {
+            logger.i("UDP SERVER CLOSED");
+          }
+        })
       ],
     );
   }
@@ -65,45 +72,50 @@ class ScannerPageController extends BaseController {
       );
 
       isUdpListening.value = true;
+
       _udpServer.asStream().listen(
         (datagram) {
           if (datagram == null) {
             return;
           }
 
-          final data = String.fromCharCodes(datagram.data);
+          try {
+            final data = datagram.data;
+            logger.i("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
 
-          logger.i("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
+            final (serialNumber, firmware) = DatagramDataParser.getSerialAndFirmware(datagram.data);
 
-          final (serialNumber, firmware) = DatagramDataParser.getSerialAndFirmware(data);
+            // Ignore already added devices
+            if (localDevices.any((d) => d.serialNumber == serialNumber) ||
+                networkDevices.any((d) => d.serialNumber == serialNumber)) {
+              return;
+            }
 
-          // Ignore already added devices
-          if (localDevices.any((d) => d.serialNumber == serialNumber)) {
-            return;
+            networkDevices.add(
+              NetworkDeviceModel(
+                ip: datagram.address.address,
+                serialNumber: serialNumber,
+                firmware: firmware,
+              ),
+            );
+          } catch (exception) {
+            logger.e("Datagram parse error [${datagram.address.address}]-> $exception");
           }
-
-          networkDevices.add(
-            NetworkDeviceModel(
-              ip: datagram.address.address,
-              serialNumber: serialNumber,
-              firmware: firmware,
-            ),
-          );
         },
       );
 
-      for (int i = 0; i < 10; i++) {
-        await Future.delayed(
-          const Duration(seconds: 1),
-          () => networkDevices.add(
-            NetworkDeviceModel(
-              ip: "192.168.0.${i + 1}",
-              serialNumber: "123456-$i",
-              firmware: "1.0",
-            ),
-          ),
-        );
-      }
+      // for (int i = 0; i < 10; i++) {
+      //   await Future.delayed(
+      //     const Duration(seconds: 1),
+      //     () => networkDevices.add(
+      //       NetworkDeviceModel(
+      //         ip: "192.168.0.${i + 1}",
+      //         serialNumber: "123456-$i",
+      //         firmware: "1.0",
+      //       ),
+      //     ),
+      //   );
+      // }
 
       // await Future.delayed(
       //   const Duration(seconds: 2),
@@ -113,15 +125,6 @@ class ScannerPageController extends BaseController {
       //       serialNumber: "123456",
       //       firmware: "1.0",
       //     ),
-      //   ),
-      // );
-      // localDevices.add(
-      //   DeviceModel.builder(
-      //     serialNumber: Random().nextInt(99999).toString(),
-      //     name: "Master 1",
-      //     ip: "192.168.0.1",
-      //     version: "1.0",
-      //     type: DeviceType.master,
       //   ),
       // );
     } catch (exception) {
@@ -147,10 +150,10 @@ class ScannerPageController extends BaseController {
   }
 
   Future<void> onConfirmAddDevice(NetworkDeviceModel netDevice) async {
-    // final deviceMode = await _setDeviceMode(
-    //   netDevice.ip,
-    //   DeviceType.fromString(deviceType.value.name.lettersOnly),
-    // );
+    final type = await _setDeviceType(
+      netDevice.ip,
+      DeviceType.fromString(deviceType.value.name.lettersOnly),
+    );
 
     localDevices.add(
       DeviceModel.builder(
@@ -158,7 +161,7 @@ class ScannerPageController extends BaseController {
         serialNumber: netDevice.serialNumber,
         version: netDevice.firmware,
         name: deviceType.value.readable,
-        type: DeviceType.fromString(deviceType.value.name.lettersOnly),
+        type: DeviceType.fromString(type),
       ),
     );
 
@@ -166,7 +169,7 @@ class ScannerPageController extends BaseController {
     networkDevices.removeWhere((d) => d.serialNumber == netDevice.serialNumber);
   }
 
-  Future<String> _setDeviceMode(String ip, DeviceType type) async {
+  Future<String> _setDeviceType(String ip, DeviceType type) async {
     final Socket socket;
 
     try {

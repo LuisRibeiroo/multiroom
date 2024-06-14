@@ -41,11 +41,11 @@ class DeviceListTile extends StatelessWidget {
                     style: context.textTheme.titleMedium,
                   ),
                   Text(
-                    "Versão: ${device.version}",
+                    device.serialNumber,
                     style: context.textTheme.labelMedium,
                   ),
                   Text(
-                    "Serial: ${device.serialNumber}",
+                    "V ${device.version}",
                     style: context.textTheme.labelMedium,
                   ),
                 ],

@@ -6,7 +6,8 @@ import '../models/frequency.dart';
 import '../models/zone_model.dart';
 
 abstract final class MultiroomCommandBuilder {
-  static String parseResponse(String response) => response.split("=").lastOrNull?.replaceAll("\n", "") ?? response;
+  static String parseResponse(String response) =>
+      response.split("=").lastOrNull?.replaceAll(RegExp(r"[\r\n\t]"), "") ?? response;
 
   static String get configs => MultiroomCommands.mrCfgShow.value;
 
@@ -21,7 +22,7 @@ abstract final class MultiroomCommandBuilder {
   static String setExpansionMode({
     required DeviceType type,
   }) =>
-      "${MultiroomCommands.mrExpModeSet.value},$type";
+      "${MultiroomCommands.mrExpModeSet.value},${type.name}";
 
   static String getZoneMode({
     required ZoneModel zone,

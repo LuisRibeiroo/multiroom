@@ -18,10 +18,9 @@ extension StreamIteratorExt on StreamIterator {
       final response = String.fromCharCodes(current);
       _logger.i("<<< $response");
 
-      await cancel();
-
       return response;
     } catch (exception) {
+      await cancel();
       throw Exception("Erro ao ler resposta [$exception]");
     }
   }

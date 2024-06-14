@@ -1,17 +1,9 @@
-import 'dart:convert';
+import 'dart:typed_data';
 
 abstract class DatagramDataParser {
-  static (String serialNumber, String firmware) getSerialAndFirmware(String data) {
-    String serialNumber = "";
-    String firmware = "";
-
-    switch (jsonDecode(data)) {
-      case {"serialNumber": final value}:
-        serialNumber = value;
-
-      case {"fwVersion": final value}:
-        firmware = value;
-    }
+  static (String serialNumber, String firmware) getSerialAndFirmware(Uint8List data) {
+    String serialNumber = String.fromCharCodes(data.sublist(29, 45));
+    String firmware = data.sublist(46, 48).join(".");
 
     return (serialNumber, firmware);
   }
