@@ -119,7 +119,7 @@ class _ScannerPageState extends State<ScannerPage> {
         state: _controller.state,
         child: Scaffold(
           appBar: AppBar(
-            title: const Text("Dispositivos"),
+            title: const Text("Acesso Técnico"),
             actions: [
               Visibility(
                 visible: _controller.isUdpListening.value,
