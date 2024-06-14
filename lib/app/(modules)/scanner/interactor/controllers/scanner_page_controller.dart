@@ -22,7 +22,7 @@ import '../models/network_device_model.dart';
 class ScannerPageController extends BaseController {
   ScannerPageController() : super(InitialState());
 
-  late UDP _udpServer;
+  UDP? _udpServer;
 
   final settings = injector.get<SettingsContract>();
 
@@ -55,7 +55,7 @@ class ScannerPageController extends BaseController {
         }),
         effect(() {
           if (isUdpListening.value) {
-            logger.i("UDP LISTENING ON --> ${_udpServer.local.address?.address}:${_udpServer.local.port?.value} ");
+            logger.i("UDP LISTENING ON --> ${_udpServer?.local.address?.address}:${_udpServer?.local.port?.value} ");
           } else {
             logger.i("UDP SERVER CLOSED");
           }
@@ -82,7 +82,7 @@ class ScannerPageController extends BaseController {
 
       isUdpListening.value = true;
 
-      _udpServer.asStream().listen(
+      _udpServer?.asStream().listen(
         (datagram) {
           if (datagram == null) {
             return;
@@ -143,8 +143,8 @@ class ScannerPageController extends BaseController {
   }
 
   void stopUdpServer() {
-    if (_udpServer.closed == false) {
-      _udpServer.close();
+    if (_udpServer?.closed == false) {
+      _udpServer?.close();
     }
 
     isUdpListening.value = false;
