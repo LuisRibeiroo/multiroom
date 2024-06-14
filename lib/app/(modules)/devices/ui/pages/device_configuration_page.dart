@@ -61,9 +61,23 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                                 ),
                               ),
                               12.asSpace,
-                              Text(
-                                _controller.device.value.ip,
-                                style: context.textTheme.titleMedium,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _controller.device.value.ip,
+                                    style: context.textTheme.titleLarge,
+                                  ),
+                                  4.asSpace,
+                                  Text(
+                                    _controller.device.value.serialNumber,
+                                    style: context.textTheme.titleMedium,
+                                  ),
+                                  Text(
+                                    "V ${_controller.device.value.version}",
+                                    style: context.textTheme.titleMedium,
+                                  ),
+                                ],
                               ),
                               12.asSpace,
                               const Spacer(),
@@ -111,7 +125,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                               ),
                             ],
                           ),
-                          12.asSpace,
+                          const Divider(height: 32),
                           Row(
                             children: [
                               Expanded(
@@ -150,10 +164,10 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                       controller: _zonesExpandableController,
                       theme: ExpandableThemeData(
                         iconColor: context.colorScheme.onSurface,
-                        iconPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 18.0),
+                        iconPadding: const EdgeInsets.symmetric(vertical: 24, horizontal: 18.0),
                       ),
                       header: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 18.0),
+                        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 18.0),
                         child: Text(
                           "Zonas",
                           style: context.textTheme.titleLarge,
@@ -177,8 +191,10 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                                         title: Text("Zona ${idx + 1}"),
                                         subtitle: Text(wrapper.mode.name.capitalize),
                                         value: wrapper.isStereo,
+                                        secondary: const Icon(Icons.surround_sound_rounded),
                                         onChanged: (value) => _controller.onChangeZoneMode(wrapper, value),
                                       ),
+                                      8.asSpace,
                                       AnimatedSize(
                                         duration: Durations.medium2,
                                         child: Column(
@@ -198,6 +214,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                                             Visibility(
                                               visible: wrapper.isStereo == false,
                                               child: ZoneNameEditTile(
+                                                label: wrapper.monoZones.right.id,
                                                 zone: wrapper.monoZones.right,
                                                 wrapper: wrapper,
                                                 isEditing:
@@ -211,6 +228,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                                             Visibility(
                                               visible: wrapper.isStereo == false,
                                               child: ZoneNameEditTile(
+                                                label: wrapper.monoZones.left.id,
                                                 zone: wrapper.monoZones.left,
                                                 wrapper: wrapper,
                                                 isEditing:
@@ -258,8 +276,10 @@ class ZoneNameEditTile extends StatelessWidget {
     required this.isEditing,
     required this.onChangeZoneName,
     required this.toggleEditing,
+    this.label = "",
   });
 
+  final String label;
   final ZoneWrapperModel wrapper;
   final ZoneModel zone;
   final bool isEditing;
@@ -273,8 +293,9 @@ class ZoneNameEditTile extends StatelessWidget {
         Expanded(
           child: TextFormField(
             enabled: isEditing,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: label,
             ),
             initialValue: zone.name,
             onChanged: (value) => onChangeZoneName(zone, value),
