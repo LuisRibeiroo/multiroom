@@ -37,6 +37,8 @@ class ScannerPageController extends BaseController {
   final hasAvailableSlots = false.toSignal(debugLabel: "hasAvailableSlots");
 
   Future<void> init() async {
+    localDevices.value = settings.devices;
+    
     disposables.addAll(
       [
         effect(() {
@@ -55,7 +57,11 @@ class ScannerPageController extends BaseController {
           } else {
             logger.i("UDP SERVER CLOSED");
           }
-        })
+        }),
+        effect(() {
+
+          settings.saveDevices(localDevices.value);
+        }),
       ],
     );
   }

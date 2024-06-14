@@ -48,6 +48,32 @@ class ZoneModel extends Equatable {
     );
   }
 
+  factory ZoneModel.fromMap(Map<String, dynamic> map) {
+    return ZoneModel(
+      id: map['id'],
+      name: map['name'],
+      active: map['active'],
+      channels: List<ChannelModel>.from(map['channels']?.map((x) => ChannelModel.fromMap(x))),
+      volume: map['volume'],
+      balance: map['balance'],
+      equalizer: EqualizerModel.fromMap(map['equalizer']),
+      side: MonoSide.values[map['side']],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'active': active,
+      'channels': channels.map((x) => x.toMap()).toList(),
+      'volume': volume,
+      'balance': balance,
+      'equalizer': equalizer.toMap(),
+      'side': side.index,
+    };
+  }
+
   final String id;
   final String name;
   final bool active;

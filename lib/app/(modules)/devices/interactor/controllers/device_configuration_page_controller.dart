@@ -22,19 +22,25 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   final isEditingDevice = false.toSignal(debugLabel: "isEditingDevice");
   final isEditingZone = false.toSignal(debugLabel: "isEditingZone");
 
-  Future<void> init({required DeviceModel device}) async {
-    this.device.value = device;
-    deviceName.value = device.name;
+  Future<void> init({required DeviceModel dev}) async {
+    device.value = dev;
+    deviceName.value = dev.name;
 
     try {
-      await initSocket(ip: device.ip);
+      await initSocket(ip: dev.ip);
     } catch (exception) {
       logger.e(exception);
       setError(exception as Exception);
     }
 
     final configs = await _getDeviceData();
-    this.device.value = this.device.value.copyWith(zones: _parseZones(configs));
+    device.value = device.value.copyWith(zones: _parseZones(configs));
+
+    disposables.add(
+      effect(
+        () {},
+      ),
+    );
   }
 
   void toggleEditingDevice() {

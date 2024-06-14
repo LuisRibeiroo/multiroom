@@ -23,6 +23,22 @@ class ChannelModel extends Equatable {
     );
   }
 
+  factory ChannelModel.fromMap(Map<String, dynamic> map) {
+    return ChannelModel(
+      id: map['id'],
+      name: map['name'],
+      active: map['active'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'active': active,
+    };
+  }
+
   final String id;
   final String name;
   final bool active;

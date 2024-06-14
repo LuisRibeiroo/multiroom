@@ -46,6 +46,32 @@ class DeviceModel extends Equatable {
     );
   }
 
+  factory DeviceModel.fromMap(Map<String, dynamic> map) {
+    return DeviceModel(
+      serialNumber: map['serialNumber'],
+      name: map['name'],
+      ip: map['ip'],
+      zones: List.from(map['zones']?.map((x) => ZoneWrapperModel.fromMap(x))),
+      version: map['version'],
+      type: DeviceType.values[map['type']],
+      masterName: map['masterName'],
+      active: map['active'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'serialNumber': serialNumber,
+      'name': name,
+      'ip': ip,
+      'zones': zones.map((x) => x.toMap()).toList(),
+      'version': version,
+      'type': type.index,
+      'masterName': masterName,
+      'active': active,
+    };
+  }
+
   final String serialNumber;
   final String name;
   final String ip;

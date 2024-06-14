@@ -13,6 +13,20 @@ class Frequency extends Equatable {
     );
   }
 
+  factory Frequency.fromMap(Map<String, dynamic> map) {
+    return Frequency(
+      name: map["name"],
+      value: map["value"],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      "name": name,
+      "value": value,
+    };
+  }
+
   static List<Frequency> build([int value = 50]) => [
         Frequency(name: "32", value: value),
         Frequency(name: "64", value: value),

@@ -32,6 +32,20 @@ class EqualizerModel extends Equatable {
     );
   }
 
+  factory EqualizerModel.fromMap(Map<String, dynamic> map) {
+    return EqualizerModel(
+      name: map["name"],
+      frequencies: List<Frequency>.from(map['frequencies']?.map((x) => Frequency.fromMap(x))),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      "name": name,
+      "frequencies": frequencies.map((f) => f.toMap()).toList(),
+    };
+  }
+
   final String name;
   final List<Frequency> frequencies;
 

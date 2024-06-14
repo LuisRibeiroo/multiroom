@@ -24,7 +24,7 @@ void main() async {
 
   final sharedPrefs = await SharedPreferences.getInstance();
 
-  injector.addLazySingleton<SettingsContract>(() => SharedPrefsSettings(sharedPrefs));
+  injector.addLazySingleton<SettingsContract>(() => SharedPrefsSettings(prefs: sharedPrefs));
   injector.commit();
 
   runApp(const ToastificationWrapper(child: MyApp()));

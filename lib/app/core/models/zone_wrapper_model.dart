@@ -49,6 +49,30 @@ class ZoneWrapperModel extends Equatable {
     );
   }
 
+  factory ZoneWrapperModel.fromMap(Map<String, dynamic> map) {
+    return ZoneWrapperModel(
+      id: map['id'],
+      mode: ZoneMode.values[map['mode']],
+      stereoZone: ZoneModel.fromMap(map['stereoZone']),
+      monoZones: (
+        left: ZoneModel.fromMap(map['monoZones']['left']),
+        right: ZoneModel.fromMap(map['monoZones']['right']),
+      ),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'mode': mode.index,
+      'stereoZone': stereoZone.toMap(),
+      'monoZones': {
+        'left': monoZones.left.toMap(),
+        'right': monoZones.right.toMap(),
+      },
+    };
+  }
+
   final String id;
   final ZoneMode mode;
   final ZoneModel stereoZone;

@@ -31,7 +31,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
   void initState() {
     super.initState();
 
-    _controller.init(device: Routefly.query.arguments);
+    _controller.init(dev: Routefly.query.arguments);
   }
 
   @override
