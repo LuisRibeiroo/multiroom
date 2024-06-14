@@ -38,7 +38,7 @@ class ScannerPageController extends BaseController {
 
   Future<void> init() async {
     localDevices.value = settings.devices;
-    
+
     disposables.addAll(
       [
         effect(() {
@@ -59,7 +59,6 @@ class ScannerPageController extends BaseController {
           }
         }),
         effect(() {
-
           settings.saveDevices(localDevices.value);
         }),
       ],
@@ -160,7 +159,11 @@ class ScannerPageController extends BaseController {
   void onTapConfigDevice(DeviceModel device) {
     stopUdpServer();
 
-    Routefly.pushNavigate(routePaths.devices.ui.pages.deviceConfiguration, arguments: device);
+    Routefly.push<bool?>(routePaths.devices.ui.pages.deviceConfiguration, arguments: device).then(
+      (_) {
+        localDevices.value = settings.devices;
+      },
+    );
   }
 
   Future<void> onConfirmAddDevice(NetworkDeviceModel netDevice) async {

@@ -1,6 +1,5 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/widgets/loading_overlay.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -10,6 +9,7 @@ import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/models/zone_model.dart';
 import '../../../../core/models/zone_wrapper_model.dart';
+import '../../../../core/widgets/loading_overlay.dart';
 import '../../../scanner/ui/widgets/device_master_indicator.dart';
 import '../../interactor/controllers/device_configuration_page_controller.dart';
 
@@ -23,7 +23,6 @@ class DeviceConfigurationPage extends StatefulWidget {
 class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
   final _controller = injector.get<DeviceConfigurationPageController>();
 
-  final nameFocusNode = FocusNode();
   final _zonesExpandableController = ExpandableController(initialExpanded: false);
   // final _groupsExpandableController = ExpandableController(initialExpanded: false);
 
