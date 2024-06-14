@@ -9,8 +9,12 @@ final _logger = Logger(
 ));
 
 extension StreamIteratorExt on StreamIterator {
-  Future<String> readSync() async {
+  Future<String> readSync({bool longResponse = false}) async {
     try {
+      if (longResponse) {
+        await Future.delayed(Durations.short1);
+      }
+
       while (await moveNext() == false) {
         await Future.delayed(Durations.short1);
       }

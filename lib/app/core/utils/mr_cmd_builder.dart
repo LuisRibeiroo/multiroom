@@ -1,13 +1,28 @@
 import '../enums/device_type.dart';
 import '../enums/multiroom_commands.dart';
 import '../enums/zone_mode.dart';
+import '../extensions/map_extensions.dart';
+import '../extensions/string_extensions.dart';
 import '../models/channel_model.dart';
 import '../models/frequency.dart';
 import '../models/zone_model.dart';
+import '../models/zone_wrapper_model.dart';
 
-abstract final class MultiroomCommandBuilder {
-  static String parseResponse(String response) =>
-      response.split("=").lastOrNull?.replaceAll(RegExp(r"[\r\n\t]"), "") ?? response;
+abstract final class MrCmdBuilder {
+  static String parseResponse(String response) => response.split("=").lastOrNull?.removeSpecialChars ?? response;
+
+  static Map<String, String> parseConfigs(String response) {
+    final configs = <String, String>{};
+
+    for (final cfg in response.split("\n").sublist(1)) {
+      final splited = cfg.split("=");
+      final (param, value) = (splited.first, splited.last.removeSpecialChars);
+
+      configs[param] = value;
+    }
+
+    return configs..removeNulls();
+  }
 
   static String get configs => MultiroomCommands.mrCfgShow.value;
 
@@ -30,7 +45,7 @@ abstract final class MultiroomCommandBuilder {
       "${MultiroomCommands.mrZoneModeGet.value},${zone.id}";
 
   static String setZoneMode({
-    required ZoneModel zone,
+    required ZoneWrapperModel zone,
     required ZoneMode mode,
   }) =>
       "${MultiroomCommands.mrZoneModeSet.value},${zone.id},${mode.name}";

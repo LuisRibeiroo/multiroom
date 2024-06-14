@@ -19,7 +19,7 @@ import '../../../../core/models/frequency.dart';
 import '../../../../core/models/zone_model.dart';
 import '../../../../core/utils/debouncer.dart';
 import '../../../../core/models/device_model.dart';
-import '../../../../core/utils/multiroom_command_builder.dart';
+import '../../../../core/utils/mr_cmd_builder.dart';
 
 class DeviceDemoPageController extends BaseController {
   DeviceDemoPageController() : super(InitialState()) {
@@ -183,7 +183,7 @@ class DeviceDemoPageController extends BaseController {
   }
 
   Future<void> test() async {
-    _readCommand(MultiroomCommandBuilder.getZoneMode(zone: currentZone.value));
+    _readCommand(MrCmdBuilder.getZoneMode(zone: currentZone.value));
   }
 
   Future<void> toggleConnection() async {
@@ -274,7 +274,7 @@ class DeviceDemoPageController extends BaseController {
     currentChannel.value = channel;
 
     _debounceSendCommand(
-      MultiroomCommandBuilder.setChannel(
+      MrCmdBuilder.setChannel(
         zone: currentZone.value,
         channel: channel,
       ),
@@ -285,7 +285,7 @@ class DeviceDemoPageController extends BaseController {
     currentZone.value = currentZone.value.copyWith(balance: balance);
 
     _debounceSendCommand(
-      MultiroomCommandBuilder.setBalance(
+      MrCmdBuilder.setBalance(
         zone: currentZone.value,
         balance: balance,
       ),
@@ -296,7 +296,7 @@ class DeviceDemoPageController extends BaseController {
     currentZone.value = currentZone.value.copyWith(volume: volume);
 
     _debounceSendCommand(
-      MultiroomCommandBuilder.setVolume(
+      MrCmdBuilder.setVolume(
         zone: currentZone.value,
         volume: volume,
       ),
@@ -314,7 +314,7 @@ class DeviceDemoPageController extends BaseController {
 
     for (final freq in currentZone.value.equalizer.frequencies) {
       _debounceSendCommand(
-        MultiroomCommandBuilder.setEqualizer(
+        MrCmdBuilder.setEqualizer(
           zone: currentZone.value,
           frequency: freq,
           gain: freq.value,
@@ -336,7 +336,7 @@ class DeviceDemoPageController extends BaseController {
     currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
     _debounceSendCommand(
-      MultiroomCommandBuilder.setEqualizer(
+      MrCmdBuilder.setEqualizer(
         zone: currentZone.value,
         frequency: frequency,
         gain: frequency.value,
@@ -365,17 +365,17 @@ class DeviceDemoPageController extends BaseController {
   }
 
   Future<void> _updateAllDeviceData() async {
-    final channelStr = await _readCommand(MultiroomCommandBuilder.getChannel(zone: currentZone.value));
+    final channelStr = await _readCommand(MrCmdBuilder.getChannel(zone: currentZone.value));
     await _delayBetweenCmd();
 
-    final volume = await _readCommand(MultiroomCommandBuilder.getVolume(zone: currentZone.value));
+    final volume = await _readCommand(MrCmdBuilder.getVolume(zone: currentZone.value));
     await _delayBetweenCmd();
 
-    final balance = await _readCommand(MultiroomCommandBuilder.getBalance(zone: currentZone.value));
+    final balance = await _readCommand(MrCmdBuilder.getBalance(zone: currentZone.value));
     await _delayBetweenCmd();
 
     final f32 = await _readCommand(
-      MultiroomCommandBuilder.getEqualizer(
+      MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[0],
       ),
@@ -383,7 +383,7 @@ class DeviceDemoPageController extends BaseController {
     await _delayBetweenCmd();
 
     final f64 = await _readCommand(
-      MultiroomCommandBuilder.getEqualizer(
+      MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[1],
       ),
@@ -391,7 +391,7 @@ class DeviceDemoPageController extends BaseController {
     await _delayBetweenCmd();
 
     final f125 = await _readCommand(
-      MultiroomCommandBuilder.getEqualizer(
+      MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[2],
       ),
@@ -399,7 +399,7 @@ class DeviceDemoPageController extends BaseController {
     await _delayBetweenCmd();
 
     final f250 = await _readCommand(
-      MultiroomCommandBuilder.getEqualizer(
+      MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[3],
       ),
@@ -407,7 +407,7 @@ class DeviceDemoPageController extends BaseController {
     await _delayBetweenCmd();
 
     final f500 = await _readCommand(
-      MultiroomCommandBuilder.getEqualizer(
+      MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[4],
       ),
@@ -415,7 +415,7 @@ class DeviceDemoPageController extends BaseController {
     await _delayBetweenCmd();
 
     final f1000 = await _readCommand(
-      MultiroomCommandBuilder.getEqualizer(
+      MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[5],
       ),
@@ -423,7 +423,7 @@ class DeviceDemoPageController extends BaseController {
     await _delayBetweenCmd();
 
     final f2000 = await _readCommand(
-      MultiroomCommandBuilder.getEqualizer(
+      MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[6],
       ),
@@ -431,7 +431,7 @@ class DeviceDemoPageController extends BaseController {
     await _delayBetweenCmd();
 
     final f4000 = await _readCommand(
-      MultiroomCommandBuilder.getEqualizer(
+      MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[7],
       ),
@@ -439,7 +439,7 @@ class DeviceDemoPageController extends BaseController {
     await _delayBetweenCmd();
 
     final f8000 = await _readCommand(
-      MultiroomCommandBuilder.getEqualizer(
+      MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[8],
       ),
@@ -447,7 +447,7 @@ class DeviceDemoPageController extends BaseController {
     await _delayBetweenCmd();
 
     final f16000 = await _readCommand(
-      MultiroomCommandBuilder.getEqualizer(
+      MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[9],
       ),
@@ -493,7 +493,7 @@ class DeviceDemoPageController extends BaseController {
       final response = String.fromCharCodes(streamIterator.current);
       _logger.i("<<< $response");
 
-      return MultiroomCommandBuilder.parseResponse(response);
+      return MrCmdBuilder.parseResponse(response);
     } catch (exception) {
       throw Exception("Erro ao ler resposta [$exception]");
     }

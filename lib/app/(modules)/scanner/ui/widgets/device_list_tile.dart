@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:routefly/routefly.dart';
 
-import '../../../../../routes.g.dart';
 import '../../../../core/enums/device_type.dart';
 import '../../../../core/extensions/build_context_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
@@ -15,11 +13,13 @@ class DeviceListTile extends StatelessWidget {
     required this.device,
     required this.onChangeActive,
     required this.onChangeType,
+    required this.onTapConfigDevice,
   });
 
   final DeviceModel device;
   final Function(DeviceModel, bool) onChangeActive;
   final Function(DeviceModel, String) onChangeType;
+  final Function(DeviceModel) onTapConfigDevice;
 
   @override
   Widget build(BuildContext context) {
@@ -98,10 +98,7 @@ class DeviceListTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 IconButton(
-                  onPressed: () => Routefly.pushNavigate(
-                    routePaths.devices.ui.pages.deviceConfiguration,
-                    arguments: device,
-                  ),
+                  onPressed: () => onTapConfigDevice(device),
                   icon: const Icon(Icons.tune_rounded),
                 ),
               ],

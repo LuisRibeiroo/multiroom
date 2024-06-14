@@ -1,5 +1,6 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/widgets/loading_overlay.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -35,160 +36,163 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Configuração do dispositivo"),
-      ),
-      body: Watch(
-        (_) => SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                Card.filled(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Visibility(
-                              child: DeviceMasterIndicator(
-                                type: _controller.device.value.type,
-                                label: _controller.device.value.masterName.or("M1"),
-                              ),
-                            ),
-                            12.asSpace,
-                            Text(
-                              _controller.device.value.ip,
-                              style: context.textTheme.titleMedium,
-                            ),
-                            12.asSpace,
-                          ],
-                        ),
-                        8.asSpace,
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                enabled: _controller.isEditingDevice.value,
-                                onChanged: _controller.deviceName.set,
-                                initialValue: _controller.deviceName.value,
-                                style: context.textTheme.titleMedium,
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                            ),
-                            12.asSpace,
-                            IconButton(
-                              onPressed: _controller.toggleEditingDevice,
-                              icon: AnimatedSwitcher(
-                                duration: Durations.short3,
-                                child: Icon(
-                                  key: ValueKey(_controller.isEditingDevice.value),
-                                  _controller.isEditingDevice.value ? Icons.check_rounded : Icons.edit_rounded,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                12.asSpace,
-                Card.filled(
-                  clipBehavior: Clip.hardEdge,
-                  child: ExpandablePanel(
-                    controller: _zonesExpandableController,
-                    theme: ExpandableThemeData(
-                      iconColor: context.colorScheme.onSurface,
-                      iconPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 18.0),
-                    ),
-                    header: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 18.0),
-                      child: Text(
-                        "Zonas",
-                        style: context.textTheme.titleLarge,
-                      ),
-                    ),
-                    collapsed: const SizedBox.shrink(),
-                    expanded: Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0, left: 12, right: 12),
+    return Watch(
+      (_) => LoadingOverlay(
+        state: _controller.state,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text("Configuração do dispositivo"),
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                children: [
+                  Card.filled(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
                       child: Column(
                         children: [
-                          const Divider(),
-                          ...List.generate(
-                            _controller.device.value.zones.length,
-                            (idx) {
-                              final wrapper = _controller.device.value.zones[idx];
-
-                              return Watch(
-                                (_) => Column(
-                                  children: [
-                                    SwitchListTile(
-                                      title: Text("Zona ${idx + 1}"),
-                                      subtitle: Text(wrapper.mode.name.capitalize),
-                                      value: wrapper.isStereo,
-                                      onChanged: (value) => _controller.onChangeZoneMode(wrapper, value),
-                                    ),
-                                    AnimatedSize(
-                                      duration: Durations.medium2,
-                                      child: Column(
-                                        key: ValueKey(wrapper.isStereo),
-                                        children: [
-                                          Visibility(
-                                            visible: wrapper.isStereo,
-                                            child: ZoneNameEditTile(
-                                              zone: wrapper.stereoZone,
-                                              wrapper: wrapper,
-                                              isEditing: _controller.editingWrapper.value.id == wrapper.id &&
-                                                  _controller.isEditingZone.value,
-                                              onChangeZoneName: _controller.onChangeZoneName,
-                                              toggleEditing: _controller.toggleEditingZone,
-                                            ),
-                                          ),
-                                          Visibility(
-                                            visible: wrapper.isStereo == false,
-                                            child: ZoneNameEditTile(
-                                              zone: wrapper.monoZones.right,
-                                              wrapper: wrapper,
-                                              isEditing:
-                                                  _controller.editingZone.value.id == wrapper.monoZones.right.id &&
-                                                      _controller.isEditingZone.value,
-                                              onChangeZoneName: _controller.onChangeZoneName,
-                                              toggleEditing: _controller.toggleEditingZone,
-                                            ),
-                                          ),
-                                          8.asSpace,
-                                          Visibility(
-                                            visible: wrapper.isStereo == false,
-                                            child: ZoneNameEditTile(
-                                              zone: wrapper.monoZones.left,
-                                              wrapper: wrapper,
-                                              isEditing:
-                                                  _controller.editingZone.value.id == wrapper.monoZones.left.id &&
-                                                      _controller.isEditingZone.value,
-                                              onChangeZoneName: _controller.onChangeZoneName,
-                                              toggleEditing: _controller.toggleEditingZone,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                          Row(
+                            children: [
+                              Visibility(
+                                child: DeviceMasterIndicator(
+                                  type: _controller.device.value.type,
+                                  label: _controller.device.value.masterName.or("M1"),
                                 ),
-                              );
-                            },
+                              ),
+                              12.asSpace,
+                              Text(
+                                _controller.device.value.ip,
+                                style: context.textTheme.titleMedium,
+                              ),
+                              12.asSpace,
+                            ],
+                          ),
+                          8.asSpace,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  enabled: _controller.isEditingDevice.value,
+                                  onChanged: _controller.deviceName.set,
+                                  initialValue: _controller.deviceName.value,
+                                  style: context.textTheme.titleMedium,
+                                  textAlign: TextAlign.center,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                  ),
+                                ),
+                              ),
+                              12.asSpace,
+                              IconButton(
+                                onPressed: _controller.toggleEditingDevice,
+                                icon: AnimatedSwitcher(
+                                  duration: Durations.short3,
+                                  child: Icon(
+                                    key: ValueKey(_controller.isEditingDevice.value),
+                                    _controller.isEditingDevice.value ? Icons.check_rounded : Icons.edit_rounded,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
                   ),
-                )
-              ],
+                  12.asSpace,
+                  Card.filled(
+                    clipBehavior: Clip.hardEdge,
+                    child: ExpandablePanel(
+                      controller: _zonesExpandableController,
+                      theme: ExpandableThemeData(
+                        iconColor: context.colorScheme.onSurface,
+                        iconPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 18.0),
+                      ),
+                      header: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 18.0),
+                        child: Text(
+                          "Zonas",
+                          style: context.textTheme.titleLarge,
+                        ),
+                      ),
+                      collapsed: const SizedBox.shrink(),
+                      expanded: Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0, left: 12, right: 12),
+                        child: Column(
+                          children: [
+                            const Divider(),
+                            ...List.generate(
+                              _controller.device.value.zones.length,
+                              (idx) {
+                                final wrapper = _controller.device.value.zones[idx];
+
+                                return Watch(
+                                  (_) => Column(
+                                    children: [
+                                      SwitchListTile(
+                                        title: Text("Zona ${idx + 1}"),
+                                        subtitle: Text(wrapper.mode.name.capitalize),
+                                        value: wrapper.isStereo,
+                                        onChanged: (value) => _controller.onChangeZoneMode(wrapper, value),
+                                      ),
+                                      AnimatedSize(
+                                        duration: Durations.medium2,
+                                        child: Column(
+                                          key: ValueKey(wrapper.isStereo),
+                                          children: [
+                                            Visibility(
+                                              visible: wrapper.isStereo,
+                                              child: ZoneNameEditTile(
+                                                zone: wrapper.stereoZone,
+                                                wrapper: wrapper,
+                                                isEditing: _controller.editingWrapper.value.id == wrapper.id &&
+                                                    _controller.isEditingZone.value,
+                                                onChangeZoneName: _controller.onChangeZoneName,
+                                                toggleEditing: _controller.toggleEditingZone,
+                                              ),
+                                            ),
+                                            Visibility(
+                                              visible: wrapper.isStereo == false,
+                                              child: ZoneNameEditTile(
+                                                zone: wrapper.monoZones.right,
+                                                wrapper: wrapper,
+                                                isEditing:
+                                                    _controller.editingZone.value.id == wrapper.monoZones.right.id &&
+                                                        _controller.isEditingZone.value,
+                                                onChangeZoneName: _controller.onChangeZoneName,
+                                                toggleEditing: _controller.toggleEditingZone,
+                                              ),
+                                            ),
+                                            8.asSpace,
+                                            Visibility(
+                                              visible: wrapper.isStereo == false,
+                                              child: ZoneNameEditTile(
+                                                zone: wrapper.monoZones.left,
+                                                wrapper: wrapper,
+                                                isEditing:
+                                                    _controller.editingZone.value.id == wrapper.monoZones.left.id &&
+                                                        _controller.isEditingZone.value,
+                                                onChangeZoneName: _controller.onChangeZoneName,
+                                                toggleEditing: _controller.toggleEditingZone,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),

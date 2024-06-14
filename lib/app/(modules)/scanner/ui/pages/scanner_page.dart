@@ -170,6 +170,7 @@ class _ScannerPageState extends State<ScannerPage> {
                         device: _controller.localDevices[index],
                         onChangeActive: _controller.onChangeActive,
                         onChangeType: _controller.onChangeType,
+                        onTapConfigDevice: _controller.onTapConfigDevice,
                       ),
                     ),
                   ),

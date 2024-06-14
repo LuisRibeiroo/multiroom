@@ -10,6 +10,7 @@ extension StringExt on String? {
 
   String get numbersOnly => isNullOrEmpty ? "" : this!.replaceAll(RegExp(r'[^0-9]'), '');
   String get lettersOnly => isNullOrEmpty ? "" : this!.replaceAll(RegExp(r'[^a-zA-Z]'), '');
+  String get removeSpecialChars => isNullOrEmpty ? "" : this!.replaceAll(RegExp(r"[\r\n\t]"), "");
 
   String get capitalize {
     if (isNullOrEmpty) {

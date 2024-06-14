@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:udp/udp.dart';
 
 import '../../../../../injector.dart';
+import '../../../../../routes.g.dart';
 import '../../../../core/enums/device_type.dart';
 import '../../../../core/enums/page_state.dart';
 import '../../../../core/extensions/socket_extensions.dart';
@@ -14,7 +16,7 @@ import '../../../../core/interactor/controllers/base_controller.dart';
 import '../../../../core/interactor/repositories/settings_contract.dart';
 import '../../../../core/models/device_model.dart';
 import '../../../../core/utils/datagram_data_parser.dart';
-import '../../../../core/utils/multiroom_command_builder.dart';
+import '../../../../core/utils/mr_cmd_builder.dart';
 import '../models/network_device_model.dart';
 
 class ScannerPageController extends BaseController {
@@ -149,6 +151,12 @@ class ScannerPageController extends BaseController {
     localDevices[localDevices.indexOf(device)] = device.copyWith(type: DeviceType.fromString(value));
   }
 
+  void onTapConfigDevice(DeviceModel device) {
+    stopUdpServer();
+
+    Routefly.pushNavigate(routePaths.devices.ui.pages.deviceConfiguration, arguments: device);
+  }
+
   Future<void> onConfirmAddDevice(NetworkDeviceModel netDevice) async {
     final type = await _setDeviceType(
       netDevice.ip,
@@ -183,15 +191,17 @@ class ScannerPageController extends BaseController {
 
       final streamIterator = StreamIterator(socket);
 
-      socket.writeLog(MultiroomCommandBuilder.setExpansionMode(type: type));
-      final response = MultiroomCommandBuilder.parseResponse(await streamIterator.readSync());
+      socket.writeLog(MrCmdBuilder.setExpansionMode(type: type));
+      final response = MrCmdBuilder.parseResponse(await streamIterator.readSync());
 
       if (response.contains("OK") == false) {
         throw Exception("Erro ao configurar dispositivo, tente novamente.");
       }
 
-      socket.writeLog(MultiroomCommandBuilder.expansionMode);
-      final deviceMode = MultiroomCommandBuilder.parseResponse(await streamIterator.readSync());
+      socket.writeLog(MrCmdBuilder.expansionMode);
+      final deviceMode = MrCmdBuilder.parseResponse(await streamIterator.readSync());
+
+      socket.close().ignore();
 
       return deviceMode;
     } catch (exception) {
