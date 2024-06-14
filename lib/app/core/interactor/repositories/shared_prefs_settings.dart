@@ -14,12 +14,7 @@ class SharedPrefsSettings implements SettingsContract {
   final SharedPreferences _prefs;
 
   @override
-  bool get darkMode => _prefs.getBool("dark-mode") ?? false;
-
-  @override
-  set darkMode(bool v) {
-    _prefs.setBool("dark-mode", v).ignore();
-  }
+  String get technicianAccessHash => "640c5fc8cd23285fd33b66bdf0c4570d";
 
   @override
   void saveDevice(DeviceModel device) {

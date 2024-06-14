@@ -40,7 +40,7 @@ class _DeviceDemoPageState extends State<DeviceDemoPage> {
     });
 
     scheduleMicrotask(() async {
-      if (Platform.isAndroid || Platform.isAndroid) {
+      if (Platform.isAndroid || Platform.isIOS) {
         await [
           Permission.location,
           Permission.nearbyWifiDevices,
@@ -56,12 +56,12 @@ class _DeviceDemoPageState extends State<DeviceDemoPage> {
       (_) => LoadingOverlay(
         state: _controller.state,
         child: Scaffold(
-          appBar: AppBar(
-            leading: Image.asset("assets/logo.png"),
-            title: const Text('Multiroom'),
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            scrolledUnderElevation: 0,
-          ),
+          // appBar: AppBar(
+          //   leading: Image.asset("assets/logo.png"),
+          //   title: const Text('Multiroom'),
+          //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          //   scrolledUnderElevation: 0,
+          // ),
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
