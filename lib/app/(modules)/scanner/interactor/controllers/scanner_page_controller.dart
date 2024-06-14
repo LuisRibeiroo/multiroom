@@ -18,7 +18,7 @@ import '../models/network_device_model.dart';
 class ScannerPageController extends BaseController {
   ScannerPageController() : super(InitialState());
 
-  late UDP udpServer;
+  late UDP _udpServer;
 
   final isUdpListening = false.toSignal(debugLabel: "isUdpListening");
   final localDevices = listSignal<DeviceModel>([], debugLabel: "localDevices");
@@ -28,35 +28,32 @@ class ScannerPageController extends BaseController {
   final isMasterAvailable = true.toSignal(debugLabel: "isMasterAvailable");
   final slave1Available = true.toSignal(debugLabel: "slave1Available");
   final slave2Available = true.toSignal(debugLabel: "slave2Available");
+  final hasAvailableSlots = false.toSignal(debugLabel: "hasAvailableSlots");
 
   Future<void> init() async {
-    _startUdpServer();
-
     disposables.addAll(
       [
-        isMasterAvailable.call,
         effect(() {
+          hasAvailableSlots.value = localDevices.length < 3;
           isMasterAvailable.value = localDevices.every((d) => d.type != DeviceType.master);
           slave1Available.value = localDevices.where((d) => d.type == DeviceType.slave).isEmpty;
           slave2Available.value = localDevices.where((d) => d.type == DeviceType.slave).length < 2;
+
+          if (hasAvailableSlots.value == false) {
+            _stopUdpServer();
+          }
         }),
       ],
     );
   }
 
-  Future<void> _startUdpServer() async {
-    disposables.add(
-      effect(() {
-        if (isUdpListening.value) {
-          logger.i("UDP LISTENING ON --> ${udpServer.local.address?.address}:${udpServer.local.port?.value} ");
-        } else {
-          logger.i("UDP SERVER CLOSED");
-        }
-      }),
-    );
+  Future<void> startUdpServer() async {
+    if (isUdpListening.value) {
+      return;
+    }
 
     try {
-      udpServer = await UDP.bind(
+      _udpServer = await UDP.bind(
         Endpoint.unicast(
           InternetAddress.anyIPv4,
           port: const Port(4055),
@@ -64,7 +61,7 @@ class ScannerPageController extends BaseController {
       );
 
       isUdpListening.value = true;
-      udpServer.asStream().listen(
+      _udpServer.asStream().listen(
         (datagram) {
           if (datagram == null) {
             return;
@@ -75,6 +72,11 @@ class ScannerPageController extends BaseController {
           logger.i("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
 
           final (serialNumber, firmware) = DatagramDataParser.getSerialAndFirmware(data);
+
+          // Ignore already added devices
+          if (localDevices.any((d) => d.serialNumber == serialNumber)) {
+            return;
+          }
 
           networkDevices.add(
             NetworkDeviceModel(
@@ -124,6 +126,14 @@ class ScannerPageController extends BaseController {
     }
   }
 
+  void _stopUdpServer() {
+    if (_udpServer.closed == false) {
+      _udpServer.close();
+    }
+
+    isUdpListening.value = false;
+  }
+
   void onChangeActive(DeviceModel device, bool value) {
     localDevices[localDevices.indexOf(device)] = device.copyWith(active: value);
   }
@@ -149,6 +159,7 @@ class ScannerPageController extends BaseController {
     );
 
     deviceType.value = deviceType.initialValue;
+    networkDevices.removeWhere((d) => d.serialNumber == netDevice.serialNumber);
   }
 
   Future<String> _setDeviceMode(String ip, DeviceType type) async {
@@ -188,7 +199,7 @@ class ScannerPageController extends BaseController {
   void dispose() {
     super.dispose();
 
-    udpServer.closed ? null : udpServer.close();
+    _stopUdpServer();
     isUdpListening.value = isUdpListening.initialValue;
     deviceType.value = deviceType.initialValue;
 

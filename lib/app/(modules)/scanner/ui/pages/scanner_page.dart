@@ -24,6 +24,8 @@ class _ScannerPageState extends State<ScannerPage> {
   final _controller = injector.get<ScannerPageController>();
 
   void _showNetworkDevicesBottomSheet() {
+    _controller.startUdpServer();
+
     context.showCustomModalBottomSheet(
       isScrollControlled: false,
       child: Watch(
@@ -35,6 +37,25 @@ class _ScannerPageState extends State<ScannerPage> {
               style: context.textTheme.titleLarge,
             ),
             12.asSpace,
+            Visibility(
+              visible: _controller.hasAvailableSlots.value == false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: PhysicalModel(
+                  borderRadius: BorderRadius.circular(8),
+                  color: context.colorScheme.inversePrimary,
+                  elevation: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Já existem 3 dispositivos configurados. Para adicionar um novo, será necessário remover um dos existentes.",
+                      style: context.textTheme.bodyLarge!.copyWith(color: context.colorScheme.onSurface),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            ),
             Flexible(
               child: AnimatedSwitcher(
                 duration: Durations.short4,
