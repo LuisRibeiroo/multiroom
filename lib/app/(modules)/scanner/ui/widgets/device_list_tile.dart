@@ -5,7 +5,7 @@ import '../../../../core/extensions/build_context_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/models/device_model.dart';
-import 'device_master_indicator.dart';
+import 'device_type_indicator.dart';
 
 class DeviceListTile extends StatelessWidget {
   const DeviceListTile({
@@ -59,18 +59,11 @@ class DeviceListTile extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: context.colorScheme.surface,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: context.colorScheme.primary,
-                            ),
-                          ),
-                          padding: const EdgeInsets.all(8),
-                          child: Center(child: Text(device.type.name.capitalize)),
+                        child: DeviceTypeIndicator(
+                          label: device.type.name.capitalize,
+                          active: device.type == DeviceType.slave,
                         ),
-                      )
+                      ),
                     ],
                   ),
                   Visibility.maintain(
@@ -78,14 +71,18 @@ class DeviceListTile extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        DeviceMasterIndicator(
-                          label: "M1",
-                          type: device.type,
+                        const Flexible(
+                          child: DeviceTypeIndicator(
+                            label: "S1",
+                            active: false,
+                          ),
                         ),
                         8.asSpace,
-                        DeviceMasterIndicator(
-                          label: "M2",
-                          type: device.type,
+                        const Flexible(
+                          child: DeviceTypeIndicator(
+                            label: "S2",
+                            active: true,
+                          ),
                         ),
                       ],
                     ),

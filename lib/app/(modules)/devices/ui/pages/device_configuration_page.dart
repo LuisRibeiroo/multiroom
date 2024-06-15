@@ -8,7 +8,7 @@ import '../../../../core/extensions/build_context_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/widgets/loading_overlay.dart';
-import '../../../scanner/ui/widgets/device_master_indicator.dart';
+import '../../../scanner/ui/widgets/device_type_indicator.dart';
 import '../../interactor/controllers/device_configuration_page_controller.dart';
 import '../widgets/zone_name_edit_tile.dart';
 
@@ -53,8 +53,8 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                         children: [
                           Row(
                             children: [
-                              DeviceMasterIndicator(
-                                type: _controller.device.value.type,
+                              DeviceTypeIndicator(
+                                active: true,
                                 label: _controller.device.value.masterName.or("M"),
                               ),
                               12.asSpace,
