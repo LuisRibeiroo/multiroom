@@ -103,6 +103,7 @@ class _HomePageState extends State<HomePage> {
           leading: Image.asset("assets/logo.png"),
           actions: [
             Visibility(
+              visible: _controller.localDevices.isNotEmpty,
               child: IconButton(
                 onPressed: _openBottomSheet,
                 icon: const Icon(Icons.menu_rounded),
