@@ -6,6 +6,7 @@ import 'package:logger/logger.dart';
 final _logger = Logger(
     printer: SimplePrinter(
   printTime: true,
+  colors: false,
 ));
 
 extension StreamIteratorExt on StreamIterator {

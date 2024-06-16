@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/extensions/build_context_extensions.dart';
-import '../../../../core/extensions/number_extensions.dart';
+import '../../../core/extensions/build_context_extensions.dart';
+import '../../../core/extensions/number_extensions.dart';
 
 class NoDevicesWidget extends StatelessWidget {
   const NoDevicesWidget({

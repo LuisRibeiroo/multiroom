@@ -10,16 +10,16 @@ import 'package:signals/signals_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:udp/udp.dart';
 
-import '../../../../core/enums/page_state.dart';
-import '../../../../core/extensions/string_extensions.dart';
-import '../../../../core/interactor/controllers/base_controller.dart';
-import '../../../../core/models/channel_model.dart';
-import '../../../../core/models/equalizer_model.dart';
-import '../../../../core/models/frequency.dart';
-import '../../../../core/models/zone_model.dart';
-import '../../../../core/utils/debouncer.dart';
-import '../../../../core/models/device_model.dart';
-import '../../../../core/utils/mr_cmd_builder.dart';
+import '../../../core/enums/page_state.dart';
+import '../../../core/extensions/string_extensions.dart';
+import '../../../core/interactor/controllers/base_controller.dart';
+import '../../../core/models/channel_model.dart';
+import '../../../core/models/equalizer_model.dart';
+import '../../../core/models/frequency.dart';
+import '../../../core/models/zone_model.dart';
+import '../../../core/utils/debouncer.dart';
+import '../../../core/models/device_model.dart';
+import '../../../core/utils/mr_cmd_builder.dart';
 
 class DeviceDemoPageController extends BaseController {
   DeviceDemoPageController() : super(InitialState()) {
@@ -124,13 +124,14 @@ class DeviceDemoPageController extends BaseController {
   late UDP udpServer;
   late Socket _socket;
 
-  final equalizers = listSignal(
+  final equalizers = listSignal<EqualizerModel>(
     [
-      EqualizerModel.builder(name: "Rock", value: 80),
-      EqualizerModel.builder(name: "Pop", value: 60),
-      EqualizerModel.builder(name: "Jazz", value: 65),
-      EqualizerModel.builder(name: "Flat", value: 50),
-      EqualizerModel.builder(name: "Custom", value: 10),
+      EqualizerModel.builder(name: "Rock", v60: 2, v250: 0, v1k: 1, v3k: 2, v6k: 2, v16k: 1),
+      EqualizerModel.builder(name: "Pop", v60: 2, v250: 1, v1k: 2, v3k: 3, v6k: 2, v16k: 2),
+      EqualizerModel.builder(name: "Clássico", v60: 1, v250: 0, v1k: 1, v3k: 2, v6k: 1, v16k: 1),
+      EqualizerModel.builder(name: "Jazz", v60: 1, v250: 0, v1k: 2, v3k: 3, v6k: 2, v16k: 1),
+      EqualizerModel.builder(name: "Dance Music", v60: 4, v250: 2, v1k: 0, v3k: 3, v6k: 3, v16k: 2),
+      EqualizerModel.builder(name: "Custom"),
     ],
     debugLabel: "equalizers",
   );

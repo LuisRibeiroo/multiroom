@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -149,7 +148,6 @@ class _ScannerPageState extends State<ScannerPage> {
                   (_) => DeviceListTile(
                     device: _controller.localDevices[index],
                     onChangeActive: _controller.onChangeActive,
-                    onChangeType: _controller.onChangeType,
                     onTapConfigDevice: _controller.onTapConfigDevice,
                   ),
                 ),

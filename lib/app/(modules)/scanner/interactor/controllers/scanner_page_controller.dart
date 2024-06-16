@@ -154,10 +154,6 @@ class ScannerPageController extends BaseController {
     localDevices[localDevices.indexOf(device)] = device.copyWith(active: value);
   }
 
-  void onChangeType(DeviceModel device, String value) {
-    localDevices[localDevices.indexOf(device)] = device.copyWith(type: DeviceType.fromString(value));
-  }
-
   void onTapConfigDevice(DeviceModel device) {
     stopUdpServer();
 

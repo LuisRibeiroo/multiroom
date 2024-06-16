@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.dark,
       routerConfig: Routefly.routerConfig(
         routes: routes,
-        initialPath: routePaths.home.ui.pages.home,
+        initialPath: routePaths.startup.pages.startup,
       ),
     );
   }

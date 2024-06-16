@@ -12,95 +12,93 @@ class DeviceListTile extends StatelessWidget {
     super.key,
     required this.device,
     required this.onChangeActive,
-    required this.onChangeType,
     required this.onTapConfigDevice,
   });
 
   final DeviceModel device;
   final Function(DeviceModel, bool) onChangeActive;
-  final Function(DeviceModel, String) onChangeType;
   final Function(DeviceModel) onTapConfigDevice;
 
   @override
   Widget build(BuildContext context) {
     return Card.filled(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 12.0, bottom: 12.0, right: 12.0),
-        child: Row(
-          children: [
-            Checkbox(
-              value: device.active,
-              onChanged: (value) => onChangeActive(device, value!),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    device.ip,
-                    style: context.textTheme.titleMedium,
-                  ),
-                  Text(
-                    device.serialNumber,
-                    style: context.textTheme.labelMedium,
-                  ),
-                  Text(
-                    "V ${device.version}",
-                    style: context.textTheme.labelMedium,
-                  ),
-                ],
+      child: InkWell(
+        onTap: () => onTapConfigDevice(device),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 12.0, bottom: 12.0, right: 12.0),
+          child: Row(
+            children: [
+              Checkbox(
+                value: device.active,
+                onChanged: (value) => onChangeActive(device, value!),
               ),
-            ),
-            12.asSpace,
-            // FIXME: Descobrir como definir qual item está ativo
-            Flexible(
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DeviceTypeIndicator(
-                          label: device.type.name.capitalize,
-                          active: device.type == DeviceType.slave,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Visibility.maintain(
-                    visible: device.type != DeviceType.master,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      device.ip,
+                      style: context.textTheme.titleMedium,
+                    ),
+                    Text(
+                      device.serialNumber,
+                      style: context.textTheme.labelMedium,
+                    ),
+                    Text(
+                      "V ${device.version}",
+                      style: context.textTheme.labelMedium,
+                    ),
+                  ],
+                ),
+              ),
+              12.asSpace,
+              Flexible(
+                child: Column(
+                  children: [
+                    Row(
                       children: [
-                        const Flexible(
+                        Expanded(
                           child: DeviceTypeIndicator(
-                            label: "S1",
-                            active: false,
-                          ),
-                        ),
-                        8.asSpace,
-                        const Flexible(
-                          child: DeviceTypeIndicator(
-                            label: "S2",
-                            active: true,
+                            label: device.type.name.capitalize,
+                            active: device.type == DeviceType.slave,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-            ),
-            12.asSpace,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                IconButton(
-                  onPressed: () => onTapConfigDevice(device),
-                  icon: const Icon(Icons.tune_rounded),
+                    Visibility.maintain(
+                      visible: device.type != DeviceType.master,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Flexible(
+                            child: DeviceTypeIndicator(
+                              label: "S1",
+                              active: false,
+                            ),
+                          ),
+                          8.asSpace,
+                          const Flexible(
+                            child: DeviceTypeIndicator(
+                              label: "S2",
+                              active: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
+              ),
+              12.asSpace,
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.0),
+                child: Icon(
+                  Icons.tune_rounded,
+                  size: 28,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

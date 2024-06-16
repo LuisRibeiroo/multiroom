@@ -6,13 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:signals/signals_flutter.dart';
 
-import '../../../../../injector.dart';
-import '../../../../core/extensions/number_extensions.dart';
-import '../../../../core/extensions/text_input_formatter_extensions.dart';
-import '../../../../core/widgets/loading_overlay.dart';
-import '../../interactor/controllers/device_demo_page_controller.dart';
-import '../widgets/device_controls.dart';
-import '../widgets/device_info_header.dart';
+import '../../../../injector.dart';
+import '../../../core/extensions/number_extensions.dart';
+import '../../../core/extensions/text_input_formatter_extensions.dart';
+import '../../../core/widgets/loading_overlay.dart';
+import '../interactor/device_demo_page_controller.dart';
+import '../../devices/ui/widgets/device_controls.dart';
+import '../../devices/ui/widgets/device_info_header.dart';
 
 class DeviceDemoPage extends StatefulWidget {
   const DeviceDemoPage({super.key});

@@ -19,6 +19,7 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
   final logger = Logger(
     printer: SimplePrinter(
       printTime: true,
+      colors: false,
     ),
   );
 

@@ -1,18 +1,28 @@
 import 'dart:io';
 
 import 'package:permission_handler/permission_handler.dart';
+import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
-import '../../../../../injector.dart';
-import '../../../../core/enums/page_state.dart';
-import '../../../../core/extensions/string_extensions.dart';
-import '../../../../core/interactor/controllers/base_controller.dart';
-import '../../../../core/interactor/repositories/settings_contract.dart';
-import '../../../../core/models/device_model.dart';
+import '../../../../injector.dart';
+import '../../../../routes.g.dart';
+import '../../../core/enums/page_state.dart';
+import '../../../core/extensions/string_extensions.dart';
+import '../../../core/interactor/controllers/base_controller.dart';
+import '../../../core/interactor/repositories/settings_contract.dart';
+import '../../../core/models/device_model.dart';
 
-class HomePageController extends BaseController {
-  HomePageController() : super(InitialState()) {
+class ConfigsPageController extends BaseController {
+  ConfigsPageController() : super(InitialState()) {
     localDevices.value = settings.devices;
+
+    localDevices.add(
+      DeviceModel.builder(
+        serialNumber: "MR01234-0933",
+        name: "Master 1",
+        ip: "192.168.0.1",
+      ),
+    );
 
     disposables.add(
       effect(
@@ -26,7 +36,8 @@ class HomePageController extends BaseController {
 
   final settings = injector.get<SettingsContract>();
 
-  final localDevices = listSignal<DeviceModel>([]);
+  final device = DeviceModel.empty().toSignal(debugLabel: "currentDevice");
+  final localDevices = listSignal<DeviceModel>([], debugLabel: "localDevices");
   final password = "".toSignal(debugLabel: "password");
   final errorMessage = "".toSignal(debugLabel: "errorMessage");
 
@@ -38,6 +49,20 @@ class HomePageController extends BaseController {
         Permission.locationWhenInUse,
       ].request();
     }
+  }
+
+  void onChangeActive(DeviceModel device, bool value) {
+    localDevices[localDevices.indexOf(device)] = device.copyWith(active: value);
+  }
+
+  void onTapConfigDevice(DeviceModel device) {
+    Routefly.push<bool?>(routePaths.devices.ui.pages.deviceConfiguration, arguments: device).then(
+      (_) {
+        localDevices.value = settings.devices;
+      },
+    );
+
+    untracked(localDevices.clear);
   }
 
   void onTapAccess() {
@@ -57,6 +82,7 @@ class HomePageController extends BaseController {
     super.dispose();
 
     localDevices.value = <DeviceModel>[];
+    device.value = device.initialValue;
     password.value = password.initialValue;
     errorMessage.value = errorMessage.initialValue;
   }

@@ -2,21 +2,22 @@
 
 import 'package:routefly/routefly.dart';
 
-import 'app/(modules)/devices/ui/pages/device_configuration_page.dart' as a4;
-import 'app/(modules)/devices/ui/pages/device_demo_page.dart' as a5;
-import 'app/(modules)/devices/ui/pages/device_info_page.dart' as a3;
-import 'app/(modules)/home/ui/pages/home_page.dart' as a0;
-import 'app/(modules)/scanner/ui/pages/scanner_page.dart' as a2;
+import 'app/(modules)/configs/pages/configs_page.dart' as a2;
+import 'app/(modules)/devices/ui/pages/device_configuration_page.dart' as a6;
+import 'app/(modules)/devices/ui/pages/device_info_page.dart' as a5;
+import 'app/(modules)/home/pages/device_demo_page.dart' as a0;
+import 'app/(modules)/scanner/ui/pages/scanner_page.dart' as a4;
+import 'app/(modules)/startup/pages/startup_page.dart' as a3;
 import 'app/(modules)/udp/ui/pages/udp_page.dart' as a1;
 
 List<RouteEntity> get routes => [
       RouteEntity(
-        key: '/home/ui/pages/home',
-        uri: Uri.parse('/home/ui/pages/home'),
+        key: '/home/pages/device_demo',
+        uri: Uri.parse('/home/pages/device_demo'),
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a0.HomePage(),
+          const a0.DeviceDemoPage(),
         ),
       ),
       RouteEntity(
@@ -29,12 +30,30 @@ List<RouteEntity> get routes => [
         ),
       ),
       RouteEntity(
+        key: '/configs/pages/configs',
+        uri: Uri.parse('/configs/pages/configs'),
+        routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
+          ctx,
+          settings,
+          const a2.ConfigsPage(),
+        ),
+      ),
+      RouteEntity(
+        key: '/startup/pages/startup',
+        uri: Uri.parse('/startup/pages/startup'),
+        routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
+          ctx,
+          settings,
+          const a3.StartupPage(),
+        ),
+      ),
+      RouteEntity(
         key: '/scanner/ui/pages/scanner',
         uri: Uri.parse('/scanner/ui/pages/scanner'),
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a2.ScannerPage(),
+          const a4.ScannerPage(),
         ),
       ),
       RouteEntity(
@@ -43,7 +62,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a3.DeviceInfoPage(),
+          const a5.DeviceInfoPage(),
         ),
       ),
       RouteEntity(
@@ -52,16 +71,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a4.DeviceConfigurationPage(),
-        ),
-      ),
-      RouteEntity(
-        key: '/devices/ui/pages/device_demo',
-        uri: Uri.parse('/devices/ui/pages/device_demo'),
-        routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
-          ctx,
-          settings,
-          const a5.DeviceDemoPage(),
+          const a6.DeviceConfigurationPage(),
         ),
       ),
     ];
@@ -70,12 +80,9 @@ const routePaths = (
   path: '/',
   home: (
     path: '/home',
-    ui: (
-      path: '/home/ui',
-      pages: (
-        path: '/home/ui/pages',
-        home: '/home/ui/pages/home',
-      ),
+    pages: (
+      path: '/home/pages',
+      deviceDemo: '/home/pages/device_demo',
     ),
   ),
   udp: (
@@ -86,6 +93,20 @@ const routePaths = (
         path: '/udp/ui/pages',
         udp: '/udp/ui/pages/udp',
       ),
+    ),
+  ),
+  configs: (
+    path: '/configs',
+    pages: (
+      path: '/configs/pages',
+      configs: '/configs/pages/configs',
+    ),
+  ),
+  startup: (
+    path: '/startup',
+    pages: (
+      path: '/startup/pages',
+      startup: '/startup/pages/startup',
     ),
   ),
   scanner: (
@@ -106,7 +127,6 @@ const routePaths = (
         path: '/devices/ui/pages',
         deviceInfo: '/devices/ui/pages/device_info',
         deviceConfiguration: '/devices/ui/pages/device_configuration',
-        deviceDemo: '/devices/ui/pages/device_demo',
       ),
     ),
   ),
