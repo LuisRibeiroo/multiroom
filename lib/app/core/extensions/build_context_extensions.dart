@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 extension ContextExt on BuildContext {
-  ColorScheme get colorScheme => Theme.of(this).colorScheme;
-  TextTheme get textTheme => Theme.of(this).textTheme;
-  IconThemeData get iconTheme => Theme.of(this).iconTheme;
+  ThemeData get theme => Theme.of(this);
+  ColorScheme get colorScheme => theme.colorScheme;
+  TextTheme get textTheme => theme.textTheme;
+  IconThemeData get iconTheme => theme.iconTheme;
   Size get size => MediaQuery.sizeOf(this);
   MediaQueryData get mediaQuery => MediaQuery.of(this);
 
@@ -32,7 +33,7 @@ extension ContextExt on BuildContext {
                 height: 4,
                 width: 32,
                 decoration: BoxDecoration(
-                  color: colorScheme.onSurface,
+                  color: theme.dividerColor,
                   borderRadius: const BorderRadius.horizontal(
                     left: Radius.circular(12),
                     right: Radius.circular(12),
