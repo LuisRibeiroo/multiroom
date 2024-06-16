@@ -157,7 +157,7 @@ class ScannerPageController extends BaseController {
   void onTapConfigDevice(DeviceModel device) {
     stopUdpServer();
 
-    Routefly.push<bool?>(routePaths.devices.ui.pages.deviceConfiguration, arguments: device).then(
+    Routefly.push<bool?>(routePaths.configs.pages.deviceConfiguration, arguments: device).then(
       (_) {
         localDevices.value = settings.devices;
       },

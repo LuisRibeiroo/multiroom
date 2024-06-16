@@ -56,10 +56,11 @@ class ConfigsPageController extends BaseController {
   }
 
   void onTapConfigDevice(DeviceModel device) {
-    Routefly.push<bool?>(routePaths.devices.ui.pages.deviceConfiguration, arguments: device).then(
-      (_) {
-        localDevices.value = settings.devices;
-      },
+    Routefly.push<bool?>(
+      routePaths.configs.pages.deviceConfiguration,
+      arguments: device,
+    ).then(
+      (_) => localDevices.value = settings.devices,
     );
 
     untracked(localDevices.clear);

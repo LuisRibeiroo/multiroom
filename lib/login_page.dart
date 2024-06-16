@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
-import 'my_home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,8 +15,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool get isValidData => isValidEmail && password.value.isNotEmpty;
 
-  bool get isValidEmail =>
-      email.value.contains("@") && email.value.contains(".com");
+  bool get isValidEmail => email.value.contains("@") && email.value.contains(".com");
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +31,7 @@ class _LoginPageState extends State<LoginPage> {
                 const Spacer(),
                 TextFormField(
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) =>
-                      isValidEmail ? null : 'Campo obrigatório',
+                  validator: (value) => isValidEmail ? null : 'Campo obrigatório',
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
@@ -45,9 +42,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Campo obrigatório'
-                      : null,
+                  validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -60,30 +55,16 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 48),
-                    backgroundColor:
-                        Theme.of(context).colorScheme.inversePrimary,
+                    backgroundColor: Theme.of(context).colorScheme.inversePrimary,
                   ),
                   onPressed: isValidData
                       ? () {
                           isLoading.set(true);
-
-                          Future.delayed(
-                            const Duration(seconds: 1),
-                            () => Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    const MyHomePage(title: 'Multiroom'),
-                              ),
-                            ),
-                          );
                         }
                       : null,
                   child: AnimatedSwitcher(
                     duration: Durations.long2,
-                    child: isLoading.value
-                        ? const CircularProgressIndicator()
-                        : const Text('Login'),
+                    child: isLoading.value ? const CircularProgressIndicator() : const Text('Login'),
                   ),
                 ),
                 const Spacer(),

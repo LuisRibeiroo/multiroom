@@ -2,17 +2,17 @@ import 'dart:async';
 
 import 'package:signals/signals_flutter.dart';
 
-import '../../../../../injector.dart';
-import '../../../../core/enums/mono_side.dart';
-import '../../../../core/enums/page_state.dart';
-import '../../../../core/enums/zone_mode.dart';
-import '../../../../core/interactor/controllers/base_controller.dart';
-import '../../../../core/interactor/controllers/socket_mixin.dart';
-import '../../../../core/interactor/repositories/settings_contract.dart';
-import '../../../../core/models/device_model.dart';
-import '../../../../core/models/zone_model.dart';
-import '../../../../core/models/zone_wrapper_model.dart';
-import '../../../../core/utils/mr_cmd_builder.dart';
+import '../../../../injector.dart';
+import '../../../core/enums/mono_side.dart';
+import '../../../core/enums/page_state.dart';
+import '../../../core/enums/zone_mode.dart';
+import '../../../core/interactor/controllers/base_controller.dart';
+import '../../../core/interactor/controllers/socket_mixin.dart';
+import '../../../core/interactor/repositories/settings_contract.dart';
+import '../../../core/models/device_model.dart';
+import '../../../core/models/zone_model.dart';
+import '../../../core/models/zone_wrapper_model.dart';
+import '../../../core/utils/mr_cmd_builder.dart';
 
 class DeviceConfigurationPageController extends BaseController with SocketMixin {
   DeviceConfigurationPageController() : super(InitialState());

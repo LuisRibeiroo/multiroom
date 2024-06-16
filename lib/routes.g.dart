@@ -2,12 +2,11 @@
 
 import 'package:routefly/routefly.dart';
 
-import 'app/(modules)/configs/pages/configs_page.dart' as a2;
-import 'app/(modules)/devices/ui/pages/device_configuration_page.dart' as a6;
-import 'app/(modules)/devices/ui/pages/device_info_page.dart' as a5;
+import 'app/(modules)/configs/pages/configs_page.dart' as a3;
+import 'app/(modules)/configs/pages/device_configuration_page.dart' as a2;
 import 'app/(modules)/home/pages/device_demo_page.dart' as a0;
-import 'app/(modules)/scanner/ui/pages/scanner_page.dart' as a4;
-import 'app/(modules)/startup/pages/startup_page.dart' as a3;
+import 'app/(modules)/scanner/ui/pages/scanner_page.dart' as a5;
+import 'app/(modules)/startup/pages/startup_page.dart' as a4;
 import 'app/(modules)/udp/ui/pages/udp_page.dart' as a1;
 
 List<RouteEntity> get routes => [
@@ -30,12 +29,21 @@ List<RouteEntity> get routes => [
         ),
       ),
       RouteEntity(
+        key: '/configs/pages/device_configuration',
+        uri: Uri.parse('/configs/pages/device_configuration'),
+        routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
+          ctx,
+          settings,
+          const a2.DeviceConfigurationPage(),
+        ),
+      ),
+      RouteEntity(
         key: '/configs/pages/configs',
         uri: Uri.parse('/configs/pages/configs'),
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a2.ConfigsPage(),
+          const a3.ConfigsPage(),
         ),
       ),
       RouteEntity(
@@ -44,7 +52,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a3.StartupPage(),
+          const a4.StartupPage(),
         ),
       ),
       RouteEntity(
@@ -53,25 +61,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a4.ScannerPage(),
-        ),
-      ),
-      RouteEntity(
-        key: '/devices/ui/pages/device_info',
-        uri: Uri.parse('/devices/ui/pages/device_info'),
-        routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
-          ctx,
-          settings,
-          const a5.DeviceInfoPage(),
-        ),
-      ),
-      RouteEntity(
-        key: '/devices/ui/pages/device_configuration',
-        uri: Uri.parse('/devices/ui/pages/device_configuration'),
-        routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
-          ctx,
-          settings,
-          const a6.DeviceConfigurationPage(),
+          const a5.ScannerPage(),
         ),
       ),
     ];
@@ -99,6 +89,7 @@ const routePaths = (
     path: '/configs',
     pages: (
       path: '/configs/pages',
+      deviceConfiguration: '/configs/pages/device_configuration',
       configs: '/configs/pages/configs',
     ),
   ),
@@ -116,17 +107,6 @@ const routePaths = (
       pages: (
         path: '/scanner/ui/pages',
         scanner: '/scanner/ui/pages/scanner',
-      ),
-    ),
-  ),
-  devices: (
-    path: '/devices',
-    ui: (
-      path: '/devices/ui',
-      pages: (
-        path: '/devices/ui/pages',
-        deviceInfo: '/devices/ui/pages/device_info',
-        deviceConfiguration: '/devices/ui/pages/device_configuration',
       ),
     ),
   ),

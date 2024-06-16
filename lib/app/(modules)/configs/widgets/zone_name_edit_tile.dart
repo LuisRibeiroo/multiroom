@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/extensions/build_context_extensions.dart';
-import '../../../../core/extensions/number_extensions.dart';
-import '../../../../core/models/zone_model.dart';
-import '../../../../core/models/zone_wrapper_model.dart';
+import '../../../core/extensions/build_context_extensions.dart';
+import '../../../core/extensions/number_extensions.dart';
+import '../../../core/models/zone_model.dart';
+import '../../../core/models/zone_wrapper_model.dart';
 
 class ZoneNameEditTile extends StatelessWidget {
   const ZoneNameEditTile({
