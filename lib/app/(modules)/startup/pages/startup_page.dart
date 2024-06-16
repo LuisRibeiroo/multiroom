@@ -23,7 +23,7 @@ class _StartupPageState extends State<StartupPage> {
     scheduleMicrotask(() async {
       final settings = injector.get<SettingsContract>();
 
-      await Future.delayed(const Duration(seconds: 2), () {
+      await Future.delayed(const Duration(seconds: 1), () {
         if (settings.devices.isEmpty) {
           // if (settings.devices.isEmpty) {
           Routefly.replace(routePaths.configs.pages.configs);

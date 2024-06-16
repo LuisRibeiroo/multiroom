@@ -21,6 +21,7 @@ class ConfigsPageController extends BaseController {
         serialNumber: "MR01234-0933",
         name: "Master 1",
         ip: "192.168.0.1",
+        version: "3.2",
       ),
     );
 
