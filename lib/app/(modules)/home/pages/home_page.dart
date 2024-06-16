@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
       isScrollControlled: false,
       child: Watch(
         (_) => SelectableListView(
-          options: _controller.equalizers,
+          options: _controller.availableEqualizers,
           onSelect: _controller.setEqualizer,
           selectedOption: _controller.currentEqualizer.value,
         ),
@@ -65,7 +65,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    scheduleMicrotask(() async {});
+    scheduleMicrotask(() async {
+      _controller.init();
+    });
   }
 
   @override
@@ -99,7 +101,7 @@ class _HomePageState extends State<HomePage> {
                     DeviceControls(
                       currentZone: _controller.currentZone.value,
                       currentEqualizer: _controller.currentEqualizer.value,
-                      equalizers: _controller.equalizers.value,
+                      equalizers: _controller.availableEqualizers.value,
                       onChangeBalance: _controller.setBalance,
                       onChangeVolume: _controller.setVolume,
                       onUpdateFrequency: _controller.setFrequency,
