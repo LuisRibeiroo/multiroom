@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:multi_dropdown/multiselect_dropdown.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../core/extensions/build_context_extensions.dart';
@@ -16,38 +13,18 @@ class EqualizerCard extends StatefulWidget {
     required this.currentEqualizer,
     required this.onChangeEqualizer,
     required this.onUpdateFrequency,
-    required this.equalizerController,
   });
 
   final List<EqualizerModel> equalizers;
   final EqualizerModel currentEqualizer;
-  final Function(String) onChangeEqualizer;
   final Function(Frequency) onUpdateFrequency;
-  final MultiSelectController<int> equalizerController;
+  final Function() onChangeEqualizer;
 
   @override
   State<EqualizerCard> createState() => _EqualizerCardState();
 }
 
 class _EqualizerCardState extends State<EqualizerCard> {
-  @override
-  void initState() {
-    super.initState();
-
-    scheduleMicrotask(() {
-      if (widget.equalizerController.options.isNotEmpty) {
-        widget.equalizerController.setSelectedOptions(
-          [
-            widget.equalizerController.options.firstWhere(
-              (value) => value.label == widget.currentEqualizer.name,
-              orElse: () => widget.equalizerController.options.first,
-            ),
-          ],
-        );
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card.outlined(
@@ -62,32 +39,28 @@ class _EqualizerCardState extends State<EqualizerCard> {
               style: context.textTheme.titleLarge,
             ),
             12.asSpace,
-            MultiSelectDropDown(
-              fieldBackgroundColor: context.colorScheme.surface,
-              optionsBackgroundColor: context.colorScheme.surface.withOpacity(.9),
-              dropdownBackgroundColor: context.colorScheme.surface.withOpacity(.9),
-              selectionType: SelectionType.single,
-              hint: "Selecione um equalizador",
-              controller: widget.equalizerController,
-              options: widget.equalizerController.options,
-              suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
-              clearIcon: const Icon(Icons.clear, size: 0),
-              onOptionSelected: (options) {
-                widget.onChangeEqualizer(options.first.label);
-              },
-              singleSelectItemStyle: context.textTheme.titleSmall!.copyWith(
-                color: context.colorScheme.onSurface,
-              ),
-              selectedOptionIcon: Icon(
-                Icons.check_rounded,
-                color: context.colorScheme.inversePrimary,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.equalizer_rounded),
+                    label: AnimatedSwitcher(
+                      duration: Durations.short4,
+                      child: Text(
+                        key: ValueKey(widget.currentEqualizer.name),
+                        widget.currentEqualizer.name,
+                      ),
+                    ),
+                    onPressed: widget.onChangeEqualizer,
+                  ),
+                ),
+              ],
             ),
             18.asSpace,
             Padding(
               padding: const EdgeInsets.only(left: 24),
               child: SizedBox(
-                height: 200,
+                height: 250,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: widget.currentEqualizer.frequencies.length,

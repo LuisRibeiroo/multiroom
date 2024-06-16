@@ -62,7 +62,4 @@ class ChannelModel extends Equatable {
         name,
         active,
       ];
-
-  @override
-  bool? get stringify => false;
 }

@@ -1,12 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:multi_dropdown/multiselect_dropdown.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
 import '../../../core/enums/page_state.dart';
-import '../../../core/extensions/string_extensions.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
 import '../../../core/interactor/controllers/socket_mixin.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
@@ -50,69 +48,6 @@ class HomePageController extends BaseController with SocketMixin {
           }
         });
       }),
-      channels.subscribe((newValue) {
-        untracked(() {
-          channelController.setOptions(
-            List.generate(
-              newValue.length,
-              (idx) => ValueItem(
-                label: newValue[idx].name,
-                value: idx,
-              ),
-            ),
-          );
-        });
-      }),
-      equalizers.subscribe((newValue) {
-        untracked(() {
-          equalizerController.setOptions(
-            List.generate(
-              newValue.length,
-              (idx) => ValueItem(
-                label: newValue[idx].name,
-                value: idx,
-              ),
-            ),
-          );
-        });
-      }),
-      currentChannel.subscribe((channel) {
-        if (channel.isEmpty) {
-          return;
-        }
-
-        untracked(() {
-          final id = int.parse(channel.id.numbersOnly);
-
-          channelController.setSelectedOptions(
-            [
-              channelController.options.firstWhere(
-                (opt) => opt.value == id - 1,
-                orElse: () => channelController.options.first,
-              ),
-            ],
-          );
-        });
-      }),
-      currentEqualizer.subscribe((equalizer) {
-        if (equalizer.isEmpty /* || equalizer.name == currentEqualizer.value.name */) {
-          return;
-        }
-
-        untracked(() {
-          equalizerController.setSelectedOptions(
-            [
-              equalizerController.options.firstWhere(
-                (opt) => opt.label == equalizer.name,
-                orElse: () => equalizerController.options.firstWhere(
-                  (e) => e.label == "Custom",
-                  orElse: () => equalizerController.options.first,
-                ),
-              ),
-            ],
-          );
-        });
-      }),
     ]);
   }
 
@@ -141,8 +76,6 @@ class HomePageController extends BaseController with SocketMixin {
   final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
   final currentChannel = ChannelModel.empty().toSignal(debugLabel: "currentChannel");
   final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
-  final channelController = MultiSelectController<int>();
-  final equalizerController = MultiSelectController<int>();
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
 
