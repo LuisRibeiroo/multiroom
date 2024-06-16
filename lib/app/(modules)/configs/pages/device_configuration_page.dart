@@ -177,9 +177,9 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                           children: [
                             const Divider(),
                             ...List.generate(
-                              _controller.device.value.zones.length,
+                              _controller.device.value.zoneWrappers.length,
                               (idx) {
-                                final wrapper = _controller.device.value.zones[idx];
+                                final wrapper = _controller.device.value.zoneWrappers[idx];
 
                                 return Watch(
                                   (_) => Column(

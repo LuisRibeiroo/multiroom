@@ -76,7 +76,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       editingWrapper.value = zone.copyWith(mode: isStereo ? ZoneMode.stereo : ZoneMode.mono);
 
       device.value = device.value
-          .copyWith(zones: device.value.zones.map((z) => z.id == zone.id ? editingWrapper.value : z).toList());
+          .copyWith(zones: device.value.zoneWrappers.map((z) => z.id == zone.id ? editingWrapper.value : z).toList());
     } catch (exception) {
       setError(exception as Exception);
     }
@@ -109,7 +109,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     if (isEditingZone.value == false) {
       device.value = device.value.copyWith(
-        zones: device.value.zones
+        zones: device.value.zoneWrappers
             .map(
               (z) => z.id == editingWrapper.value.id ? editingWrapper.value : z,
             )

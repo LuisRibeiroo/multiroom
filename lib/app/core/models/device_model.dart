@@ -8,7 +8,7 @@ class DeviceModel extends Equatable {
     required this.serialNumber,
     required this.name,
     required this.ip,
-    required this.zones,
+    required this.zoneWrappers,
     required this.version,
     required this.type,
     this.active = true,
@@ -20,7 +20,7 @@ class DeviceModel extends Equatable {
       serialNumber: "",
       name: "",
       ip: "",
-      zones: [],
+      zoneWrappers: [],
       version: "",
       type: DeviceType.master,
     );
@@ -36,7 +36,7 @@ class DeviceModel extends Equatable {
     return DeviceModel(
       serialNumber: serialNumber,
       name: name,
-      zones: List.generate(
+      zoneWrappers: List.generate(
         8,
         (idx) => ZoneWrapperModel.builder(index: idx + 1, name: "Zona ${idx + 1}"),
       ),
@@ -51,7 +51,7 @@ class DeviceModel extends Equatable {
       serialNumber: map['serialNumber'],
       name: map['name'],
       ip: map['ip'],
-      zones: List.from(map['zones']?.map((x) => ZoneWrapperModel.fromMap(x))),
+      zoneWrappers: List.from(map['zones']?.map((x) => ZoneWrapperModel.fromMap(x))),
       version: map['version'],
       type: DeviceType.values[map['type']],
       masterName: map['masterName'],
@@ -64,7 +64,7 @@ class DeviceModel extends Equatable {
       'serialNumber': serialNumber,
       'name': name,
       'ip': ip,
-      'zones': zones.map((x) => x.toMap()).toList(),
+      'zones': zoneWrappers.map((x) => x.toMap()).toList(),
       'version': version,
       'type': type.index,
       'masterName': masterName,
@@ -75,7 +75,7 @@ class DeviceModel extends Equatable {
   final String serialNumber;
   final String name;
   final String ip;
-  final List<ZoneWrapperModel> zones;
+  final List<ZoneWrapperModel> zoneWrappers;
   final String version;
   final DeviceType type;
   final String masterName;
@@ -97,7 +97,7 @@ class DeviceModel extends Equatable {
       serialNumber: serialNumber ?? this.serialNumber,
       name: name ?? this.name,
       ip: ip ?? this.ip,
-      zones: zones ?? this.zones,
+      zoneWrappers: zones ?? zoneWrappers,
       version: version ?? this.version,
       type: type ?? this.type,
       masterName: masterName ?? this.masterName,
@@ -110,7 +110,7 @@ class DeviceModel extends Equatable {
         serialNumber,
         name,
         ip,
-        zones,
+        zoneWrappers,
         version,
         type,
         masterName,

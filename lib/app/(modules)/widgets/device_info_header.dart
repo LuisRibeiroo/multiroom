@@ -5,12 +5,12 @@ import '../../core/extensions/build_context_extensions.dart';
 import '../../core/extensions/number_extensions.dart';
 import '../../core/models/channel_model.dart';
 import '../../core/models/zone_model.dart';
-import '../../core/models/device_model.dart';
 
 class DeviceInfoHeader extends StatefulWidget {
   const DeviceInfoHeader({
     super.key,
-    required this.device,
+    required this.deviceName,
+    required this.zones,
     required this.currentZone,
     required this.currentChannel,
     required this.onChangeZone,
@@ -18,7 +18,8 @@ class DeviceInfoHeader extends StatefulWidget {
     required this.channelController,
   });
 
-  final DeviceModel device;
+  final String deviceName;
+  final List<ZoneModel> zones;
   final ZoneModel currentZone;
   final ChannelModel currentChannel;
   final Function(ZoneModel) onChangeZone;
@@ -38,9 +39,9 @@ class _DeviceInfoHeaderState extends State<DeviceInfoHeader> {
     super.initState();
 
     _zoneOptions = List.generate(
-      widget.device.zones.length,
+      widget.zones.length,
       (idx) => ValueItem(
-        label: "",//widget.device.zones[idx].name,
+        label: widget.zones[idx].name,
         value: idx,
       ),
     );
@@ -76,7 +77,7 @@ class _DeviceInfoHeaderState extends State<DeviceInfoHeader> {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    widget.device.name,
+                    widget.deviceName,
                     style: context.textTheme.headlineSmall,
                   ),
                 ),
