@@ -10,11 +10,23 @@ class EqualizerModel extends Equatable {
 
   factory EqualizerModel.builder({
     required String name,
-    int value = 50,
+    int v60 = 0,
+    int v250 = 0,
+    int v1k = 0,
+    int v3k = 0,
+    int v6k = 0,
+    int v16k = 0,
   }) =>
       EqualizerModel(
         name: name,
-        frequencies: Frequency.build(value),
+        frequencies: Frequency.build(
+          v60,
+          v250,
+          v1k,
+          v3k,
+          v6k,
+          v16k,
+        ),
       );
 
   factory EqualizerModel.custom({

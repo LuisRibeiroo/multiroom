@@ -27,18 +27,64 @@ class Frequency extends Equatable {
     };
   }
 
-  static List<Frequency> build([int value = 50]) => [
-        Frequency(name: "32", value: value),
-        Frequency(name: "64", value: value),
-        Frequency(name: "125", value: value),
-        Frequency(name: "250", value: value),
-        Frequency(name: "500", value: value),
-        Frequency(name: "1000", value: value),
-        Frequency(name: "2000", value: value),
-        Frequency(name: "4000", value: value),
-        Frequency(name: "8000", value: value),
-        Frequency(name: "16000", value: value),
+  static List<Frequency> build([
+    int v60 = 0,
+    int v250 = 0,
+    int v1k = 0,
+    int v3k = 0,
+    int v6k = 0,
+    int v16k = 0,
+  ]) =>
+      [
+        Frequency(name: "60", value: v60),
+        Frequency(name: "250", value: v250),
+        Frequency(name: "1k", value: v1k),
+        Frequency(name: "3k", value: v3k),
+        Frequency(name: "6k", value: v6k),
+        Frequency(name: "16k", value: v16k),
       ];
+
+  /* 
+ROCK
+•  60 Hz: +2 dB
+•  250 Hz: 0 dB 
+•  1 kHz: +1 
+•  3 kHz: +2
+•  6 kHz: +2 dB
+•  16 kHz: +1 dB
+
+POP
+•  60 Hz: +2 dB
+•  250 Hz: +1 dB 
+•  1 kHz: +2 dB
+•  3 kHz: +3 dB
+•  6 kHz: +2 dB
+•  16 kHz: +2 dB
+
+CLASSICO
+•  60 Hz: +1 dB
+•  250 Hz: 0 dB 
+•  1 kHz: +1 dB
+•  3 kHz: +2 dB
+•  6 kHz: +1
+•  16 kHz: +1
+
+JAZZ
+•  60 Hz: +1
+•  250 Hz: 0 dB
+•  1 kHz: +2 dB
+•  3 kHz: +3 dB
+•  6 kHz: +2 dB
+•  16 kHz: +1 dB
+
+DANCE MUSIC
+•  60 Hz: +4 dB
+•  250 Hz: +2 dB
+•  1 kHz: 0 dB 
+•  3 kHz: +3 dB
+•  6 kHz: +3 dB
+•  16 kHz: +2 dB
+  */
 
   final String name;
   final int value;
