@@ -23,14 +23,37 @@ class _StartupPageState extends State<StartupPage> {
     scheduleMicrotask(() async {
       final settings = injector.get<SettingsContract>();
 
+      // settings.saveDevices([
+      //   DeviceModel.builder(
+      //     serialNumber: "MR01234-0933",
+      //     name: "Master 1",
+      //     ip: "192.168.0.1",
+      //     version: "3.2",
+      //     type: DeviceType.master,
+      //   ),
+      //   DeviceModel.builder(
+      //     serialNumber: "MR01234-0933",
+      //     name: "Slave 1",
+      //     ip: "192.168.0.2",
+      //     version: "3.2",
+      //     type: DeviceType.slave,
+      //   ),
+      //   DeviceModel.builder(
+      //     serialNumber: "MR01234-0933",
+      //     name: "Slave 2",
+      //     ip: "192.168.0.3",
+      //     version: "3.2",
+      //     type: DeviceType.slave,
+      //   ),
+      // ]);
+
       await Future.delayed(const Duration(seconds: 1), () {
         if (settings.devices.isEmpty) {
-          // if (settings.devices.isEmpty) {
           Routefly.replace(routePaths.configs.pages.configs);
           Routefly.pushNavigate(routePaths.configs.pages.configs);
         } else {
-          Routefly.replace(routePaths.home.pages.deviceDemo);
-          Routefly.pushNavigate(routePaths.home.pages.deviceDemo);
+          Routefly.replace(routePaths.home.pages.home);
+          Routefly.pushNavigate(routePaths.home.pages.home);
         }
       });
     });

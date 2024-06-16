@@ -21,8 +21,8 @@ import '../../../core/utils/debouncer.dart';
 import '../../../core/models/device_model.dart';
 import '../../../core/utils/mr_cmd_builder.dart';
 
-class DeviceDemoPageController extends BaseController {
-  DeviceDemoPageController() : super(InitialState()) {
+class HomePageController extends BaseController {
+  HomePageController() : super(InitialState()) {
     _initUdp();
 
     currentEqualizer.value = equalizers.last;

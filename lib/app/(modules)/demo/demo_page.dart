@@ -6,23 +6,23 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:signals/signals_flutter.dart';
 
-import '../../../../injector.dart';
-import '../../../core/extensions/number_extensions.dart';
-import '../../../core/extensions/text_input_formatter_extensions.dart';
-import '../../../core/widgets/loading_overlay.dart';
-import '../interactor/device_demo_page_controller.dart';
-import '../../widgets/device_controls.dart';
-import '../../widgets/device_info_header.dart';
+import '../../../injector.dart';
+import '../../core/extensions/number_extensions.dart';
+import '../../core/extensions/text_input_formatter_extensions.dart';
+import '../../core/widgets/loading_overlay.dart';
+import '../widgets/device_controls.dart';
+import '../widgets/device_info_header.dart';
+import 'demo_page_controller.dart';
 
-class DeviceDemoPage extends StatefulWidget {
-  const DeviceDemoPage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<DeviceDemoPage> createState() => _DeviceDemoPageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _DeviceDemoPageState extends State<DeviceDemoPage> {
-  final _controller = injector.get<DeviceDemoPageController>();
+class _HomePageState extends State<HomePage> {
+  final _controller = injector.get<HomePageController>();
 
   late final TextEditingController _hostEditingController;
   late final TextEditingController _portEditingController;
@@ -56,12 +56,12 @@ class _DeviceDemoPageState extends State<DeviceDemoPage> {
       (_) => LoadingOverlay(
         state: _controller.state,
         child: Scaffold(
-          // appBar: AppBar(
-          //   leading: Image.asset("assets/logo.png"),
-          //   title: const Text('Multiroom'),
-          //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          //   scrolledUnderElevation: 0,
-          // ),
+          appBar: AppBar(
+            leading: Image.asset("assets/logo.png"),
+            title: const Text('Multiroom'),
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            scrolledUnderElevation: 0,
+          ),
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
