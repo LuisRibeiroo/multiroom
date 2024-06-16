@@ -1,14 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import '../../../core/models/selectable_model.dart';
-import '../../../core/widgets/bottom_sheet_selector.dart';
-import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
+import '../../../core/widgets/selectable_list_view.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../widgets/device_controls.dart';
 import '../../widgets/device_info_header.dart';
@@ -28,7 +26,7 @@ class _HomePageState extends State<HomePage> {
     context.showCustomModalBottomSheet(
       isScrollControlled: false,
       child: Watch(
-        (_) => BottomSheetSelector(
+        (_) => SelectableListView(
           options: _controller.zones,
           onSelect: _controller.setCurrentZone,
           selectedOption: _controller.currentZone.value,
@@ -41,7 +39,7 @@ class _HomePageState extends State<HomePage> {
     context.showCustomModalBottomSheet(
       isScrollControlled: false,
       child: Watch(
-        (_) => BottomSheetSelector(
+        (_) => SelectableListView(
           options: _controller.channels,
           onSelect: _controller.setCurrentChannel,
           selectedOption: _controller.currentChannel.value,
@@ -54,7 +52,7 @@ class _HomePageState extends State<HomePage> {
     context.showCustomModalBottomSheet(
       isScrollControlled: false,
       child: Watch(
-        (_) => BottomSheetSelector(
+        (_) => SelectableListView(
           options: _controller.equalizers,
           onSelect: _controller.setEqualizer,
           selectedOption: _controller.currentEqualizer.value,

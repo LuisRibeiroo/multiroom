@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../models/selectable_model.dart';
 import 'package:routefly/routefly.dart';
 
-class BottomSheetSelector<T extends SelectableModel> extends StatelessWidget {
-  const BottomSheetSelector({
+import '../models/selectable_model.dart';
+
+class SelectableListView<T extends SelectableModel> extends StatelessWidget {
+  const SelectableListView({
     super.key,
     required this.options,
     required this.selectedOption,
