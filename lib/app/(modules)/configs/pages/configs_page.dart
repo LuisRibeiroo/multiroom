@@ -11,7 +11,7 @@ import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/device_model.dart';
 import '../../../core/widgets/loading_overlay.dart';
-import '../../scanner/ui/widgets/device_list_tile.dart';
+import '../../scanner/widgets/device_list_tile.dart';
 import '../controllers/configs_page_controller.dart';
 import '../widgets/no_devices_widget.dart';
 
@@ -82,7 +82,7 @@ class _ConfigsPageState extends State<ConfigsPage> {
         _controller.state.value = InitialState();
 
         Routefly.pop(context);
-        Routefly.pushNavigate(routePaths.scanner.ui.pages.scanner);
+        Routefly.pushNavigate(routePaths.scanner.pages.scanner);
       }
     });
   }

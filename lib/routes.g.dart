@@ -5,7 +5,7 @@ import 'package:routefly/routefly.dart';
 import 'app/(modules)/configs/pages/configs_page.dart' as a3;
 import 'app/(modules)/configs/pages/device_configuration_page.dart' as a2;
 import 'app/(modules)/home/pages/device_demo_page.dart' as a0;
-import 'app/(modules)/scanner/ui/pages/scanner_page.dart' as a5;
+import 'app/(modules)/scanner/pages/scanner_page.dart' as a5;
 import 'app/(modules)/startup/pages/startup_page.dart' as a4;
 import 'app/(modules)/udp/ui/pages/udp_page.dart' as a1;
 
@@ -56,8 +56,8 @@ List<RouteEntity> get routes => [
         ),
       ),
       RouteEntity(
-        key: '/scanner/ui/pages/scanner',
-        uri: Uri.parse('/scanner/ui/pages/scanner'),
+        key: '/scanner/pages/scanner',
+        uri: Uri.parse('/scanner/pages/scanner'),
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
@@ -102,12 +102,9 @@ const routePaths = (
   ),
   scanner: (
     path: '/scanner',
-    ui: (
-      path: '/scanner/ui',
-      pages: (
-        path: '/scanner/ui/pages',
-        scanner: '/scanner/ui/pages/scanner',
-      ),
+    pages: (
+      path: '/scanner/pages',
+      scanner: '/scanner/pages/scanner',
     ),
   ),
 );

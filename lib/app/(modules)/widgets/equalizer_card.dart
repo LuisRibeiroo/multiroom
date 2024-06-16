@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
 import 'package:signals/signals_flutter.dart';
 
-import '../../../../core/extensions/build_context_extensions.dart';
-import '../../../../core/extensions/number_extensions.dart';
-import '../../../../core/models/equalizer_model.dart';
-import '../../../../core/models/frequency.dart';
+import '../../core/extensions/build_context_extensions.dart';
+import '../../core/extensions/number_extensions.dart';
+import '../../core/models/equalizer_model.dart';
+import '../../core/models/frequency.dart';
 
 class EqualizerCard extends StatefulWidget {
   const EqualizerCard({

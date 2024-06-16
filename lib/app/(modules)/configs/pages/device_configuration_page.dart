@@ -8,7 +8,7 @@ import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/extensions/string_extensions.dart';
 import '../../../core/widgets/loading_overlay.dart';
-import '../../scanner/ui/widgets/device_type_indicator.dart';
+import '../../scanner/widgets/device_type_indicator.dart';
 import '../controllers/device_configuration_page_controller.dart';
 import '../widgets/zone_name_edit_tile.dart';
 

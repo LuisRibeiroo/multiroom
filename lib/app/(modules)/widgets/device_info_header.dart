@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
 
-import '../../../../core/extensions/build_context_extensions.dart';
-import '../../../../core/extensions/number_extensions.dart';
-import '../../../../core/models/channel_model.dart';
-import '../../../../core/models/zone_model.dart';
-import '../../../../core/models/device_model.dart';
+import '../../core/extensions/build_context_extensions.dart';
+import '../../core/extensions/number_extensions.dart';
+import '../../core/models/channel_model.dart';
+import '../../core/models/zone_model.dart';
+import '../../core/models/device_model.dart';
 
 class DeviceInfoHeader extends StatefulWidget {
   const DeviceInfoHeader({

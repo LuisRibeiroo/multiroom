@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/extensions/build_context_extensions.dart';
+import '../../../core/extensions/build_context_extensions.dart';
 
 class DeviceTypeIndicator extends StatelessWidget {
   const DeviceTypeIndicator({

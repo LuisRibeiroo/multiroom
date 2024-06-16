@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
-import '../../../../../injector.dart';
-import '../../../../core/extensions/build_context_extensions.dart';
-import '../../../../core/extensions/number_extensions.dart';
-import '../../../../core/widgets/loading_overlay.dart';
-import '../../interactor/controllers/scanner_page_controller.dart';
-import '../../interactor/models/network_device_model.dart';
+import '../../../../injector.dart';
+import '../../../core/extensions/build_context_extensions.dart';
+import '../../../core/extensions/number_extensions.dart';
+import '../../../core/widgets/loading_overlay.dart';
+import '../interactor/controllers/scanner_page_controller.dart';
+import '../interactor/models/network_device_model.dart';
 import '../widgets/device_list_tile.dart';
 
 class ScannerPage extends StatefulWidget {

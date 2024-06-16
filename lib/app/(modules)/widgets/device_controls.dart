@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
 
-import '../../../../core/models/equalizer_model.dart';
-import '../../../../core/models/frequency.dart';
-import '../../../../core/models/zone_model.dart';
+import '../../core/models/equalizer_model.dart';
+import '../../core/models/frequency.dart';
+import '../../core/models/zone_model.dart';
 import 'equalizer_card.dart';
 import 'slider_card.dart';
 

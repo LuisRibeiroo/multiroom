@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/enums/device_type.dart';
-import '../../../../core/extensions/build_context_extensions.dart';
-import '../../../../core/extensions/number_extensions.dart';
-import '../../../../core/extensions/string_extensions.dart';
-import '../../../../core/models/device_model.dart';
+import '../../../core/enums/device_type.dart';
+import '../../../core/extensions/build_context_extensions.dart';
+import '../../../core/extensions/number_extensions.dart';
+import '../../../core/extensions/string_extensions.dart';
+import '../../../core/models/device_model.dart';
 import 'device_type_indicator.dart';
 
 class DeviceListTile extends StatelessWidget {
