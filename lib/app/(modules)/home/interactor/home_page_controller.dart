@@ -19,11 +19,11 @@ import '../../../core/utils/mr_cmd_builder.dart';
 class HomePageController extends BaseController with SocketMixin {
   HomePageController() : super(InitialState()) {
     localDevices.value = settings.devices;
-    device.value = localDevices.first;
+    currentDevice.value = localDevices.first;
     currentEqualizer.value = availableEqualizers.last;
 
     disposables.addAll([
-      device.subscribe((value) async {
+      currentDevice.subscribe((value) async {
         if (value.isEmpty) {
           return;
         }
@@ -71,7 +71,7 @@ class HomePageController extends BaseController with SocketMixin {
   );
 
   final localDevices = listSignal<DeviceModel>([], debugLabel: "device");
-  final device = DeviceModel.empty().toSignal(debugLabel: "device");
+  final currentDevice = DeviceModel.empty().toSignal(debugLabel: "device");
   final zones = listSignal<ZoneModel>([], debugLabel: "zones");
   final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
   final currentChannel = ChannelModel.empty().toSignal(debugLabel: "currentChannel");
@@ -85,6 +85,10 @@ class HomePageController extends BaseController with SocketMixin {
     } catch (exception) {
       setError(exception as Exception);
     }
+  }
+
+  void setCurrentDevice(DeviceModel device) {
+    currentDevice.value = device;
   }
 
   void setCurrentZone(ZoneModel zone) {
@@ -316,7 +320,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     localDevices.value = <DeviceModel>[];
     zones.value = <ZoneModel>[];
-    device.value = device.initialValue;
+    currentDevice.value = currentDevice.initialValue;
     currentZone.value = currentZone.initialValue;
     currentChannel.value = currentChannel.initialValue;
     currentEqualizer.value = currentEqualizer.initialValue;

@@ -5,15 +5,16 @@ import '../../core/extensions/number_extensions.dart';
 import '../../core/models/channel_model.dart';
 import '../../core/models/zone_model.dart';
 
-class DeviceInfoHeader extends StatefulWidget {
+class DeviceInfoHeader extends StatelessWidget {
   const DeviceInfoHeader({
     super.key,
     required this.deviceName,
     required this.zones,
     required this.currentZone,
     required this.currentChannel,
-    required this.onChangeZone,
     required this.onChangeChannel,
+    required this.onChangeZone,
+    required this.onChangeDevice,
   });
 
   final String deviceName;
@@ -22,69 +23,68 @@ class DeviceInfoHeader extends StatefulWidget {
   final ChannelModel currentChannel;
   final Function() onChangeChannel;
   final Function() onChangeZone;
+  final Function() onChangeDevice;
 
-  @override
-  State<DeviceInfoHeader> createState() => _DeviceInfoHeaderState();
-}
-
-class _DeviceInfoHeaderState extends State<DeviceInfoHeader> {
   @override
   Widget build(BuildContext context) {
     return Card.outlined(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: Column(
+        child: Row(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  flex: 3,
+            Expanded(
+              flex: 3,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.surround_sound_rounded),
+                label: AnimatedSwitcher(
+                  duration: Durations.short4,
                   child: Text(
-                    widget.deviceName,
+                    deviceName,
+                    key: ValueKey(deviceName),
                     style: context.textTheme.headlineSmall,
                   ),
                 ),
-                12.asSpace,
-                Flexible(
-                  flex: 2,
-                  child: Column(
+                onPressed: onChangeDevice,
+              ),
+            ),
+            12.asSpace,
+            Flexible(
+              flex: 2,
+              child: Column(
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: AnimatedSwitcher(
-                              duration: Durations.short4,
-                              child: OutlinedButton.icon(
-                                key: ValueKey(widget.currentZone.name),
-                                icon: const Icon(Icons.surround_sound_rounded),
-                                label: Text(widget.currentZone.name),
-                                onPressed: widget.onChangeZone,
-                              ),
-                            ),
+                      Expanded(
+                        child: AnimatedSwitcher(
+                          duration: Durations.short4,
+                          child: OutlinedButton.icon(
+                            key: ValueKey(currentZone.name),
+                            icon: const Icon(Icons.home_filled),
+                            label: Text(currentZone.name),
+                            onPressed: onChangeZone,
                           ),
-                        ],
-                      ),
-                      8.asSpace,
-                      Row(
-                        children: [
-                          Expanded(
-                            child: AnimatedSwitcher(
-                              duration: Durations.short4,
-                              child: OutlinedButton.icon(
-                                key: ValueKey(widget.currentChannel.name),
-                                icon: const Icon(Icons.input_rounded),
-                                label: Text(widget.currentChannel.name),
-                                onPressed: widget.onChangeChannel,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  8.asSpace,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AnimatedSwitcher(
+                          duration: Durations.short4,
+                          child: OutlinedButton.icon(
+                            key: ValueKey(currentChannel.name),
+                            icon: const Icon(Icons.input_rounded),
+                            label: Text(currentChannel.name),
+                            onPressed: onChangeChannel,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),

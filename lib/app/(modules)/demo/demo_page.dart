@@ -163,6 +163,7 @@ class _HomePageState extends State<HomePage> {
                             currentChannel: _controller.currentChannel.value,
                             onChangeZone: () => _controller.setCurrentZone,
                             onChangeChannel: () => _controller.setCurrentChannel,
+                            onChangeDevice: () {},
                           ),
                   ),
                   12.asSpace,

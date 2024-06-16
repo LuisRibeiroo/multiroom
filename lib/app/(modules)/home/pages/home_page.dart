@@ -6,8 +6,8 @@ import 'package:signals/signals_flutter.dart';
 import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
-import '../../../core/widgets/selectable_list_view.dart';
 import '../../../core/widgets/loading_overlay.dart';
+import '../../../core/widgets/selectable_list_view.dart';
 import '../../widgets/device_controls.dart';
 import '../../widgets/device_info_header.dart';
 import '../interactor/home_page_controller.dart';
@@ -21,6 +21,19 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _controller = injector.get<HomePageController>();
+
+  void _showDevicesBottomSheet() {
+    context.showCustomModalBottomSheet(
+      isScrollControlled: false,
+      child: Watch(
+        (_) => SelectableListView(
+          options: _controller.localDevices,
+          onSelect: _controller.setCurrentDevice,
+          selectedOption: _controller.currentDevice.value,
+        ),
+      ),
+    );
+  }
 
   void _showZonesBottomSheet() {
     context.showCustomModalBottomSheet(
@@ -90,12 +103,13 @@ class _HomePageState extends State<HomePage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     DeviceInfoHeader(
-                      deviceName: _controller.device.value.name,
+                      deviceName: _controller.currentDevice.value.name,
                       zones: _controller.zones,
                       currentZone: _controller.currentZone.value,
                       currentChannel: _controller.currentChannel.value,
-                      onChangeChannel: _showChannelsBottomSheet,
+                      onChangeDevice: _showDevicesBottomSheet,
                       onChangeZone: _showZonesBottomSheet,
+                      onChangeChannel: _showChannelsBottomSheet,
                     ),
                     12.asSpace,
                     DeviceControls(

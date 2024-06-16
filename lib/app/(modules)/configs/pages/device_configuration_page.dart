@@ -188,7 +188,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                                         title: Text("Zona ${idx + 1}"),
                                         subtitle: Text(wrapper.mode.name.capitalize),
                                         value: wrapper.isStereo,
-                                        secondary: const Icon(Icons.surround_sound_rounded),
+                                        secondary: const Icon(Icons.home_filled),
                                         onChanged: (value) => _controller.onChangeZoneMode(wrapper, value),
                                       ),
                                       8.asSpace,
