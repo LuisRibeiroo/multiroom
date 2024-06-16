@@ -44,48 +44,6 @@ class Frequency extends Equatable {
         Frequency(name: "16k", value: v16k),
       ];
 
-  /* 
-ROCK
-•  60 Hz: +2 dB
-•  250 Hz: 0 dB 
-•  1 kHz: +1 
-•  3 kHz: +2
-•  6 kHz: +2 dB
-•  16 kHz: +1 dB
-
-POP
-•  60 Hz: +2 dB
-•  250 Hz: +1 dB 
-•  1 kHz: +2 dB
-•  3 kHz: +3 dB
-•  6 kHz: +2 dB
-•  16 kHz: +2 dB
-
-CLASSICO
-•  60 Hz: +1 dB
-•  250 Hz: 0 dB 
-•  1 kHz: +1 dB
-•  3 kHz: +2 dB
-•  6 kHz: +1
-•  16 kHz: +1
-
-JAZZ
-•  60 Hz: +1
-•  250 Hz: 0 dB
-•  1 kHz: +2 dB
-•  3 kHz: +3 dB
-•  6 kHz: +2 dB
-•  16 kHz: +1 dB
-
-DANCE MUSIC
-•  60 Hz: +4 dB
-•  250 Hz: +2 dB
-•  1 kHz: 0 dB 
-•  3 kHz: +3 dB
-•  6 kHz: +3 dB
-•  16 kHz: +2 dB
-  */
-
   final String name;
   final int value;
 

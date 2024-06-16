@@ -64,10 +64,8 @@ class _EqualizerCardState extends State<EqualizerCard> {
             12.asSpace,
             MultiSelectDropDown(
               fieldBackgroundColor: context.colorScheme.surface,
-              optionsBackgroundColor:
-                  context.colorScheme.surface.withOpacity(.9),
-              dropdownBackgroundColor:
-                  context.colorScheme.surface.withOpacity(.9),
+              optionsBackgroundColor: context.colorScheme.surface.withOpacity(.9),
+              dropdownBackgroundColor: context.colorScheme.surface.withOpacity(.9),
               selectionType: SelectionType.single,
               hint: "Selecione um equalizador",
               controller: widget.equalizerController,
@@ -108,9 +106,9 @@ class _EqualizerCardState extends State<EqualizerCard> {
                               child: RotatedBox(
                                 quarterTurns: 3,
                                 child: Slider(
-                                  min: 0,
+                                  min: -100,
                                   max: 100,
-                                  divisions: 100 ~/ 5,
+                                  divisions: 200 ~/ 5,
                                   value: current.value.toDouble(),
                                   onChanged: (v) {
                                     widget.onUpdateFrequency(
