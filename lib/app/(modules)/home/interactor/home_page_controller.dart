@@ -1,30 +1,27 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
-import 'package:network_info_plus/network_info_plus.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:toastification/toastification.dart';
-import 'package:udp/udp.dart';
 
+import '../../../../injector.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/extensions/string_extensions.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
+import '../../../core/interactor/controllers/socket_mixin.dart';
+import '../../../core/interactor/repositories/settings_contract.dart';
 import '../../../core/models/channel_model.dart';
+import '../../../core/models/device_model.dart';
 import '../../../core/models/equalizer_model.dart';
 import '../../../core/models/frequency.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/utils/debouncer.dart';
-import '../../../core/models/device_model.dart';
 import '../../../core/utils/mr_cmd_builder.dart';
 
-class HomePageController extends BaseController {
+class HomePageController extends BaseController with SocketMixin {
   HomePageController() : super(InitialState()) {
-    _initUdp();
-
+    localDevices.value = settings.devices;
+    device.value = localDevices.first;
     currentEqualizer.value = equalizers.last;
 
     device.subscribe((value) async {
@@ -121,8 +118,7 @@ class HomePageController extends BaseController {
     });
   }
 
-  late UDP udpServer;
-  late Socket _socket;
+  final settings = injector.get<SettingsContract>();
 
   final equalizers = listSignal<EqualizerModel>(
     [
@@ -141,120 +137,15 @@ class HomePageController extends BaseController {
     debugLabel: "channels",
   );
 
-  final _logger = Logger(
-    printer: SimplePrinter(colors: true, printTime: true),
-  );
-
-  final _serverTimeOut = const Duration(seconds: 30);
-
-  final host = "192.168.0.22".toSignal(debugLabel: "host");
-  final port = "4998".toSignal(debugLabel: "port");
-  final isConnected = false.toSignal(debugLabel: "isConnected");
-  final isServerListening = false.toSignal(debugLabel: "isServerListening");
+  final localDevices = listSignal<DeviceModel>([], debugLabel: "device");
   final device = DeviceModel.empty().toSignal(debugLabel: "device");
   final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
   final currentChannel = ChannelModel.empty().toSignal(debugLabel: "currentChannel");
   final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
-  late StreamIterator<Uint8List> streamIterator;
   final channelController = MultiSelectController<int>();
   final equalizerController = MultiSelectController<int>();
-
-  Future<void> _initUdp() async {
-    final localip = await NetworkInfo().getWifiIP();
-
-    // host.value = localip ?? "";
-    _logger.i("LOCAL IP --> $localip");
-
-    udpServer = await UDP.bind(
-      Endpoint.unicast(
-        InternetAddress.anyIPv4,
-        port: const Port(4055),
-      ),
-    );
-
-    effect(() {
-      if (isServerListening.value) {
-        _logger.i("UDP LISTENING ON --> ${udpServer.local.address?.address}:${udpServer.local.port?.value} ");
-      } else {
-        _logger.i("UDP SERVER CLOSED");
-      }
-    });
-  }
-
-  Future<void> test() async {
-    _readCommand(MrCmdBuilder.getZoneMode(zone: currentZone.value));
-  }
-
-  Future<void> toggleConnection() async {
-    if (isConnected.value) {
-      _socket.close();
-      isConnected.value = false;
-
-      device.value = device.initialValue;
-      currentZone.value = currentZone.initialValue;
-    } else {
-      try {
-        _socket = await run(
-          () => Socket.connect(
-            host.value,
-            int.parse(port.value),
-            timeout: const Duration(seconds: 5),
-          ),
-        );
-
-        streamIterator = StreamIterator(_socket);
-
-        isConnected.value = true;
-
-        device.value = DeviceModel.builder(
-          serialNumber: "",
-          name: "Master 1",
-          ip: host.value,
-        );
-      } catch (exception) {
-        _logger.e(exception);
-        setError(exception as Exception);
-      }
-    }
-  }
-
-  Future<void> toggleUdpServer() async {
-    if (isServerListening.value) {
-      udpServer.close();
-      isServerListening.value = false;
-    } else {
-      try {
-        isServerListening.value = true;
-        udpServer.asStream(timeout: _serverTimeOut).listen((datagram) {
-          if (datagram == null) {
-            return;
-          }
-
-          final data = String.fromCharCodes(datagram.data);
-
-          _logger.i("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
-
-          host.value = datagram.address.address;
-          port.value = 4998.toString();
-
-          udpServer.close();
-          isServerListening.value = false;
-
-          toastification.show(
-            type: ToastificationType.success,
-            title: const Text("Conexão recebida"),
-            description: Text("IP: ${datagram.address.address}"),
-            autoCloseDuration: const Duration(seconds: 2),
-          );
-        });
-      } catch (exception) {
-        _logger.e(exception);
-        setError(exception as Exception);
-      }
-    }
-  }
 
   void setCurrentZone(ZoneModel zone) {
     currentZone.value = zone;
@@ -262,7 +153,7 @@ class HomePageController extends BaseController {
 
   void setCurrentChannel(ChannelModel channel) {
     if (channel.id == currentChannel.value.id) {
-      _logger.i("SET CHANNEL [SAME CHANNEL] --> ${channel.id}");
+      logger.i("SET CHANNEL [SAME CHANNEL] --> ${channel.id}");
       return;
     }
 
@@ -274,7 +165,7 @@ class HomePageController extends BaseController {
     currentZone.value = currentZone.value.copyWith(channels: tempList);
     currentChannel.value = channel;
 
-    _debounceSendCommand(
+    socketSender(
       MrCmdBuilder.setChannel(
         zone: currentZone.value,
         channel: channel,
@@ -285,7 +176,7 @@ class HomePageController extends BaseController {
   void setBalance(int balance) {
     currentZone.value = currentZone.value.copyWith(balance: balance);
 
-    _debounceSendCommand(
+    debounceSendCommand(
       MrCmdBuilder.setBalance(
         zone: currentZone.value,
         balance: balance,
@@ -296,7 +187,7 @@ class HomePageController extends BaseController {
   void setVolume(int volume) {
     currentZone.value = currentZone.value.copyWith(volume: volume);
 
-    _debounceSendCommand(
+    debounceSendCommand(
       MrCmdBuilder.setVolume(
         zone: currentZone.value,
         volume: volume,
@@ -306,7 +197,7 @@ class HomePageController extends BaseController {
 
   Future<void> setEqualizer(String equalizerName) async {
     if (equalizerName == currentEqualizer.value.name) {
-      _logger.i("SET EQUALIZER [SAME EQUALIZER] --> $equalizerName");
+      logger.i("SET EQUALIZER [SAME EQUALIZER] --> $equalizerName");
       return;
     }
 
@@ -314,7 +205,7 @@ class HomePageController extends BaseController {
     currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
     for (final freq in currentZone.value.equalizer.frequencies) {
-      _debounceSendCommand(
+      debounceSendCommand(
         MrCmdBuilder.setEqualizer(
           zone: currentZone.value,
           frequency: freq,
@@ -323,7 +214,6 @@ class HomePageController extends BaseController {
       );
 
       // Delay to avoid sending commands too fast
-      await _delayBetweenCmd();
     }
   }
 
@@ -336,7 +226,7 @@ class HomePageController extends BaseController {
     currentEqualizer.value = EqualizerModel.custom(frequencies: tempList);
     currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
-    _debounceSendCommand(
+    debounceSendCommand(
       MrCmdBuilder.setEqualizer(
         zone: currentZone.value,
         frequency: frequency,
@@ -345,109 +235,87 @@ class HomePageController extends BaseController {
     );
   }
 
-  Future<void> _debounceSendCommand(String cmd) async {
+  Future<void> debounceSendCommand(String cmd) async {
     _writeDebouncer(() async {
-      _socket.writeln(cmd);
-      _logger.i(">>> $cmd");
-
       try {
-        await _listenOnIterator();
+        await socketSender(cmd);
       } catch (exception) {
         setError(Exception("Erro no comando [$cmd] --> $exception"));
       }
     });
   }
 
-  Future<String> _readCommand(String cmd) async {
-    _socket.writeln(cmd);
-    _logger.i(">>> $cmd");
+  Future<void> updateAllDeviceData() async {
+    final channelStr = await socketSender(MrCmdBuilder.getChannel(zone: currentZone.value));
 
-    return await _listenOnIterator();
-  }
+    final volume = await socketSender(MrCmdBuilder.getVolume(zone: currentZone.value));
 
-  Future<void> _updateAllDeviceData() async {
-    final channelStr = await _readCommand(MrCmdBuilder.getChannel(zone: currentZone.value));
-    await _delayBetweenCmd();
+    final balance = await socketSender(MrCmdBuilder.getBalance(zone: currentZone.value));
 
-    final volume = await _readCommand(MrCmdBuilder.getVolume(zone: currentZone.value));
-    await _delayBetweenCmd();
-
-    final balance = await _readCommand(MrCmdBuilder.getBalance(zone: currentZone.value));
-    await _delayBetweenCmd();
-
-    final f32 = await _readCommand(
+    final f32 = await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[0],
       ),
     );
-    await _delayBetweenCmd();
 
-    final f64 = await _readCommand(
+    final f64 = await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[1],
       ),
     );
-    await _delayBetweenCmd();
 
-    final f125 = await _readCommand(
+    final f125 = await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[2],
       ),
     );
-    await _delayBetweenCmd();
 
-    final f250 = await _readCommand(
+    final f250 = await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[3],
       ),
     );
-    await _delayBetweenCmd();
 
-    final f500 = await _readCommand(
+    final f500 = await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[4],
       ),
     );
-    await _delayBetweenCmd();
 
-    final f1000 = await _readCommand(
+    final f1000 = await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[5],
       ),
     );
-    await _delayBetweenCmd();
 
-    final f2000 = await _readCommand(
+    final f2000 = await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[6],
       ),
     );
-    await _delayBetweenCmd();
 
-    final f4000 = await _readCommand(
+    final f4000 = await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[7],
       ),
     );
-    await _delayBetweenCmd();
 
-    final f8000 = await _readCommand(
+    final f8000 = await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[8],
       ),
     );
-    await _delayBetweenCmd();
 
-    final f16000 = await _readCommand(
+    final f16000 = await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: currentZone.value,
         frequency: currentZone.value.equalizer.frequencies[9],
@@ -484,21 +352,4 @@ class HomePageController extends BaseController {
       equalizer: newEqualizer,
     );
   }
-
-  Future<String> _listenOnIterator() async {
-    try {
-      while (await streamIterator.moveNext() == false) {
-        await Future.delayed(Durations.short1);
-      }
-
-      final response = String.fromCharCodes(streamIterator.current);
-      _logger.i("<<< $response");
-
-      return MrCmdBuilder.parseResponse(response);
-    } catch (exception) {
-      throw Exception("Erro ao ler resposta [$exception]");
-    }
-  }
-
-  Future<void> _delayBetweenCmd() => Future.delayed(Duration.zero);
 }

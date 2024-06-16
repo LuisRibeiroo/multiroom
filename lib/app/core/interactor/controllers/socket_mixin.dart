@@ -19,6 +19,7 @@ mixin SocketMixin {
   }
 
   Future<String> socketSender(String cmd, {bool longRet = false}) async {
+    return "mr_cmd=OK";
     if (_socket == null || _streamIterator == null) {
       throw Exception("É necessário incializar o socket");
     }

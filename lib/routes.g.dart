@@ -12,8 +12,8 @@ import 'app/(modules)/udp/ui/pages/udp_page.dart' as a2;
 
 List<RouteEntity> get routes => [
       RouteEntity(
-        key: '/demo/home',
-        uri: Uri.parse('/demo/home'),
+        key: '/demo',
+        uri: Uri.parse('/demo'),
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
@@ -78,10 +78,7 @@ List<RouteEntity> get routes => [
 
 const routePaths = (
   path: '/',
-  demo: (
-    path: '/demo',
-    home: '/demo/home',
-  ),
+  demo: '/demo',
   home: (
     path: '/home',
     pages: (
