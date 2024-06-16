@@ -1,8 +1,9 @@
 import 'package:equatable/equatable.dart';
 
 import 'frequency.dart';
+import 'selectable_model.dart';
 
-class EqualizerModel extends Equatable {
+class EqualizerModel extends Equatable implements SelectableModel {
   const EqualizerModel({
     required this.name,
     required this.frequencies,
@@ -62,6 +63,9 @@ class EqualizerModel extends Equatable {
   final List<Frequency> frequencies;
 
   bool get isEmpty => this == EqualizerModel.empty();
+
+  @override
+  String get label => name;
 
   EqualizerModel copyWith({
     String? name,

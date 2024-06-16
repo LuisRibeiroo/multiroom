@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/extensions/build_context_extensions.dart';
+import '../../core/extensions/build_context_extensions.dart';
 
 class SliderCard extends StatelessWidget {
   const SliderCard({

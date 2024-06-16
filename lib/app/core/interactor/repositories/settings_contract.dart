@@ -1,4 +1,4 @@
-import 'package:multiroom/app/core/models/device_model.dart';
+import '../../models/device_model.dart';
 
 abstract class SettingsContract {
   String get technicianAccessHash;

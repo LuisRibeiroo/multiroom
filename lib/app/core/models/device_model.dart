@@ -1,9 +1,10 @@
 import 'package:equatable/equatable.dart';
 
 import '../enums/device_type.dart';
+import 'selectable_model.dart';
 import 'zone_wrapper_model.dart';
 
-class DeviceModel extends Equatable {
+class DeviceModel extends Equatable implements SelectableModel {
   const DeviceModel({
     required this.serialNumber,
     required this.name,
@@ -82,6 +83,9 @@ class DeviceModel extends Equatable {
   final bool active;
 
   bool get isEmpty => this == DeviceModel.empty();
+
+  @override
+  String get label => name;
 
   DeviceModel copyWith({
     String? serialNumber,

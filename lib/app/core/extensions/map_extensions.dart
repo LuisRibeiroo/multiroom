@@ -1,4 +1,4 @@
-import 'package:multiroom/app/core/extensions/string_extensions.dart';
+import 'string_extensions.dart';
 
 extension MapExt<T, E> on Map<T, E>? {
   void removeNulls() {

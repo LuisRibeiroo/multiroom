@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 
-class ChannelModel extends Equatable {
+import 'selectable_model.dart';
+
+class ChannelModel extends Equatable implements SelectableModel {
   const ChannelModel({
     required this.id,
     required this.name,
@@ -45,6 +47,9 @@ class ChannelModel extends Equatable {
 
   bool get isEmpty => this == ChannelModel.empty();
 
+  @override
+  String get label => name;
+  
   ChannelModel copyWith({
     String? name,
     bool? active,

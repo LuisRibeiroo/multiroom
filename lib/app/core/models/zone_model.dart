@@ -1,10 +1,11 @@
 import 'package:equatable/equatable.dart';
+import 'selectable_model.dart';
 
 import '../enums/mono_side.dart';
 import 'channel_model.dart';
 import 'equalizer_model.dart';
 
-class ZoneModel extends Equatable {
+class ZoneModel extends Equatable implements SelectableModel {
   const ZoneModel({
     required this.id,
     required this.name,
@@ -84,6 +85,9 @@ class ZoneModel extends Equatable {
   final MonoSide side;
 
   bool get isEmpty => this == ZoneModel.empty();
+
+  @override
+  String get label => name;
 
   ZoneModel copyWith({
     String? name,

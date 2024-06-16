@@ -127,13 +127,13 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  Future<void> setEqualizer(String equalizerName) async {
-    if (equalizerName == currentEqualizer.value.name) {
-      logger.i("SET EQUALIZER [SAME EQUALIZER] --> $equalizerName");
+  Future<void> setEqualizer(EqualizerModel equalizer) async {
+    if (equalizer == currentEqualizer.value) {
+      logger.i("SET EQUALIZER [SAME EQUALIZER] --> $equalizer");
       return;
     }
 
-    currentEqualizer.value = equalizers.firstWhere((e) => e.name == equalizerName);
+    currentEqualizer.value = equalizers.firstWhere((e) => e == equalizer);
     currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
     for (final freq in currentZone.value.equalizer.frequencies) {
