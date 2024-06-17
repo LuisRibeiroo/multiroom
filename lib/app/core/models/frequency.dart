@@ -2,12 +2,14 @@ import 'package:equatable/equatable.dart';
 
 class Frequency extends Equatable {
   const Frequency({
+    required this.id,
     required this.name,
     required this.value,
   });
 
   factory Frequency.empty() {
     return const Frequency(
+      id: 'B0',
       name: '',
       value: 0,
     );
@@ -15,6 +17,7 @@ class Frequency extends Equatable {
 
   factory Frequency.fromMap(Map<String, dynamic> map) {
     return Frequency(
+      id: map["id"],
       name: map["name"],
       value: map["value"],
     );
@@ -22,6 +25,7 @@ class Frequency extends Equatable {
 
   Map<String, dynamic> toMap() {
     return {
+      "id": id,
       "name": name,
       "value": value,
     };
@@ -36,14 +40,15 @@ class Frequency extends Equatable {
     int v16k = 0,
   ]) =>
       [
-        Frequency(name: "60", value: v60),
-        Frequency(name: "250", value: v250),
-        Frequency(name: "1k", value: v1k),
-        Frequency(name: "3k", value: v3k),
-        Frequency(name: "6k", value: v6k),
-        Frequency(name: "16k", value: v16k),
+        Frequency(id: "B1", name: "60", value: v60),
+        Frequency(id: "B2", name: "250", value: v250),
+        Frequency(id: "B3", name: "1k", value: v1k),
+        Frequency(id: "B4", name: "3k", value: v3k),
+        Frequency(id: "B5", name: "6k", value: v6k),
+        Frequency(id: "B6", name: "16k", value: v16k),
       ];
 
+  final String id;
   final String name;
   final int value;
 
@@ -52,6 +57,7 @@ class Frequency extends Equatable {
     int? value,
   }) {
     return Frequency(
+      id: id,
       name: name ?? this.name,
       value: value ?? this.value,
     );
@@ -59,6 +65,7 @@ class Frequency extends Equatable {
 
   @override
   List<Object?> get props => [
+        id,
         name,
         value,
       ];

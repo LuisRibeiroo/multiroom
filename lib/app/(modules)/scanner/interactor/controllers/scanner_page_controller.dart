@@ -186,11 +186,10 @@ class ScannerPageController extends BaseController {
     );
 
     localDevices.add(newDevice);
+    onTapConfigDevice(newDevice);
 
     deviceType.value = deviceType.initialValue;
     networkDevices.removeWhere((d) => d.serialNumber == netDevice.serialNumber);
-
-    onTapConfigDevice(newDevice);
   }
 
   Future<String> _setDeviceType(String ip, DeviceType type) async {

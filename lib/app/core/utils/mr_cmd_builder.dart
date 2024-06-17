@@ -98,12 +98,12 @@ abstract final class MrCmdBuilder {
     required ZoneModel zone,
     required Frequency frequency,
   }) =>
-      "${MultiroomCommands.mrEqGet.value},${zone.id},${frequency.name.replaceAll("k", "000")}";
+      "${MultiroomCommands.mrEqGet.value},${zone.id},${frequency.id}";
 
   static String setEqualizer({
     required ZoneModel zone,
     required Frequency frequency,
     required int gain,
   }) =>
-      "${MultiroomCommands.mrEqSet.value},${zone.id},${frequency.name.replaceAll("k", "000")},$gain";
+      "${MultiroomCommands.mrEqSet.value},${zone.id},${frequency.id},$gain";
 }

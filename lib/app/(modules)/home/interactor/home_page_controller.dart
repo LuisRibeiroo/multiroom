@@ -179,7 +179,7 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   void setFrequency(Frequency frequency) {
-    final freqIndex = currentEqualizer.value.frequencies.indexWhere((f) => f.name == frequency.name);
+    final freqIndex = currentEqualizer.value.frequencies.indexWhere((f) => f.id == frequency.id);
     final tempList = List<Frequency>.from(currentEqualizer.value.frequencies);
 
     tempList[freqIndex] = currentEqualizer.value.frequencies[freqIndex].copyWith(value: frequency.value.toInt());
