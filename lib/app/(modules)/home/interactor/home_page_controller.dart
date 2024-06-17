@@ -31,8 +31,6 @@ class HomePageController extends BaseController with SocketMixin {
         if (localDevices.isEmpty) {
           Routefly.replace(routePaths.configs.pages.configs);
           Routefly.pushNavigate(routePaths.configs.pages.configs);
-        } else {
-          currentDevice.value = localDevices.first;
         }
       }),
       currentDevice.subscribe((value) async {
@@ -198,6 +196,14 @@ class HomePageController extends BaseController with SocketMixin {
 
   void syncLocalDevices() {
     localDevices.value = _settings.devices;
+
+    untracked(() {
+      currentDevice.value = localDevices.value.first;
+
+      zones.value = currentDevice.value.zones;
+      currentZone.value = zones.first;
+      currentZone.value = currentDevice.value.zones.first;
+    });
   }
 
   Future<void> _debounceSendCommand(String cmd) async {
