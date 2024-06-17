@@ -1,12 +1,13 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/(modules)/configs/widgets/zone_name_edit_tile.dart';
-import 'package:multiroom/app/core/extensions/build_context_extensions.dart';
-import 'package:multiroom/app/core/extensions/number_extensions.dart';
-import 'package:multiroom/app/core/extensions/string_extensions.dart';
-import 'package:multiroom/app/core/models/zone_model.dart';
-import 'package:multiroom/app/core/models/zone_wrapper_model.dart';
 import 'package:signals/signals_flutter.dart';
+
+import '../../../core/extensions/build_context_extensions.dart';
+import '../../../core/extensions/number_extensions.dart';
+import '../../../core/extensions/string_extensions.dart';
+import '../../../core/models/zone_model.dart';
+import '../../../core/models/zone_wrapper_model.dart';
+import 'zone_name_edit_tile.dart';
 
 class ZonesExpandableCard extends StatelessWidget {
   const ZonesExpandableCard({
