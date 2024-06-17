@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/enums/mono_side.dart';
 
 import '../../core/models/equalizer_model.dart';
 import '../../core/models/frequency.dart';
@@ -44,13 +45,19 @@ class _DeviceControlsState extends State<DeviceControls> {
               value: widget.currentZone.volume,
               onChanged: widget.onChangeVolume,
             ),
-            SliderCard(
-              title: "Balanço",
-              min: 0,
-              max: 100,
-              caption: "${widget.currentZone.balance}",
-              value: widget.currentZone.balance,
-              onChanged: widget.onChangeBalance,
+            AnimatedSize(
+              duration: Durations.medium1,
+              child: Visibility(
+                visible: widget.currentZone.side == MonoSide.undefined,
+                child: SliderCard(
+                  title: "Balanço",
+                  min: 0,
+                  max: 100,
+                  caption: "${widget.currentZone.balance}",
+                  value: widget.currentZone.balance,
+                  onChanged: widget.onChangeBalance,
+                ),
+              ),
             ),
             EqualizerCard(
               equalizers: widget.equalizers,
