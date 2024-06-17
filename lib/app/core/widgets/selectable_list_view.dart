@@ -29,7 +29,7 @@ class SelectableListView<T extends SelectableModel> extends StatelessWidget {
           return ListTile(
             title: Text(current.label),
             trailing: Visibility(
-              visible: showSelectedIndicator && selectedOption == current,
+              visible: showSelectedIndicator && selectedOption.label == current.label,
               child: const Icon(Icons.check_rounded),
             ),
             onTap: () {

@@ -20,7 +20,7 @@ import '../../../core/utils/mr_cmd_builder.dart';
 
 class HomePageController extends BaseController with SocketMixin {
   HomePageController() : super(InitialState()) {
-    localDevices.value = settings.devices;
+    localDevices.value = _settings.devices;
     currentDevice.value = localDevices.first;
     currentEqualizer.value = availableEqualizers.last;
 
@@ -35,7 +35,7 @@ class HomePageController extends BaseController with SocketMixin {
 
         if (currentDevice.previousValue != value) {
           logger.d("Save device --> ${value.serialNumber}");
-          settings.saveDevice(value);
+          _settings.saveDevice(value);
         }
       }),
       currentZone.subscribe((newZone) async {
@@ -60,7 +60,7 @@ class HomePageController extends BaseController with SocketMixin {
     ]);
   }
 
-  final settings = injector.get<SettingsContract>();
+  final _settings = injector.get<SettingsContract>();
 
   final availableEqualizers = listSignal<EqualizerModel>(
     [
@@ -87,14 +87,6 @@ class HomePageController extends BaseController with SocketMixin {
   final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
-
-  Future<void> init() async {
-    try {
-      await _updateAllDeviceData();
-    } catch (exception) {
-      setError(exception as Exception);
-    }
-  }
 
   void setCurrentDevice(DeviceModel device) {
     currentDevice.value = device;
@@ -158,7 +150,7 @@ class HomePageController extends BaseController with SocketMixin {
     currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
     for (final freq in currentZone.value.equalizer.frequencies) {
-      debounceSendCommand(
+      await socketSender(
         MrCmdBuilder.setEqualizer(
           zone: currentZone.value,
           frequency: freq,
@@ -353,14 +345,21 @@ class HomePageController extends BaseController with SocketMixin {
       ],
     );
 
-    availableEqualizers[availableEqualizers.indexWhere((e) => e.name == currentEqualizer.value.name)] = newEqualizer;
-    currentEqualizer.value = newEqualizer;
+    final f = availableEqualizers.indexWhere((e) => e.equalsFrequencies(newEqualizer));
+    if (f == -1) {
+      availableEqualizers[availableEqualizers.indexWhere((e) => e.name == "Custom")] = newEqualizer;
+      currentEqualizer.value = newEqualizer;
+    } else {
+      currentEqualizer.value = availableEqualizers[f];
+    }
 
-    currentZone.value = currentZone.value.copyWith(
-      volume: int.tryParse(volume) ?? currentZone.value.volume,
-      balance: int.tryParse(balance) ?? currentZone.value.balance,
-      equalizer: newEqualizer,
-    );
+    untracked(() {
+      currentZone.value = currentZone.value.copyWith(
+        volume: int.tryParse(volume) ?? currentZone.value.volume,
+        balance: int.tryParse(balance) ?? currentZone.value.balance,
+        equalizer: newEqualizer,
+      );
+    });
   }
 
   @override

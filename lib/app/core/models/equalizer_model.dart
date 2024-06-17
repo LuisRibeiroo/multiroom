@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 
 import 'frequency.dart';
@@ -63,6 +64,9 @@ class EqualizerModel extends Equatable implements SelectableModel {
   final List<Frequency> frequencies;
 
   bool get isEmpty => this == EqualizerModel.empty();
+
+  bool equalsFrequencies(EqualizerModel other) =>
+      other.frequencies.mapIndexed((idx, f) => f.value == frequencies[idx].value).every((v) => v);
 
   @override
   String get label => name;

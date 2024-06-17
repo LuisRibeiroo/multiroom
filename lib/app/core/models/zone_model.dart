@@ -31,7 +31,7 @@ class ZoneModel extends Equatable implements SelectableModel {
         (idx) => ChannelModel.builder(index: idx + 1, name: "Input ${idx + 1}"),
       ),
       volume: 50,
-      balance: 0,
+      balance: 50,
       equalizer: EqualizerModel.builder(name: "Custom"),
       side: side,
     );

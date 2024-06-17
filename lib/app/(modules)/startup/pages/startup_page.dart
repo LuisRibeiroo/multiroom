@@ -5,8 +5,12 @@ import 'package:routefly/routefly.dart';
 
 import '../../../../injector.dart';
 import '../../../../routes.g.dart';
+import '../../../core/enums/device_type.dart';
+import '../../../core/enums/zone_mode.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
+import '../../../core/models/device_model.dart';
+import '../../../core/models/zone_wrapper_model.dart';
 
 class StartupPage extends StatefulWidget {
   const StartupPage({super.key});
