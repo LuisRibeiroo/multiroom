@@ -158,6 +158,7 @@ class HomePageController extends BaseController with SocketMixin {
       );
 
       // Delay to avoid sending commands too fast
+      await Future.delayed(Durations.short2);
     }
   }
 

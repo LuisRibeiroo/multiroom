@@ -41,7 +41,9 @@ class DeviceInfoHeader extends StatelessWidget {
                   child: Text(
                     deviceName,
                     key: ValueKey(deviceName),
-                    style: context.textTheme.headlineSmall,
+                    style: context.textTheme.titleLarge!.copyWith(
+                      color: context.theme.buttonTheme.colorScheme!.primary,
+                    ),
                   ),
                 ),
                 onPressed: onChangeDevice,
