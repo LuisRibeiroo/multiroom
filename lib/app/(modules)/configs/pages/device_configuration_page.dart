@@ -1,5 +1,8 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/(modules)/configs/widgets/zones_expandable_card.dart';
+import 'package:multiroom/app/core/enums/zone_mode.dart';
+import 'package:multiroom/app/core/models/zone_model.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -7,6 +10,7 @@ import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/extensions/string_extensions.dart';
+import '../../../core/models/zone_wrapper_model.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../scanner/widgets/device_type_indicator.dart';
 import '../controllers/device_configuration_page_controller.dart';
@@ -157,99 +161,15 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                     ),
                   ),
                   12.asSpace,
-                  Card.filled(
-                    clipBehavior: Clip.hardEdge,
-                    child: ExpandablePanel(
-                      controller: _zonesExpandableController,
-                      theme: ExpandableThemeData(
-                        iconColor: context.colorScheme.onSurface,
-                        iconPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18.0),
-                      ),
-                      header: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18.0),
-                        child: Text(
-                          "Zonas",
-                          style: context.textTheme.titleMedium,
-                        ),
-                      ),
-                      collapsed: const SizedBox.shrink(),
-                      expanded: Padding(
-                        padding: const EdgeInsets.only(bottom: 12.0, left: 12, right: 12),
-                        child: Column(
-                          children: [
-                            const Divider(),
-                            ...List.generate(
-                              _controller.device.value.zoneWrappers.length,
-                              (idx) {
-                                final wrapper = _controller.device.value.zoneWrappers[idx];
-
-                                return Watch(
-                                  (_) => Column(
-                                    children: [
-                                      SwitchListTile(
-                                        title: Text("Zona ${idx + 1}"),
-                                        subtitle: Text(wrapper.mode.name.capitalize),
-                                        value: wrapper.isStereo,
-                                        secondary: const Icon(Icons.home_filled),
-                                        onChanged: (value) => _controller.onChangeZoneMode(wrapper, value),
-                                      ),
-                                      8.asSpace,
-                                      AnimatedSize(
-                                        duration: Durations.medium2,
-                                        child: Column(
-                                          key: ValueKey(wrapper.isStereo),
-                                          children: [
-                                            Visibility(
-                                              visible: wrapper.isStereo,
-                                              child: ZoneNameEditTile(
-                                                zone: wrapper.stereoZone,
-                                                wrapper: wrapper,
-                                                isEditing: _controller.editingWrapper.value.id == wrapper.id &&
-                                                    _controller.isEditingZone.value,
-                                                onChangeZoneName: _controller.onChangeZoneName,
-                                                toggleEditing: _controller.toggleEditingZone,
-                                              ),
-                                            ),
-                                            Visibility(
-                                              visible: wrapper.isStereo == false,
-                                              child: ZoneNameEditTile(
-                                                label: wrapper.monoZones.right.id,
-                                                zone: wrapper.monoZones.right,
-                                                wrapper: wrapper,
-                                                isEditing:
-                                                    _controller.editingZone.value.id == wrapper.monoZones.right.id &&
-                                                        _controller.isEditingZone.value,
-                                                onChangeZoneName: _controller.onChangeZoneName,
-                                                toggleEditing: _controller.toggleEditingZone,
-                                              ),
-                                            ),
-                                            8.asSpace,
-                                            Visibility(
-                                              visible: wrapper.isStereo == false,
-                                              child: ZoneNameEditTile(
-                                                label: wrapper.monoZones.left.id,
-                                                zone: wrapper.monoZones.left,
-                                                wrapper: wrapper,
-                                                isEditing:
-                                                    _controller.editingZone.value.id == wrapper.monoZones.left.id &&
-                                                        _controller.isEditingZone.value,
-                                                onChangeZoneName: _controller.onChangeZoneName,
-                                                toggleEditing: _controller.toggleEditingZone,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
+                  ZonesExpandableCard(
+                    expandableController: _zonesExpandableController,
+                    zones: _controller.device.value.zoneWrappers,
+                    editingWrapper: _controller.editingWrapper.value,
+                    isEditing: _controller.isEditingZone.value,
+                    onChangeZoneMode: _controller.onChangeZoneMode,
+                    onChangeZoneName: _controller.onChangeZoneName,
+                    toggleEditingZone: _controller.toggleEditingZone,
+                  ),
                 ],
               ),
             ),
@@ -261,8 +181,9 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
 
   @override
   void dispose() {
-    super.dispose();
-
+    _zonesExpandableController.dispose();
     _controller.dispose();
+
+    super.dispose();
   }
 }
