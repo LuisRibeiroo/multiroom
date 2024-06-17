@@ -32,11 +32,11 @@ class _EqualizerCardState extends State<EqualizerCard> {
         padding: const EdgeInsets.all(12.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               "Equalizador",
-              style: context.textTheme.titleLarge,
+              style: context.textTheme.titleMedium,
+              textAlign: TextAlign.center,
             ),
             12.asSpace,
             Row(
@@ -58,7 +58,7 @@ class _EqualizerCardState extends State<EqualizerCard> {
             ),
             18.asSpace,
             Padding(
-              padding: const EdgeInsets.only(left: 24),
+              padding: const EdgeInsets.only(left: 0),
               child: SizedBox(
                 height: 250,
                 child: ListView.builder(
@@ -70,25 +70,23 @@ class _EqualizerCardState extends State<EqualizerCard> {
                     return Column(
                       children: [
                         Text(
-                          "${current.name}db",
+                          "${current.name} db",
                           style: context.textTheme.bodyMedium,
                         ),
                         Watch(
                           (_) => Expanded(
-                            child: SizedBox(
-                              child: RotatedBox(
-                                quarterTurns: 3,
-                                child: Slider(
-                                  min: -100,
-                                  max: 100,
-                                  divisions: 200 ~/ 5,
-                                  value: current.value.toDouble(),
-                                  onChanged: (v) {
-                                    widget.onUpdateFrequency(
-                                      current.copyWith(value: v.toInt()),
-                                    );
-                                  },
-                                ),
+                            child: RotatedBox(
+                              quarterTurns: 3,
+                              child: Slider(
+                                min: -100,
+                                max: 100,
+                                divisions: 200 ~/ 5,
+                                value: current.value.toDouble(),
+                                onChanged: (v) {
+                                  widget.onUpdateFrequency(
+                                    current.copyWith(value: v.toInt()),
+                                  );
+                                },
                               ),
                             ),
                           ),
