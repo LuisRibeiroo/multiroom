@@ -57,8 +57,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         },
       ),
       effect(() {
-        zones.value = device.value.zones;
-        availableZones.value = zones.value
+        availableZones.value = device.value.zones
             .where((zone) => device.value.groups.map((g) => g.zones.contains(zone)).every((v) => !v))
             .toList();
       }),
