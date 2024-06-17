@@ -163,19 +163,14 @@ class _ScannerPageState extends State<ScannerPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Spacer(),
                     const Icon(
                       Icons.settings_input_antenna_rounded,
                       size: 80,
                     ),
                     Text(
-                      'Procurando dispositivos',
+                      'Nenhum Multiroom adicionado',
                       style: context.textTheme.titleLarge,
                     ),
-                    12.asSpace,
-                    const CircularProgressIndicator(),
-                    const Spacer(),
-                    40.asSpace,
                   ],
                 ),
               ),

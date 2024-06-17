@@ -60,6 +60,9 @@ class ScannerPageController extends BaseController {
             logger.i("UDP SERVER CLOSED");
           }
         }),
+        effect(() {
+          settings.saveDevices(localDevices.value);
+        }),
       ],
     );
   }
@@ -168,24 +171,26 @@ class ScannerPageController extends BaseController {
   }
 
   Future<void> onConfirmAddDevice(NetworkDeviceModel netDevice) async {
-    // final type = await _setDeviceType(
-    //   netDevice.ip,
-    //   DeviceType.fromString(deviceType.value.name.lettersOnly),
-    // );
-
-    localDevices.add(
-      DeviceModel.builder(
-        ip: netDevice.ip,
-        serialNumber: netDevice.serialNumber,
-        version: netDevice.firmware,
-        name: deviceType.value.readable,
-        type: DeviceType.fromString(deviceType.value.name.lettersOnly),
-        // type: DeviceType.fromString(type),
-      ),
+    final type = await _setDeviceType(
+      netDevice.ip,
+      DeviceType.fromString(deviceType.value.name.lettersOnly),
     );
+
+    final newDevice = DeviceModel.builder(
+      ip: netDevice.ip,
+      serialNumber: netDevice.serialNumber,
+      version: netDevice.firmware,
+      name: deviceType.value.readable,
+      // type: DeviceType.fromString(deviceType.value.name.lettersOnly),
+      type: DeviceType.fromString(type),
+    );
+
+    localDevices.add(newDevice);
 
     deviceType.value = deviceType.initialValue;
     networkDevices.removeWhere((d) => d.serialNumber == netDevice.serialNumber);
+
+    onTapConfigDevice(newDevice);
   }
 
   Future<String> _setDeviceType(String ip, DeviceType type) async {
