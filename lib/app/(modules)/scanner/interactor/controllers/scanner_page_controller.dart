@@ -44,10 +44,8 @@ class ScannerPageController extends BaseController {
         effect(() {
           hasAvailableSlots.value = localDevices.length < 3;
           isMasterAvailable.value = localDevices.every((d) => d.type != DeviceType.master);
-          slave1Available.value = true;
-          // isMasterAvailable.peek() == false && localDevices.where((d) => d.type == DeviceType.slave).isEmpty;
-          slave2Available.value = true;
-          // slave1Available.value == false && localDevices.where((d) => d.type == DeviceType.slave).length == 1;
+          isMasterAvailable.peek() == false && localDevices.where((d) => d.type == DeviceType.slave).isEmpty;
+          slave1Available.value == false && localDevices.where((d) => d.type == DeviceType.slave).length == 1;
 
           if (hasAvailableSlots.value == false) {
             stopUdpServer();
