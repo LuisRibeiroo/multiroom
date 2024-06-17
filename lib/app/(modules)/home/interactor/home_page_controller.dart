@@ -348,6 +348,7 @@ class HomePageController extends BaseController with SocketMixin {
   @override
   void dispose() {
     super.dispose();
+    mixinDispose();
 
     localDevices.value = <DeviceModel>[];
     zones.value = <ZoneModel>[];
