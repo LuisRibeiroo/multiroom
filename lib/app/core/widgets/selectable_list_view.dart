@@ -19,26 +19,24 @@ class SelectableListView<T extends SelectableModel> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: options.length,
-        itemBuilder: (_, index) {
-          final current = options[index];
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: options.length,
+      itemBuilder: (_, index) {
+        final current = options[index];
 
-          return ListTile(
-            title: Text(current.label),
-            trailing: Visibility(
-              visible: showSelectedIndicator && selectedOption.label == current.label,
-              child: const Icon(Icons.check_rounded),
-            ),
-            onTap: () {
-              onSelect(current);
-              Routefly.pop(context);
-            },
-          );
-        },
-      ),
+        return ListTile(
+          title: Text(current.label),
+          trailing: Visibility(
+            visible: showSelectedIndicator && selectedOption.label == current.label,
+            child: const Icon(Icons.check_rounded),
+          ),
+          onTap: () {
+            onSelect(current);
+            Routefly.pop(context);
+          },
+        );
+      },
     );
   }
 }

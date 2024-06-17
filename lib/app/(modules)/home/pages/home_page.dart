@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../../core/widgets/selectable_list_view.dart';
+import '../../configs/pages/options_bottom_sheet.dart';
 import '../../widgets/device_controls.dart';
 import '../../widgets/device_info_header.dart';
 import '../interactor/home_page_controller.dart';
@@ -84,42 +86,54 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Watch(
-      (_) => LoadingOverlay(
-        state: _controller.state,
-        child: Scaffold(
-          appBar: AppBar(
-            leading: Image.asset("assets/logo.png"),
-            title: const Text('Multiroom'),
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            scrolledUnderElevation: 0,
-          ),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    DeviceInfoHeader(
-                      deviceName: _controller.currentDevice.value.name,
-                      zones: _controller.zones,
-                      currentZone: _controller.currentZone.value,
-                      currentChannel: _controller.currentChannel.value,
-                      onChangeDevice: _showDevicesBottomSheet,
-                      onChangeZone: _showZonesBottomSheet,
-                      onChangeChannel: _showChannelsBottomSheet,
-                    ),
-                    12.asSpace,
-                    DeviceControls(
-                      currentZone: _controller.currentZone.value,
-                      currentEqualizer: _controller.currentEqualizer.value,
-                      equalizers: _controller.availableEqualizers.value,
-                      onChangeBalance: _controller.setBalance,
-                      onChangeVolume: _controller.setVolume,
-                      onUpdateFrequency: _controller.setFrequency,
-                      onChangeEqualizer: _showEqualizersBottomSheet,
-                    ),
-                  ],
+      (_) => VisibilityDetector(
+        key: const ValueKey(HomePage),
+        onVisibilityChanged: (info) {
+          if (info.visibleFraction == 1) {
+            _controller.syncLocalDevices();
+          }
+        },
+        child: LoadingOverlay(
+          state: _controller.state,
+          child: Scaffold(
+            appBar: AppBar(
+              leading: Image.asset("assets/logo.png"),
+              title: const Text('Multiroom'),
+              actions: [
+                IconButton(
+                  onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
+                  icon: const Icon(Icons.more_vert_rounded),
+                ),
+              ],
+            ),
+            body: SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      DeviceInfoHeader(
+                        deviceName: _controller.currentDevice.value.name,
+                        zones: _controller.zones,
+                        currentZone: _controller.currentZone.value,
+                        currentChannel: _controller.currentChannel.value,
+                        onChangeDevice: _showDevicesBottomSheet,
+                        onChangeZone: _showZonesBottomSheet,
+                        onChangeChannel: _showChannelsBottomSheet,
+                      ),
+                      12.asSpace,
+                      DeviceControls(
+                        currentZone: _controller.currentZone.value,
+                        currentEqualizer: _controller.currentEqualizer.value,
+                        equalizers: _controller.availableEqualizers.value,
+                        onChangeBalance: _controller.setBalance,
+                        onChangeVolume: _controller.setVolume,
+                        onUpdateFrequency: _controller.setFrequency,
+                        onChangeEqualizer: _showEqualizersBottomSheet,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

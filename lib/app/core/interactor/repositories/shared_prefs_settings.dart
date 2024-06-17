@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../extensions/iterable_extensions.dart';
@@ -7,11 +8,17 @@ import '../../models/device_model.dart';
 import 'settings_contract.dart';
 
 final class SharedPrefsSettings implements SettingsContract {
-  const SharedPrefsSettings({
+  SharedPrefsSettings({
     required SharedPreferences prefs,
   }) : _prefs = prefs;
 
   final SharedPreferences _prefs;
+  final _logger = Logger(
+    printer: SimplePrinter(
+      printTime: true,
+      colors: false,
+    ),
+  );
 
   @override
   String get technicianAccessHash => "640c5fc8cd23285fd33b66bdf0c4570d";
@@ -29,6 +36,7 @@ final class SharedPrefsSettings implements SettingsContract {
 
     final jsonDevices = currentList.map((d) => jsonEncode(d.toMap())).toList();
 
+    _logger.d("SAVE DEVICE --> PARAM: [$device] | NEW VALUE: $jsonDevices");
     _prefs.setStringList("devices", jsonDevices).ignore();
   }
 
@@ -36,6 +44,7 @@ final class SharedPrefsSettings implements SettingsContract {
   void saveDevices(List<DeviceModel> value) {
     final jsonDevices = value.map((d) => jsonEncode(d.toMap())).toList();
 
+    _logger.d("SAVE DEVICES --> PARAM: [$value] | NEW VALUE: $jsonDevices");
     _prefs.setStringList("devices", jsonDevices).ignore();
   }
 
@@ -49,6 +58,7 @@ final class SharedPrefsSettings implements SettingsContract {
 
       final jsonDevices = currentList.map((d) => jsonEncode(d.toMap())).toList();
 
+      _logger.d("REMOVE DEVICE --> PARAM: [$id] | NEW VALUE: $jsonDevices");
       _prefs.setStringList("devices", jsonDevices).ignore();
     }
   }
@@ -62,6 +72,7 @@ final class SharedPrefsSettings implements SettingsContract {
     }
 
     final list = jsonDevices!.map((d) => DeviceModel.fromMap(jsonDecode(d))).toList();
+    _logger.d("GET DEVICES --> VALUE: $jsonDevices");
 
     return list;
   }

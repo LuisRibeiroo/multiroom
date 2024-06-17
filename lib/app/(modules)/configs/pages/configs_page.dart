@@ -1,19 +1,14 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
-import '../../../../routes.g.dart';
-import '../../../core/enums/page_state.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
-import '../../../core/models/device_model.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../scanner/widgets/device_list_tile.dart';
 import '../controllers/configs_page_controller.dart';
 import '../widgets/no_devices_widget.dart';
+import 'options_bottom_sheet.dart';
 
 class ConfigsPage extends StatefulWidget {
   const ConfigsPage({super.key});
@@ -24,68 +19,6 @@ class ConfigsPage extends StatefulWidget {
 
 class _ConfigsPageState extends State<ConfigsPage> {
   final _controller = injector.get<ConfigsPageController>();
-
-  void _showOptionsBottomSheet() {
-    context.showCustomModalBottomSheet(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.settings_rounded),
-            title: const Text("Acesso Técnico"),
-            onTap: () {
-              Routefly.pop(context);
-
-              _showTechBottomSheet();
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.info_outline_rounded),
-            title: const Text("Sobre"),
-            onTap: () {},
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showTechBottomSheet({DeviceModel? device}) {
-    context.showCustomModalBottomSheet(
-      child: Watch(
-        (_) => TechAccessBottomSheet(
-          errorMessage: _controller.errorMessage.value,
-          onChangePassword: _controller.password.set,
-          onTapAccess: _controller.onTapAccess,
-          onTapConfigDevice: device == null
-              ? null
-              : () {
-                  Routefly.pop(context);
-
-                  _controller.onTapConfigDevice(device);
-                },
-        ),
-      ),
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    scheduleMicrotask(() async {
-      await _controller.init();
-    });
-
-    effect(() {
-      if (_controller.state.value is SuccessState) {
-        _controller.errorMessage.value = "";
-        _controller.state.value = InitialState();
-
-        Routefly.pop(context);
-        Routefly.pushNavigate(routePaths.scanner.pages.scanner);
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +33,7 @@ class _ConfigsPageState extends State<ConfigsPage> {
               Visibility(
                 visible: _controller.localDevices.isNotEmpty,
                 child: IconButton(
-                  onPressed: _showOptionsBottomSheet,
+                  onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
                   icon: const Icon(Icons.menu_rounded),
                 ),
               ),
@@ -115,7 +48,7 @@ class _ConfigsPageState extends State<ConfigsPage> {
                 (_) => DeviceListTile(
                   device: _controller.localDevices[index],
                   onChangeActive: _controller.onChangeActive,
-                  onTapConfigDevice: (d) => _showTechBottomSheet(device: d),
+                  onTapConfigDevice: (d) => OptionsMenu.showTechBottomSheet(context, device: d),
                 ),
               ),
             ),
@@ -125,7 +58,7 @@ class _ConfigsPageState extends State<ConfigsPage> {
               ? FloatingActionButton.extended(
                   icon: const Icon(Icons.settings_input_antenna_rounded),
                   label: const Text("Iniciar configuração"),
-                  onPressed: _showOptionsBottomSheet,
+                  onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
                 )
               : null,
         ),

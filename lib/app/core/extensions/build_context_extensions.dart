@@ -41,14 +41,16 @@ extension ContextExt on BuildContext {
                 ),
               ),
             ),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                // minHeight: size.height * .2,
-                maxHeight: size.height * maxHeight - 1,
-              ),
-              child: Padding(
-                padding: mediaQuery.viewInsets,
-                child: child,
+            SafeArea(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  // minHeight: size.height * .2,
+                  maxHeight: size.height * maxHeight - 1,
+                ),
+                child: Padding(
+                  padding: mediaQuery.viewInsets,
+                  child: child,
+                ),
               ),
             ),
           ],

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:multiroom/routes.g.dart';
+import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
@@ -25,6 +27,14 @@ class HomePageController extends BaseController with SocketMixin {
     currentEqualizer.value = availableEqualizers.last;
 
     disposables.addAll([
+      effect(() {
+        if (localDevices.isEmpty) {
+          Routefly.replace(routePaths.configs.pages.configs);
+          Routefly.pushNavigate(routePaths.configs.pages.configs);
+        } else {
+          currentDevice.value = localDevices.first;
+        }
+      }),
       currentDevice.subscribe((value) async {
         if (value.isEmpty) {
           return;
@@ -118,7 +128,7 @@ class HomePageController extends BaseController with SocketMixin {
   void setBalance(int balance) {
     currentZone.value = currentZone.value.copyWith(balance: balance);
 
-    debounceSendCommand(
+    _debounceSendCommand(
       MrCmdBuilder.setBalance(
         zone: currentZone.value,
         balance: balance,
@@ -129,7 +139,7 @@ class HomePageController extends BaseController with SocketMixin {
   void setVolume(int volume) {
     currentZone.value = currentZone.value.copyWith(volume: volume);
 
-    debounceSendCommand(
+    _debounceSendCommand(
       MrCmdBuilder.setVolume(
         zone: currentZone.value,
         volume: volume,
@@ -169,7 +179,7 @@ class HomePageController extends BaseController with SocketMixin {
     currentEqualizer.value = EqualizerModel.custom(frequencies: tempList);
     currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
-    debounceSendCommand(
+    _debounceSendCommand(
       MrCmdBuilder.setEqualizer(
         zone: currentZone.value,
         frequency: frequency,
@@ -178,7 +188,11 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  Future<void> debounceSendCommand(String cmd) async {
+  void syncLocalDevices() {
+    localDevices.value = _settings.devices;
+  }
+
+  Future<void> _debounceSendCommand(String cmd) async {
     _writeDebouncer(() async {
       try {
         await socketSender(cmd);

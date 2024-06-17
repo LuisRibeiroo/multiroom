@@ -60,9 +60,9 @@ class ScannerPageController extends BaseController {
             logger.i("UDP SERVER CLOSED");
           }
         }),
-        effect(() {
-          settings.saveDevices(localDevices.value);
-        }),
+        // effect(() {
+        //   settings.saveDevices(localDevices.value);
+        // }),
       ],
     );
   }
@@ -157,9 +157,11 @@ class ScannerPageController extends BaseController {
   void onTapConfigDevice(DeviceModel device) {
     stopUdpServer();
 
-    Routefly.push<bool?>(routePaths.configs.pages.deviceConfiguration, arguments: device).then(
+    Routefly.push(routePaths.configs.pages.deviceConfiguration, arguments: device).then(
       (_) {
-        localDevices.value = settings.devices;
+        if (localDevices.value != settings.devices) {
+          localDevices.value = settings.devices;
+        }
       },
     );
 
