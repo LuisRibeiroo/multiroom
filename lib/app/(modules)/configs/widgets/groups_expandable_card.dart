@@ -61,24 +61,28 @@ class GroupsExpandableCard extends StatelessWidget {
                           ),
                           Visibility(
                             visible: group.zones.isNotEmpty,
-                            child: const Divider(indent: 12, endIndent: 12),
-                          ),
-                          AnimatedSize(
-                            duration: Durations.medium2,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12.0),
-                              child: Column(
-                                key: ValueKey("${group.name}_${group.zones.length}"),
-                                children: List.generate(group.zones.length, (idx) {
-                                  final zone = group.zones[idx];
+                            child: Column(
+                              children: [
+                                const Divider(indent: 12, endIndent: 12),
+                                AnimatedSize(
+                                  duration: Durations.medium2,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12.0),
+                                    child: Column(
+                                      key: ValueKey("${group.name}_${group.zones.length}"),
+                                      children: List.generate(group.zones.length, (idx) {
+                                        final zone = group.zones[idx];
 
-                                  return ListTile(
-                                    title: Text(zone.name),
-                                    trailing: const Icon(Icons.remove_circle_rounded),
-                                    onTap: () => onTapRemoveZone(group, zone),
-                                  );
-                                }),
-                              ),
+                                        return ListTile(
+                                          title: Text(zone.name),
+                                          trailing: const Icon(Icons.remove_circle_rounded),
+                                          onTap: () => onTapRemoveZone(group, zone),
+                                        );
+                                      }),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
