@@ -60,9 +60,6 @@ class ScannerPageController extends BaseController {
             logger.i("UDP SERVER CLOSED");
           }
         }),
-        // effect(() {
-        //   settings.saveDevices(localDevices.value);
-        // }),
       ],
     );
   }
@@ -152,6 +149,8 @@ class ScannerPageController extends BaseController {
 
   void onChangeActive(DeviceModel device, bool value) {
     localDevices[localDevices.indexOf(device)] = device.copyWith(active: value);
+
+    settings.saveDevice(device);
   }
 
   void onTapConfigDevice(DeviceModel device) {
