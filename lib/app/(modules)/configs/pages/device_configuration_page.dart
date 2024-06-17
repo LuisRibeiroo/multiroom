@@ -114,7 +114,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                               ),
                               12.asSpace,
                               const Spacer(),
-                              IconButton.filled(
+                              IconButton.outlined(
                                 onPressed: _showDeviceDeletionBottomSheet,
                                 icon: const Icon(Icons.delete_rounded),
                               ),
@@ -152,7 +152,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                       ),
                     ),
                   ),
-                  18.asSpace,
+                  8.asSpace,
                   ZonesExpandableCard(
                     expandableController: _zonesExpandableController,
                     zones: _controller.device.value.zoneWrappers,
