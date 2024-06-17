@@ -1,8 +1,5 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/(modules)/configs/widgets/zones_expandable_card.dart';
-import 'package:multiroom/app/core/enums/zone_mode.dart';
-import 'package:multiroom/app/core/models/zone_model.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -10,11 +7,10 @@ import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/extensions/string_extensions.dart';
-import '../../../core/models/zone_wrapper_model.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../scanner/widgets/device_type_indicator.dart';
 import '../controllers/device_configuration_page_controller.dart';
-import '../widgets/zone_name_edit_tile.dart';
+import '../widgets/zones_expandable_card.dart';
 
 class DeviceConfigurationPage extends StatefulWidget {
   const DeviceConfigurationPage({super.key});
