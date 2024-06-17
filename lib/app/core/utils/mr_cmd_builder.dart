@@ -1,3 +1,5 @@
+import 'package:multiroom/app/core/models/zone_group_model.dart';
+
 import '../enums/device_type.dart';
 import '../enums/multiroom_commands.dart';
 import '../enums/zone_mode.dart';
@@ -106,4 +108,16 @@ abstract final class MrCmdBuilder {
     required int gain,
   }) =>
       "${MultiroomCommands.mrEqSet.value},${zone.id},${frequency.id},$gain";
+
+  static String getGroup({
+    required ZoneGroupModel group,
+    required Frequency frequency,
+  }) =>
+      "${MultiroomCommands.mrGroupGet.value},${group.id.numbersOnly}";
+
+  static String setGroup({
+    required ZoneGroupModel group,
+    required List<ZoneModel> zones,
+  }) =>
+      "${MultiroomCommands.mrGroupSet.value},${group.id.numbersOnly},${zones.map((z) => z.id).join(",")}";
 }

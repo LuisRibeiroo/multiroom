@@ -77,7 +77,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     editingWrapper.value = zone;
   }
 
-  void onAddZoneToGroup(ZoneGroupModel group, ZoneModel zone) {
+  Future<void> onAddZoneToGroup(ZoneGroupModel group, ZoneModel zone) async {
     if (group.zones.contains(zone)) {
       // Show error
     }
@@ -88,9 +88,16 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     final idx = groups.indexOf(group);
     groups[idx] = groups[idx].copyWith(zones: tempZones..add(zone));
     device.value = device.value.copyWith(groups: groups);
+
+    await socketSender(
+      MrCmdBuilder.setGroup(
+        group: groups[idx],
+        zones: groups[idx].zones,
+      ),
+    );
   }
 
-  void onRemoveZoneFromGroup(ZoneGroupModel group, ZoneModel zone) {
+  Future<void> onRemoveZoneFromGroup(ZoneGroupModel group, ZoneModel zone) async {
     if (group.zones.contains(zone) == false) {
       return;
     }
@@ -101,6 +108,13 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     groups[idx] = groups[idx].copyWith(zones: tempZones..remove(zone));
     device.value = device.value.copyWith(groups: groups);
+
+    await socketSender(
+      MrCmdBuilder.setGroup(
+        group: groups[idx],
+        zones: groups[idx].zones,
+      ),
+    );
   }
 
   Future<void> onChangeZoneMode(ZoneWrapperModel zone, bool isStereo) async {

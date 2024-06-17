@@ -19,6 +19,8 @@ enum MultiroomCommands {
   mrExpModeGet(value: "mr_exp_mode_get"),
   mrExpModeSet(value: "mr_exp_mode_set"),
   mrZoneModeGet(value: "mr_zone_mode_get"),
+  mrGroupGet(value: "mr_group_get"),
+  mrGroupSet(value: "mr_group_set"),
   mrZoneModeSet(value: "mr_zone_mode_set");
 
   const MultiroomCommands({required this.value});
