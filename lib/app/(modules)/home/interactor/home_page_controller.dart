@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
+import '../../../core/enums/mono_side.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
 import '../../../core/interactor/controllers/socket_mixin.dart';
@@ -13,6 +14,7 @@ import '../../../core/models/device_model.dart';
 import '../../../core/models/equalizer_model.dart';
 import '../../../core/models/frequency.dart';
 import '../../../core/models/zone_model.dart';
+import '../../../core/models/zone_wrapper_model.dart';
 import '../../../core/utils/debouncer.dart';
 import '../../../core/utils/mr_cmd_builder.dart';
 
@@ -30,6 +32,11 @@ class HomePageController extends BaseController with SocketMixin {
 
         zones.value = value.zoneWrappers.fold([], (pv, v) => pv..addAll(v.zones));
         currentZone.value = zones.first;
+
+        if (currentDevice.previousValue != value) {
+          logger.d("Save device --> ${value.serialNumber}");
+          settings.saveDevice(value);
+        }
       }),
       currentZone.subscribe((newZone) async {
         if (newZone.isEmpty) {
@@ -38,6 +45,8 @@ class HomePageController extends BaseController with SocketMixin {
 
         final idx = zones.value.indexWhere((zone) => currentZone.value.name == zone.name);
         channels.set(newZone.channels);
+
+        currentDevice.value = currentDevice.value.copyWith(zones: _updateZone(newZone));
 
         untracked(() async {
           zones.value[idx] = newZone;
@@ -216,6 +225,45 @@ class HomePageController extends BaseController with SocketMixin {
     return (stereoParams, monoParams);
   }
 
+  List<ZoneWrapperModel> _updateZone(ZoneModel zone) {
+    List<ZoneWrapperModel> newZones = List.from(currentDevice.peek().zoneWrappers);
+    int idx = -1;
+
+    for (final wrapper in newZones) {
+      final tempZ = wrapper.zones.firstWhere(
+        (z) => z.id == zone.id,
+        orElse: () => ZoneModel.empty(),
+      );
+
+      if (tempZ.isEmpty) {
+        continue;
+      }
+
+      idx = newZones.indexOf(wrapper);
+      break;
+    }
+
+    if (idx == -1) {
+      throw Exception("Zone not found ${zone.id}");
+    }
+
+    ZoneWrapperModel newWrapper = newZones[idx];
+
+    if (newWrapper.isStereo) {
+      newWrapper = newWrapper.copyWith(stereoZone: zone);
+    } else {
+      if (zone.side == MonoSide.left) {
+        newWrapper = newWrapper.copyWith(monoZones: (left: zone, right: newWrapper.monoZones.right));
+      } else {
+        newWrapper = newWrapper.copyWith(monoZones: (right: zone, left: newWrapper.monoZones.left));
+      }
+    }
+
+    newZones[idx] = newWrapper;
+
+    return newZones;
+  }
+
   Future<void> _updateAllDeviceData() async {
     // final params = await socketSender(
     //   MrCmdBuilder.params,
@@ -290,7 +338,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     currentChannel.value = channels.value.firstWhere(
       (c) => c.id.trim() == channelStr.trim(),
-      orElse: () => currentChannel.value.copyWith(name: channelStr),
+      orElse: () => currentChannel.value,
     );
 
     final equalizer = currentZone.value.equalizer;

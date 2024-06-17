@@ -17,10 +17,11 @@ class ZoneWrapperModel extends Equatable {
   factory ZoneWrapperModel.builder({
     required int index,
     required String name,
+    ZoneMode mode = ZoneMode.stereo,
   }) {
     return ZoneWrapperModel(
       id: "Z$index",
-      mode: ZoneMode.stereo,
+      mode: mode,
       stereoZone: ZoneModel.builder(id: "$index", name: name),
       monoZones: (
         left: ZoneModel.builder(

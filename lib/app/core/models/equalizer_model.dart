@@ -79,6 +79,7 @@ class EqualizerModel extends Equatable implements SelectableModel {
 
   @override
   List<Object?> get props => [
+        name,
         frequencies,
       ];
 

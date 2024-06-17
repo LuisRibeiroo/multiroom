@@ -6,7 +6,7 @@ import '../../extensions/iterable_extensions.dart';
 import '../../models/device_model.dart';
 import 'settings_contract.dart';
 
-class SharedPrefsSettings implements SettingsContract {
+final class SharedPrefsSettings implements SettingsContract {
   const SharedPrefsSettings({
     required SharedPreferences prefs,
   }) : _prefs = prefs;
