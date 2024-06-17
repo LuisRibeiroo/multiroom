@@ -6,8 +6,8 @@ import '../../../../injector.dart';
 import '../../../../routes.g.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/models/device_model.dart';
+import '../../configs/pages/configs_page.dart';
 import '../controllers/options_bottom_sheet_controller.dart';
-import 'configs_page.dart';
 
 class OptionsMenu {
   static Future<T?> showOptionsBottomSheet<T>(BuildContext context) {

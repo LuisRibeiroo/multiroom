@@ -8,7 +8,7 @@ import '../../../core/widgets/loading_overlay.dart';
 import '../../scanner/widgets/device_list_tile.dart';
 import '../controllers/configs_page_controller.dart';
 import '../widgets/no_devices_widget.dart';
-import 'options_bottom_sheet.dart';
+import '../../(shared)/pages/options_bottom_sheet.dart';
 
 class ConfigsPage extends StatefulWidget {
   const ConfigsPage({super.key});
