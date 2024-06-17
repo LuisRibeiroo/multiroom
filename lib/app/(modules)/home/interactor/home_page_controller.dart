@@ -30,8 +30,10 @@ class HomePageController extends BaseController with SocketMixin {
           return;
         }
 
-        zones.value = value.zoneWrappers.fold([], (pv, v) => pv..addAll(v.zones));
-        currentZone.value = zones.first;
+        if (value.serialNumber != currentDevice.previousValue!.serialNumber) {
+          zones.value = value.zoneWrappers.fold([], (pv, v) => pv..addAll(v.zones));
+          currentZone.value = zones.first;
+        }
 
         if (currentDevice.previousValue != value) {
           logger.d("Save device --> ${value.serialNumber}");
@@ -43,12 +45,11 @@ class HomePageController extends BaseController with SocketMixin {
           return;
         }
 
-        final idx = zones.value.indexWhere((zone) => currentZone.value.name == zone.name);
         channels.set(newZone.channels);
-
         currentDevice.value = currentDevice.value.copyWith(zones: _updateZone(newZone));
 
         untracked(() async {
+          final idx = zones.value.indexWhere((zone) => currentZone.value.name == zone.name);
           zones.value[idx] = newZone;
 
           if (currentZone.previousValue!.id != currentZone.value.id) {
@@ -62,6 +63,9 @@ class HomePageController extends BaseController with SocketMixin {
 
   final _settings = injector.get<SettingsContract>();
 
+  final localDevices = listSignal<DeviceModel>([], debugLabel: "device");
+  final channels = listSignal<ChannelModel>([], debugLabel: "channels");
+  final zones = listSignal<ZoneModel>([], debugLabel: "zones");
   final availableEqualizers = listSignal<EqualizerModel>(
     [
       EqualizerModel.builder(name: "Rock", v60: 20, v250: 0, v1k: 10, v3k: 20, v6k: 20, v16k: 10),
@@ -74,14 +78,7 @@ class HomePageController extends BaseController with SocketMixin {
     debugLabel: "availableEqualizers",
   );
 
-  final channels = listSignal<ChannelModel>(
-    [],
-    debugLabel: "channels",
-  );
-
-  final localDevices = listSignal<DeviceModel>([], debugLabel: "device");
   final currentDevice = DeviceModel.empty().toSignal(debugLabel: "device");
-  final zones = listSignal<ZoneModel>([], debugLabel: "zones");
   final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
   final currentChannel = ChannelModel.empty().toSignal(debugLabel: "currentChannel");
   final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
@@ -146,7 +143,7 @@ class HomePageController extends BaseController with SocketMixin {
       return;
     }
 
-    currentEqualizer.value = availableEqualizers.firstWhere((e) => e == equalizer);
+    currentEqualizer.value = availableEqualizers.firstWhere((e) => e.name == equalizer.name);
     currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
     for (final freq in currentZone.value.equalizer.frequencies) {
