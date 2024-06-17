@@ -2,6 +2,8 @@ import 'package:equatable/equatable.dart';
 
 import '../enums/device_type.dart';
 import 'selectable_model.dart';
+import 'zone_group_model.dart';
+import 'zone_model.dart';
 import 'zone_wrapper_model.dart';
 
 class DeviceModel extends Equatable implements SelectableModel {
@@ -10,6 +12,7 @@ class DeviceModel extends Equatable implements SelectableModel {
     required this.name,
     required this.ip,
     required this.zoneWrappers,
+    required this.groups,
     required this.version,
     required this.type,
     this.active = true,
@@ -22,6 +25,7 @@ class DeviceModel extends Equatable implements SelectableModel {
       name: "",
       ip: "",
       zoneWrappers: [],
+      groups: [],
       version: "",
       type: DeviceType.master,
     );
@@ -41,6 +45,10 @@ class DeviceModel extends Equatable implements SelectableModel {
         8,
         (idx) => ZoneWrapperModel.builder(index: idx + 1, name: "Zona ${idx + 1}"),
       ),
+      groups: List.generate(
+        3,
+        (idx) => ZoneGroupModel.builder(index: idx + 1),
+      ),
       version: version ?? "",
       type: type ?? DeviceType.master,
       ip: ip,
@@ -53,6 +61,7 @@ class DeviceModel extends Equatable implements SelectableModel {
       name: map['name'],
       ip: map['ip'],
       zoneWrappers: List.from(map['zones']?.map((x) => ZoneWrapperModel.fromMap(x))),
+      groups: List.from(map['groups']?.map((x) => ZoneGroupModel.fromMap(x))),
       version: map['version'],
       type: DeviceType.values[map['type']],
       masterName: map['masterName'],
@@ -66,6 +75,7 @@ class DeviceModel extends Equatable implements SelectableModel {
       'name': name,
       'ip': ip,
       'zones': zoneWrappers.map((x) => x.toMap()).toList(),
+      'groups': groups.map((x) => x.toMap()).toList(),
       'version': version,
       'type': type.index,
       'masterName': masterName,
@@ -77,12 +87,14 @@ class DeviceModel extends Equatable implements SelectableModel {
   final String name;
   final String ip;
   final List<ZoneWrapperModel> zoneWrappers;
+  final List<ZoneGroupModel> groups;
   final String version;
   final DeviceType type;
   final String masterName;
   final bool active;
 
   bool get isEmpty => this == DeviceModel.empty();
+  List<ZoneModel> get zones => zoneWrappers.fold(<ZoneModel>[], (pv, v) => pv..addAll(v.zones));
 
   @override
   String get label => name;
@@ -91,7 +103,8 @@ class DeviceModel extends Equatable implements SelectableModel {
     String? serialNumber,
     String? name,
     String? ip,
-    List<ZoneWrapperModel>? zones,
+    List<ZoneWrapperModel>? zoneWrappers,
+    List<ZoneGroupModel>? groups,
     String? version,
     DeviceType? type,
     String? masterName,
@@ -101,7 +114,8 @@ class DeviceModel extends Equatable implements SelectableModel {
       serialNumber: serialNumber ?? this.serialNumber,
       name: name ?? this.name,
       ip: ip ?? this.ip,
-      zoneWrappers: zones ?? zoneWrappers,
+      zoneWrappers: zoneWrappers ?? this.zoneWrappers,
+      groups: groups ?? this.groups,
       version: version ?? this.version,
       type: type ?? this.type,
       masterName: masterName ?? this.masterName,
@@ -115,6 +129,7 @@ class DeviceModel extends Equatable implements SelectableModel {
         name,
         ip,
         zoneWrappers,
+        groups,
         version,
         type,
         masterName,

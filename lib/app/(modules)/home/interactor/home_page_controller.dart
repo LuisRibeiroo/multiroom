@@ -41,7 +41,7 @@ class HomePageController extends BaseController with SocketMixin {
         }
 
         if (value.serialNumber != currentDevice.previousValue!.serialNumber) {
-          zones.value = value.zoneWrappers.fold([], (pv, v) => pv..addAll(v.zones));
+          zones.value = value.zones;
           currentZone.value = zones.first;
         }
 
@@ -56,7 +56,7 @@ class HomePageController extends BaseController with SocketMixin {
         }
 
         channels.set(newZone.channels);
-        currentDevice.value = currentDevice.value.copyWith(zones: _getUpdatedZones(newZone));
+        currentDevice.value = currentDevice.value.copyWith(zoneWrappers: _getUpdatedZones(newZone));
 
         untracked(() async {
           final idx = zones.value.indexWhere((zone) => currentZone.value.name == zone.name);

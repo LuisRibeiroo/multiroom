@@ -14,6 +14,7 @@ class ZonesExpandableCard extends StatelessWidget {
     super.key,
     required this.zones,
     required this.editingWrapper,
+    required this.editingZone,
     required this.isEditing,
     required this.onChangeZoneMode,
     required this.onChangeZoneName,
@@ -25,6 +26,7 @@ class ZonesExpandableCard extends StatelessWidget {
   final bool isEditing;
   final List<ZoneWrapperModel> zones;
   final ZoneWrapperModel editingWrapper;
+  final ZoneModel editingZone;
   final Function(ZoneWrapperModel, bool) onChangeZoneMode;
   final Function(ZoneModel, String) onChangeZoneName;
   final Function(ZoneWrapperModel, ZoneModel) toggleEditingZone;
@@ -50,15 +52,14 @@ class ZonesExpandableCard extends StatelessWidget {
         expanded: Padding(
           padding: const EdgeInsets.only(bottom: 12.0, left: 12, right: 12),
           child: Column(
-            children: [
-              const Divider(),
-              ...List.generate(
-                zones.length,
-                (idx) {
-                  final wrapper = zones[idx];
+            children: List.generate(
+              zones.length,
+              (idx) {
+                final wrapper = zones[idx];
 
-                  return Watch(
-                    (_) => Column(
+                return Watch(
+                  (_) => Card.outlined(
+                    child: Column(
                       children: [
                         SwitchListTile(
                           title: Text("Zona ${idx + 1}"),
@@ -67,54 +68,56 @@ class ZonesExpandableCard extends StatelessWidget {
                           secondary: const Icon(Icons.home_filled),
                           onChanged: (value) => onChangeZoneMode(wrapper, value),
                         ),
-                        8.asSpace,
                         AnimatedSize(
                           duration: Durations.medium2,
-                          child: Column(
-                            key: ValueKey(wrapper.isStereo),
-                            children: [
-                              Visibility(
-                                visible: wrapper.isStereo,
-                                child: ZoneNameEditTile(
-                                  zone: wrapper.stereoZone,
-                                  wrapper: wrapper,
-                                  isEditing: editingWrapper.id == wrapper.id && isEditing,
-                                  onChangeZoneName: onChangeZoneName,
-                                  toggleEditing: toggleEditingZone,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24.0),
+                            child: Column(
+                              key: ValueKey(wrapper.isStereo),
+                              children: [
+                                Visibility(
+                                  visible: wrapper.isStereo,
+                                  child: ZoneNameEditTile(
+                                    zone: wrapper.stereoZone,
+                                    wrapper: wrapper,
+                                    isEditing: editingWrapper.id == wrapper.id && isEditing,
+                                    onChangeZoneName: onChangeZoneName,
+                                    toggleEditing: toggleEditingZone,
+                                  ),
                                 ),
-                              ),
-                              Visibility(
-                                visible: wrapper.isStereo == false,
-                                child: ZoneNameEditTile(
-                                  label: wrapper.monoZones.right.id,
-                                  zone: wrapper.monoZones.right,
-                                  wrapper: wrapper,
-                                  isEditing: editingWrapper.id == wrapper.monoZones.right.id && isEditing,
-                                  onChangeZoneName: onChangeZoneName,
-                                  toggleEditing: toggleEditingZone,
+                                Visibility(
+                                  visible: wrapper.isStereo == false,
+                                  child: ZoneNameEditTile(
+                                    label: wrapper.monoZones.right.id,
+                                    zone: wrapper.monoZones.right,
+                                    wrapper: wrapper,
+                                    isEditing: editingZone.id == wrapper.monoZones.right.id && isEditing,
+                                    onChangeZoneName: onChangeZoneName,
+                                    toggleEditing: toggleEditingZone,
+                                  ),
                                 ),
-                              ),
-                              8.asSpace,
-                              Visibility(
-                                visible: wrapper.isStereo == false,
-                                child: ZoneNameEditTile(
-                                  label: wrapper.monoZones.left.id,
-                                  zone: wrapper.monoZones.left,
-                                  wrapper: wrapper,
-                                  isEditing: editingWrapper.id == wrapper.monoZones.left.id && isEditing,
-                                  onChangeZoneName: onChangeZoneName,
-                                  toggleEditing: toggleEditingZone,
+                                8.asSpace,
+                                Visibility(
+                                  visible: wrapper.isStereo == false,
+                                  child: ZoneNameEditTile(
+                                    label: wrapper.monoZones.left.id,
+                                    zone: wrapper.monoZones.left,
+                                    wrapper: wrapper,
+                                    isEditing: editingZone.id == wrapper.monoZones.left.id && isEditing,
+                                    onChangeZoneName: onChangeZoneName,
+                                    toggleEditing: toggleEditingZone,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-            ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),

@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:multiroom/app/core/extensions/list_extensions.dart';
+import 'package:multiroom/app/core/extensions/string_extensions.dart';
+import 'package:signals/signals.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
@@ -10,6 +13,7 @@ import '../../../core/interactor/controllers/base_controller.dart';
 import '../../../core/interactor/controllers/socket_mixin.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
 import '../../../core/models/device_model.dart';
+import '../../../core/models/zone_group_model.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/models/zone_wrapper_model.dart';
 import '../../../core/utils/mr_cmd_builder.dart';
@@ -25,6 +29,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   final editingZone = ZoneModel.empty().toSignal(debugLabel: "editingZone");
   final isEditingDevice = false.toSignal(debugLabel: "isEditingDevice");
   final isEditingZone = false.toSignal(debugLabel: "isEditingZone");
+  final zones = listSignal([], debugLabel: "zones");
+  final availableZones = listSignal([], debugLabel: "zones");
 
   Future<void> init({required DeviceModel dev}) async {
     device.value = dev;
@@ -38,15 +44,25 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
 
     final configs = await _getDeviceData();
-    device.value = device.value.copyWith(zones: _parseZones(configs));
 
-    disposables.add(
+    device.value = device.value.copyWith(
+      zoneWrappers: _parseZones(configs),
+      groups: _parseGroups(configs),
+    );
+
+    disposables.addAll([
       effect(
         () {
           settings.saveDevice(device.value);
         },
       ),
-    );
+      effect(() {
+        zones.value = device.value.zones;
+        availableZones.value = zones.value
+            .where((zone) => device.value.groups.map((g) => g.zones.contains(zone)).every((v) => !v))
+            .toList();
+      }),
+    ]);
   }
 
   void toggleEditingDevice() {
@@ -59,6 +75,32 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   void onTapEditZone(ZoneWrapperModel zone) {
     editingWrapper.value = zone;
+  }
+
+  void onAddZoneToGroup(ZoneGroupModel group, ZoneModel zone) {
+    if (group.zones.contains(zone)) {
+      // Show error
+    }
+
+    final List<ZoneGroupModel> groups = List.from(device.peek().groups);
+    final List<ZoneModel> tempZones = List.from(group.zones);
+
+    final idx = groups.indexOf(group);
+    groups[idx] = groups[idx].copyWith(zones: tempZones..add(zone));
+    device.value = device.value.copyWith(groups: groups);
+  }
+
+  void onRemoveZoneFromGroup(ZoneGroupModel group, ZoneModel zone) {
+    if (group.zones.contains(zone) == false) {
+      return;
+    }
+
+    final List<ZoneGroupModel> groups = List.from(device.peek().groups);
+    final List<ZoneModel> tempZones = List.from(group.zones);
+    final idx = groups.indexOf(group);
+
+    groups[idx] = groups[idx].copyWith(zones: tempZones..remove(zone));
+    device.value = device.value.copyWith(groups: groups);
   }
 
   Future<void> onChangeZoneMode(ZoneWrapperModel zone, bool isStereo) async {
@@ -75,8 +117,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
       editingWrapper.value = zone.copyWith(mode: isStereo ? ZoneMode.stereo : ZoneMode.mono);
 
-      device.value = device.value
-          .copyWith(zones: device.value.zoneWrappers.map((z) => z.id == zone.id ? editingWrapper.value : z).toList());
+      device.value = device.value.copyWith(
+          zoneWrappers: device.value.zoneWrappers.map((z) => z.id == zone.id ? editingWrapper.value : z).toList());
     } catch (exception) {
       setError(exception as Exception);
     }
@@ -109,12 +151,18 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     if (isEditingZone.value == false) {
       device.value = device.value.copyWith(
-        zones: device.value.zoneWrappers
+        zoneWrappers: device.value.zoneWrappers
             .map(
               (z) => z.id == editingWrapper.value.id ? editingWrapper.value : z,
             )
             .toList(),
       );
+
+      _updateGroupZones(switch (zone.side) {
+        MonoSide.undefined => editingWrapper.value.stereoZone,
+        MonoSide.left => editingWrapper.value.monoZones.left,
+        MonoSide.right => editingWrapper.value.monoZones.right,
+      });
 
       editingZone.value = editingZone.initialValue;
       editingWrapper.value = editingWrapper.initialValue;
@@ -123,6 +171,28 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   void removeDevice() {
     settings.removeDevice(device.value.serialNumber);
+  }
+
+  void _updateGroupZones(ZoneModel zone) {
+    // if (availableZones.contains(zone)) {
+    //   return;
+    // }
+
+    for (final group in device.peek().groups) {
+      final zoneIndex = group.zones.indexWhere((z) => z.id == zone.id);
+
+      if (zoneIndex != -1) {
+        final List<ZoneGroupModel> groups = List.from(device.peek().groups);
+        final List<ZoneModel> newZones = List.from(group.zones);
+        final idx = groups.indexOf(group);
+
+        newZones[zoneIndex] = zone;
+        groups[idx] = groups[idx].copyWith(zones: newZones);
+        device.value = device.value.copyWith(groups: groups);
+
+        break;
+      }
+    }
   }
 
   Future<void> _readCommand(String cmd) async {
@@ -183,6 +253,51 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
 
     return zonesList;
+  }
+
+  List<ZoneGroupModel> _parseGroups(Map<String, String> configs) {
+    final grps = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("GRP"));
+
+    final zonesList = List.from(device.peek().zones);
+    final zonesMap = <String, List<ZoneModel>>{
+      "G1": [],
+      "G2": [],
+      "G3": [],
+    };
+
+    for (final grp in grps) {
+      if (grp.value.contains("null")) {
+        continue;
+      }
+
+      final zone = zonesList.firstWhere((z) => z.id == grp.value);
+
+      switch (grp.key) {
+        case _ when grp.key.startsWith("GRP[1]"):
+          zonesMap["G1"].addIfAbsent(zone);
+          break;
+
+        case _ when grp.key.startsWith("GRP[2]"):
+          zonesMap["G2"].addIfAbsent(zone);
+          break;
+
+        case _ when grp.key.startsWith("GRP[3]"):
+          zonesMap["G3"].addIfAbsent(zone);
+          break;
+      }
+    }
+
+    final groupsList = <ZoneGroupModel>[];
+
+    for (final entry in zonesMap.entries) {
+      groupsList.add(ZoneGroupModel(
+        id: entry.key,
+        name: "Grupo ${entry.key.numbersOnly}",
+        zones: entry.value,
+      ));
+    }
+
+    return groupsList;
   }
 
   @override

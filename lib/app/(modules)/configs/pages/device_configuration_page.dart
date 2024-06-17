@@ -7,9 +7,11 @@ import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/extensions/string_extensions.dart';
+import '../../../core/models/zone_group_model.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../scanner/widgets/device_type_indicator.dart';
 import '../controllers/device_configuration_page_controller.dart';
+import '../widgets/groups_expandable_card.dart';
 import '../widgets/zones_expandable_card.dart';
 
 class DeviceConfigurationPage extends StatefulWidget {
@@ -23,43 +25,37 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
   final _controller = injector.get<DeviceConfigurationPageController>();
 
   final _zonesExpandableController = ExpandableController(initialExpanded: false);
-  // final _groupsExpandableController = ExpandableController(initialExpanded: false);
+  final _groupsExpandableController = ExpandableController(initialExpanded: false);
 
   void _showDeviceDeletionBottomSheet() {
     context.showCustomModalBottomSheet(
       isScrollControlled: false,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Tem certeza que deseja remover o dispositivo \"${_controller.device.value.name}\"?",
-              style: context.textTheme.bodyLarge,
-              textAlign: TextAlign.center,
-            ),
-            24.asSpace,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                OutlinedButton(
-                  onPressed: () {
-                    Routefly.pop(context);
-                  },
-                  child: const Text("Cancelar"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    _controller.removeDevice();
+      child: DeleteDeviceConfirmBottomSheet(
+        deviceName: _controller.device.value.name,
+        onConfirm: _controller.removeDevice,
+      ),
+    );
+  }
 
-                    Routefly.pop(context);
-                    Routefly.pop(context);
-                  },
-                  child: const Text("Sim"),
-                ),
-              ],
-            ),
-          ],
+  void _showAddZoneGroupBottomSheet(ZoneGroupModel group) {
+    context.showCustomModalBottomSheet(
+      isScrollControlled: false,
+      child: Watch(
+        (_) => ListView.builder(
+          shrinkWrap: true,
+          itemCount: _controller.availableZones.value.length,
+          itemBuilder: (_, index) {
+            final zone = _controller.availableZones.value[index];
+
+            return ListTile(
+              title: Text(zone.label),
+              trailing: const Icon(Icons.add_circle_rounded),
+              onTap: () {
+                _controller.onAddZoneToGroup(group, zone);
+                Routefly.pop(context);
+              },
+            );
+          },
         ),
       ),
     );
@@ -156,15 +152,23 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                       ),
                     ),
                   ),
-                  12.asSpace,
+                  18.asSpace,
                   ZonesExpandableCard(
                     expandableController: _zonesExpandableController,
                     zones: _controller.device.value.zoneWrappers,
                     editingWrapper: _controller.editingWrapper.value,
+                    editingZone: _controller.editingZone.value,
                     isEditing: _controller.isEditingZone.value,
                     onChangeZoneMode: _controller.onChangeZoneMode,
                     onChangeZoneName: _controller.onChangeZoneName,
                     toggleEditingZone: _controller.toggleEditingZone,
+                  ),
+                  8.asSpace,
+                  GroupsExpandableCard(
+                    groups: _controller.device.value.groups,
+                    expandableController: _groupsExpandableController,
+                    onTapAddGroup: _showAddZoneGroupBottomSheet,
+                    onTapRemoveZone: _controller.onRemoveZoneFromGroup,
                   ),
                 ],
               ),
@@ -181,5 +185,54 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
     _controller.dispose();
 
     super.dispose();
+  }
+}
+
+class DeleteDeviceConfirmBottomSheet extends StatelessWidget {
+  const DeleteDeviceConfirmBottomSheet({
+    super.key,
+    required this.deviceName,
+    required this.onConfirm,
+  });
+
+  final String deviceName;
+  final VoidCallback onConfirm;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Tem certeza que deseja remover o dispositivo \"$deviceName\"?",
+            style: context.textTheme.bodyLarge,
+            textAlign: TextAlign.center,
+          ),
+          24.asSpace,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              OutlinedButton(
+                child: const Text("Cancelar"),
+                onPressed: () {
+                  Routefly.pop(context);
+                },
+              ),
+              ElevatedButton(
+                child: const Text("Sim"),
+                onPressed: () {
+                  onConfirm();
+
+                  Routefly.pop(context);
+                  Routefly.pop(context);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
