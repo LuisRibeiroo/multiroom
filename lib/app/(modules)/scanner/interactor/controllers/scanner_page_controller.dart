@@ -110,18 +110,18 @@ class ScannerPageController extends BaseController {
         },
       );
 
-      for (int i = 0; i < 5; i++) {
-        await Future.delayed(
-          const Duration(seconds: 1),
-          () => networkDevices.add(
-            NetworkDeviceModel(
-              ip: "192.168.0.${i + 1}",
-              serialNumber: "MR-123456-00$i",
-              firmware: "1.0",
-            ),
-          ),
-        );
-      }
+      // for (int i = 0; i < 5; i++) {
+      //   await Future.delayed(
+      //     const Duration(seconds: 1),
+      //     () => networkDevices.add(
+      //       NetworkDeviceModel(
+      //         ip: "192.168.0.${i + 1}",
+      //         serialNumber: "MR-123456-00$i",
+      //         firmware: "1.0",
+      //       ),
+      //     ),
+      //   );
+      // }
 
       // await Future.delayed(
       //   const Duration(seconds: 2),

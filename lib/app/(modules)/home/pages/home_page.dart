@@ -80,7 +80,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    scheduleMicrotask(() async {});
+    scheduleMicrotask(() async {
+      await _controller.init();
+    });
   }
 
   @override

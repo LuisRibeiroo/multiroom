@@ -27,73 +27,79 @@ class _ScannerPageState extends State<ScannerPage> {
 
     context.showCustomModalBottomSheet(
       child: Watch(
-        (_) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Dispositivos encontrados na rede",
-              style: context.textTheme.titleLarge,
-            ),
-            12.asSpace,
-            Visibility(
-              visible: _controller.hasAvailableSlots.value == false,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: PhysicalModel(
-                  borderRadius: BorderRadius.circular(8),
-                  color: context.colorScheme.inversePrimary,
-                  elevation: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "Já existem 3 dispositivos configurados. Para adicionar um novo, será necessário remover um dos existentes.",
-                      style: context.textTheme.bodyLarge!.copyWith(color: context.colorScheme.onSurface),
-                      textAlign: TextAlign.center,
+        (_) => Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Dispositivos encontrados na rede",
+                style: context.textTheme.titleLarge,
+              ),
+              12.asSpace,
+              Visibility(
+                visible: _controller.hasAvailableSlots.value == false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: PhysicalModel(
+                    borderRadius: BorderRadius.circular(8),
+                    color: context.colorScheme.inversePrimary,
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "Já existem 3 dispositivos configurados. Para adicionar um novo, será necessário remover um dos existentes.",
+                        style: context.textTheme.bodyLarge!.copyWith(color: context.colorScheme.onSurface),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            Flexible(
-              child: AnimatedSize(
-                duration: Durations.short4,
-                child: _controller.networkDevices.isEmpty
-                    ? const CircularProgressIndicator()
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _controller.networkDevices.length,
-                        itemBuilder: (_, index) {
-                          final netDevice = _controller.networkDevices[index];
+              Flexible(
+                child: AnimatedSize(
+                  duration: Durations.short4,
+                  child: _controller.networkDevices.isEmpty
+                      ? const CircularProgressIndicator()
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _controller.networkDevices.length,
+                          itemBuilder: (_, index) {
+                            final netDevice = _controller.networkDevices[index];
 
-                          return ListTile(
-                            title: Text(netDevice.ip),
-                            subtitle: Text(
-                              "${netDevice.serialNumber} - Ver ${netDevice.firmware}",
-                            ),
-                            trailing: const Icon(Icons.add_circle_rounded),
-                            onTap: () {
-                              Routefly.pop(context);
+                            return ListTile(
+                              title: Text(netDevice.ip),
+                              subtitle: Text(
+                                "${netDevice.serialNumber} - Ver ${netDevice.firmware}",
+                              ),
+                              trailing: const Icon(Icons.add_circle_rounded),
+                              onTap: () {
+                                Routefly.pop(context);
 
-                              context.showCustomModalBottomSheet(
-                                child: Watch(
-                                  (_) => TypeSelectionBottomSheet(
-                                    netDevice: netDevice,
-                                    deviceType: _controller.deviceType.value,
-                                    onChangeType: _controller.deviceType.set,
-                                    onTapConfirm: _controller.onConfirmAddDevice,
-                                    masterAvailable: _controller.isMasterAvailable.value,
-                                    slave1Available: _controller.slave1Available.value,
-                                    slave2Available: _controller.slave2Available.value,
+                                context.showCustomModalBottomSheet(
+                                  child: Watch(
+                                    (_) => Padding(
+                                      padding: const EdgeInsets.only(bottom: 12.0),
+                                      child: TypeSelectionBottomSheet(
+                                        netDevice: netDevice,
+                                        deviceType: _controller.deviceType.value,
+                                        onChangeType: _controller.deviceType.set,
+                                        onTapConfirm: _controller.onConfirmAddDevice,
+                                        masterAvailable: _controller.isMasterAvailable.value,
+                                        slave1Available: _controller.slave1Available.value,
+                                        slave2Available: _controller.slave2Available.value,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

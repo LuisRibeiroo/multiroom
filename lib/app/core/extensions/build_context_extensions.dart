@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 extension ContextExt on BuildContext {
@@ -42,14 +44,17 @@ extension ContextExt on BuildContext {
               ),
             ),
             SafeArea(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  // minHeight: size.height * .2,
-                  maxHeight: size.height * maxHeight - 1,
-                ),
-                child: Padding(
-                  padding: mediaQuery.viewInsets,
-                  child: child,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: Platform.isAndroid ? 24.0 : 0.0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    // minHeight: size.height * .2,
+                    maxHeight: size.height * maxHeight - 25.0,
+                  ),
+                  child: Padding(
+                    padding: mediaQuery.viewInsets,
+                    child: child,
+                  ),
                 ),
               ),
             ),

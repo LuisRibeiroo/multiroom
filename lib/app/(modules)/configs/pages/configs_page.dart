@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:multiroom/routes.g.dart';
+import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
@@ -23,44 +26,59 @@ class _ConfigsPageState extends State<ConfigsPage> {
   @override
   Widget build(BuildContext context) {
     return Watch(
-      (_) => LoadingOverlay(
-        state: _controller.state,
-        child: Scaffold(
-          appBar: AppBar(
-            leading: Image.asset("assets/logo.png"),
-            title: const Text("Configurações"),
-            actions: [
-              Visibility(
-                visible: _controller.localDevices.isNotEmpty,
-                child: IconButton(
-                  onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
-                  icon: const Icon(Icons.menu_rounded),
+      (_) => VisibilityDetector(
+        key: const ValueKey(ConfigsPage),
+        onVisibilityChanged: (info) {
+          if (info.visibleFraction == 1) {
+            _controller.syncDevices();
+          }
+        },
+        child: LoadingOverlay(
+          state: _controller.state,
+          child: Scaffold(
+            appBar: AppBar(
+              leading: Image.asset("assets/logo.png"),
+              title: const Text("Configurações"),
+              actions: [
+                Visibility(
+                  visible: _controller.localDevices.isNotEmpty,
+                  child: IconButton(
+                    onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
+                    icon: const Icon(Icons.more_vert_rounded),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          body: Visibility(
-            visible: _controller.localDevices.isEmpty,
-            replacement: ListView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: _controller.localDevices.length,
-              itemBuilder: (_, index) => Watch(
-                (_) => DeviceListTile(
-                  device: _controller.localDevices[index],
-                  onChangeActive: _controller.onChangeActive,
-                  onTapConfigDevice: (d) => OptionsMenu.showTechBottomSheet(context, device: d),
-                ),
-              ),
+              ],
             ),
-            child: const NoDevicesWidget(),
+            body: Visibility(
+              visible: _controller.localDevices.isEmpty,
+              replacement: ListView.builder(
+                padding: const EdgeInsets.all(12),
+                itemCount: _controller.localDevices.length,
+                itemBuilder: (_, index) => Watch(
+                  (_) => DeviceListTile(
+                    device: _controller.localDevices[index],
+                    onChangeActive: _controller.onChangeActive,
+                    onTapConfigDevice: (d) => OptionsMenu.showTechBottomSheet(context, device: d),
+                  ),
+                ),
+              ),
+              child: const NoDevicesWidget(),
+            ),
+            floatingActionButton: _controller.localDevices.isEmpty
+                ? FloatingActionButton.extended(
+                    icon: const Icon(Icons.settings_input_antenna_rounded),
+                    label: const Text("Iniciar configuração"),
+                    onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
+                  )
+                : FloatingActionButton.extended(
+                    icon: const Icon(Icons.check_rounded),
+                    label: const Text("Finalizar configurações"),
+                    onPressed: () {
+                      Routefly.replace(routePaths.home.pages.home);
+                      Routefly.pushNavigate(routePaths.home.pages.home);
+                    },
+                  ),
           ),
-          floatingActionButton: _controller.localDevices.isEmpty
-              ? FloatingActionButton.extended(
-                  icon: const Icon(Icons.settings_input_antenna_rounded),
-                  label: const Text("Iniciar configuração"),
-                  onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
-                )
-              : null,
         ),
       ),
     );

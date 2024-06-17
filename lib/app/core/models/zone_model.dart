@@ -85,6 +85,7 @@ class ZoneModel extends Equatable implements SelectableModel {
   final MonoSide side;
 
   bool get isEmpty => this == ZoneModel.empty();
+  bool get isStereo => side == MonoSide.undefined;
 
   @override
   String get label => name;

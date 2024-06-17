@@ -16,6 +16,10 @@ class ConfigsPageController extends BaseController {
   final device = DeviceModel.empty().toSignal(debugLabel: "currentDevice");
   final localDevices = listSignal<DeviceModel>([], debugLabel: "localDevices");
 
+  void syncDevices() {
+    localDevices.value = settings.devices;
+  }
+
   void onChangeActive(DeviceModel device, bool value) {
     localDevices[localDevices.indexOf(device)] = device.copyWith(active: value);
   }

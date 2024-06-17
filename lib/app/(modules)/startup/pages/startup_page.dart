@@ -70,7 +70,7 @@ class _StartupPageState extends State<StartupPage> {
       //   ),
       // ]);
 
-      settings.saveDevices([]);
+      // settings.saveDevices([]);
 
       await Future.delayed(const Duration(seconds: 1), () {
         if (settings.devices.isEmpty) {

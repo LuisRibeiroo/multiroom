@@ -33,7 +33,7 @@ class DeviceInfoHeader extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              flex: 3,
+              flex: 6,
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.surround_sound_rounded),
                 label: AnimatedSwitcher(
@@ -51,7 +51,7 @@ class DeviceInfoHeader extends StatelessWidget {
             ),
             12.asSpace,
             Flexible(
-              flex: 2,
+              flex: 5,
               child: Column(
                 children: [
                   Row(
