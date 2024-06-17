@@ -29,7 +29,6 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   final editingZone = ZoneModel.empty().toSignal(debugLabel: "editingZone");
   final isEditingDevice = false.toSignal(debugLabel: "isEditingDevice");
   final isEditingZone = false.toSignal(debugLabel: "isEditingZone");
-  final zones = listSignal([], debugLabel: "zones");
   final availableZones = listSignal([], debugLabel: "zones");
 
   Future<void> init({required DeviceModel dev}) async {
@@ -47,6 +46,9 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     device.value = device.value.copyWith(
       zoneWrappers: _parseZones(configs),
+    );
+
+    device.value = device.value.copyWith(
       groups: _parseGroups(configs),
     );
 
