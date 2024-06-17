@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:toastification/toastification.dart';
@@ -23,19 +25,23 @@ class LoadingOverlay extends StatefulWidget {
 }
 
 class _LoadingOverlayState extends State<LoadingOverlay> {
+  Function? _disposable;
+
   @override
   void initState() {
     super.initState();
 
-    widget.state.subscribe((state) {
-      if (state is ErrorState) {
-        toastification.show(
-          title: Text("${state.exception}"),
-          autoCloseDuration: const Duration(seconds: 5),
-          style: ToastificationStyle.minimal,
-          type: ToastificationType.error,
-        );
-      }
+    scheduleMicrotask(() {
+      _disposable = effect(() {
+        if (widget.state.value is ErrorState) {
+          toastification.show(
+            title: Text("${(widget.state.value as ErrorState).exception}"),
+            autoCloseDuration: const Duration(seconds: 5),
+            style: ToastificationStyle.minimal,
+            type: ToastificationType.error,
+          );
+        }
+      });
     });
   }
 
@@ -69,5 +75,12 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _disposable?.call();
+
+    super.dispose();
   }
 }

@@ -26,7 +26,6 @@ class _ScannerPageState extends State<ScannerPage> {
     _controller.startUdpServer();
 
     context.showCustomModalBottomSheet(
-      isScrollControlled: false,
       child: Watch(
         (_) => Column(
           mainAxisSize: MainAxisSize.min,
@@ -56,11 +55,12 @@ class _ScannerPageState extends State<ScannerPage> {
               ),
             ),
             Flexible(
-              child: AnimatedSwitcher(
+              child: AnimatedSize(
                 duration: Durations.short4,
                 child: _controller.networkDevices.isEmpty
                     ? const CircularProgressIndicator()
                     : ListView.builder(
+                        shrinkWrap: true,
                         itemCount: _controller.networkDevices.length,
                         itemBuilder: (_, index) {
                           final netDevice = _controller.networkDevices[index];

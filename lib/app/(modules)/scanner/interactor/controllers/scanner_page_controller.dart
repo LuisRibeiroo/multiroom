@@ -110,18 +110,18 @@ class ScannerPageController extends BaseController {
         },
       );
 
-      // for (int i = 0; i < 10; i++) {
-      //   await Future.delayed(
-      //     const Duration(seconds: 1),
-      //     () => networkDevices.add(
-      //       NetworkDeviceModel(
-      //         ip: "192.168.0.${i + 1}",
-      //         serialNumber: "123456-$i",
-      //         firmware: "1.0",
-      //       ),
-      //     ),
-      //   );
-      // }
+      for (int i = 0; i < 5; i++) {
+        await Future.delayed(
+          const Duration(seconds: 1),
+          () => networkDevices.add(
+            NetworkDeviceModel(
+              ip: "192.168.0.${i + 1}",
+              serialNumber: "MR-123456-00$i",
+              firmware: "1.0",
+            ),
+          ),
+        );
+      }
 
       // await Future.delayed(
       //   const Duration(seconds: 2),
@@ -168,10 +168,10 @@ class ScannerPageController extends BaseController {
   }
 
   Future<void> onConfirmAddDevice(NetworkDeviceModel netDevice) async {
-    final type = await _setDeviceType(
-      netDevice.ip,
-      DeviceType.fromString(deviceType.value.name.lettersOnly),
-    );
+    // final type = await _setDeviceType(
+    //   netDevice.ip,
+    //   DeviceType.fromString(deviceType.value.name.lettersOnly),
+    // );
 
     localDevices.add(
       DeviceModel.builder(
@@ -179,7 +179,8 @@ class ScannerPageController extends BaseController {
         serialNumber: netDevice.serialNumber,
         version: netDevice.firmware,
         name: deviceType.value.readable,
-        type: DeviceType.fromString(type),
+        type: DeviceType.fromString(deviceType.value.name.lettersOnly),
+        // type: DeviceType.fromString(type),
       ),
     );
 
