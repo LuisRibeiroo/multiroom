@@ -104,11 +104,9 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                                   4.asSpace,
                                   Text(
                                     _controller.device.value.serialNumber,
-                                    style: context.textTheme.bodyMedium,
                                   ),
                                   Text(
                                     "V ${_controller.device.value.version}",
-                                    style: context.textTheme.bodyMedium,
                                   ),
                                 ],
                               ),
