@@ -10,9 +10,11 @@ class SelectableListView<T extends SelectableModel> extends StatelessWidget {
     required this.selectedOption,
     required this.onSelect,
     this.showSelectedIndicator = true,
+    this.showSubtitle = false,
   });
 
   final List<T> options;
+  final bool showSubtitle;
   final T selectedOption;
   final bool showSelectedIndicator;
   final Function(T) onSelect;
@@ -27,6 +29,7 @@ class SelectableListView<T extends SelectableModel> extends StatelessWidget {
 
         return ListTile(
           title: Text(current.label),
+          subtitle: showSubtitle ? Text(current.secondary) : null,
           trailing: Visibility(
             visible: showSelectedIndicator && selectedOption.label == current.label,
             child: const Icon(Icons.check_rounded),

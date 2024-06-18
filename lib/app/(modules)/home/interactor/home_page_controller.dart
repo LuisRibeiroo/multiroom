@@ -15,6 +15,7 @@ import '../../../core/models/channel_model.dart';
 import '../../../core/models/device_model.dart';
 import '../../../core/models/equalizer_model.dart';
 import '../../../core/models/frequency.dart';
+import '../../../core/models/zone_group_model.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/models/zone_wrapper_model.dart';
 import '../../../core/utils/debouncer.dart';
@@ -62,7 +63,22 @@ class HomePageController extends BaseController with SocketMixin {
 
           if (currentZone.previousValue!.id != currentZone.value.id) {
             logger.i("UPDATE ALL DATA");
-            await _updateAllDeviceData();
+            await _updateAllDeviceData(currentZone.value);
+          }
+        });
+      }),
+      currentGroup.subscribe((newGroup) async {
+        if (newGroup.isEmpty) {
+          return;
+        }
+
+        untracked(() async {
+          if (currentGroup.previousValue!.id != currentGroup.value.id) {
+            logger.i("UPDATE ALL DATA FROM GROUP");
+            await _updateAllDeviceData(
+              currentGroup.value.zones.first,
+              fromGroup: true,
+            );
           }
         });
       }),
@@ -88,6 +104,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   final currentDevice = DeviceModel.empty().toSignal(debugLabel: "device");
   final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
+  final currentGroup = ZoneGroupModel.empty().toSignal(debugLabel: "currentGroup");
   final currentChannel = ChannelModel.empty().toSignal(debugLabel: "currentChannel");
   final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
 
@@ -95,7 +112,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> init() async {
     try {
-      await initSocket(ip: currentDevice.value.ip);
+      // await initSocket(ip: currentDevice.value.ip);
     } catch (exception) {
       setError(exception as Exception);
     }
@@ -107,6 +124,12 @@ class HomePageController extends BaseController with SocketMixin {
 
   void setCurrentZone(ZoneModel zone) {
     currentZone.value = zone;
+    currentGroup.value = currentGroup.initialValue;
+  }
+
+  void setCurrentGroup(ZoneGroupModel group) {
+    currentGroup.value = group;
+    currentZone.value = group.zones.first;
   }
 
   void setCurrentChannel(ChannelModel channel) {
@@ -255,65 +278,65 @@ class HomePageController extends BaseController with SocketMixin {
     return newZones;
   }
 
-  Future<void> _updateAllDeviceData() async {
-    while (socketInit == false) {
-      await Future.delayed(Durations.short3);
-    }
+  Future<void> _updateAllDeviceData(ZoneModel zone, {bool fromGroup = false}) async {
+    // while (socketInit == false) {
+    //   await Future.delayed(Durations.short3);
+    // }
 
     final channelStr = MrCmdBuilder.parseResponse(await socketSender(
-      MrCmdBuilder.getChannel(zone: currentZone.value),
+      MrCmdBuilder.getChannel(zone: zone),
     ));
 
     final volume = MrCmdBuilder.parseResponse(await socketSender(
-      MrCmdBuilder.getVolume(zone: currentZone.value),
+      MrCmdBuilder.getVolume(zone: zone),
     ));
 
     String balance = "0";
-    if (currentZone.value.isStereo) {
+    if (zone.isStereo) {
       balance = MrCmdBuilder.parseResponse(await socketSender(
-        MrCmdBuilder.getBalance(zone: currentZone.value),
+        MrCmdBuilder.getBalance(zone: zone),
       ));
     }
 
     final f60 = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
-        zone: currentZone.value,
-        frequency: currentZone.value.equalizer.frequencies[0],
+        zone: zone,
+        frequency: zone.equalizer.frequencies[0],
       ),
     ));
 
     final f1k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
-        zone: currentZone.value,
-        frequency: currentZone.value.equalizer.frequencies[1],
+        zone: zone,
+        frequency: zone.equalizer.frequencies[1],
       ),
     ));
 
     final f3k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
-        zone: currentZone.value,
-        frequency: currentZone.value.equalizer.frequencies[2],
+        zone: zone,
+        frequency: zone.equalizer.frequencies[2],
       ),
     ));
 
     final f250 = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
-        zone: currentZone.value,
-        frequency: currentZone.value.equalizer.frequencies[3],
+        zone: zone,
+        frequency: zone.equalizer.frequencies[3],
       ),
     ));
 
     final f6k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
-        zone: currentZone.value,
-        frequency: currentZone.value.equalizer.frequencies[4],
+        zone: zone,
+        frequency: zone.equalizer.frequencies[4],
       ),
     ));
 
     final f16k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
-        zone: currentZone.value,
-        frequency: currentZone.value.equalizer.frequencies[5],
+        zone: zone,
+        frequency: zone.equalizer.frequencies[5],
       ),
     ));
 
@@ -322,7 +345,7 @@ class HomePageController extends BaseController with SocketMixin {
       orElse: () => currentChannel.value,
     );
 
-    final equalizer = currentZone.value.equalizer;
+    final equalizer = zone.equalizer;
     final newEqualizer = EqualizerModel.custom(
       frequencies: [
         equalizer.frequencies[0].copyWith(value: int.tryParse(f60) ?? equalizer.frequencies[0].value),
@@ -334,18 +357,25 @@ class HomePageController extends BaseController with SocketMixin {
       ],
     );
 
-    final f = availableEqualizers.indexWhere((e) => e.equalsFrequencies(newEqualizer));
-    if (f == -1) {
+    final eqIndex = availableEqualizers.indexWhere((e) => e.equalsFrequencies(newEqualizer));
+    if (eqIndex == -1) {
       availableEqualizers[availableEqualizers.indexWhere((e) => e.name == "Custom")] = newEqualizer;
       currentEqualizer.value = newEqualizer;
     } else {
-      currentEqualizer.value = availableEqualizers[f];
+      currentEqualizer.value = availableEqualizers[eqIndex];
     }
 
     untracked(() {
-      currentZone.value = currentZone.value.copyWith(
-        volume: int.tryParse(volume) ?? currentZone.value.volume,
-        balance: int.tryParse(balance) ?? currentZone.value.balance,
+      if (fromGroup) {
+        final List<ZoneModel> tempZones = List.from(currentGroup.peek().zones);
+        tempZones[tempZones.indexWhere((z) => z.id == zone.id)] = zone;
+
+        currentGroup.value = currentGroup.value.copyWith(zones: tempZones);
+      }
+
+      currentZone.value = zone.copyWith(
+        volume: int.tryParse(volume) ?? zone.volume,
+        balance: int.tryParse(balance) ?? zone.balance,
         equalizer: newEqualizer,
       );
     });
@@ -358,8 +388,10 @@ class HomePageController extends BaseController with SocketMixin {
 
     localDevices.value = <DeviceModel>[];
     zones.value = <ZoneModel>[];
+
     currentDevice.value = currentDevice.initialValue;
     currentZone.value = currentZone.initialValue;
+    currentGroup.value = currentGroup.initialValue;
     currentChannel.value = currentChannel.initialValue;
     currentEqualizer.value = currentEqualizer.initialValue;
   }

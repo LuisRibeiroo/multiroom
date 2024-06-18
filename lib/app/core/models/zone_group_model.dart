@@ -1,8 +1,9 @@
 import 'package:equatable/equatable.dart';
 
+import 'selectable_model.dart';
 import 'zone_model.dart';
 
-class ZoneGroupModel extends Equatable {
+class ZoneGroupModel extends Equatable implements SelectableModel {
   const ZoneGroupModel({
     required this.id,
     required this.name,
@@ -58,7 +59,13 @@ class ZoneGroupModel extends Equatable {
     );
   }
 
-  bool get isEmpty => this == ZoneGroupModel.empty();
+  bool get isEmpty => id == ZoneGroupModel.empty().id;
+  bool get hasZones => zones.isNotEmpty;
+
+  @override
+  String get label => name;
+  @override
+  String get secondary => zones.map((z) => z.name).join(", ");
 
   @override
   List<Object?> get props => [

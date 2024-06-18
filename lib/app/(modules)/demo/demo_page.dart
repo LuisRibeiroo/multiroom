@@ -157,11 +157,11 @@ class _HomePageState extends State<HomePage> {
                     child: _controller.device.value.isEmpty
                         ? const SizedBox.shrink()
                         : DeviceInfoHeader(
-                            zones: const [],
+                            currentGroup: _controller.device.value.groups.first,
                             deviceName: _controller.device.value.name,
                             currentZone: _controller.currentZone.value,
                             currentChannel: _controller.currentChannel.value,
-                            onChangeZone: () => _controller.setCurrentZone,
+                            onChangeZoneGroup: () => _controller.setCurrentZone,
                             onChangeChannel: () => _controller.setCurrentChannel,
                             onChangeDevice: () {},
                           ),

@@ -95,9 +95,12 @@ class DeviceModel extends Equatable implements SelectableModel {
 
   bool get isEmpty => this == DeviceModel.empty();
   List<ZoneModel> get zones => zoneWrappers.fold(<ZoneModel>[], (pv, v) => pv..addAll(v.zones));
+  bool get emptyGroups => groups.every((g) => g.hasZones == false);
 
   @override
   String get label => name;
+  @override
+  String get secondary => "";
 
   DeviceModel copyWith({
     String? serialNumber,

@@ -326,5 +326,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     editingZone.value = editingZone.initialValue;
     isEditingDevice.value = isEditingDevice.initialValue;
     isEditingZone.value = isEditingZone.initialValue;
+
+    availableZones.value = <ZoneModel>[];
   }
 }

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/enums/mono_side.dart';
 
+import '../../core/enums/mono_side.dart';
 import '../../core/models/equalizer_model.dart';
 import '../../core/models/frequency.dart';
 import '../../core/models/zone_model.dart';
 import 'equalizer_card.dart';
 import 'slider_card.dart';
 
-class DeviceControls extends StatefulWidget {
+class DeviceControls extends StatelessWidget {
   const DeviceControls({
     super.key,
     required this.equalizers,
@@ -28,42 +28,41 @@ class DeviceControls extends StatefulWidget {
   final Function() onChangeEqualizer;
 
   @override
-  State<DeviceControls> createState() => _DeviceControlsState();
-}
-
-class _DeviceControlsState extends State<DeviceControls> {
-  @override
   Widget build(BuildContext context) {
     return Card.filled(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Column(
           children: [
-            SliderCard(
-              title: "Volume",
-              caption: "${widget.currentZone.volume}%",
-              value: widget.currentZone.volume,
-              onChanged: widget.onChangeVolume,
+            AnimatedSwitcher(
+              duration: Durations.short4,
+              child: SliderCard(
+                key: ValueKey(currentZone.name),
+                title: "Volume",
+                caption: "${currentZone.volume}%",
+                value: currentZone.volume,
+                onChanged: onChangeVolume,
+              ),
             ),
             AnimatedSize(
               duration: Durations.medium1,
               child: Visibility(
-                visible: widget.currentZone.side == MonoSide.undefined,
+                visible: currentZone.isEmpty == false && currentZone.side == MonoSide.undefined,
                 child: SliderCard(
                   title: "Balanço",
                   min: 0,
                   max: 100,
-                  caption: "${widget.currentZone.balance}",
-                  value: widget.currentZone.balance,
-                  onChanged: widget.onChangeBalance,
+                  caption: "${currentZone.balance}",
+                  value: currentZone.balance,
+                  onChanged: onChangeBalance,
                 ),
               ),
             ),
             EqualizerCard(
-              equalizers: widget.equalizers,
-              currentEqualizer: widget.currentEqualizer,
-              onChangeEqualizer: widget.onChangeEqualizer,
-              onUpdateFrequency: widget.onUpdateFrequency,
+              equalizers: equalizers,
+              currentEqualizer: currentEqualizer,
+              onChangeEqualizer: onChangeEqualizer,
+              onUpdateFrequency: onUpdateFrequency,
             ),
           ],
         ),

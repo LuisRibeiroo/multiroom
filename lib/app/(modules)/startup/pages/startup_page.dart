@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/models/zone_group_model.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:routefly/routefly.dart';
 
@@ -37,38 +38,48 @@ class _StartupPageState extends State<StartupPage> {
 
       final settings = injector.get<SettingsContract>();
 
-      // settings.saveDevices([
-      //   DeviceModel.builder(
-      //     serialNumber: "MR01234-0931",
-      //     name: "Master 1",
-      //     ip: "192.168.0.1",
-      //     version: "3.2",
-      //     type: DeviceType.master,
-      //   ),
-      //   DeviceModel(
-      //     serialNumber: "MR01234-0932",
-      //     name: "Slave 1",
-      //     ip: "192.168.0.2",
-      //     version: "3.2",
-      //     type: DeviceType.slave,
-      //     masterName: "Master 1",
-      //     zoneWrappers: List.generate(
-      //       8,
-      //       (idx) => ZoneWrapperModel.builder(
-      //         index: idx + 1,
-      //         name: "Zona ${idx + 1}",
-      //         mode: idx.isEven ? ZoneMode.stereo : ZoneMode.mono,
-      //       ),
-      //     ),
-      //   ),
-      //   DeviceModel.builder(
-      //     serialNumber: "MR01234-0933",
-      //     name: "Slave 2",
-      //     ip: "192.168.0.3",
-      //     version: "3.2",
-      //     type: DeviceType.slave,
-      //   ),
-      // ]);
+      final testZones = List.generate(
+        8,
+        (idx) => ZoneWrapperModel.builder(
+          index: idx + 1,
+          name: "Zona ${idx + 1}",
+          mode: idx.isEven ? ZoneMode.stereo : ZoneMode.mono,
+        ),
+      );
+
+      settings.saveDevices([
+        DeviceModel.builder(
+          serialNumber: "MR01234-0931",
+          name: "Master 1",
+          ip: "192.168.0.1",
+          version: "3.2",
+          type: DeviceType.master,
+        ),
+        DeviceModel(
+          serialNumber: "MR01234-0932",
+          name: "Slave 1",
+          ip: "192.168.0.2",
+          version: "3.2",
+          type: DeviceType.slave,
+          masterName: "Master 1",
+          zoneWrappers: testZones,
+          groups: List.generate(
+            3,
+            (idx) => ZoneGroupModel(
+              id: "G${idx + 1}",
+              name: "Grupo ${idx + 1}",
+              zones: idx.isEven ? testZones[idx].zones : [],
+            ),
+          ),
+        ),
+        DeviceModel.builder(
+          serialNumber: "MR01234-0933",
+          name: "Slave 2",
+          ip: "192.168.0.3",
+          version: "3.2",
+          type: DeviceType.slave,
+        ),
+      ]);
 
       // settings.saveDevices([]);
 

@@ -1,15 +1,16 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
+import '../../(shared)/pages/options_bottom_sheet.dart';
 import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../../core/widgets/selectable_list_view.dart';
-import '../../(shared)/pages/options_bottom_sheet.dart';
 import '../../widgets/device_controls.dart';
 import '../../widgets/device_info_header.dart';
 import '../interactor/home_page_controller.dart';
@@ -37,14 +38,49 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showZonesBottomSheet() {
+  void _showZonesAndGroupsBottomSheet() {
     context.showCustomModalBottomSheet(
-      isScrollControlled: false,
+      isScrollControlled: _controller.currentDevice.value.emptyGroups == false,
       child: Watch(
-        (_) => SelectableListView(
-          options: _controller.zones,
-          onSelect: _controller.setCurrentZone,
-          selectedOption: _controller.currentZone.value,
+        (_) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.home_filled),
+              title: const Text("Zonas"),
+              tileColor: context.colorScheme.inversePrimary,
+            ),
+            Expanded(
+              child: SelectableListView(
+                options: _controller.zones,
+                onSelect: _controller.setCurrentZone,
+                selectedOption: _controller.currentZone.value,
+              ),
+            ),
+            Visibility(
+              visible: _controller.currentDevice.value.emptyGroups == false,
+              child: Flexible(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.group_work_rounded),
+                      title: const Text("Grupos"),
+                      tileColor: context.colorScheme.inversePrimary,
+                    ),
+                    Flexible(
+                      child: SelectableListView(
+                        options: _controller.currentDevice.value.groups.whereNot((g) => g.zones.isEmpty).toList(),
+                        showSubtitle: true,
+                        onSelect: _controller.setCurrentGroup,
+                        selectedOption: _controller.currentGroup.value,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -117,11 +153,11 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       DeviceInfoHeader(
                         deviceName: _controller.currentDevice.value.name,
-                        zones: _controller.zones,
                         currentZone: _controller.currentZone.value,
+                        currentGroup: _controller.currentGroup.value,
                         currentChannel: _controller.currentChannel.value,
                         onChangeDevice: _showDevicesBottomSheet,
-                        onChangeZone: _showZonesBottomSheet,
+                        onChangeZoneGroup: _showZonesAndGroupsBottomSheet,
                         onChangeChannel: _showChannelsBottomSheet,
                       ),
                       12.asSpace,

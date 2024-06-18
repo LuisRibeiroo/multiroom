@@ -84,11 +84,13 @@ class ZoneModel extends Equatable implements SelectableModel {
   final EqualizerModel equalizer;
   final MonoSide side;
 
-  bool get isEmpty => this == ZoneModel.empty();
+  bool get isEmpty => id == ZoneModel.empty().id;
   bool get isStereo => side == MonoSide.undefined;
 
   @override
   String get label => name;
+  @override
+  String get secondary => "";
 
   ZoneModel copyWith({
     String? name,

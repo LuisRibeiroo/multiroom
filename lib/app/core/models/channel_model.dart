@@ -49,6 +49,8 @@ class ChannelModel extends Equatable implements SelectableModel {
 
   @override
   String get label => name;
+  @override
+  String get secondary => "";
   
   ChannelModel copyWith({
     String? name,

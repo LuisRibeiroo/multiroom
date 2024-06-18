@@ -3,26 +3,27 @@ import 'package:flutter/material.dart';
 import '../../core/extensions/build_context_extensions.dart';
 import '../../core/extensions/number_extensions.dart';
 import '../../core/models/channel_model.dart';
+import '../../core/models/zone_group_model.dart';
 import '../../core/models/zone_model.dart';
 
 class DeviceInfoHeader extends StatelessWidget {
   const DeviceInfoHeader({
     super.key,
     required this.deviceName,
-    required this.zones,
     required this.currentZone,
+    required this.currentGroup,
     required this.currentChannel,
     required this.onChangeChannel,
-    required this.onChangeZone,
+    required this.onChangeZoneGroup,
     required this.onChangeDevice,
   });
 
   final String deviceName;
-  final List<ZoneModel> zones;
   final ZoneModel currentZone;
+  final ZoneGroupModel currentGroup;
   final ChannelModel currentChannel;
   final Function() onChangeChannel;
-  final Function() onChangeZone;
+  final Function() onChangeZoneGroup;
   final Function() onChangeDevice;
 
   @override
@@ -59,11 +60,20 @@ class DeviceInfoHeader extends StatelessWidget {
                       Expanded(
                         child: AnimatedSwitcher(
                           duration: Durations.short4,
-                          child: OutlinedButton.icon(
-                            key: ValueKey(currentZone.name),
-                            icon: const Icon(Icons.home_filled),
-                            label: Text(currentZone.name),
-                            onPressed: onChangeZone,
+                          child: Visibility(
+                            visible: currentGroup.isEmpty,
+                            replacement: OutlinedButton.icon(
+                              key: ValueKey(currentGroup.name),
+                              icon: const Icon(Icons.group_work_rounded),
+                              label: Text(currentGroup.name),
+                              onPressed: onChangeZoneGroup,
+                            ),
+                            child: OutlinedButton.icon(
+                              key: ValueKey(currentZone.name),
+                              icon: const Icon(Icons.home_filled),
+                              label: Text(currentZone.name),
+                              onPressed: onChangeZoneGroup,
+                            ),
                           ),
                         ),
                       ),
