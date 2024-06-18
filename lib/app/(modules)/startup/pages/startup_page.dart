@@ -47,39 +47,39 @@ class _StartupPageState extends State<StartupPage> {
         ),
       );
 
-      settings.saveDevices([
-        DeviceModel.builder(
-          serialNumber: "MR01234-0931",
-          name: "Master 1",
-          ip: "192.168.0.1",
-          version: "3.2",
-          type: DeviceType.master,
-        ),
-        DeviceModel(
-          serialNumber: "MR01234-0932",
-          name: "Slave 1",
-          ip: "192.168.0.2",
-          version: "3.2",
-          type: DeviceType.slave,
-          masterName: "Master 1",
-          zoneWrappers: testZones,
-          groups: List.generate(
-            3,
-            (idx) => ZoneGroupModel(
-              id: "G${idx + 1}",
-              name: "Grupo ${idx + 1}",
-              zones: idx.isEven ? testZones[idx].zones : [],
-            ),
-          ),
-        ),
-        DeviceModel.builder(
-          serialNumber: "MR01234-0933",
-          name: "Slave 2",
-          ip: "192.168.0.3",
-          version: "3.2",
-          type: DeviceType.slave,
-        ),
-      ]);
+      // settings.saveDevices([
+      //   DeviceModel.builder(
+      //     serialNumber: "MR01234-0931",
+      //     name: "Master 1",
+      //     ip: "192.168.0.1",
+      //     version: "3.2",
+      //     type: DeviceType.master,
+      //   ),
+      //   DeviceModel(
+      //     serialNumber: "MR01234-0932",
+      //     name: "Slave 1",
+      //     ip: "192.168.0.2",
+      //     version: "3.2",
+      //     type: DeviceType.slave,
+      //     masterName: "Master 1",
+      //     zoneWrappers: testZones,
+      //     groups: List.generate(
+      //       3,
+      //       (idx) => ZoneGroupModel(
+      //         id: "G${idx + 1}",
+      //         name: "Grupo ${idx + 1}",
+      //         zones: idx.isEven ? testZones[idx].zones : [],
+      //       ),
+      //     ),
+      //   ),
+      //   DeviceModel.builder(
+      //     serialNumber: "MR01234-0933",
+      //     name: "Slave 2",
+      //     ip: "192.168.0.3",
+      //     version: "3.2",
+      //     type: DeviceType.slave,
+      //   ),
+      // ]);
 
       // settings.saveDevices([]);
 
