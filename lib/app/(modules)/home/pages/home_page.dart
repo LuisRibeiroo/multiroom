@@ -162,6 +162,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       12.asSpace,
                       DeviceControls(
+                        isGroupSelected: _controller.currentGroup.value.isEmpty == false,
                         currentZone: _controller.currentZone.value,
                         currentEqualizer: _controller.currentEqualizer.value,
                         equalizers: _controller.availableEqualizers.value,
