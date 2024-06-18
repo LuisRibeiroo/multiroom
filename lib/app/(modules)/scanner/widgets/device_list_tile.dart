@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/enums/device_type.dart';
 
-import '../../../core/enums/device_type.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
-import '../../../core/extensions/string_extensions.dart';
 import '../../../core/models/device_model.dart';
 import 'device_type_indicator.dart';
 
@@ -37,54 +36,38 @@ class DeviceListTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      device.ip,
-                      style: context.textTheme.titleMedium,
+                      device.name,
+                      style: context.textTheme.titleLarge,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
-                      device.serialNumber,
-                      style: context.textTheme.labelMedium,
-                    ),
-                    Text(
-                      "V ${device.version}",
-                      style: context.textTheme.labelMedium,
-                    ),
-                  ],
-                ),
-              ),
-              12.asSpace,
-              Flexible(
-                child: Column(
-                  children: [
+                    8.asSpace,
                     Row(
                       children: [
                         Expanded(
-                          child: DeviceTypeIndicator(
-                            label: device.type.name.capitalize,
-                            active: device.type == DeviceType.slave,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                device.ip,
+                                style: context.textTheme.bodyLarge,
+                              ),
+                              Text(
+                                device.serialNumber,
+                                style: context.textTheme.bodySmall,
+                              ),
+                              Text(
+                                "V ${device.version}",
+                                style: context.textTheme.bodySmall,
+                              ),
+                            ],
                           ),
                         ),
+                        DeviceTypeIndicator(
+                          label: device.type.name[0].toUpperCase(),
+                          active: device.type == DeviceType.master,
+                        ),
                       ],
-                    ),
-                    Visibility.maintain(
-                      visible: device.type != DeviceType.master,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Flexible(
-                            child: DeviceTypeIndicator(
-                              label: "S1",
-                              active: false,
-                            ),
-                          ),
-                          8.asSpace,
-                          const Flexible(
-                            child: DeviceTypeIndicator(
-                              label: "S2",
-                              active: true,
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                   ],
                 ),

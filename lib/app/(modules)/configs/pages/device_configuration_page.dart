@@ -1,5 +1,7 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/(modules)/configs/widgets/delete_device_confirm_bottom_sheet.dart';
+import 'package:multiroom/app/core/enums/device_type.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -82,7 +84,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
               padding: const EdgeInsets.all(12.0),
               child: Column(
                 children: [
-                  Card.filled(
+                  Card.outlined(
                     child: Padding(
                       padding: const EdgeInsets.all(12),
                       child: Column(
@@ -90,8 +92,8 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                           Row(
                             children: [
                               DeviceTypeIndicator(
-                                active: true,
-                                label: _controller.device.value.masterName.or("M"),
+                                active: _controller.device.value.type == DeviceType.master,
+                                label: _controller.device.value.type.name.capitalize,
                               ),
                               12.asSpace,
                               Column(
@@ -99,14 +101,14 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                                 children: [
                                   Text(
                                     _controller.device.value.ip,
-                                    style: context.textTheme.bodyLarge,
+                                    style: context.textTheme.titleMedium,
                                   ),
                                   4.asSpace,
                                   Text(
                                     _controller.device.value.serialNumber,
                                   ),
                                   Text(
-                                    "V ${_controller.device.value.version}",
+                                    "Ver ${_controller.device.value.version}",
                                   ),
                                 ],
                               ),
@@ -183,55 +185,5 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
     _controller.dispose();
 
     super.dispose();
-  }
-}
-
-class DeleteDeviceConfirmBottomSheet extends StatelessWidget {
-  const DeleteDeviceConfirmBottomSheet({
-    super.key,
-    required this.deviceName,
-    required this.onConfirm,
-  });
-
-  final String deviceName;
-  final VoidCallback onConfirm;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            "Tem certeza que deseja remover o dispositivo \"$deviceName\"?",
-            style: context.textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
-          24.asSpace,
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              OutlinedButton(
-                child: const Text("Cancelar"),
-                onPressed: () {
-                  Routefly.pop(context);
-                },
-              ),
-              ElevatedButton(
-                child: const Text("Sim"),
-                onPressed: () {
-                  onConfirm();
-
-                  Routefly.pop(context);
-                  Routefly.pop(context);
-                },
-              ),
-            ],
-          ),
-          24.asSpace,
-        ],
-      ),
-    );
   }
 }

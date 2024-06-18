@@ -23,11 +23,13 @@ class DeviceTypeIndicator extends StatelessWidget {
           color: context.colorScheme.primary,
         ),
       ),
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       child: Center(
         child: Text(
           label,
           style: context.textTheme.bodyLarge,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );

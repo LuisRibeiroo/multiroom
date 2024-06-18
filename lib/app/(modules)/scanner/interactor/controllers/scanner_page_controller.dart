@@ -149,9 +149,10 @@ class ScannerPageController extends BaseController {
   }
 
   void onChangeActive(DeviceModel device, bool value) {
-    localDevices[localDevices.indexOf(device)] = device.copyWith(active: value);
+    final List<DeviceModel> tempList = List.from(localDevices.peek());
+    tempList[tempList.indexWhere((d) => d.serialNumber == device.serialNumber)] = device.copyWith(active: value);
 
-    settings.saveDevice(device);
+    localDevices.value = tempList;
   }
 
   void onTapConfigDevice(DeviceModel device) {
@@ -159,7 +160,7 @@ class ScannerPageController extends BaseController {
 
     Routefly.push(routePaths.configs.pages.deviceConfiguration, arguments: device).then(
       (_) async {
-        if (localDevices.value != settings.devices) {
+        if (localDevices.peek() != settings.devices) {
           localDevices.value = settings.devices;
         }
       },
