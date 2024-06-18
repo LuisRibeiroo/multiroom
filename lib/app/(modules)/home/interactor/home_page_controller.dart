@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:multiroom/routes.g.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
+import '../../../../routes.g.dart';
 import '../../../core/enums/mono_side.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
@@ -113,7 +113,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> init() async {
     try {
-      // await initSocket(ip: currentDevice.value.ip);
+      await initSocket(ip: currentDevice.value.ip);
     } catch (exception) {
       setError(exception as Exception);
     }
@@ -291,9 +291,9 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> _updateAllDeviceData(ZoneModel zone, {bool fromGroup = false}) async {
-    // while (socketInit == false) {
-    //   await Future.delayed(Durations.short3);
-    // }
+    while (socketInit == false) {
+      await Future.delayed(Durations.short3);
+    }
 
     final channelStr = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getChannel(zone: zone),

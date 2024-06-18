@@ -29,7 +29,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   final editingZone = ZoneModel.empty().toSignal(debugLabel: "editingZone");
   final isEditingDevice = false.toSignal(debugLabel: "isEditingDevice");
   final isEditingZone = false.toSignal(debugLabel: "isEditingZone");
-  final availableZones = listSignal([], debugLabel: "zones");
+  final availableZones = listSignal([], debugLabel: "availableZones");
 
   Future<void> init({required DeviceModel dev}) async {
     device.value = dev;
@@ -273,7 +273,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   List<ZoneGroupModel> _parseGroups(Map<String, String> configs) {
     final grps = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("GRP"));
 
-    final zonesList = List.from(device.peek().zones);
+    final List<ZoneModel> zonesList = List.from(device.peek().zones);
     final zonesMap = <String, List<ZoneModel>>{
       "G1": [],
       "G2": [],
