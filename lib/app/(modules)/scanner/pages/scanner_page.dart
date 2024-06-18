@@ -40,7 +40,9 @@ class _ScannerPageState extends State<ScannerPage> {
               Visibility(
                 visible: _controller.hasAvailableSlots.value == false,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                  ),
                   child: PhysicalModel(
                     borderRadius: BorderRadius.circular(8),
                     color: context.colorScheme.inversePrimary,
@@ -60,7 +62,10 @@ class _ScannerPageState extends State<ScannerPage> {
                 child: AnimatedSize(
                   duration: Durations.short4,
                   child: _controller.networkDevices.isEmpty
-                      ? const CircularProgressIndicator()
+                      ? const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24.0),
+                          child: CircularProgressIndicator(),
+                        )
                       : ListView.builder(
                           shrinkWrap: true,
                           itemCount: _controller.networkDevices.length,
@@ -168,7 +173,7 @@ class _ScannerPageState extends State<ScannerPage> {
                       size: 80,
                     ),
                     Text(
-                      'Nenhum Multiroom adicionado',
+                      'Nenhum dispositivo configurado',
                       style: context.textTheme.titleLarge,
                     ),
                   ],

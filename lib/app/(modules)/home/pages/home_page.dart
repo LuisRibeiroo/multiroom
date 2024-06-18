@@ -126,9 +126,9 @@ class _HomePageState extends State<HomePage> {
     return Watch(
       (_) => VisibilityDetector(
         key: const ValueKey(HomePage),
-        onVisibilityChanged: (info) {
+        onVisibilityChanged: (info) async {
           if (info.visibleFraction == 1) {
-            _controller.syncLocalDevices();
+            await _controller.syncLocalDevices();
           }
         },
         child: LoadingOverlay(

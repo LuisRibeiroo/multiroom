@@ -25,7 +25,7 @@ final class SharedPrefsSettings implements SettingsContract {
 
   @override
   void saveDevice(DeviceModel device) {
-    final currentList = devices;
+    final List<DeviceModel> currentList = List.from(devices);
     final index = currentList.indexWhere((d) => d.serialNumber == device.serialNumber);
 
     if (index == -1) {

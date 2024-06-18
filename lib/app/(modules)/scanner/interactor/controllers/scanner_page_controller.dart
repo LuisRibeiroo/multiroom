@@ -158,14 +158,12 @@ class ScannerPageController extends BaseController {
     stopUdpServer();
 
     Routefly.push(routePaths.configs.pages.deviceConfiguration, arguments: device).then(
-      (_) {
+      (_) async {
         if (localDevices.value != settings.devices) {
           localDevices.value = settings.devices;
         }
       },
     );
-
-    untracked(localDevices.clear);
   }
 
   Future<void> onConfirmAddDevice(NetworkDeviceModel netDevice) async {

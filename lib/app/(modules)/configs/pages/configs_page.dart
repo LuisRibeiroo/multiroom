@@ -126,6 +126,7 @@ class TechAccessBottomSheet extends StatelessWidget {
               onPressed: onTapConfigDevice ?? onTapAccess,
               child: const Text("Acessar"),
             ),
+            24.asSpace,
           ],
         ),
       ),

@@ -217,15 +217,26 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  void syncLocalDevices() {
-    localDevices.value = _settings.devices;
+  Future<void> syncLocalDevices() async {
+    await run(() {
+      localDevices.value = _settings.devices;
 
-    untracked(() {
-      currentDevice.value = localDevices.value.first;
+      disposables.addAll(
+        [
+          untracked(() {
+            if (localDevices.isEmpty) {
+              return;
+            }
 
-      zones.value = currentDevice.value.zones;
-      currentZone.value = zones.first;
-      currentZone.value = currentDevice.value.zones.first;
+            currentDevice.value = localDevices.value.first;
+
+            zones.value = currentDevice.value.zones;
+            currentZone.value = zones.first;
+            currentZone.value = currentDevice.value.zones.first;
+            return null;
+          }),
+        ],
+      );
     });
   }
 

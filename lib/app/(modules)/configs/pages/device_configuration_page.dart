@@ -229,6 +229,7 @@ class DeleteDeviceConfirmBottomSheet extends StatelessWidget {
               ),
             ],
           ),
+          24.asSpace,
         ],
       ),
     );
