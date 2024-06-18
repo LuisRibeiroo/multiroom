@@ -42,6 +42,7 @@ class HomePageController extends BaseController with SocketMixin {
         if (value.serialNumber != currentDevice.previousValue!.serialNumber) {
           zones.value = value.zones;
           currentZone.value = zones.first;
+          currentGroup.value = currentGroup.initialValue;
         }
 
         if (currentDevice.previousValue != value) {
