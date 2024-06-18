@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/widgets/app_button.dart';
 import 'package:routefly/routefly.dart';
 
 import '../../../core/extensions/build_context_extensions.dart';
@@ -30,14 +31,15 @@ class DeleteDeviceConfirmBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              OutlinedButton(
-                child: const Text("Cancelar"),
+              AppButton(
+                type: ButtonType.secondary,
+                text: "Cancelar",
                 onPressed: () {
                   Routefly.pop(context);
                 },
               ),
-              ElevatedButton(
-                child: const Text("Sim"),
+              AppButton(
+                text: "Sim",
                 onPressed: () {
                   onConfirm();
 

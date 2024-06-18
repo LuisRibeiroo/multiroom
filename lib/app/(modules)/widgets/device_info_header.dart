@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../core/extensions/build_context_extensions.dart';
 import '../../core/extensions/number_extensions.dart';
 import '../../core/models/channel_model.dart';
 import '../../core/models/zone_group_model.dart';
 import '../../core/models/zone_model.dart';
+import '../../core/widgets/app_button.dart';
 
 class DeviceInfoHeader extends StatelessWidget {
   const DeviceInfoHeader({
@@ -35,18 +35,9 @@ class DeviceInfoHeader extends StatelessWidget {
           children: [
             Expanded(
               flex: 6,
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.surround_sound_rounded),
-                label: AnimatedSwitcher(
-                  duration: Durations.short4,
-                  child: Text(
-                    deviceName,
-                    key: ValueKey(deviceName),
-                    style: context.textTheme.titleLarge!.copyWith(
-                      color: context.theme.buttonTheme.colorScheme!.primary,
-                    ),
-                  ),
-                ),
+              child: AppButton(
+                leading: const Icon(Icons.surround_sound_rounded),
+                text: deviceName,
                 onPressed: onChangeDevice,
               ),
             ),
@@ -62,16 +53,18 @@ class DeviceInfoHeader extends StatelessWidget {
                           duration: Durations.short4,
                           child: Visibility(
                             visible: currentGroup.isEmpty,
-                            replacement: OutlinedButton.icon(
+                            replacement: AppButton(
+                              type: ButtonType.secondary,
                               key: ValueKey(currentGroup.name),
-                              icon: const Icon(Icons.group_work_rounded),
-                              label: Text(currentGroup.name),
+                              leading: const Icon(Icons.group_work_rounded),
+                              text: currentGroup.name,
                               onPressed: onChangeZoneGroup,
                             ),
-                            child: OutlinedButton.icon(
+                            child: AppButton(
+                              type: ButtonType.secondary,
                               key: ValueKey(currentZone.name),
-                              icon: const Icon(Icons.home_filled),
-                              label: Text(currentZone.name),
+                              leading: const Icon(Icons.home_filled),
+                              text: currentZone.name,
                               onPressed: onChangeZoneGroup,
                             ),
                           ),
@@ -85,10 +78,11 @@ class DeviceInfoHeader extends StatelessWidget {
                       Expanded(
                         child: AnimatedSwitcher(
                           duration: Durations.short4,
-                          child: OutlinedButton.icon(
+                          child: AppButton(
+                            type: ButtonType.secondary,
                             key: ValueKey(currentChannel.name),
-                            icon: const Icon(Icons.input_rounded),
-                            label: Text(currentChannel.name),
+                            leading: const Icon(Icons.input_rounded),
+                            text: currentChannel.name,
                             onPressed: onChangeChannel,
                           ),
                         ),

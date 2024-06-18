@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 
+import 'app/core/widgets/app_button.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -52,19 +54,16 @@ class _LoginPageState extends State<LoginPage> {
                   onChanged: password.set,
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 48),
-                    backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  ),
+                AppButton(
                   onPressed: isValidData
                       ? () {
                           isLoading.set(true);
                         }
                       : null,
-                  child: AnimatedSwitcher(
-                    duration: Durations.long2,
-                    child: isLoading.value ? const CircularProgressIndicator() : const Text('Login'),
+                  text: 'Login',
+                  leading: Visibility(
+                    visible: isLoading.value,
+                    child: const CircularProgressIndicator(),
                   ),
                 ),
                 const Spacer(),

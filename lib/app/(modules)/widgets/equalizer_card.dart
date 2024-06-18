@@ -5,6 +5,7 @@ import '../../core/extensions/build_context_extensions.dart';
 import '../../core/extensions/number_extensions.dart';
 import '../../core/models/equalizer_model.dart';
 import '../../core/models/frequency.dart';
+import '../../core/widgets/app_button.dart';
 
 class EqualizerCard extends StatefulWidget {
   const EqualizerCard({
@@ -42,15 +43,11 @@ class _EqualizerCardState extends State<EqualizerCard> {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.equalizer_rounded),
-                    label: AnimatedSwitcher(
-                      duration: Durations.short4,
-                      child: Text(
-                        key: ValueKey(widget.currentEqualizer.name),
-                        widget.currentEqualizer.name,
-                      ),
-                    ),
+                  child: AppButton(
+                    type: ButtonType.secondary,
+                    leading: const Icon(Icons.equalizer_rounded),
+                    key: ValueKey(widget.currentEqualizer.name),
+                    text: widget.currentEqualizer.name,
                     onPressed: widget.onChangeEqualizer,
                   ),
                 ),

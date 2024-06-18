@@ -7,6 +7,7 @@ import 'package:signals/signals_flutter.dart';
 import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
+import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../interactor/controllers/scanner_page_controller.dart';
 import '../interactor/models/network_device_model.dart';
@@ -252,9 +253,9 @@ class TypeSelectionBottomSheet extends StatelessWidget {
           ],
         ),
         24.asSpace,
-        ElevatedButton.icon(
-          icon: const Icon(Icons.add_rounded),
-          label: const Text("Adicionar"),
+        AppButton(
+          leading: const Icon(Icons.add_rounded),
+          text: "Adicionar",
           onPressed: deviceType != NetworkDeviceType.undefined
               ? () {
                   Routefly.pop(context);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/widgets/app_button.dart';
 import 'package:multiroom/routes.g.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
@@ -122,9 +123,9 @@ class TechAccessBottomSheet extends StatelessWidget {
               onChanged: onChangePassword,
             ),
             12.asSpace,
-            ElevatedButton(
+            AppButton(
+              text: "Acessar",
               onPressed: onTapConfigDevice ?? onTapAccess,
-              child: const Text("Acessar"),
             ),
             24.asSpace,
           ],
