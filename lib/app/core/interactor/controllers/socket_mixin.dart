@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:logger/web.dart';
-
 import '../../extensions/socket_extensions.dart';
 import '../../extensions/stream_iterator_extensions.dart';
 
