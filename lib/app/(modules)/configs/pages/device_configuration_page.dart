@@ -1,7 +1,7 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/(modules)/configs/widgets/delete_device_confirm_bottom_sheet.dart';
-import 'package:multiroom/app/core/enums/device_type.dart';
+import '../widgets/delete_device_confirm_bottom_sheet.dart';
+import '../../../core/enums/device_type.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 

@@ -31,21 +31,25 @@ class DeleteDeviceConfirmBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              AppButton(
-                type: ButtonType.secondary,
-                text: "Cancelar",
-                onPressed: () {
-                  Routefly.pop(context);
-                },
+              Flexible(
+                child: AppButton(
+                  type: ButtonType.secondary,
+                  text: "Cancelar",
+                  onPressed: () {
+                    Routefly.pop(context);
+                  },
+                ),
               ),
-              AppButton(
-                text: "Sim",
-                onPressed: () {
-                  onConfirm();
+              Flexible(
+                child: AppButton(
+                  text: "Sim",
+                  onPressed: () {
+                    onConfirm();
 
-                  Routefly.pop(context);
-                  Routefly.pop(context);
-                },
+                    Routefly.pop(context);
+                    Routefly.pop(context);
+                  },
+                ),
               ),
             ],
           ),
