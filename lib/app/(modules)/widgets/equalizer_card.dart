@@ -76,7 +76,7 @@ class _EqualizerCardState extends State<EqualizerCard> {
                               child: Slider(
                                 min: -12,
                                 max: 12,
-                                divisions: 24,
+                                divisions: 24 ~/ 3,
                                 value: current.value.toDouble(),
                                 onChanged: (v) {
                                   widget.onUpdateFrequency(
