@@ -98,6 +98,7 @@ class HomePageController extends BaseController with SocketMixin {
       EqualizerModel.builder(name: "Clássico", v60: 10, v250: 0, v1k: 10, v3k: 20, v6k: 10, v16k: 10),
       EqualizerModel.builder(name: "Jazz", v60: 10, v250: 0, v1k: 20, v3k: 30, v6k: 20, v16k: 10),
       EqualizerModel.builder(name: "Dance Music", v60: 40, v250: 20, v1k: 0, v3k: 30, v6k: 30, v16k: 20),
+      EqualizerModel.builder(name: "Flat", v60: 0, v250: 0, v1k: 0, v3k: 0, v6k: 0, v16k: 0),
       EqualizerModel.builder(name: "Custom"),
     ],
     debugLabel: "availableEqualizers",
