@@ -65,9 +65,10 @@ class _EqualizerCardState extends State<EqualizerCard> {
                     final current = widget.currentEqualizer.frequencies[index];
 
                     return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          "${current.name} db",
+                          current.name,
                           style: context.textTheme.bodyMedium,
                         ),
                         Watch(
@@ -75,13 +76,13 @@ class _EqualizerCardState extends State<EqualizerCard> {
                             child: RotatedBox(
                               quarterTurns: 3,
                               child: Slider(
-                                min: -100,
-                                max: 100,
-                                divisions: 200 ~/ 5,
+                                min: -12,
+                                max: 12,
+                                divisions: 24,
                                 value: current.value.toDouble(),
                                 onChanged: (v) {
                                   widget.onUpdateFrequency(
-                                    current.copyWith(value: v.toInt()),
+                                    current.copyWith(value: v.floor()),
                                   );
                                 },
                               ),
@@ -89,7 +90,7 @@ class _EqualizerCardState extends State<EqualizerCard> {
                           ),
                         ),
                         Text(
-                          "${current.value.round()}",
+                          "${current.value.floor()}db",
                           style: context.textTheme.labelLarge,
                         ),
                       ],

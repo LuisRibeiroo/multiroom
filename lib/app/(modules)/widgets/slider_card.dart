@@ -10,6 +10,7 @@ class SliderCard extends StatelessWidget {
     required this.onChanged,
     this.min = 0,
     this.max = 100,
+    this.divisions = 100,
   });
 
   final String title;
@@ -18,6 +19,7 @@ class SliderCard extends StatelessWidget {
   final Function(int) onChanged;
   final int min;
   final int max;
+  final int divisions;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,8 @@ class SliderCard extends StatelessWidget {
               onChanged: (v) => onChanged(v.toInt()),
               min: min.toDouble(),
               max: max.toDouble(),
+              divisions: divisions,
+              label: value.toString(),
             ),
             Text(
               caption,

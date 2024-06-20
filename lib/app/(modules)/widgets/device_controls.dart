@@ -52,11 +52,10 @@ class DeviceControls extends StatelessWidget {
                 visible: isGroupSelected == false && currentZone.side == MonoSide.undefined,
                 child: SliderCard(
                   title: "Balanço",
-                  min: 0,
-                  max: 100,
                   caption: "${currentZone.balance}",
                   value: currentZone.balance,
                   onChanged: onChangeBalance,
+                  divisions: 100 ~/ 5,
                 ),
               ),
             ),
