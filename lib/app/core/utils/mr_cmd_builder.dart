@@ -107,7 +107,7 @@ abstract final class MrCmdBuilder {
     required Frequency frequency,
     required int gain,
   }) =>
-      "${MultiroomCommands.mrEqSet.value},${zone.id},${frequency.id},$gain";
+      "${MultiroomCommands.mrEqSet.value},${zone.id},${frequency.id},${gain * 10}";
 
   static String getGroup({
     required ZoneGroupModel group,
