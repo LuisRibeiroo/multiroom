@@ -93,11 +93,11 @@ class HomePageController extends BaseController with SocketMixin {
   final zones = listSignal<ZoneModel>([], debugLabel: "zones");
   final availableEqualizers = listSignal<EqualizerModel>(
     [
-      EqualizerModel.builder(name: "Rock", v60: 20, v250: 0, v1k: 10, v3k: 20, v6k: 20, v16k: 10),
-      EqualizerModel.builder(name: "Pop", v60: 20, v250: 10, v1k: 20, v3k: 30, v6k: 20, v16k: 20),
-      EqualizerModel.builder(name: "Clássico", v60: 10, v250: 0, v1k: 10, v3k: 20, v6k: 10, v16k: 10),
-      EqualizerModel.builder(name: "Jazz", v60: 10, v250: 0, v1k: 20, v3k: 30, v6k: 20, v16k: 10),
-      EqualizerModel.builder(name: "Dance Music", v60: 40, v250: 20, v1k: 0, v3k: 30, v6k: 30, v16k: 20),
+      EqualizerModel.builder(name: "Rock", v60: 2, v250: 0, v1k: 1, v3k: 2, v6k: 2, v16k: 1),
+      EqualizerModel.builder(name: "Pop", v60: 2, v250: 1, v1k: 2, v3k: 3, v6k: 2, v16k: 2),
+      EqualizerModel.builder(name: "Clássico", v60: 1, v250: 0, v1k: 1, v3k: 2, v6k: 1, v16k: 1),
+      EqualizerModel.builder(name: "Jazz", v60: 1, v250: 0, v1k: 2, v3k: 3, v6k: 2, v16k: 1),
+      EqualizerModel.builder(name: "Dance Music", v60: 4, v250: 2, v1k: 0, v3k: 3, v6k: 3, v16k: 2),
       EqualizerModel.builder(name: "Flat", v60: 0, v250: 0, v1k: 0, v3k: 0, v6k: 0, v16k: 0),
       EqualizerModel.builder(name: "Custom"),
     ],
@@ -114,7 +114,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> init() async {
     try {
-      await initSocket(ip: currentDevice.value.ip);
+      // await initSocket(ip: currentDevice.value.ip);
     } catch (exception) {
       setError(exception as Exception);
     }
@@ -292,9 +292,9 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> _updateAllDeviceData(ZoneModel zone, {bool fromGroup = false}) async {
-    while (socketInit == false) {
-      await Future.delayed(Durations.short3);
-    }
+    // while (socketInit == false) {
+    //   await Future.delayed(Durations.short3);
+    // }
 
     final channelStr = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getChannel(zone: zone),
@@ -361,12 +361,12 @@ class HomePageController extends BaseController with SocketMixin {
     final equalizer = zone.equalizer;
     final newEqualizer = EqualizerModel.custom(
       frequencies: [
-        equalizer.frequencies[0].copyWith(value: int.tryParse(f60) ?? equalizer.frequencies[0].value),
-        equalizer.frequencies[1].copyWith(value: int.tryParse(f250) ?? equalizer.frequencies[1].value),
-        equalizer.frequencies[2].copyWith(value: int.tryParse(f1k) ?? equalizer.frequencies[2].value),
-        equalizer.frequencies[3].copyWith(value: int.tryParse(f3k) ?? equalizer.frequencies[3].value),
-        equalizer.frequencies[4].copyWith(value: int.tryParse(f6k) ?? equalizer.frequencies[4].value),
-        equalizer.frequencies[5].copyWith(value: int.tryParse(f16k) ?? equalizer.frequencies[5].value),
+        equalizer.frequencies[0].copyWith(value: (int.tryParse(f60) ?? equalizer.frequencies[0].value) ~/ 10),
+        equalizer.frequencies[1].copyWith(value: (int.tryParse(f250) ?? equalizer.frequencies[1].value) ~/ 10),
+        equalizer.frequencies[2].copyWith(value: (int.tryParse(f1k) ?? equalizer.frequencies[2].value) ~/ 10),
+        equalizer.frequencies[3].copyWith(value: (int.tryParse(f3k) ?? equalizer.frequencies[3].value) ~/ 10),
+        equalizer.frequencies[4].copyWith(value: (int.tryParse(f6k) ?? equalizer.frequencies[4].value) ~/ 10),
+        equalizer.frequencies[5].copyWith(value: (int.tryParse(f16k) ?? equalizer.frequencies[5].value) ~/ 10),
       ],
     );
 
