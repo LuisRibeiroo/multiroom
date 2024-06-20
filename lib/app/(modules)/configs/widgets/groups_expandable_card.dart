@@ -55,6 +55,7 @@ class GroupsExpandableCard extends StatelessWidget {
                         children: [
                           ListTile(
                             title: Text(group.name.capitalize),
+                            // subtitle: const Text("Input 2"),
                             leading: const Icon(Icons.group_work_rounded),
                             trailing: const Icon(Icons.add_link_rounded),
                             onTap: () => onTapAddGroup(group),
