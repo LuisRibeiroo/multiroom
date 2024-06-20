@@ -54,18 +54,16 @@ class _EqualizerCardState extends State<EqualizerCard> {
               ],
             ),
             18.asSpace,
-            Padding(
-              padding: const EdgeInsets.only(left: 0),
-              child: SizedBox(
-                height: 250,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: widget.currentEqualizer.frequencies.length,
-                  itemBuilder: (_, index) {
+            SizedBox(
+              height: 250,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  widget.currentEqualizer.frequencies.length,
+                  (index) {
                     final current = widget.currentEqualizer.frequencies[index];
 
                     return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           current.name,
