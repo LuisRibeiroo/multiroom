@@ -10,7 +10,8 @@ final _logger = Logger(
 
 extension SocketExtensions on Socket {
   void writeLog(String data) {
-    writeln(data);
+    // Do not remove \r\n, they're line terminators for Multiroom
+    write("$data\r\n");
     _logger.i(">>> $data");
   }
 }
