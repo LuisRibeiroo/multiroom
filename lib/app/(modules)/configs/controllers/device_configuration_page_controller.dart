@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:signals/signals.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
@@ -26,9 +25,11 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   final deviceName = "".toSignal(debugLabel: "deviceName");
   final device = DeviceModel.empty().toSignal(debugLabel: "device");
   final editingWrapper = ZoneWrapperModel.empty().toSignal(debugLabel: "editingWrapper");
+  final editingGroup = ZoneGroupModel.empty().toSignal(debugLabel: "editingGroup");
   final editingZone = ZoneModel.empty().toSignal(debugLabel: "editingZone");
   final isEditingDevice = false.toSignal(debugLabel: "isEditingDevice");
   final isEditingZone = false.toSignal(debugLabel: "isEditingZone");
+  final isEditingGroup = false.toSignal(debugLabel: "isEditingGroup");
   final availableZones = listSignal([], debugLabel: "availableZones");
 
   Future<void> init({required DeviceModel dev}) async {
@@ -36,7 +37,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     deviceName.value = dev.name;
 
     try {
-      await initSocket(ip: dev.ip);
+      // await initSocket(ip: dev.ip);
     } catch (exception) {
       logger.e(exception);
       setError(exception as Exception);
@@ -44,13 +45,13 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     final configs = await _getDeviceData();
 
-    device.value = device.value.copyWith(
-      zoneWrappers: _parseZones(configs),
-    );
+    // device.value = device.value.copyWith(
+    //   zoneWrappers: _parseZones(configs),
+    // );
 
-    device.value = device.value.copyWith(
-      groups: _parseGroups(configs),
-    );
+    // device.value = device.value.copyWith(
+    //   groups: _parseGroups(configs),
+    // );
 
     disposables.addAll([
       effect(
@@ -153,6 +154,10 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
   }
 
+  void onChangeGroupName(ZoneGroupModel group, String value) {
+    editingGroup.value = editingGroup.value.copyWith(name: value);
+  }
+
   void toggleEditingZone(ZoneWrapperModel wrapper, ZoneModel zone) {
     if (wrapper.id == editingWrapper.value.id && zone.id == editingZone.value.id) {
       isEditingZone.value = !isEditingZone.value;
@@ -181,6 +186,29 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
       editingZone.value = editingZone.initialValue;
       editingWrapper.value = editingWrapper.initialValue;
+    }
+  }
+
+  void toggleEditingGroup(ZoneGroupModel group) {
+    if (group.id == editingGroup.value.id) {
+      isEditingGroup.value = !isEditingGroup.value;
+    } else {
+      isEditingGroup.value = true;
+      editingGroup.value = group;
+
+      return;
+    }
+
+    if (isEditingGroup.value == false) {
+      device.value = device.value.copyWith(
+        groups: device.value.groups
+            .map(
+              (z) => z.id == editingGroup.value.id ? editingGroup.value : z,
+            )
+            .toList(),
+      );
+
+      editingGroup.value = editingGroup.initialValue;
     }
   }
 
@@ -326,6 +354,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     editingZone.value = editingZone.initialValue;
     isEditingDevice.value = isEditingDevice.initialValue;
     isEditingZone.value = isEditingZone.initialValue;
+    isEditingGroup.value = isEditingGroup.initialValue;
 
     availableZones.value = <ZoneModel>[];
   }

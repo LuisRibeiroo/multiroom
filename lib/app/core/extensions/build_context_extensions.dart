@@ -5,7 +5,7 @@ extension ContextExt on BuildContext {
   ColorScheme get colorScheme => theme.colorScheme;
   TextTheme get textTheme => theme.textTheme;
   IconThemeData get iconTheme => theme.iconTheme;
-  Size get size => MediaQuery.sizeOf(this);
+  Size get sizeOf => MediaQuery.sizeOf(this);
   MediaQueryData get mediaQuery => MediaQuery.of(this);
 
   Future<T?> showCustomModalBottomSheet<T>({
@@ -23,7 +23,7 @@ extension ContextExt on BuildContext {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) => SizedBox(
-        width: size.width,
+        width: sizeOf.width,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -44,7 +44,7 @@ extension ContextExt on BuildContext {
             ConstrainedBox(
               constraints: BoxConstraints(
                 // minHeight: size.height * .2,
-                maxHeight: size.height * maxHeight,
+                maxHeight: sizeOf.height * maxHeight,
               ),
               child: SafeArea(
                 child: Padding(
