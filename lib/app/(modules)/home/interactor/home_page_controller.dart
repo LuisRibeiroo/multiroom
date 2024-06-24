@@ -148,7 +148,7 @@ class HomePageController extends BaseController with SocketMixin {
     currentZone.value = currentZone.value.copyWith(channels: tempList);
     currentChannel.value = channel;
 
-    socketSender(
+    _debounceSendCommand(
       MrCmdBuilder.setChannel(
         zone: currentZone.value,
         channel: channel,
