@@ -62,7 +62,7 @@ class _AppButtonState extends State<AppButton> {
       (states) {
         Color baseColor = switch (widget.type) {
           ButtonType.primary || ButtonType.text => Colors.transparent,
-          ButtonType.secondary => context.colorScheme.primary,
+          ButtonType.secondary => context.colorScheme.primary.withOpacity(.05),
         };
 
         if (states.contains(WidgetState.pressed)) {
