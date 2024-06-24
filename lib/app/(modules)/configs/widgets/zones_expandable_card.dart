@@ -1,3 +1,4 @@
+import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
@@ -59,60 +60,77 @@ class ZonesExpandableCard extends StatelessWidget {
 
                 return Watch(
                   (_) => Card.outlined(
-                    child: Column(
-                      children: [
-                        SwitchListTile(
-                          title: Text("Zona ${idx + 1}"),
-                          subtitle: Text(wrapper.mode.name.capitalize),
-                          value: wrapper.isStereo,
-                          secondary: const Icon(Icons.home_filled),
-                          onChanged: (value) => onChangeZoneMode(wrapper, value),
-                        ),
-                        AnimatedSize(
-                          duration: Durations.medium2,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24.0),
-                            child: Column(
-                              key: ValueKey(wrapper.isStereo),
-                              children: [
-                                Visibility(
-                                  visible: wrapper.isStereo,
-                                  child: ZoneNameEditTile(
-                                    zone: wrapper.stereoZone,
-                                    wrapper: wrapper,
-                                    isEditing: editingWrapper.id == wrapper.id && isEditing,
-                                    onChangeZoneName: onChangeZoneName,
-                                    toggleEditing: toggleEditingZone,
-                                  ),
-                                ),
-                                Visibility(
-                                  visible: wrapper.isStereo == false,
-                                  child: ZoneNameEditTile(
-                                    label: wrapper.monoZones.right.id,
-                                    zone: wrapper.monoZones.right,
-                                    wrapper: wrapper,
-                                    isEditing: editingZone.id == wrapper.monoZones.right.id && isEditing,
-                                    onChangeZoneName: onChangeZoneName,
-                                    toggleEditing: toggleEditingZone,
-                                  ),
-                                ),
-                                8.asSpace,
-                                Visibility(
-                                  visible: wrapper.isStereo == false,
-                                  child: ZoneNameEditTile(
-                                    label: wrapper.monoZones.left.id,
-                                    zone: wrapper.monoZones.left,
-                                    wrapper: wrapper,
-                                    isEditing: editingZone.id == wrapper.monoZones.left.id && isEditing,
-                                    onChangeZoneName: onChangeZoneName,
-                                    toggleEditing: toggleEditingZone,
-                                  ),
-                                ),
-                              ],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      child: Column(
+                        children: [
+                          ListTile(
+                            title: Text("Zona ${idx + 1}"),
+                            onTap: () => onChangeZoneMode(wrapper, !wrapper.isStereo),
+                            leading: const Icon(Icons.home_filled),
+                            trailing: AnimatedToggleSwitch.dual(
+                              current: wrapper.isStereo,
+                              first: true,
+                              second: false,
+                              onChanged: (value) => onChangeZoneMode(wrapper, value),
+                              textBuilder: (value) => Text(
+                                wrapper.mode.name.capitalize,
+                                style: context.textTheme.titleSmall,
+                              ),
+                              height: 40,
+                              indicatorSize: const Size.square(38),
+                              iconBuilder: (value) => Icon(
+                                value ? Icons.multitrack_audio_rounded : Icons.speaker_rounded,
+                                color: context.colorScheme.onPrimary,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                          AnimatedSize(
+                            duration: Durations.medium2,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24.0),
+                              child: Column(
+                                key: ValueKey(wrapper.isStereo),
+                                children: [
+                                  Visibility(
+                                    visible: wrapper.isStereo,
+                                    child: ZoneNameEditTile(
+                                      zone: wrapper.stereoZone,
+                                      wrapper: wrapper,
+                                      isEditing: editingWrapper.id == wrapper.id && isEditing,
+                                      onChangeZoneName: onChangeZoneName,
+                                      toggleEditing: toggleEditingZone,
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible: wrapper.isStereo == false,
+                                    child: ZoneNameEditTile(
+                                      label: wrapper.monoZones.right.id,
+                                      zone: wrapper.monoZones.right,
+                                      wrapper: wrapper,
+                                      isEditing: editingZone.id == wrapper.monoZones.right.id && isEditing,
+                                      onChangeZoneName: onChangeZoneName,
+                                      toggleEditing: toggleEditingZone,
+                                    ),
+                                  ),
+                                  8.asSpace,
+                                  Visibility(
+                                    visible: wrapper.isStereo == false,
+                                    child: ZoneNameEditTile(
+                                      label: wrapper.monoZones.left.id,
+                                      zone: wrapper.monoZones.left,
+                                      wrapper: wrapper,
+                                      isEditing: editingZone.id == wrapper.monoZones.left.id && isEditing,
+                                      onChangeZoneName: onChangeZoneName,
+                                      toggleEditing: toggleEditingZone,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
