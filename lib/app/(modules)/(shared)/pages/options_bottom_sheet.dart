@@ -43,6 +43,8 @@ class OptionsMenu {
           (_) => TechAccessBottomSheet(
             errorMessage: controller.errorMessage.value,
             onChangePassword: controller.password.set,
+            isPasswordVisible: controller.isPasswordVisible.value,
+            onTogglePasswordVisible: controller.onTogglePassword,
             onTapAccess: () {
               final valid = controller.onTapAccess();
 

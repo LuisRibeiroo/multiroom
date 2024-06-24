@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/widgets/app_button.dart';
-import 'package:multiroom/routes.g.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
+import '../../(shared)/pages/options_bottom_sheet.dart';
 import '../../../../injector.dart';
+import '../../../../routes.g.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
+import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../scanner/widgets/device_list_tile.dart';
 import '../controllers/configs_page_controller.dart';
 import '../widgets/no_devices_widget.dart';
-import '../../(shared)/pages/options_bottom_sheet.dart';
 
 class ConfigsPage extends StatefulWidget {
   const ConfigsPage({super.key});
@@ -84,6 +84,13 @@ class _ConfigsPageState extends State<ConfigsPage> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+
+    super.dispose();
+  }
 }
 
 class TechAccessBottomSheet extends StatelessWidget {
@@ -93,12 +100,16 @@ class TechAccessBottomSheet extends StatelessWidget {
     required this.onChangePassword,
     required this.onTapAccess,
     required this.onTapConfigDevice,
+    required this.isPasswordVisible,
+    required this.onTogglePasswordVisible,
   });
 
   final String errorMessage;
+  final bool isPasswordVisible;
   final Function(String) onChangePassword;
   final Function() onTapAccess;
   final Function()? onTapConfigDevice;
+  final Function() onTogglePasswordVisible;
 
   @override
   Widget build(BuildContext context) {
@@ -114,11 +125,19 @@ class TechAccessBottomSheet extends StatelessWidget {
             ),
             8.asSpace,
             TextFormField(
-              obscureText: true,
+              obscureText: isPasswordVisible == false,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: 'Senha',
                 errorText: errorMessage,
+                suffixIcon: AnimatedSwitcher(
+                  duration: Durations.short3,
+                  child: IconButton(
+                    key: ValueKey(isPasswordVisible),
+                    icon: Icon(isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded),
+                    onPressed: onTogglePasswordVisible,
+                  ),
+                ),
               ),
               onChanged: onChangePassword,
             ),

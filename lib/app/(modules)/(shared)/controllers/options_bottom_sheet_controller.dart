@@ -1,10 +1,10 @@
-import 'package:multiroom/app/core/interactor/repositories/settings_contract.dart';
-import 'package:multiroom/injector.dart';
 import 'package:signals/signals_flutter.dart';
 
+import '../../../../injector.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/extensions/string_extensions.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
+import '../../../core/interactor/repositories/settings_contract.dart';
 
 class OptionsBottomSheetController extends BaseController {
   OptionsBottomSheetController() : super(InitialState()) {
@@ -21,6 +21,7 @@ class OptionsBottomSheetController extends BaseController {
   final settings = injector.get<SettingsContract>();
   final password = "".toSignal(debugLabel: "password");
   final errorMessage = "".toSignal(debugLabel: "errorMessage");
+  final isPasswordVisible = false.toSignal(debugLabel: "isPasswordVisible");
 
   bool onTapAccess() {
     /// !Control@061
@@ -34,11 +35,14 @@ class OptionsBottomSheetController extends BaseController {
     }
   }
 
+  void onTogglePassword() => isPasswordVisible.value = !isPasswordVisible.value;
+
   @override
   void dispose() {
     super.dispose();
 
     password.value = password.initialValue;
     errorMessage.value = errorMessage.initialValue;
+    isPasswordVisible.value = isPasswordVisible.initialValue;
   }
 }
