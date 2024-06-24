@@ -97,6 +97,15 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         zones: groups[idx].zones,
       ),
     );
+
+    // if (groups[idx].zones.length == 1) {
+    //   await socketSender(
+    //     MrCmdBuilder.setChannel(
+    //       zone: groups[idx].zones.first,
+    //       channel: groups[idx].zones.first.channels.first,
+    //     ),
+    //   );
+    // }
   }
 
   Future<void> onRemoveZoneFromGroup(ZoneGroupModel group, ZoneModel zone) async {
