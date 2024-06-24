@@ -61,8 +61,8 @@ class _AppButtonState extends State<AppButton> {
     return WidgetStateProperty.resolveWith(
       (states) {
         Color baseColor = switch (widget.type) {
-          ButtonType.primary || ButtonType.text => Colors.transparent,
-          ButtonType.secondary => context.colorScheme.primary.withOpacity(.05),
+          ButtonType.text => Colors.transparent,
+          ButtonType.primary || ButtonType.secondary => context.colorScheme.primary.withOpacity(.05),
         };
 
         if (states.contains(WidgetState.pressed)) {
@@ -82,7 +82,8 @@ class _AppButtonState extends State<AppButton> {
     return WidgetStateProperty.resolveWith(
       (states) {
         Color baseColor = switch (widget.type) {
-          ButtonType.primary || ButtonType.text => Colors.transparent,
+          ButtonType.primary => context.colorScheme.inversePrimary,
+          ButtonType.text => Colors.transparent,
           ButtonType.secondary => context.colorScheme.primary,
         };
 
