@@ -31,65 +31,51 @@ class DeviceInfoHeader extends StatelessWidget {
     return Card.outlined(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: Row(
+        child: Column(
           children: [
-            Expanded(
-              flex: 6,
-              child: AppButton(
-                leading: const Icon(Icons.surround_sound_rounded),
-                text: deviceName,
-                onPressed: onChangeDevice,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: AppButton(
+                    leading: const Icon(Icons.surround_sound_rounded),
+                    text: "$deviceName - ${currentZone.name}",
+                    onPressed: onChangeDevice,
+                  ),
+                ),
+                12.asSpace,
+                Switch(value: false, onChanged: (v) {}),
+              ],
             ),
             12.asSpace,
-            Flexible(
-              flex: 5,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AnimatedSwitcher(
-                          duration: Durations.short4,
-                          child: Visibility(
-                            visible: currentGroup.isEmpty,
-                            replacement: AppButton(
-                              type: ButtonType.secondary,
-                              key: ValueKey(currentGroup.name),
-                              leading: const Icon(Icons.group_work_rounded),
-                              text: currentGroup.name,
-                              onPressed: onChangeZoneGroup,
-                            ),
-                            child: AppButton(
-                              type: ButtonType.secondary,
-                              key: ValueKey(currentZone.name),
-                              leading: const Icon(Icons.home_filled),
-                              text: currentZone.name,
-                              onPressed: onChangeZoneGroup,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  8.asSpace,
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AnimatedSwitcher(
-                          duration: Durations.short4,
-                          child: AppButton(
-                            type: ButtonType.secondary,
-                            key: ValueKey(currentChannel.name),
-                            leading: const Icon(Icons.input_rounded),
-                            text: currentChannel.name,
-                            onPressed: onChangeChannel,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+            AnimatedSwitcher(
+              duration: Durations.short4,
+              child: AppButton(
+                type: ButtonType.secondary,
+                key: ValueKey(currentChannel.name),
+                leading: const Icon(Icons.input_rounded),
+                text: currentChannel.name,
+                onPressed: onChangeChannel,
+              ),
+            ),
+            24.asSpace,
+            AnimatedSwitcher(
+              duration: Durations.short4,
+              child: Visibility(
+                visible: currentGroup.isEmpty,
+                replacement: AppButton(
+                  type: ButtonType.secondary,
+                  key: ValueKey(currentGroup.name),
+                  leading: const Icon(Icons.group_work_rounded),
+                  text: currentGroup.name,
+                  onPressed: onChangeZoneGroup,
+                ),
+                child: AppButton(
+                  type: ButtonType.secondary,
+                  key: ValueKey(currentZone.name),
+                  leading: const Icon(Icons.home_filled),
+                  text: currentZone.name,
+                  onPressed: onChangeZoneGroup,
+                ),
               ),
             ),
           ],
