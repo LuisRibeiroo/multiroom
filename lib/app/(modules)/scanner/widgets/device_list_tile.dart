@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/enums/device_type.dart';
 
+import '../../../core/enums/device_type.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/device_model.dart';
-import 'device_type_indicator.dart';
 
 class DeviceListTile extends StatelessWidget {
   const DeviceListTile({
@@ -31,6 +30,7 @@ class DeviceListTile extends StatelessWidget {
                 value: device.active,
                 onChanged: (value) => onChangeActive(device, value!),
               ),
+              12.asSpace,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,19 +57,33 @@ class DeviceListTile extends StatelessWidget {
                                 style: context.textTheme.bodySmall,
                               ),
                               Text(
-                                "V ${device.version}",
+                                "Ver ${device.version}",
                                 style: context.textTheme.bodySmall,
                               ),
                             ],
                           ),
                         ),
-                        DeviceTypeIndicator(
-                          label: device.type.name[0].toUpperCase(),
-                          active: device.type == DeviceType.master,
-                        ),
                       ],
                     ),
                   ],
+                ),
+              ),
+              Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: device.type == DeviceType.master
+                      ? context.colorScheme.inversePrimary
+                      : context.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: context.colorScheme.primary,
+                  ),
+                ),
+                child: Text(
+                  device.type.name[0].toUpperCase(),
+                  style: context.textTheme.bodyLarge,
                 ),
               ),
               12.asSpace,
