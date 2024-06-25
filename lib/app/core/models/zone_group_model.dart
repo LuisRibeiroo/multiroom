@@ -61,11 +61,10 @@ class ZoneGroupModel extends Equatable implements SelectableModel {
 
   bool get isEmpty => id == ZoneGroupModel.empty().id;
   bool get hasZones => zones.isNotEmpty;
+  ZoneModel get asZone => hasZones ? zones.first.copyWith(name: name) : ZoneModel.empty();
 
   @override
   String get label => name;
-  @override
-  String get secondary => zones.map((z) => z.name).join(", ");
 
   @override
   List<Object?> get props => [

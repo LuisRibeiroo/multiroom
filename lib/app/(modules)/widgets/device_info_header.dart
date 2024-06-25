@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../core/extensions/number_extensions.dart';
 import '../../core/models/channel_model.dart';
-import '../../core/models/zone_group_model.dart';
 import '../../core/models/zone_model.dart';
 import '../../core/widgets/app_button.dart';
 
@@ -11,26 +10,22 @@ class DeviceInfoHeader extends StatelessWidget {
     super.key,
     required this.deviceName,
     required this.currentZone,
-    required this.currentGroup,
     required this.currentChannel,
     required this.onChangeChannel,
-    required this.onChangeZoneGroup,
     required this.onChangeDevice,
   });
 
   final String deviceName;
   final ZoneModel currentZone;
-  final ZoneGroupModel currentGroup;
   final ChannelModel currentChannel;
   final Function() onChangeChannel;
-  final Function() onChangeZoneGroup;
   final Function() onChangeDevice;
 
   @override
   Widget build(BuildContext context) {
     return Card.outlined(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
         child: Column(
           children: [
             Row(
@@ -46,7 +41,7 @@ class DeviceInfoHeader extends StatelessWidget {
                 Switch(value: false, onChanged: (v) {}),
               ],
             ),
-            12.asSpace,
+            18.asSpace,
             AnimatedSwitcher(
               duration: Durations.short4,
               child: AppButton(
@@ -55,27 +50,6 @@ class DeviceInfoHeader extends StatelessWidget {
                 leading: const Icon(Icons.input_rounded),
                 text: currentChannel.name,
                 onPressed: onChangeChannel,
-              ),
-            ),
-            24.asSpace,
-            AnimatedSwitcher(
-              duration: Durations.short4,
-              child: Visibility(
-                visible: currentGroup.isEmpty,
-                replacement: AppButton(
-                  type: ButtonType.secondary,
-                  key: ValueKey(currentGroup.name),
-                  leading: const Icon(Icons.group_work_rounded),
-                  text: currentGroup.name,
-                  onPressed: onChangeZoneGroup,
-                ),
-                child: AppButton(
-                  type: ButtonType.secondary,
-                  key: ValueKey(currentZone.name),
-                  leading: const Icon(Icons.home_filled),
-                  text: currentZone.name,
-                  onPressed: onChangeZoneGroup,
-                ),
               ),
             ),
           ],

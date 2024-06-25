@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -27,60 +27,10 @@ class _HomePageState extends State<HomePage> {
 
   void _showDevicesBottomSheet() {
     context.showCustomModalBottomSheet(
-      isScrollControlled: false,
       child: Watch(
-        (_) => SelectableListView(
-          options: _controller.localDevices,
-          onSelect: _controller.setCurrentDevice,
-          selectedOption: _controller.currentDevice.value,
-        ),
-      ),
-    );
-  }
-
-  void _showZonesAndGroupsBottomSheet() {
-    context.showCustomModalBottomSheet(
-      isScrollControlled: _controller.currentDevice.value.emptyGroups == false,
-      child: Watch(
-        (_) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.home_filled),
-              title: const Text("Zonas"),
-              tileColor: context.colorScheme.inversePrimary,
-            ),
-            Expanded(
-              child: SelectableListView(
-                options: _controller.zones,
-                onSelect: _controller.setCurrentZone,
-                selectedOption: _controller.currentZone.value,
-              ),
-            ),
-            Visibility(
-              visible: _controller.currentDevice.value.emptyGroups == false,
-              child: Flexible(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.group_work_rounded),
-                      title: const Text("Grupos"),
-                      tileColor: context.colorScheme.inversePrimary,
-                    ),
-                    Flexible(
-                      child: SelectableListView(
-                        options: _controller.currentDevice.value.groups.whereNot((g) => g.zones.isEmpty).toList(),
-                        showSubtitle: true,
-                        onSelect: _controller.setCurrentGroup,
-                        selectedOption: _controller.currentGroup.value,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        (_) => ListView(
+          shrinkWrap: true,
+          children: _getDeviceZoneTiles(),
         ),
       ),
     );
@@ -104,12 +54,38 @@ class _HomePageState extends State<HomePage> {
       isScrollControlled: false,
       child: Watch(
         (_) => SelectableListView(
-          options: _controller.availableEqualizers,
+          options: _controller.equalizers,
           onSelect: _controller.setEqualizer,
           selectedOption: _controller.currentEqualizer.value,
         ),
       ),
     );
+  }
+
+  List<Widget> _getDeviceZoneTiles() {
+    final tiles = <Widget>[];
+
+    for (final device in _controller.localDevices) {
+      for (final zone in device.groupedZones) {
+        tiles.add(
+          ListTile(
+            title: Text(zone.name),
+            subtitle: Text(device.name),
+            trailing: Visibility(
+              visible: zone.id == _controller.currentZone.value.id &&
+                  device.serialNumber == _controller.currentDevice.value.serialNumber,
+              child: const Icon(Icons.check_rounded),
+            ),
+            onTap: () {
+              _controller.setCurrentDeviceAndZone(device, zone);
+              Routefly.pop(context);
+            },
+          ),
+        );
+      }
+    }
+
+    return tiles;
   }
 
   @override
@@ -154,18 +130,15 @@ class _HomePageState extends State<HomePage> {
                       DeviceInfoHeader(
                         deviceName: _controller.currentDevice.value.name,
                         currentZone: _controller.currentZone.value,
-                        currentGroup: _controller.currentGroup.value,
                         currentChannel: _controller.currentChannel.value,
                         onChangeDevice: _showDevicesBottomSheet,
-                        onChangeZoneGroup: _showZonesAndGroupsBottomSheet,
                         onChangeChannel: _showChannelsBottomSheet,
                       ),
                       12.asSpace,
                       DeviceControls(
-                        isGroupSelected: _controller.currentGroup.value.isEmpty == false,
                         currentZone: _controller.currentZone.value,
                         currentEqualizer: _controller.currentEqualizer.value,
-                        equalizers: _controller.availableEqualizers.value,
+                        equalizers: _controller.equalizers.value,
                         onChangeBalance: _controller.setBalance,
                         onChangeVolume: _controller.setVolume,
                         onUpdateFrequency: _controller.setFrequency,

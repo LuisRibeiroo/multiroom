@@ -7,8 +7,13 @@ import 'package:routefly/routefly.dart';
 
 import '../../../../injector.dart';
 import '../../../../routes.g.dart';
+import '../../../core/enums/device_type.dart';
+import '../../../core/enums/zone_mode.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
+import '../../../core/models/device_model.dart';
+import '../../../core/models/zone_group_model.dart';
+import '../../../core/models/zone_wrapper_model.dart';
 
 class StartupPage extends StatefulWidget {
   const StartupPage({super.key});
@@ -33,14 +38,14 @@ class _StartupPageState extends State<StartupPage> {
 
       final settings = injector.get<SettingsContract>();
 
-      // final testZones = List.generate(
-      //   8,
-      //   (idx) => ZoneWrapperModel.builder(
-      //     index: idx + 1,
-      //     name: "Zona ${idx + 1}",
-      //     mode: idx.isEven ? ZoneMode.stereo : ZoneMode.mono,
-      //   ),
-      // );
+      final testZones = List.generate(
+        8,
+        (idx) => ZoneWrapperModel.builder(
+          index: idx + 1,
+          name: "Zona ${idx + 1}",
+          mode: idx.isEven ? ZoneMode.stereo : ZoneMode.mono,
+        ),
+      );
 
       // settings.saveDevices([
       //   DeviceModel.builder(
@@ -93,14 +98,16 @@ class _StartupPageState extends State<StartupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Image.asset("assets/logo_completo.png"),
-          24.asSpace,
-          const CircularProgressIndicator(),
-        ],
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Image.asset("assets/logo_completo.png"),
+            24.asSpace,
+            const CircularProgressIndicator(),
+          ],
+        ),
       ),
     );
   }

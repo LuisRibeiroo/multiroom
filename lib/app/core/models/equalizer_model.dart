@@ -70,8 +70,6 @@ class EqualizerModel extends Equatable implements SelectableModel {
 
   @override
   String get label => name;
-  @override
-  String get secondary => "";
 
   EqualizerModel copyWith({
     String? name,

@@ -11,7 +11,6 @@ import 'slider_card.dart';
 class DeviceControls extends StatelessWidget {
   const DeviceControls({
     super.key,
-    required this.isGroupSelected,
     required this.equalizers,
     required this.currentZone,
     required this.currentEqualizer,
@@ -21,7 +20,6 @@ class DeviceControls extends StatelessWidget {
     required this.onUpdateFrequency,
   });
 
-  final bool isGroupSelected;
   final List<EqualizerModel> equalizers;
   final ZoneModel currentZone;
   final EqualizerModel currentEqualizer;
@@ -52,23 +50,10 @@ class DeviceControls extends StatelessWidget {
                 onChanged: onChangeVolume,
               ),
             ),
-            // AnimatedSize(
-            //   duration: Durations.medium1,
-            //   child: Visibility(
-            //     visible: isGroupSelected == false && currentZone.side == MonoSide.undefined,
-            //     child: SliderCard(
-            //       title: "Balanço",
-            //       caption: "${currentZone.balance}",
-            //       value: currentZone.balance,
-            //       onChanged: onChangeBalance,
-            //       divisions: 100 ~/ 5,
-            //     ),
-            //   ),
-            // ),
             AnimatedSize(
               duration: Durations.medium1,
               child: Visibility(
-                visible: isGroupSelected == false && currentZone.side == MonoSide.undefined,
+                visible: currentZone.side == MonoSide.undefined,
                 child: Card.outlined(
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),

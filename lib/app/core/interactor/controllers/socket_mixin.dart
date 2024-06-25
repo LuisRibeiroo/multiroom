@@ -23,19 +23,19 @@ mixin SocketMixin {
   }
 
   Future<String> socketSender(String cmd, {bool longRet = false}) async {
-    // Logger(
-    //     printer: SimplePrinter(
-    //   printTime: true,
-    //   colors: false,
-    // )).d("MOCK CMD --> [$cmd]");
-    // return "mr_cmd=OK";
+    Logger(
+        printer: SimplePrinter(
+      printTime: true,
+      colors: false,
+    )).d("MOCK CMD --> [$cmd]");
+    return "mr_cmd=OK";
 
-    if (_socket == null || _streamIterator == null) {
-      throw Exception("É necessário incializar o socket");
-    }
+    // if (_socket == null || _streamIterator == null) {
+    //   throw Exception("É necessário incializar o socket");
+    // }
 
-    _socket!.writeLog(cmd);
-    return await _streamIterator!.readSync(longResponse: longRet);
+    // _socket!.writeLog(cmd);
+    // return await _streamIterator!.readSync(longResponse: longRet);
   }
 
   void mixinDispose() {

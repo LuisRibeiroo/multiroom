@@ -1,12 +1,11 @@
 import 'package:equatable/equatable.dart';
 
 import '../enums/device_type.dart';
-import 'selectable_model.dart';
 import 'zone_group_model.dart';
 import 'zone_model.dart';
 import 'zone_wrapper_model.dart';
 
-class DeviceModel extends Equatable implements SelectableModel {
+class DeviceModel extends Equatable {
   const DeviceModel({
     required this.serialNumber,
     required this.name,
@@ -94,13 +93,26 @@ class DeviceModel extends Equatable implements SelectableModel {
   final bool active;
 
   bool get isEmpty => this == DeviceModel.empty();
+
   List<ZoneModel> get zones => zoneWrappers.fold(<ZoneModel>[], (pv, v) => pv..addAll(v.zones));
+
   bool get emptyGroups => groups.every((g) => g.hasZones == false);
 
-  @override
-  String get label => name;
-  @override
-  String get secondary => "";
+  bool isZoneInGroup(ZoneModel zone) => groups.any((g) => g.zones.contains(zone));
+
+  List<ZoneModel> get groupedZones {
+    final temp = zones.where((zone) => groups.map((g) => g.zones.contains(zone)).every((v) => !v)).toList();
+
+    for (final g in groups) {
+      if (g.hasZones) {
+        if (temp.where((z) => z.name == g.asZone.name).isEmpty) {
+          temp.add(g.asZone);
+        }
+      }
+    }
+
+    return temp..sort((a, b) => a.name.compareTo(b.name));
+  }
 
   DeviceModel copyWith({
     String? serialNumber,

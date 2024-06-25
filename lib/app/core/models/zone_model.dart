@@ -89,8 +89,6 @@ class ZoneModel extends Equatable implements SelectableModel {
 
   @override
   String get label => name;
-  @override
-  String get secondary => "";
 
   ZoneModel copyWith({
     String? name,
