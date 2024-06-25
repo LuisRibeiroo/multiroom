@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
-import 'selectable_model.dart';
 
 import '../enums/mono_side.dart';
 import 'channel_model.dart';
 import 'equalizer_model.dart';
+import 'selectable_model.dart';
 
 class ZoneModel extends Equatable implements SelectableModel {
   const ZoneModel({
@@ -11,6 +11,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     required this.name,
     required this.active,
     required this.channels,
+    required this.maxVolume,
     required this.volume,
     required this.balance,
     required this.equalizer,
@@ -30,6 +31,7 @@ class ZoneModel extends Equatable implements SelectableModel {
         8,
         (idx) => ChannelModel.builder(index: idx + 1, name: "Input ${idx + 1}"),
       ),
+      maxVolume: 100,
       volume: 50,
       balance: 50,
       equalizer: EqualizerModel.builder(name: "Custom"),
@@ -45,6 +47,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       channels: const [],
       volume: 0,
       balance: 0,
+      maxVolume: 0,
       equalizer: EqualizerModel.empty(),
     );
   }
@@ -56,6 +59,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       active: map['active'],
       channels: List<ChannelModel>.from(map['channels']?.map((x) => ChannelModel.fromMap(x))),
       volume: map['volume'],
+      maxVolume: map['maxVolume'],
       balance: map['balance'],
       equalizer: EqualizerModel.fromMap(map['equalizer']),
       side: MonoSide.values[map['side']],
@@ -69,6 +73,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       'active': active,
       'channels': channels.map((x) => x.toMap()).toList(),
       'volume': volume,
+      'maxVolume': maxVolume,
       'balance': balance,
       'equalizer': equalizer.toMap(),
       'side': side.index,
@@ -79,6 +84,7 @@ class ZoneModel extends Equatable implements SelectableModel {
   final String name;
   final bool active;
   final List<ChannelModel> channels;
+  final int maxVolume;
   final int volume;
   final int balance;
   final EqualizerModel equalizer;
@@ -95,6 +101,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     bool? active,
     List<ChannelModel>? channels,
     int? volume,
+    int? maxVolume,
     int? balance,
     EqualizerModel? equalizer,
     MonoSide? side,
@@ -105,6 +112,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       active: active ?? this.active,
       channels: channels ?? this.channels,
       volume: volume ?? this.volume,
+      maxVolume: maxVolume ?? this.maxVolume,
       balance: balance ?? this.balance,
       equalizer: equalizer ?? this.equalizer,
       side: side ?? this.side,
@@ -118,6 +126,7 @@ class ZoneModel extends Equatable implements SelectableModel {
         active,
         channels,
         volume,
+        maxVolume,
         balance,
         equalizer,
         side,

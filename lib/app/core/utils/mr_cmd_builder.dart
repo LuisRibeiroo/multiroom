@@ -120,4 +120,15 @@ abstract final class MrCmdBuilder {
     required List<ZoneModel> zones,
   }) =>
       "${MultiroomCommands.mrGroupSet.value},${group.id.numbersOnly},${zones.map((z) => z.id).join(",")}";
+
+      static String getMaxVolume({
+    required ZoneModel zone,
+  }) =>
+      "${MultiroomCommands.mrVolMaxGet.value},${zone.id}";
+
+  static String setMaxVolume({
+    required ZoneModel zone,
+    required int volume,
+  }) =>
+      "${MultiroomCommands.mrVolMaxSet.value},${zone.id},$volume";
 }

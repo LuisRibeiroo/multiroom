@@ -7,7 +7,11 @@ import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/zone_group_model.dart';
+import '../../../core/models/zone_model.dart';
+import '../../../core/models/zone_wrapper_model.dart';
+import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_overlay.dart';
+import '../../widgets/slider_card.dart';
 import '../controllers/device_configuration_page_controller.dart';
 import '../widgets/device_config_header.dart';
 import '../widgets/groups_expandable_card.dart';
@@ -45,6 +49,44 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
               },
             );
           },
+        ),
+      ),
+    );
+  }
+
+  void _showMaxVolumeEditBottomSheet(
+    ZoneWrapperModel wrapper,
+    ZoneModel zone,
+  ) {
+    context.showCustomModalBottomSheet(
+      child: Watch(
+        (_) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Configure o volume máximo para a zona \"${zone.name}\"",
+                style: context.textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+              24.asSpace,
+              SliderCard(
+                title: "Volume",
+                caption: "${_controller.maxVolume.value}%",
+                value: _controller.maxVolume.value,
+                onChanged: _controller.maxVolume.set,
+              ),
+              24.asSpace,
+              AppButton(
+                text: "Confirmar",
+                onPressed: () {
+                  _controller.onSetMaxVolume(wrapper, zone);
+                  Routefly.pop(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -89,6 +131,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                     onChangeZoneMode: _controller.onChangeZoneMode,
                     onChangeZoneName: _controller.onChangeZoneName,
                     toggleEditingZone: _controller.toggleEditingZone,
+                    onEdtiMaxVolume: _showMaxVolumeEditBottomSheet,
                   ),
                   8.asSpace,
                   GroupsExpandableCard(

@@ -8,7 +8,7 @@ import '../../../core/extensions/number_extensions.dart';
 import '../../../core/extensions/string_extensions.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/models/zone_wrapper_model.dart';
-import 'zone_name_edit_tile.dart';
+import 'zone_detail_edit_tile.dart';
 
 class ZonesExpandableCard extends StatelessWidget {
   const ZonesExpandableCard({
@@ -21,6 +21,7 @@ class ZonesExpandableCard extends StatelessWidget {
     required this.onChangeZoneName,
     required this.toggleEditingZone,
     required this.expandableController,
+    required this.onEdtiMaxVolume,
   });
 
   final ExpandableController expandableController;
@@ -31,6 +32,7 @@ class ZonesExpandableCard extends StatelessWidget {
   final Function(ZoneWrapperModel, bool) onChangeZoneMode;
   final Function(ZoneModel, String) onChangeZoneName;
   final Function(ZoneWrapperModel, ZoneModel) toggleEditingZone;
+  final Function(ZoneWrapperModel, ZoneModel) onEdtiMaxVolume;
 
   @override
   Widget build(BuildContext context) {
@@ -88,41 +90,58 @@ class ZonesExpandableCard extends StatelessWidget {
                           AnimatedSize(
                             duration: Durations.medium2,
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24.0),
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8.0),
                               child: Column(
                                 key: ValueKey(wrapper.isStereo),
                                 children: [
                                   Visibility(
                                     visible: wrapper.isStereo,
-                                    child: ZoneNameEditTile(
+                                    child: ZoneDetailEditTile(
                                       zone: wrapper.stereoZone,
                                       wrapper: wrapper,
                                       isEditing: editingWrapper.id == wrapper.id && isEditing,
                                       onChangeZoneName: onChangeZoneName,
                                       toggleEditing: toggleEditingZone,
+                                      maxVolume: wrapper.stereoZone.maxVolume,
+                                      onTapEditMaxVolume: () => onEdtiMaxVolume(
+                                        wrapper,
+                                        wrapper.stereoZone,
+                                      ),
                                     ),
                                   ),
                                   Visibility(
                                     visible: wrapper.isStereo == false,
-                                    child: ZoneNameEditTile(
-                                      label: wrapper.monoZones.right.id,
-                                      zone: wrapper.monoZones.right,
-                                      wrapper: wrapper,
-                                      isEditing: editingZone.id == wrapper.monoZones.right.id && isEditing,
-                                      onChangeZoneName: onChangeZoneName,
-                                      toggleEditing: toggleEditingZone,
+                                    child: Watch(
+                                      (_) => ZoneDetailEditTile(
+                                        label: wrapper.monoZones.right.id,
+                                        zone: wrapper.monoZones.right,
+                                        wrapper: wrapper,
+                                        isEditing: editingZone.id == wrapper.monoZones.right.id && isEditing,
+                                        onChangeZoneName: onChangeZoneName,
+                                        toggleEditing: toggleEditingZone,
+                                        maxVolume: wrapper.monoZones.right.maxVolume,
+                                        onTapEditMaxVolume: () => onEdtiMaxVolume(
+                                          wrapper,
+                                          wrapper.monoZones.right,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   8.asSpace,
                                   Visibility(
                                     visible: wrapper.isStereo == false,
-                                    child: ZoneNameEditTile(
+                                    child: ZoneDetailEditTile(
                                       label: wrapper.monoZones.left.id,
                                       zone: wrapper.monoZones.left,
                                       wrapper: wrapper,
                                       isEditing: editingZone.id == wrapper.monoZones.left.id && isEditing,
                                       onChangeZoneName: onChangeZoneName,
                                       toggleEditing: toggleEditingZone,
+                                      maxVolume: wrapper.monoZones.left.maxVolume,
+                                      onTapEditMaxVolume: () => onEdtiMaxVolume(
+                                        wrapper,
+                                        wrapper.monoZones.left,
+                                      ),
                                     ),
                                   ),
                                 ],
