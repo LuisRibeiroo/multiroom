@@ -85,6 +85,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                   Routefly.pop(context);
                 },
               ),
+              24.asSpace,
             ],
           ),
         ),

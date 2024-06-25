@@ -103,6 +103,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       ),
     );
 
+    // TODO: Check if we need this cmd
     // if (groups[idx].zones.length == 1) {
     //   await socketSender(
     //     MrCmdBuilder.setChannel(
@@ -315,6 +316,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   List<ZoneWrapperModel> _parseZones(Map<String, String> configs) {
     final modes = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("MODE"));
+    final maxVols = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("VOL_MAX"));
 
     final zonesList = <ZoneWrapperModel>[];
 
@@ -335,10 +337,42 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         continue;
       }
 
+      final maxVolume = maxVols
+          .firstWhere(
+            (entry) => entry.key.contains(zone.id),
+            orElse: () => MapEntry(zone.id, "100"),
+          )
+          .value;
+
       if (mode.value.toUpperCase() == "STEREO") {
-        zone = zone.copyWith(mode: ZoneMode.stereo);
+        zone = zone.copyWith(
+          mode: ZoneMode.stereo,
+          stereoZone: zone.stereoZone.copyWith(
+            maxVolume: int.parse(maxVolume),
+          ),
+        );
       } else {
-        zone = zone.copyWith(mode: ZoneMode.mono);
+        if (zone.id.contains("R")) {
+          zone = zone.copyWith(
+            mode: ZoneMode.mono,
+            monoZones: (
+              left: zone.monoZones.left,
+              right: zone.monoZones.right.copyWith(
+                maxVolume: int.parse(maxVolume),
+              ),
+            ),
+          );
+        } else {
+          zone = zone.copyWith(
+            mode: ZoneMode.mono,
+            monoZones: (
+              right: zone.monoZones.right,
+              left: zone.monoZones.left.copyWith(
+                maxVolume: int.parse(maxVolume),
+              ),
+            ),
+          );
+        }
       }
 
       zonesList.add(zone);
