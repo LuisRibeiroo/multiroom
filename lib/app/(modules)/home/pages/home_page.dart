@@ -131,6 +131,7 @@ class _HomePageState extends State<HomePage> {
                         deviceName: _controller.currentDevice.value.name,
                         currentZone: _controller.currentZone.value,
                         currentChannel: _controller.currentChannel.value,
+                        onChangeActive: _controller.setZoneActive,
                         onChangeDevice: _showDevicesBottomSheet,
                         onChangeChannel: _showChannelsBottomSheet,
                       ),

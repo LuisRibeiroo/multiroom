@@ -1,5 +1,7 @@
+import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/extensions/build_context_extensions.dart';
 import '../../core/extensions/number_extensions.dart';
 import '../../core/models/channel_model.dart';
 import '../../core/models/zone_model.dart';
@@ -13,6 +15,7 @@ class DeviceInfoHeader extends StatelessWidget {
     required this.currentChannel,
     required this.onChangeChannel,
     required this.onChangeDevice,
+    required this.onChangeActive,
   });
 
   final String deviceName;
@@ -20,6 +23,7 @@ class DeviceInfoHeader extends StatelessWidget {
   final ChannelModel currentChannel;
   final Function() onChangeChannel;
   final Function() onChangeDevice;
+  final Function(bool) onChangeActive;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +42,22 @@ class DeviceInfoHeader extends StatelessWidget {
                   ),
                 ),
                 12.asSpace,
-                Switch(value: false, onChanged: (v) {}),
+                AnimatedToggleSwitch.dual(
+                  current: currentZone.active,
+                  first: false,
+                  second: true,
+                  onChanged: onChangeActive,
+                  height: 40,
+                  indicatorSize: const Size.square(38),
+                  textBuilder: (value) => Text(
+                    value ? "ON" : "OFF",
+                    style: context.textTheme.titleSmall,
+                  ),
+                  iconBuilder: (value) => Icon(
+                    value ? Icons.power_rounded : Icons.power_off_rounded,
+                    color: context.colorScheme.onPrimary,
+                  ),
+                ),
               ],
             ),
             18.asSpace,

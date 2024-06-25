@@ -63,16 +63,16 @@ abstract final class MrCmdBuilder {
   }) =>
       "${MultiroomCommands.mrZoneChannelSet.value},${zone.id},${channel.id}";
 
-  static String getMute({
+  static String getPower({
     required ZoneModel zone,
   }) =>
-      "${MultiroomCommands.mrMuteGet.value},${zone.id}";
+      "${MultiroomCommands.mrPwrGet.value},${zone.id}";
 
-  static String setMute({
+  static String setPower({
     required ZoneModel zone,
     required bool active,
   }) =>
-      "${MultiroomCommands.mrMuteSet.value},${zone.id},${active ? "on" : "off"}";
+      "${MultiroomCommands.mrPwrSet.value},${zone.id},${active ? "on" : "off"}";
 
   static String getVolume({
     required ZoneModel zone,

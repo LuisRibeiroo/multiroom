@@ -98,6 +98,17 @@ class HomePageController extends BaseController with SocketMixin {
     }
   }
 
+  Future<void> setZoneActive(bool active) async {
+    currentZone.value = currentZone.value.copyWith(active: active);
+
+    _debounceSendCommand(
+      MrCmdBuilder.setPower(
+        zone: currentZone.value,
+        active: active,
+      ),
+    );
+  }
+
   void setCurrentChannel(ChannelModel channel) {
     if (channel.id == currentChannel.value.id) {
       logger.i("SET CHANNEL [SAME CHANNEL] --> ${channel.id}");
@@ -197,7 +208,6 @@ class HomePageController extends BaseController with SocketMixin {
             currentDevice.value = localDevices.value.first;
             zones.value = currentDevice.value.zones;
 
-
             if (currentDevice.value.isZoneInGroup(zones.first)) {
               currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.contains(zones.first)).asZone;
             } else {
@@ -264,6 +274,10 @@ class HomePageController extends BaseController with SocketMixin {
     // while (socketInit == false) {
     //   await Future.delayed(Durations.short3);
     // }
+
+    final active = MrCmdBuilder.parseResponse(await socketSender(
+      MrCmdBuilder.getPower(zone: zone),
+    ));
 
     final channelStr = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getChannel(zone: zone),
@@ -348,6 +362,7 @@ class HomePageController extends BaseController with SocketMixin {
     }
 
     currentZone.value = zone.copyWith(
+      active: active == "on" ? true : false,
       volume: int.tryParse(volume) ?? zone.volume,
       balance: int.tryParse(balance) ?? zone.balance,
       equalizer: newEqualizer,

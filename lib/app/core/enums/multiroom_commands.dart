@@ -4,14 +4,14 @@ enum MultiroomCommands {
   mrParDefaultSet(value: "mr_par_default_set"),
   mrZoneChannelGet(value: "mr_zone_channel_get"),
   mrZoneChannelSet(value: "mr_zone_channel_set"),
-  mrMuteGet(value: "mr_mute_get"),
-  mrMuteSet(value: "mr_mute_set"),
   mrVolGet(value: "mr_vol_get"),
   mrVolSet(value: "mr_vol_set"),
   mrBalGet(value: "mr_bal_get"),
   mrBalSet(value: "mr_bal_set"),
   mrEqGet(value: "mr_eq_get"),
   mrEqSet(value: "mr_eq_set"),
+  mrPwrSet(value: "mr_power_set"),
+  mrPwrGet(value: "mr_power_get"),
 
   /// --> Technician commands
   mrCfgShow(value: "mr_cfg_show"),
