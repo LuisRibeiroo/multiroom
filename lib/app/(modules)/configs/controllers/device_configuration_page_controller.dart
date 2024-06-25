@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
@@ -16,7 +15,6 @@ import '../../../core/models/device_model.dart';
 import '../../../core/models/zone_group_model.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/models/zone_wrapper_model.dart';
-import '../../../core/utils/debouncer.dart';
 import '../../../core/utils/mr_cmd_builder.dart';
 
 class DeviceConfigurationPageController extends BaseController with SocketMixin {
@@ -34,8 +32,6 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   final isEditingGroup = false.toSignal(debugLabel: "isEditingGroup");
   final availableZones = listSignal([], debugLabel: "availableZones");
   final maxVolume = 100.toSignal(debugLabel: "maxVolume");
-
-  final _writeDebouncer = Debouncer(delay: Durations.short4);
 
   Future<void> init({required DeviceModel dev}) async {
     device.value = dev;
@@ -231,7 +227,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     settings.removeDevice(device.value.serialNumber);
   }
 
-  void onSetMaxVolume(ZoneWrapperModel wrapper, ZoneModel zone) {
+  Future<void> onSetMaxVolume(ZoneWrapperModel wrapper, ZoneModel zone) async {
     if (editingWrapper.value.isStereo) {
       editingWrapper.value = wrapper.copyWith(stereoZone: zone.copyWith(maxVolume: maxVolume.value));
     } else {
@@ -252,18 +248,16 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
           .toList(),
     );
 
-    _writeDebouncer(() async {
-      try {
-        await socketSender(MrCmdBuilder.setMaxVolume(
-          zone: zone,
-          volume: maxVolume.value,
-        ));
+    try {
+      await socketSender(MrCmdBuilder.setMaxVolume(
+        zone: zone,
+        volume: maxVolume.value,
+      ));
 
-        maxVolume.value = maxVolume.initialValue;
-      } catch (exception) {
-        setError(Exception("Erro ao definir volume máximo --> $exception"));
-      }
-    });
+      maxVolume.value = maxVolume.initialValue;
+    } catch (exception) {
+      setError(Exception("Erro ao definir volume máximo --> $exception"));
+    }
   }
 
   void _updateGroupZones(ZoneModel zone) {
