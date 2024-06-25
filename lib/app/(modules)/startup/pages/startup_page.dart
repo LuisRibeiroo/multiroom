@@ -12,6 +12,7 @@ import '../../../core/enums/zone_mode.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
 import '../../../core/models/device_model.dart';
+import '../../../core/models/project_model.dart';
 import '../../../core/models/zone_group_model.dart';
 import '../../../core/models/zone_wrapper_model.dart';
 

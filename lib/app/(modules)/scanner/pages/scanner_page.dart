@@ -253,15 +253,18 @@ class TypeSelectionBottomSheet extends StatelessWidget {
           ],
         ),
         24.asSpace,
-        AppButton(
-          leading: const Icon(Icons.add_rounded),
-          text: "Adicionar",
-          onPressed: deviceType != NetworkDeviceType.undefined
-              ? () {
-                  Routefly.pop(context);
-                  onTapConfirm(netDevice);
-                }
-              : null,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: AppButton(
+            leading: const Icon(Icons.add_rounded),
+            text: "Adicionar",
+            onPressed: deviceType != NetworkDeviceType.undefined
+                ? () {
+                    Routefly.pop(context);
+                    onTapConfirm(netDevice);
+                  }
+                : null,
+          ),
         )
       ],
     );

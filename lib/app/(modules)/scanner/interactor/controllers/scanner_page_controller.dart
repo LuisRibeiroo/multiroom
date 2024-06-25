@@ -43,9 +43,11 @@ class ScannerPageController extends BaseController {
       [
         effect(() {
           hasAvailableSlots.value = localDevices.length < 3;
-          isMasterAvailable.value = localDevices.every((d) => d.type != DeviceType.master);
-          isMasterAvailable.peek() == false && localDevices.where((d) => d.type == DeviceType.slave).isEmpty;
-          slave1Available.value == false && localDevices.where((d) => d.type == DeviceType.slave).length == 1;
+          isMasterAvailable.value = localDevices.isEmpty && localDevices.every((d) => d.type != DeviceType.master);
+          slave1Available.value =
+              isMasterAvailable.peek() == false && localDevices.where((d) => d.type == DeviceType.slave).isEmpty;
+          slave2Available.value =
+              slave1Available.peek() == false && localDevices.where((d) => d.type == DeviceType.slave).length == 1;
 
           if (hasAvailableSlots.value == false) {
             stopUdpServer();
@@ -111,18 +113,15 @@ class ScannerPageController extends BaseController {
         },
       );
 
-      // for (int i = 0; i < 5; i++) {
-      //   await Future.delayed(
-      //     const Duration(seconds: 1),
-      //     () => networkDevices.add(
-      //       NetworkDeviceModel(
-      //         ip: "192.168.0.${i + 1}",
-      //         serialNumber: "MR-123456-00$i",
-      //         firmware: "1.0",
-      //       ),
-      //     ),
-      //   );
-      // }
+      for (int i = 0; i < 5; i++) {
+        networkDevices.add(
+          NetworkDeviceModel(
+            ip: "192.168.0.${i + 1}",
+            serialNumber: "MR-123456-00$i",
+            firmware: "1.0",
+          ),
+        );
+      }
 
       // await Future.delayed(
       //   const Duration(seconds: 2),
@@ -168,18 +167,18 @@ class ScannerPageController extends BaseController {
   }
 
   Future<void> onConfirmAddDevice(NetworkDeviceModel netDevice) async {
-    final type = await _setDeviceType(
-      netDevice.ip,
-      DeviceType.fromString(deviceType.value.name.lettersOnly),
-    );
+    // final type = await _setDeviceType(
+    //   netDevice.ip,
+    //   DeviceType.fromString(deviceType.value.name.lettersOnly),
+    // );
 
     final newDevice = DeviceModel.builder(
       ip: netDevice.ip,
       serialNumber: netDevice.serialNumber,
       version: netDevice.firmware,
       name: deviceType.value.readable,
-      // type: DeviceType.fromString(deviceType.value.name.lettersOnly),
-      type: DeviceType.fromString(type),
+      type: DeviceType.fromString(deviceType.value.name.lettersOnly),
+      // type: DeviceType.fromString(type),
     );
 
     localDevices.add(newDevice);

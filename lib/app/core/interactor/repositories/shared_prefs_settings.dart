@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../extensions/iterable_extensions.dart';
 import '../../models/device_model.dart';
+import '../../models/project_model.dart';
 import 'settings_contract.dart';
 
 final class SharedPrefsSettings implements SettingsContract {
@@ -22,6 +23,23 @@ final class SharedPrefsSettings implements SettingsContract {
 
   @override
   String get technicianAccessHash => "640c5fc8cd23285fd33b66bdf0c4570d";
+
+  @override
+  void saveProject(ProjectModel project) {
+    final List<ProjectModel> currentList = List.from(projects);
+    final index = currentList.indexWhere((d) => d.id == project.id);
+
+    if (index == -1) {
+      currentList.add(project);
+    } else {
+      currentList[index] = project;
+    }
+
+    final jsonProjects = currentList.map((d) => jsonEncode(d.toMap())).toList();
+
+    _logger.d("SAVE PROJECT --> PARAM: [$project] | NEW VALUE: $jsonProjects");
+    _prefs.setStringList("projects", jsonProjects).ignore();
+  }
 
   @override
   void saveDevice(DeviceModel device) {
@@ -64,6 +82,21 @@ final class SharedPrefsSettings implements SettingsContract {
   }
 
   @override
+  void removeProject(String id) {
+    final currentList = projects;
+    final index = currentList.indexWhere((d) => d.id == id);
+
+    if (index != -1) {
+      currentList.removeAt(index);
+
+      final jsonProjects = currentList.map((d) => jsonEncode(d.toMap())).toList();
+
+      _logger.d("REMOVE PROJECT --> PARAM: [$id] | NEW VALUE: $jsonProjects");
+      _prefs.setStringList("projects", jsonProjects).ignore();
+    }
+  }
+
+  @override
   List<DeviceModel> get devices {
     final jsonDevices = _prefs.getStringList("devices");
 
@@ -73,6 +106,20 @@ final class SharedPrefsSettings implements SettingsContract {
 
     final list = jsonDevices!.map((d) => DeviceModel.fromMap(jsonDecode(d))).toList();
     _logger.d("GET DEVICES --> VALUE: $jsonDevices");
+
+    return list;
+  }
+
+  @override
+  List<ProjectModel> get projects {
+    final jsonProjects = _prefs.getStringList("projects");
+
+    if (jsonProjects.isNullOrEmpty) {
+      return <ProjectModel>[];
+    }
+
+    final list = jsonProjects!.map((d) => ProjectModel.fromMap(jsonDecode(d))).toList();
+    _logger.d("GET PROJECTS --> VALUE: $jsonProjects");
 
     return list;
   }
