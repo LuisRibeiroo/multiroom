@@ -31,6 +31,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   final isEditingZone = false.toSignal(debugLabel: "isEditingZone");
   final isEditingGroup = false.toSignal(debugLabel: "isEditingGroup");
   final availableZones = listSignal([], debugLabel: "availableZones");
+  final maxVolume = 100.toSignal(debugLabel: "maxVolume");
 
   Future<void> init({required DeviceModel dev}) async {
     device.value = dev;
@@ -221,7 +222,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
   }
 
-  void removeDevice() {
+  void onRemoveDevice() {
     settings.removeDevice(device.value.serialNumber);
   }
 
@@ -364,6 +365,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     isEditingDevice.value = isEditingDevice.initialValue;
     isEditingZone.value = isEditingZone.initialValue;
     isEditingGroup.value = isEditingGroup.initialValue;
+    maxVolume.value = maxVolume.initialValue;
 
     availableZones.value = <ZoneModel>[];
   }

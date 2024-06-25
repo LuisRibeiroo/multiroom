@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/widgets/app_button.dart';
 import 'package:routefly/routefly.dart';
 
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
+import '../../../core/widgets/app_button.dart';
 
 class DeleteDeviceConfirmBottomSheet extends StatelessWidget {
   const DeleteDeviceConfirmBottomSheet({
@@ -40,6 +40,7 @@ class DeleteDeviceConfirmBottomSheet extends StatelessWidget {
                   },
                 ),
               ),
+              24.asSpace,
               Flexible(
                 child: AppButton(
                   text: "Sim",

@@ -1,18 +1,15 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import '../widgets/delete_device_confirm_bottom_sheet.dart';
-import '../../../core/enums/device_type.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
-import '../../../core/extensions/string_extensions.dart';
 import '../../../core/models/zone_group_model.dart';
 import '../../../core/widgets/loading_overlay.dart';
-import '../../scanner/widgets/device_type_indicator.dart';
 import '../controllers/device_configuration_page_controller.dart';
+import '../widgets/device_config_header.dart';
 import '../widgets/groups_expandable_card.dart';
 import '../widgets/zones_expandable_card.dart';
 
@@ -28,16 +25,6 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
 
   final _zonesExpandableController = ExpandableController(initialExpanded: false);
   final _groupsExpandableController = ExpandableController(initialExpanded: false);
-
-  void _showDeviceDeletionBottomSheet() {
-    context.showCustomModalBottomSheet(
-      isScrollControlled: false,
-      child: DeleteDeviceConfirmBottomSheet(
-        deviceName: _controller.device.value.name,
-        onConfirm: _controller.removeDevice,
-      ),
-    );
-  }
 
   void _showAddZoneGroupBottomSheet(ZoneGroupModel group) {
     context.showCustomModalBottomSheet(
@@ -84,73 +71,13 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
               padding: const EdgeInsets.all(12.0),
               child: Column(
                 children: [
-                  Card.outlined(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              DeviceTypeIndicator(
-                                active: _controller.device.value.type == DeviceType.master,
-                                label: _controller.device.value.type.name.capitalize,
-                              ),
-                              12.asSpace,
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _controller.device.value.ip,
-                                    style: context.textTheme.titleMedium,
-                                  ),
-                                  4.asSpace,
-                                  Text(
-                                    _controller.device.value.serialNumber,
-                                  ),
-                                  Text(
-                                    "Ver ${_controller.device.value.version}",
-                                  ),
-                                ],
-                              ),
-                              12.asSpace,
-                              const Spacer(),
-                              IconButton.outlined(
-                                onPressed: _showDeviceDeletionBottomSheet,
-                                icon: const Icon(Icons.delete_rounded),
-                              ),
-                            ],
-                          ),
-                          const Divider(height: 32),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  enabled: _controller.isEditingDevice.value,
-                                  onChanged: _controller.deviceName.set,
-                                  initialValue: _controller.deviceName.value,
-                                  style: context.textTheme.titleMedium,
-                                  textAlign: TextAlign.center,
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                  ),
-                                ),
-                              ),
-                              12.asSpace,
-                              IconButton(
-                                onPressed: _controller.toggleEditingDevice,
-                                icon: AnimatedSwitcher(
-                                  duration: Durations.short3,
-                                  child: Icon(
-                                    key: ValueKey(_controller.isEditingDevice.value),
-                                    _controller.isEditingDevice.value ? Icons.check_rounded : Icons.edit_rounded,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                  DeviceConfigHeader(
+                    device: _controller.device.value,
+                    deviceName: _controller.deviceName.value,
+                    isEditingDevice: _controller.isEditingDevice.value,
+                    onChangeDeviceName: _controller.deviceName.set,
+                    toggleEditingDevice: _controller.toggleEditingDevice,
+                    onDeleteDevice: _controller.onRemoveDevice,
                   ),
                   8.asSpace,
                   ZonesExpandableCard(
