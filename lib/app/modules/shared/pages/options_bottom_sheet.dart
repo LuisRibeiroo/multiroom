@@ -52,7 +52,7 @@ class OptionsMenu {
                 controller.errorMessage.value = "";
 
                 Routefly.pop(context);
-                Routefly.pushNavigate(routePaths.scanner.pages.scanner);
+                Routefly.pushNavigate(routePaths.modules.scanner.pages.scanner);
               }
             },
             onTapConfigDevice: device == null
@@ -61,7 +61,7 @@ class OptionsMenu {
                     Routefly.pop(context);
 
                     Routefly.pushNavigate(
-                      routePaths.configs.pages.deviceConfiguration,
+                      routePaths.modules.configs.pages.deviceConfiguration,
                       arguments: device,
                     );
                   },

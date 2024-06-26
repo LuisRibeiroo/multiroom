@@ -3,7 +3,6 @@ import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-import '../../(shared)/pages/options_bottom_sheet.dart';
 import '../../../../injector.dart';
 import '../../../../routes.g.dart';
 import '../../../core/extensions/build_context_extensions.dart';
@@ -11,6 +10,7 @@ import '../../../core/extensions/number_extensions.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../scanner/widgets/device_list_tile.dart';
+import '../../shared/pages/options_bottom_sheet.dart';
 import '../controllers/configs_page_controller.dart';
 import '../widgets/no_devices_widget.dart';
 
@@ -75,8 +75,8 @@ class _ConfigsPageState extends State<ConfigsPage> {
                     icon: const Icon(Icons.check_rounded),
                     label: const Text("Finalizar configurações"),
                     onPressed: () {
-                      Routefly.replace(routePaths.home.pages.home);
-                      Routefly.pushNavigate(routePaths.home.pages.home);
+                      Routefly.replace(routePaths.modules.home.pages.home);
+                      Routefly.pushNavigate(routePaths.modules.home.pages.home);
                     },
                   ),
           ),

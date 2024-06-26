@@ -86,11 +86,11 @@ class _StartupPageState extends State<StartupPage> {
 
       await Future.delayed(const Duration(seconds: 1), () {
         if (settings.devices.isEmpty) {
-          Routefly.replace(routePaths.configs.pages.configs);
-          Routefly.pushNavigate(routePaths.configs.pages.configs);
+          Routefly.replace(routePaths.modules.configs.pages.configs);
+          Routefly.pushNavigate(routePaths.modules.configs.pages.configs);
         } else {
-          Routefly.replace(routePaths.home.pages.home);
-          Routefly.pushNavigate(routePaths.home.pages.home);
+          Routefly.replace(routePaths.modules.home.pages.home);
+          Routefly.pushNavigate(routePaths.modules.home.pages.home);
         }
       });
     });
