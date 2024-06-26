@@ -1,12 +1,16 @@
-import 'package:equatable/equatable.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:hive/hive.dart';
 
 import '../enums/device_type.dart';
 import 'zone_group_model.dart';
 import 'zone_model.dart';
 import 'zone_wrapper_model.dart';
 
-class DeviceModel extends Equatable {
-  const DeviceModel({
+part 'device_model.g.dart';
+
+@HiveType(typeId: 1)
+class DeviceModel extends HiveObject {
+  DeviceModel({
     required this.serialNumber,
     required this.name,
     required this.ip,
@@ -19,7 +23,7 @@ class DeviceModel extends Equatable {
   });
 
   factory DeviceModel.empty() {
-    return const DeviceModel(
+    return DeviceModel(
       serialNumber: "",
       name: "",
       ip: "",
@@ -82,17 +86,29 @@ class DeviceModel extends Equatable {
     };
   }
 
+  @HiveField(0)
   final String serialNumber;
+  @HiveField(1)
   final String name;
+  @HiveField(2)
   final String ip;
+  @HiveField(3)
   final List<ZoneWrapperModel> zoneWrappers;
+  @HiveField(4)
   final List<ZoneGroupModel> groups;
+  @HiveField(5)
   final String version;
+  @HiveField(6)
   final DeviceType type;
+  @HiveField(7)
   final String masterName;
+  @HiveField(8)
   final bool active;
 
-  bool get isEmpty => this == DeviceModel.empty();
+  bool get isEmpty =>
+      serialNumber == DeviceModel.empty().serialNumber &&
+      name == DeviceModel.empty().name &&
+      ip == DeviceModel.empty().ip;
 
   List<ZoneModel> get zones => zoneWrappers.fold(<ZoneModel>[], (pv, v) => pv..addAll(v.zones));
 
@@ -139,15 +155,7 @@ class DeviceModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-        serialNumber,
-        name,
-        ip,
-        zoneWrappers,
-        groups,
-        version,
-        type,
-        masterName,
-        active,
-      ];
+  String toString() {
+    return 'DeviceModel(serialNumber: $serialNumber, name: $name, ip: $ip, zoneWrappers: $zoneWrappers, groups: $groups, version: $version, type: $type, masterName: $masterName, active: $active)';
+  }
 }

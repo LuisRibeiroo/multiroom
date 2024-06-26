@@ -259,9 +259,9 @@ class HomePageController extends BaseController with SocketMixin {
       newWrapper = newWrapper.copyWith(stereoZone: zone);
     } else {
       if (zone.side == MonoSide.left) {
-        newWrapper = newWrapper.copyWith(monoZones: (left: zone, right: newWrapper.monoZones.right));
+        newWrapper = newWrapper.copyWith(monoZones: newWrapper.monoZones.copyWith(left: zone));
       } else {
-        newWrapper = newWrapper.copyWith(monoZones: (right: zone, left: newWrapper.monoZones.left));
+        newWrapper = newWrapper.copyWith(monoZones: newWrapper.monoZones.copyWith(right: zone));
       }
     }
 

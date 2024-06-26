@@ -1,15 +1,18 @@
-import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'device_model.dart';
 
-class ProjectModel extends Equatable {
-  const ProjectModel({
+part 'project_model.g.dart';
+
+@HiveType(typeId: 4)
+class ProjectModel extends HiveObject {
+  ProjectModel({
     required this.id,
     required this.name,
     required this.devices,
   });
 
-  const ProjectModel.empty()
+  ProjectModel.empty()
       : this(
           id: '',
           name: '',
@@ -44,8 +47,11 @@ class ProjectModel extends Equatable {
     };
   }
 
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String name;
+  @HiveField(2)
   final List<DeviceModel> devices;
 
   ProjectModel copyWith({
@@ -59,11 +65,4 @@ class ProjectModel extends Equatable {
       devices: devices ?? this.devices,
     );
   }
-
-  @override
-  List<Object?> get props => [
-        id,
-        name,
-        devices,
-      ];
 }

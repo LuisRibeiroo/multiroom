@@ -1,10 +1,14 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import '../enums/mono_side.dart';
 import 'channel_model.dart';
 import 'equalizer_model.dart';
 import 'selectable_model.dart';
 
+part 'zone_model.g.dart';
+
+@HiveType(typeId: 6)
 class ZoneModel extends Equatable implements SelectableModel {
   const ZoneModel({
     required this.id,
@@ -80,14 +84,23 @@ class ZoneModel extends Equatable implements SelectableModel {
     };
   }
 
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String name;
+  @HiveField(2)
   final bool active;
+  @HiveField(3)
   final List<ChannelModel> channels;
+  @HiveField(4)
   final int maxVolume;
+  @HiveField(5)
   final int volume;
+  @HiveField(6)
   final int balance;
+  @HiveField(7)
   final EqualizerModel equalizer;
+  @HiveField(8)
   final MonoSide side;
 
   bool get isEmpty => id == ZoneModel.empty().id;

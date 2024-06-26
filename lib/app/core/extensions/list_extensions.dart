@@ -31,10 +31,10 @@ extension ListExt<E> on List<E>? {
       return;
     }
 
-    for (E element in this!) {
-      if (test(element)) {
-        final idx = this!.indexOf(element);
-        this!.remove(element);
+    for (E e in this!) {
+      if (test(e)) {
+        final idx = this!.indexOf(e);
+        this!.remove(e);
         this!.insert(idx, element);
       }
     }

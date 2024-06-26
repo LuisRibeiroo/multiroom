@@ -2,11 +2,11 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:routefly/routefly.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
+import 'app/core/interactor/repositories/hive_settings.dart';
 import 'app/core/interactor/repositories/settings_contract.dart';
-import 'app/core/interactor/repositories/shared_prefs_settings.dart';
+import 'app/core/interactor/utils/hive_utils.dart';
 import 'app/core/theme/theme.dart';
 import 'injector.dart';
 import 'routes.g.dart';
@@ -22,9 +22,12 @@ void main() async {
   ]);
   SystemChannels.textInput.invokeMethod('TextInput.hide');
 
-  final sharedPrefs = await SharedPreferences.getInstance();
+  // final sharedPrefs = await SharedPreferences.getInstance();
+  // injector.addLazySingleton<SettingsContract>(() => SharedPrefsSettings(prefs: sharedPrefs));
 
-  injector.addLazySingleton<SettingsContract>(() => SharedPrefsSettings(prefs: sharedPrefs));
+  final hiveBox = await HiveUtils.init();
+  injector.addLazySingleton<SettingsContract>(() => HiveSettings(box: hiveBox));
+
   injector.commit();
 
   runApp(const ToastificationWrapper(child: MyApp()));

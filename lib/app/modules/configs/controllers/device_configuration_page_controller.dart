@@ -156,11 +156,17 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       editingWrapper.value = editingWrapper.value.copyWith(stereoZone: zone.copyWith(name: value));
     } else {
       if (zone.side == MonoSide.left) {
-        editingWrapper.value = editingWrapper.value
-            .copyWith(monoZones: (left: zone.copyWith(name: value), right: editingWrapper.value.monoZones.right));
+        editingWrapper.value = editingWrapper.value.copyWith(
+          monoZones: editingWrapper.value.monoZones.copyWith(
+            left: zone.copyWith(name: value),
+          ),
+        );
       } else {
-        editingWrapper.value = editingWrapper.value
-            .copyWith(monoZones: (right: zone.copyWith(name: value), left: editingWrapper.value.monoZones.left));
+        editingWrapper.value = editingWrapper.value.copyWith(
+          monoZones: editingWrapper.value.monoZones.copyWith(
+            right: zone.copyWith(name: value),
+          ),
+        );
       }
     }
   }
@@ -233,10 +239,20 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     } else {
       if (zone.side == MonoSide.left) {
         editingWrapper.value = wrapper.copyWith(
-            monoZones: (left: zone.copyWith(maxVolume: maxVolume.value), right: editingWrapper.value.monoZones.right));
+          monoZones: editingWrapper.value.monoZones.copyWith(
+            left: zone.copyWith(
+              maxVolume: maxVolume.value,
+            ),
+          ),
+        );
       } else {
         editingWrapper.value = wrapper.copyWith(
-            monoZones: (right: zone.copyWith(maxVolume: maxVolume.value), left: editingWrapper.value.monoZones.left));
+          monoZones: editingWrapper.value.monoZones.copyWith(
+            right: zone.copyWith(
+              maxVolume: maxVolume.value,
+            ),
+          ),
+        );
       }
     }
 
@@ -315,7 +331,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     final zonesList = <ZoneWrapperModel>[];
 
     for (final mode in modes) {
-      ZoneWrapperModel zone = switch (mode.key) {
+      ZoneWrapperModel wrapper = switch (mode.key) {
         "MODE1" => ZoneWrapperModel.builder(index: 1, name: "Zona 1"),
         "MODE2" => ZoneWrapperModel.builder(index: 2, name: "Zona 2"),
         "MODE3" => ZoneWrapperModel.builder(index: 3, name: "Zona 3"),
@@ -327,41 +343,39 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         _ => ZoneWrapperModel.empty(),
       };
 
-      if (zone.isEmpty) {
+      if (wrapper.isEmpty) {
         continue;
       }
 
       final maxVolume = maxVols
           .firstWhere(
-            (entry) => entry.key.contains(zone.id),
-            orElse: () => MapEntry(zone.id, "100"),
+            (entry) => entry.key.contains(wrapper.id),
+            orElse: () => MapEntry(wrapper.id, "100"),
           )
           .value;
 
       if (mode.value.toUpperCase() == "STEREO") {
-        zone = zone.copyWith(
+        wrapper = wrapper.copyWith(
           mode: ZoneMode.stereo,
-          stereoZone: zone.stereoZone.copyWith(
+          stereoZone: wrapper.stereoZone.copyWith(
             maxVolume: int.parse(maxVolume),
           ),
         );
       } else {
-        if (zone.id.contains("R")) {
-          zone = zone.copyWith(
+        if (wrapper.id.contains("R")) {
+          wrapper = wrapper.copyWith(
             mode: ZoneMode.mono,
-            monoZones: (
-              left: zone.monoZones.left,
-              right: zone.monoZones.right.copyWith(
+            monoZones: wrapper.monoZones.copyWith(
+              right: wrapper.monoZones.right.copyWith(
                 maxVolume: int.parse(maxVolume),
               ),
             ),
           );
         } else {
-          zone = zone.copyWith(
+          wrapper = wrapper.copyWith(
             mode: ZoneMode.mono,
-            monoZones: (
-              right: zone.monoZones.right,
-              left: zone.monoZones.left.copyWith(
+            monoZones: wrapper.monoZones.copyWith(
+              left: wrapper.monoZones.left.copyWith(
                 maxVolume: int.parse(maxVolume),
               ),
             ),
@@ -369,7 +383,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         }
       }
 
-      zonesList.add(zone);
+      zonesList.add(wrapper);
     }
 
     return zonesList;

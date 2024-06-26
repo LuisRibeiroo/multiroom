@@ -4,6 +4,11 @@ import 'package:equatable/equatable.dart';
 import 'frequency.dart';
 import 'selectable_model.dart';
 
+import 'package:hive/hive.dart';
+
+part 'equalizer_model.g.dart';
+
+@HiveType(typeId: 2)
 class EqualizerModel extends Equatable implements SelectableModel {
   const EqualizerModel({
     required this.name,
@@ -60,7 +65,9 @@ class EqualizerModel extends Equatable implements SelectableModel {
     };
   }
 
+  @HiveField(0)
   final String name;
+  @HiveField(1)
   final List<Frequency> frequencies;
 
   bool get isEmpty => this == EqualizerModel.empty();

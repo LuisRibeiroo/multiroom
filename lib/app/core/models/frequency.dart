@@ -1,5 +1,9 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+part 'frequency.g.dart';
+
+@HiveType(typeId: 3)
 class Frequency extends Equatable {
   const Frequency({
     required this.id,
@@ -48,8 +52,11 @@ class Frequency extends Equatable {
         Frequency(id: "B6", name: "16k", value: v16k),
       ];
 
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String name;
+  @HiveField(2)
   final int value;
 
   Frequency copyWith({

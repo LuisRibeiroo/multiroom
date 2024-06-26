@@ -1,11 +1,13 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-import '../enums/mono_side.dart';
 import '../enums/zone_mode.dart';
+import 'mono_zones.dart';
 import 'zone_model.dart';
 
-typedef MonoZones = ({ZoneModel left, ZoneModel right});
+part 'zone_wrapper_model.g.dart';
 
+@HiveType(typeId: 7)
 class ZoneWrapperModel extends Equatable {
   const ZoneWrapperModel({
     required this.id,
@@ -23,18 +25,7 @@ class ZoneWrapperModel extends Equatable {
       id: "Z$index",
       mode: mode,
       stereoZone: ZoneModel.builder(id: "$index", name: name),
-      monoZones: (
-        left: ZoneModel.builder(
-          id: "${index}L",
-          name: "${name}L",
-          side: MonoSide.left,
-        ),
-        right: ZoneModel.builder(
-          id: "${index}R",
-          name: "${name}R",
-          side: MonoSide.right,
-        ),
-      ),
+      monoZones: MonoZones.builder(id: "$index", name: name),
     );
   }
 
@@ -43,10 +34,7 @@ class ZoneWrapperModel extends Equatable {
       id: "Z0",
       mode: ZoneMode.stereo,
       stereoZone: ZoneModel.empty(),
-      monoZones: (
-        left: ZoneModel.empty(),
-        right: ZoneModel.empty(),
-      ),
+      monoZones: MonoZones.empty(),
     );
   }
 
@@ -55,10 +43,7 @@ class ZoneWrapperModel extends Equatable {
       id: map['id'],
       mode: ZoneMode.values[map['mode']],
       stereoZone: ZoneModel.fromMap(map['stereoZone']),
-      monoZones: (
-        left: ZoneModel.fromMap(map['monoZones']['left']),
-        right: ZoneModel.fromMap(map['monoZones']['right']),
-      ),
+      monoZones: MonoZones.fromMap(map['monoZones']),
     );
   }
 
@@ -74,9 +59,13 @@ class ZoneWrapperModel extends Equatable {
     };
   }
 
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final ZoneMode mode;
+  @HiveField(2)
   final ZoneModel stereoZone;
+  @HiveField(3)
   final MonoZones monoZones;
 
   ZoneWrapperModel copyWith({

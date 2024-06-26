@@ -1,8 +1,12 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'selectable_model.dart';
 import 'zone_model.dart';
 
+part 'zone_group_model.g.dart';
+
+@HiveType(typeId: 5)
 class ZoneGroupModel extends Equatable implements SelectableModel {
   const ZoneGroupModel({
     required this.id,
@@ -44,8 +48,11 @@ class ZoneGroupModel extends Equatable implements SelectableModel {
     };
   }
 
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String name;
+  @HiveField(2)
   final List<ZoneModel> zones;
 
   ZoneGroupModel copyWith({

@@ -1,7 +1,11 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
 
 import 'selectable_model.dart';
 
+part 'channel_model.g.dart';
+
+@HiveType(typeId: 0)
 class ChannelModel extends Equatable implements SelectableModel {
   const ChannelModel({
     required this.id,
@@ -41,8 +45,11 @@ class ChannelModel extends Equatable implements SelectableModel {
     };
   }
 
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String name;
+  @HiveField(2)
   final bool active;
 
   bool get isEmpty => this == ChannelModel.empty();
