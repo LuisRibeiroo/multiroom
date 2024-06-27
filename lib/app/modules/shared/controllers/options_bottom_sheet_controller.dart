@@ -25,8 +25,8 @@ class OptionsBottomSheetController extends BaseController {
 
   bool onTapAccess() {
     /// !Control@061
-    // if (settings.technicianAccessHash == password.value.getMd5) {
-    if ("123".getMd5 == password.value.getMd5) {
+    if (settings.technicianAccessHash == password.value.getMd5) {
+      // if ("123".getMd5 == password.value.getMd5) {
       // state.value = const SuccessState(data: "techAccess");
       return true;
     } else {
