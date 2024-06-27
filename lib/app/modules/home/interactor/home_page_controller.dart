@@ -338,21 +338,21 @@ class HomePageController extends BaseController with SocketMixin {
       ),
     ));
 
-    final f1k = MrCmdBuilder.parseResponse(await socketSender(
+    final f250 = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: zone,
         frequency: zone.equalizer.frequencies[1],
       ),
     ));
 
-    final f3k = MrCmdBuilder.parseResponse(await socketSender(
+    final f1k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: zone,
         frequency: zone.equalizer.frequencies[2],
       ),
     ));
 
-    final f250 = MrCmdBuilder.parseResponse(await socketSender(
+    final f3k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: zone,
         frequency: zone.equalizer.frequencies[3],
