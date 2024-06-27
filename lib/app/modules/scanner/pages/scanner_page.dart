@@ -11,7 +11,10 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../interactor/controllers/scanner_page_controller.dart';
 import '../interactor/models/network_device_model.dart';
+import '../widgets/add_project_bottom_sheet.dart';
 import '../widgets/device_list_tile.dart';
+import '../widgets/network_devices_bottom_sheet.dart';
+import '../widgets/project_list_bottom_sheet.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({super.key});
@@ -28,69 +31,14 @@ class _ScannerPageState extends State<ScannerPage> {
 
     context.showCustomModalBottomSheet(
       child: Watch(
-        (_) => Padding(
-          padding: const EdgeInsets.only(bottom: 12.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Dispositivos encontrados na rede",
-                style: context.textTheme.titleLarge,
-              ),
-              12.asSpace,
-              Visibility(
-                visible: _controller.hasAvailableSlots.value == false,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                  ),
-                  child: PhysicalModel(
-                    borderRadius: BorderRadius.circular(8),
-                    color: context.colorScheme.inversePrimary,
-                    elevation: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Já existem 3 dispositivos configurados. Para adicionar um novo, será necessário remover um dos existentes.",
-                        style: context.textTheme.bodyLarge!.copyWith(color: context.colorScheme.onSurface),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Flexible(
-                child: AnimatedSize(
-                  duration: Durations.short4,
-                  child: _controller.networkDevices.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 24.0),
-                          child: CircularProgressIndicator(),
-                        )
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: _controller.networkDevices.length,
-                          itemBuilder: (_, index) {
-                            final netDevice = _controller.networkDevices[index];
+        (_) => NetworkDevicesBottomSheet(
+          hasAvailableSlots: _controller.hasAvailableSlots.value == false,
+          networkDevices: _controller.networkDevices,
+          onTapDevice: () {
+            Routefly.pop(context);
 
-                            return ListTile(
-                              title: Text(netDevice.ip),
-                              subtitle: Text(
-                                "${netDevice.serialNumber} - Ver ${netDevice.firmware}",
-                              ),
-                              trailing: const Icon(Icons.add_circle_rounded),
-                              onTap: () {
-                                Routefly.pop(context);
-
-                                _showDeviceTypeSelectorBottomSheet();
-                              },
-                            );
-                          },
-                        ),
-                ),
-              ),
-            ],
-          ),
+            _showDeviceTypeSelectorBottomSheet();
+          },
         ),
       ),
     );
@@ -115,58 +63,18 @@ class _ScannerPageState extends State<ScannerPage> {
   void _showProjectListBottomSheet() {
     context.showCustomModalBottomSheet(
       child: Watch(
-        (_) => Padding(
-          padding: const EdgeInsets.only(bottom: 12.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.group_work_rounded),
-                  12.asSpace,
-                  Text(
-                    "Projetos",
-                    style: context.textTheme.titleLarge,
-                  ),
-                ],
-              ),
-              18.asSpace,
-              SizedBox(
-                width: context.sizeOf.width / 1.5,
-                child: AppButton(
-                  type: ButtonType.secondary,
-                  text: "Novo",
-                  trailing: const Icon(Icons.add_rounded),
-                  onPressed: () {
-                    Routefly.pop(context);
-                    _showAddProjectBottomSheet();
-                  },
-                ),
-              ),
-              24.asSpace,
-              Flexible(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _controller.projects.length,
-                  itemBuilder: (_, index) {
-                    final current = _controller.projects[index];
+        (_) => ProjectListBottomSheet(
+          projects: _controller.projects,
+          onTapAddProject: () {
+            Routefly.pop(context);
+            _showAddProjectBottomSheet();
+          },
+          onTapProject: (project) {
+            Routefly.pop(context);
 
-                    return ListTile(
-                      title: Text(current.name),
-                      trailing: const Icon(Icons.arrow_forward_rounded),
-                      onTap: () {
-                        Routefly.pop(context);
-
-                        _controller.currentProject.set(current);
-                        _showNetworkDevicesBottomSheet();
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            _controller.currentProject.set(project);
+            _showNetworkDevicesBottomSheet();
+          },
         ),
       ),
     );
@@ -175,41 +83,15 @@ class _ScannerPageState extends State<ScannerPage> {
   void _showAddProjectBottomSheet() {
     context.showCustomModalBottomSheet(
       child: Watch(
-        (_) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Novo projeto",
-                style: context.textTheme.titleLarge,
-              ),
-              12.asSpace,
-              TextFormField(
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "Nome",
-                  hintText: "Casa",
-                ),
-                initialValue: _controller.projectName.value,
-                onChanged: _controller.projectName.set,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24.0),
-                child: AppButton(
-                  text: "Adicionar",
-                  trailing: const Icon(Icons.check_rounded),
-                  onPressed: _controller.isProjectNameValid.value
-                      ? () {
-                          Routefly.pop(context);
-                          _controller.addProject();
-                          _showNetworkDevicesBottomSheet();
-                        }
-                      : null,
-                ),
-              ),
-            ],
-          ),
+        (_) => AddProjectBottomSheet(
+          projectName: _controller.projectName.value,
+          onChangeProjectName: _controller.projectName.set,
+          isNameValid: _controller.isProjectNameValid.value,
+          onAddProject: () {
+            Routefly.pop(context);
+            _controller.addProject();
+            _showNetworkDevicesBottomSheet();
+          },
         ),
       ),
     );
