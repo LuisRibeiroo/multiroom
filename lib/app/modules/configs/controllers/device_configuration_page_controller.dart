@@ -234,12 +234,12 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   Future<void> onSetMaxVolume(ZoneWrapperModel wrapper, ZoneModel zone) async {
-    if (editingWrapper.value.isStereo) {
+    if (wrapper.isStereo) {
       editingWrapper.value = wrapper.copyWith(stereoZone: zone.copyWith(maxVolume: maxVolume.value));
     } else {
       if (zone.side == MonoSide.left) {
         editingWrapper.value = wrapper.copyWith(
-          monoZones: editingWrapper.value.monoZones.copyWith(
+          monoZones: wrapper.monoZones.copyWith(
             left: zone.copyWith(
               maxVolume: maxVolume.value,
             ),
@@ -247,7 +247,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         );
       } else {
         editingWrapper.value = wrapper.copyWith(
-          monoZones: editingWrapper.value.monoZones.copyWith(
+          monoZones: wrapper.monoZones.copyWith(
             right: zone.copyWith(
               maxVolume: maxVolume.value,
             ),
@@ -256,13 +256,15 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       }
     }
 
-    device.value = device.value.copyWith(
-      zoneWrappers: device.value.zoneWrappers
-          .map(
-            (z) => z.id == editingWrapper.value.id ? editingWrapper.value : z,
-          )
-          .toList(),
-    );
+    device.value = device.peek().copyWith(
+          zoneWrappers: device
+              .peek()
+              .zoneWrappers
+              .map(
+                (z) => z.id == editingWrapper.value.id ? editingWrapper.value : z,
+              )
+              .toList(),
+        );
 
     try {
       await socketSender(MrCmdBuilder.setMaxVolume(
@@ -343,40 +345,44 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         continue;
       }
 
-      final maxVolume = maxVols
-          .firstWhere(
-            (entry) => entry.key.contains(wrapper.id),
-            orElse: () => MapEntry(wrapper.id, "100"),
-          )
-          .value;
-
       if (mode.value.toUpperCase() == "STEREO") {
+        final maxVolume = maxVols.firstWhere(
+          (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")),
+          orElse: () => MapEntry(wrapper.id, "100"),
+        );
+
         wrapper = wrapper.copyWith(
           mode: ZoneMode.stereo,
           stereoZone: wrapper.stereoZone.copyWith(
-            maxVolume: int.parse(maxVolume),
+            maxVolume: int.parse(maxVolume.value.numbersOnly),
           ),
         );
       } else {
-        if (wrapper.id.contains("R")) {
-          wrapper = wrapper.copyWith(
-            mode: ZoneMode.mono,
-            monoZones: wrapper.monoZones.copyWith(
-              right: wrapper.monoZones.right.copyWith(
-                maxVolume: int.parse(maxVolume),
-              ),
+        final maxVolumeR = maxVols
+            .firstWhere(
+              (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")) && entry.key.endsWith("R"),
+              orElse: () => MapEntry(wrapper.id, "100"),
+            )
+            .value;
+
+        final maxVolumeL = maxVols
+            .firstWhere(
+              (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")) && entry.key.endsWith("L"),
+              orElse: () => MapEntry(wrapper.id, "100"),
+            )
+            .value;
+
+        wrapper = wrapper.copyWith(
+          mode: ZoneMode.mono,
+          monoZones: wrapper.monoZones.copyWith(
+            right: wrapper.monoZones.right.copyWith(
+              maxVolume: int.parse(maxVolumeR.numbersOnly),
             ),
-          );
-        } else {
-          wrapper = wrapper.copyWith(
-            mode: ZoneMode.mono,
-            monoZones: wrapper.monoZones.copyWith(
-              left: wrapper.monoZones.left.copyWith(
-                maxVolume: int.parse(maxVolume),
-              ),
+            left: wrapper.monoZones.left.copyWith(
+              maxVolume: int.parse(maxVolumeL.numbersOnly),
             ),
-          );
-        }
+          ),
+        );
       }
 
       zonesList.add(wrapper);
