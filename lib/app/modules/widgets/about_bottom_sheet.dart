@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import '../../core/extensions/number_extensions.dart';
 import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/extensions/build_context_extensions.dart';
+import '../../core/extensions/number_extensions.dart';
 
 class AboutBottomSheet extends StatelessWidget {
   const AboutBottomSheet({super.key});

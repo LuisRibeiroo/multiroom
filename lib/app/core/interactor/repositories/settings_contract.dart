@@ -1,4 +1,4 @@
-import 'package:multiroom/app/core/models/project_model.dart';
+import '../../models/project_model.dart';
 
 import '../../models/device_model.dart';
 

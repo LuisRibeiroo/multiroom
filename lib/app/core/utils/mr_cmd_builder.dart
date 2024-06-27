@@ -1,4 +1,4 @@
-import 'package:multiroom/app/core/models/zone_group_model.dart';
+import '../models/zone_group_model.dart';
 
 import '../enums/device_type.dart';
 import '../enums/multiroom_commands.dart';

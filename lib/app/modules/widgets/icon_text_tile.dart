@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/extensions/number_extensions.dart';
+import '../../core/extensions/number_extensions.dart';
 
 class IconTextTile extends StatelessWidget {
   const IconTextTile({

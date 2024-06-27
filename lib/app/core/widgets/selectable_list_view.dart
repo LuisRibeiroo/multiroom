@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/modules/widgets/icon_title.dart';
+import '../../modules/widgets/icon_title.dart';
 import 'package:routefly/routefly.dart';
 
 import '../models/selectable_model.dart';

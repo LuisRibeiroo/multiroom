@@ -3,9 +3,6 @@ import 'dart:io';
 
 import 'package:logger/logger.dart';
 
-import '../../extensions/socket_extensions.dart';
-import '../../extensions/stream_iterator_extensions.dart';
-
 mixin SocketMixin {
   Socket? _socket;
   StreamIterator? _streamIterator;

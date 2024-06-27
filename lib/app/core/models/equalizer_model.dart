@@ -1,10 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
 
 import 'frequency.dart';
 import 'selectable_model.dart';
-
-import 'package:hive/hive.dart';
 
 part 'equalizer_model.g.dart';
 
