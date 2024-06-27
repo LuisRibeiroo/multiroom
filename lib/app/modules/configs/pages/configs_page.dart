@@ -9,8 +9,8 @@ import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_overlay.dart';
-import '../../scanner/widgets/device_list_tile.dart';
 import '../../shared/pages/options_bottom_sheet.dart';
+import '../../widgets/project_list_card.dart';
 import '../controllers/configs_page_controller.dart';
 import '../widgets/no_devices_widget.dart';
 
@@ -42,7 +42,7 @@ class _ConfigsPageState extends State<ConfigsPage> {
               title: const Text("Configurações"),
               actions: [
                 Visibility(
-                  visible: _controller.localDevices.isNotEmpty,
+                  visible: _controller.projects.isNotEmpty,
                   child: IconButton(
                     onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
                     icon: const Icon(Icons.more_vert_rounded),
@@ -51,20 +51,22 @@ class _ConfigsPageState extends State<ConfigsPage> {
               ],
             ),
             body: Visibility(
-              visible: _controller.localDevices.isEmpty,
-              replacement: ListView.builder(
+              visible: _controller.projects.isEmpty,
+              replacement: ListView.separated(
                 padding: const EdgeInsets.all(12),
-                itemCount: _controller.localDevices.length,
+                itemCount: _controller.projects.length,
+                separatorBuilder: (_, __) => 18.asSpace,
                 itemBuilder: (_, index) => Watch(
-                  (_) => DeviceListTile(
-                    device: _controller.localDevices[index],
+                  (_) => ProjectListCard(
+                    project: _controller.projects[index],
                     onTapConfigDevice: (d) => OptionsMenu.showTechBottomSheet(context, device: d),
+                    onTapRemoveProject: null,
                   ),
                 ),
               ),
               child: const NoDevicesWidget(),
             ),
-            floatingActionButton: _controller.localDevices.isEmpty
+            floatingActionButton: _controller.projects.isEmpty
                 ? FloatingActionButton.extended(
                     icon: const Icon(Icons.settings_input_antenna_rounded),
                     label: const Text("Iniciar configuração"),

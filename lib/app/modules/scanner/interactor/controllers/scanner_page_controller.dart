@@ -34,13 +34,14 @@ class ScannerPageController extends BaseController {
   final deviceType = NetworkDeviceType.undefined.toSignal(debugLabel: "deviceType");
   final projectName = "".toSignal(debugLabel: "projectName");
   final currentProject = ProjectModel.empty().toSignal(debugLabel: "currentProject");
+  final hasDevices = false.toSignal(debugLabel: "hasDevices");
 
   final isMasterAvailable = true.toSignal(debugLabel: "isMasterAvailable");
   final slave1Available = true.toSignal(debugLabel: "slave1Available");
   final slave2Available = true.toSignal(debugLabel: "slave2Available");
   final hasAvailableSlots = false.toSignal(debugLabel: "hasAvailableSlots");
 
-  Computed<List<DeviceModel>> get localDevices => computed(
+  Computed<List<DeviceModel>> get _localDevices => computed(
         () => projects.value.expand((p) => p.devices).toList(),
         debugLabel: "localDevices",
       );
@@ -71,10 +72,11 @@ class ScannerPageController extends BaseController {
           }
         }),
         effect(() {
-          settings.saveDevices(localDevices.value);
+          settings.saveDevices(_localDevices.value);
         }),
         effect(() {
           settings.saveProjects(projects.value);
+          hasDevices.value = projects.value.expand((p) => p.devices).toList().isNotEmpty;
         }),
       ],
     );
@@ -108,7 +110,7 @@ class ScannerPageController extends BaseController {
             final (serialNumber, firmware) = DatagramDataParser.getSerialAndFirmware(datagram.data);
 
             // Ignore already added devices
-            if (localDevices.value.any((d) => d.serialNumber == serialNumber) ||
+            if (_localDevices.value.any((d) => d.serialNumber == serialNumber) ||
                 networkDevices.any((d) => d.serialNumber == serialNumber)) {
               return;
             }

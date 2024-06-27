@@ -16,7 +16,7 @@ class ProjectListCard extends StatelessWidget {
 
   final ProjectModel project;
   final Function(DeviceModel) onTapConfigDevice;
-  final Function(ProjectModel) onTapRemoveProject;
+  final Function(ProjectModel)? onTapRemoveProject;
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +37,12 @@ class ProjectListCard extends StatelessWidget {
                   ),
                 ),
                 12.asSpace,
-                IconButton.outlined(
-                  icon: const Icon(Icons.delete_rounded),
-                  onPressed: () {
-                    onTapRemoveProject(project);
-                  },
+                Visibility(
+                  visible: onTapRemoveProject != null,
+                  child: IconButton.outlined(
+                    icon: const Icon(Icons.delete_rounded),
+                    onPressed: () => onTapRemoveProject?.call(project),
+                  ),
                 ),
               ],
             ),
