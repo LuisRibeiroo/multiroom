@@ -28,14 +28,14 @@ class ScannerPage extends StatefulWidget {
 class _ScannerPageState extends State<ScannerPage> {
   final _controller = injector.get<ScannerPageController>();
 
-  void _showNetworkDevicesBottomSheet() {
+  void _showNetworkDevicesBottomSheet(BuildContext context) {
     _controller.startUdpServer();
 
     context.showCustomModalBottomSheet(
       child: Watch(
         (_) => NetworkDevicesBottomSheet(
           hasAvailableSlots: _controller.hasAvailableSlots.value == false,
-          networkDevices: _controller.networkDevices,
+          networkDevices: _controller.networkDevices.value,
           onTapDevice: () {
             Routefly.pop(context);
 
@@ -75,7 +75,7 @@ class _ScannerPageState extends State<ScannerPage> {
             Routefly.pop(context);
 
             _controller.currentProject.set(project);
-            _showNetworkDevicesBottomSheet();
+            _showNetworkDevicesBottomSheet(context);
           },
         ),
       ),
@@ -91,8 +91,9 @@ class _ScannerPageState extends State<ScannerPage> {
           isNameValid: _controller.isProjectNameValid.value,
           onAddProject: () {
             Routefly.pop(context);
+
             _controller.addProject();
-            _showNetworkDevicesBottomSheet();
+            _showNetworkDevicesBottomSheet(context);
           },
         ),
       ),
