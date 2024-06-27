@@ -36,6 +36,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
       isScrollControlled: false,
       child: Watch(
         (_) => Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             const IconTitle(
               title: "Zonas",

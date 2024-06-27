@@ -244,8 +244,18 @@ class HomePageController extends BaseController with SocketMixin {
       currentZone.value = zones.first;
     }
 
-    await restartSocket(newIp: currentDevice.value.ip);
-    _updateAllDeviceData(currentZone.value);
+    await run(() async {
+      try {
+        await restartSocket(newIp: currentDevice.value.ip);
+        await _updateAllDeviceData(currentZone.value);
+      } catch (exception) {
+        if (exception is Exception) {
+          setError(exception);
+        } else {
+          setError(Exception(exception));
+        }
+      }
+    });
   }
 
   Future<void> _debounceSendCommand(String cmd) async {

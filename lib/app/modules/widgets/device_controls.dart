@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../../core/enums/mono_side.dart';
@@ -45,8 +47,8 @@ class DeviceControls extends StatelessWidget {
               child: SliderCard(
                 key: ValueKey(currentZone.name),
                 title: "Volume",
-                caption: "${currentZone.volume}%",
-                value: currentZone.volume,
+                caption: "${min(currentZone.volume, 100)}%",
+                value: min(currentZone.volume, 100),
                 onChanged: onChangeVolume,
               ),
             ),

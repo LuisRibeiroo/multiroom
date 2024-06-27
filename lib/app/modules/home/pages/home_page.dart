@@ -101,7 +101,10 @@ class _HomePageState extends State<HomePage> {
         tiles.add(
           ListTile(
             title: Text(zone.name),
-            subtitle: Text(device.name),
+            subtitle: Text(
+              device.name,
+              style: context.textTheme.labelSmall!.copyWith(color: context.theme.disabledColor),
+            ),
             trailing: Visibility(
               visible: zone.id == _controller.currentZone.value.id &&
                   device.serialNumber == _controller.currentDevice.value.serialNumber,
