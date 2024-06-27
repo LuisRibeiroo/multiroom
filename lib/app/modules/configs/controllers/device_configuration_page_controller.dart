@@ -38,21 +38,12 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     deviceName.value = dev.name;
 
     try {
-      await initSocket(ip: dev.ip);
+      await restartSocket(newIp: dev.ip);
+      await run(_updateDeviceData);
     } catch (exception) {
       logger.e(exception);
       setError(exception as Exception);
     }
-
-    final configs = await _getDeviceData();
-
-    device.value = device.value.copyWith(
-      zoneWrappers: _parseZones(configs),
-    );
-
-    device.value = device.value.copyWith(
-      groups: _parseGroups(configs),
-    );
 
     disposables.addAll([
       effect(
@@ -233,6 +224,12 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     settings.removeDevice(projectId: device.value.projectId, deviceId: device.value.serialNumber);
   }
 
+  Future<void> onFactoryRestore() async {
+    await socketSender(MrCmdBuilder.setDefaultConfigs);
+
+    await _updateDeviceData();
+  }
+
   Future<void> onSetMaxVolume(ZoneWrapperModel wrapper, ZoneModel zone) async {
     if (wrapper.isStereo) {
       editingWrapper.value = wrapper.copyWith(stereoZone: zone.copyWith(maxVolume: maxVolume.value));
@@ -276,6 +273,18 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     } catch (exception) {
       setError(Exception("Erro ao definir volume máximo --> $exception"));
     }
+  }
+
+  Future<void> _updateDeviceData() async {
+    final configs = await _getDeviceData();
+
+    device.value = device.value.copyWith(
+      zoneWrappers: _parseZones(configs),
+    );
+
+    device.value = device.value.copyWith(
+      groups: _parseGroups(configs),
+    );
   }
 
   void _updateGroupZones(ZoneModel zone) {

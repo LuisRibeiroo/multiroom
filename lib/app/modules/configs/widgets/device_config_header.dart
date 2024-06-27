@@ -9,6 +9,7 @@ import '../../../core/extensions/string_extensions.dart';
 import '../../../core/models/device_model.dart';
 import '../../scanner/widgets/device_type_indicator.dart';
 import '../../widgets/delete_confirmation_bottom_sheet.dart';
+import '../../widgets/factory_restore_confirmation_bottom_sheet.dart';
 import '../../widgets/icon_text_tile.dart';
 
 class DeviceConfigHeader extends StatelessWidget {
@@ -20,6 +21,7 @@ class DeviceConfigHeader extends StatelessWidget {
     required this.toggleEditingDevice,
     required this.onDeleteDevice,
     required this.onChangeDeviceName,
+    required this.onFactoryRestore,
   });
 
   final String deviceName;
@@ -28,6 +30,7 @@ class DeviceConfigHeader extends StatelessWidget {
   final Function() toggleEditingDevice;
   final Function() onDeleteDevice;
   final Function(String) onChangeDeviceName;
+  final Function() onFactoryRestore;
 
   void _showDeviceDeletionBottomSheet(BuildContext context) {
     context.showCustomModalBottomSheet(
@@ -38,6 +41,15 @@ class DeviceConfigHeader extends StatelessWidget {
           onDeleteDevice();
           Routefly.pop(context);
         },
+      ),
+    );
+  }
+
+  void _showFactoryRestoreBottomSheet(BuildContext context) {
+    context.showCustomModalBottomSheet(
+      isScrollControlled: false,
+      child: FactoryRestoreConfirmationBottomSheet(
+        onConfirm: onFactoryRestore,
       ),
     );
   }
@@ -83,9 +95,18 @@ class DeviceConfigHeader extends StatelessWidget {
                   ),
                 ),
                 12.asSpace,
-                IconButton.outlined(
-                  onPressed: () => _showDeviceDeletionBottomSheet(context),
-                  icon: const Icon(Icons.delete_rounded),
+                Column(
+                  children: [
+                    IconButton.outlined(
+                      onPressed: () => _showDeviceDeletionBottomSheet(context),
+                      icon: const Icon(Icons.delete_rounded),
+                    ),
+                    12.asSpace,
+                    IconButton.outlined(
+                      onPressed: () => _showFactoryRestoreBottomSheet(context),
+                      icon: const Icon(Icons.restore_rounded),
+                    ),
+                  ],
                 ),
               ],
             ),

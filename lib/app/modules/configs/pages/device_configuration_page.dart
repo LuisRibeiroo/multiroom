@@ -133,6 +133,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                     onChangeDeviceName: _controller.deviceName.set,
                     toggleEditingDevice: _controller.toggleEditingDevice,
                     onDeleteDevice: _controller.onRemoveDevice,
+                    onFactoryRestore: _controller.onFactoryRestore,
                   ),
                   8.asSpace,
                   ZonesExpandableCard(
