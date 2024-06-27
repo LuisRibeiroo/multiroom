@@ -100,6 +100,7 @@ class DeviceConfigHeader extends StatelessWidget {
                     style: context.textTheme.titleMedium,
                     textAlign: TextAlign.center,
                     decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.surround_sound_rounded),
                       border: OutlineInputBorder(),
                     ),
                   ),
