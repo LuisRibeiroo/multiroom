@@ -48,6 +48,7 @@ class ScannerPageController extends BaseController {
 
   Future<void> init() async {
     projects.value = settings.projects;
+    hasDevices.value = projects.value.expand((p) => p.devices).toList().isNotEmpty;
 
     disposables.addAll(
       [

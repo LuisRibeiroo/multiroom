@@ -4,25 +4,32 @@ import 'package:flutter/material.dart';
 import '../../core/extensions/build_context_extensions.dart';
 import '../../core/extensions/number_extensions.dart';
 import '../../core/models/channel_model.dart';
+import '../../core/models/project_model.dart';
 import '../../core/models/zone_model.dart';
 import '../../core/widgets/app_button.dart';
 
 class DeviceInfoHeader extends StatelessWidget {
   const DeviceInfoHeader({
     super.key,
+    required this.showProjectsButton,
+    required this.project,
     required this.deviceName,
     required this.currentZone,
     required this.currentChannel,
     required this.onChangeChannel,
     required this.onChangeDevice,
     required this.onChangeActive,
+    required this.onChangeProject,
   });
 
+  final bool showProjectsButton;
+  final ProjectModel project;
   final String deviceName;
   final ZoneModel currentZone;
   final ChannelModel currentChannel;
   final Function() onChangeChannel;
   final Function() onChangeDevice;
+  final Function() onChangeProject;
   final Function(bool) onChangeActive;
 
   @override
@@ -32,6 +39,21 @@ class DeviceInfoHeader extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
         child: Column(
           children: [
+            AnimatedSize(
+              duration: Durations.short4,
+              child: Visibility(
+                visible: showProjectsButton,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 24.0),
+                  child: AppButton(
+                    type: ButtonType.primary,
+                    text: project.name,
+                    leading: const Icon(Icons.group_work_rounded),
+                    onPressed: onChangeProject,
+                  ),
+                ),
+              ),
+            ),
             Row(
               children: [
                 Expanded(

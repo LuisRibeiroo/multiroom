@@ -62,10 +62,23 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showProjectsBottomSheet() {
+    context.showCustomModalBottomSheet(
+      isScrollControlled: false,
+      child: Watch(
+        (_) => SelectableListView(
+          options: _controller.projects,
+          onSelect: _controller.setProject,
+          selectedOption: _controller.currentProject.value,
+        ),
+      ),
+    );
+  }
+
   List<Widget> _getDeviceZoneTiles() {
     final tiles = <Widget>[];
 
-    for (final device in _controller.localDevices) {
+    for (final device in _controller.currentProject.value.devices) {
       for (final zone in device.groupedZones) {
         tiles.add(
           ListTile(
@@ -104,7 +117,7 @@ class _HomePageState extends State<HomePage> {
         key: const ValueKey(HomePage),
         onVisibilityChanged: (info) async {
           if (info.visibleFraction == 1) {
-            await _controller.syncLocalDevices();
+            await _controller.syncLocalData();
           }
         },
         child: LoadingOverlay(
@@ -128,12 +141,15 @@ class _HomePageState extends State<HomePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       DeviceInfoHeader(
+                        showProjectsButton: _controller.hasMultipleProjects.value,
+                        project: _controller.currentProject.value,
                         deviceName: _controller.currentDevice.value.name,
                         currentZone: _controller.currentZone.value,
                         currentChannel: _controller.currentChannel.value,
                         onChangeActive: _controller.setZoneActive,
                         onChangeDevice: _showDevicesBottomSheet,
                         onChangeChannel: _showChannelsBottomSheet,
+                        onChangeProject: _showProjectsBottomSheet,
                       ),
                       12.asSpace,
                       DeviceControls(

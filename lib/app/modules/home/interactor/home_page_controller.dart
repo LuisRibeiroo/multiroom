@@ -15,6 +15,7 @@ import '../../../core/models/channel_model.dart';
 import '../../../core/models/device_model.dart';
 import '../../../core/models/equalizer_model.dart';
 import '../../../core/models/frequency.dart';
+import '../../../core/models/project_model.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/models/zone_wrapper_model.dart';
 import '../../../core/utils/debouncer.dart';
@@ -22,16 +23,19 @@ import '../../../core/utils/mr_cmd_builder.dart';
 
 class HomePageController extends BaseController with SocketMixin {
   HomePageController() : super(InitialState()) {
-    localDevices.value = _settings.devices;
-    currentDevice.value = localDevices.first;
+    projects.value = _settings.projects;
+    currentProject.value = projects.first;
+    currentDevice.value = currentProject.value.devices.first;
     currentEqualizer.value = equalizers.last;
 
     disposables.addAll([
       effect(() {
-        if (localDevices.isEmpty) {
+        if (projects.isEmpty) {
           Routefly.replace(routePaths.modules.configs.pages.configs);
           Routefly.pushNavigate(routePaths.modules.configs.pages.configs);
         }
+
+        hasMultipleProjects.value = projects.length > 1;
       }),
       currentDevice.subscribe((value) async {
         if (value.isEmpty) {
@@ -53,7 +57,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   final _settings = injector.get<SettingsContract>();
 
-  final localDevices = listSignal<DeviceModel>([], debugLabel: "localDevices");
+  final projects = listSignal<ProjectModel>([], debugLabel: "projects");
   final channels = listSignal<ChannelModel>([], debugLabel: "channels");
   final zones = listSignal<ZoneModel>([], debugLabel: "zones");
   final equalizers = listSignal<EqualizerModel>(
@@ -69,10 +73,12 @@ class HomePageController extends BaseController with SocketMixin {
     debugLabel: "equalizers",
   );
 
+  final currentProject = ProjectModel.empty().toSignal(debugLabel: "currentProject");
   final currentDevice = DeviceModel.empty().toSignal(debugLabel: "currentDevice");
   final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
   final currentChannel = ChannelModel.empty().toSignal(debugLabel: "currentChannel");
   final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
+  final hasMultipleProjects = false.toSignal(debugLabel: "hasMultipleProjects");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
 
@@ -96,6 +102,10 @@ class HomePageController extends BaseController with SocketMixin {
       logger.i("UPDATE ALL DATA");
       await _updateAllDeviceData(zone);
     }
+  }
+
+  Future<void> setProject(ProjectModel proj) async {
+    _updateSignals(project: proj);
   }
 
   Future<void> setZoneActive(bool active) async {
@@ -194,31 +204,35 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  Future<void> syncLocalDevices() async {
+  Future<void> syncLocalData() async {
     await run(() {
-      localDevices.value = _settings.devices;
+      projects.value = _settings.projects;
 
       disposables.addAll(
         [
           untracked(() {
-            if (localDevices.isEmpty) {
+            if (projects.isEmpty) {
               return;
             }
 
-            currentDevice.value = localDevices.value.first;
-            zones.value = currentDevice.value.zones;
-
-            if (currentDevice.value.isZoneInGroup(zones.first)) {
-              currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.contains(zones.first)).asZone;
-            } else {
-              currentZone.value = zones.first;
-            }
-
+            _updateSignals();
             return null;
           }),
         ],
       );
     });
+  }
+
+  void _updateSignals({ProjectModel? project}) {
+    currentProject.value = project ?? projects.value.first;
+    currentDevice.value = currentProject.value.devices.first;
+    zones.value = currentDevice.value.zones;
+
+    if (currentDevice.value.isZoneInGroup(zones.first)) {
+      currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.contains(zones.first)).asZone;
+    } else {
+      currentZone.value = zones.first;
+    }
   }
 
   Future<void> _debounceSendCommand(String cmd) async {
@@ -376,9 +390,10 @@ class HomePageController extends BaseController with SocketMixin {
     super.dispose();
     mixinDispose();
 
-    localDevices.value = <DeviceModel>[];
+    projects.value = <ProjectModel>[];
     zones.value = <ZoneModel>[];
 
+    currentProject.value = currentProject.initialValue;
     currentDevice.value = currentDevice.initialValue;
     currentZone.value = currentZone.initialValue;
     currentChannel.value = currentChannel.initialValue;

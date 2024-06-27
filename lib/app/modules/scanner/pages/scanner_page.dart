@@ -119,7 +119,7 @@ class _ScannerPageState extends State<ScannerPage> {
     scheduleMicrotask(() async {
       await _controller.init();
 
-      if (_controller.hasDevices.value) {
+      if (_controller.hasDevices.value == false) {
         _showProjectListBottomSheet();
       }
     });

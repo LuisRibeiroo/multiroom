@@ -1,11 +1,12 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'device_model.dart';
+import 'selectable_model.dart';
 
 part 'project_model.g.dart';
 
 @HiveType(typeId: 4)
-class ProjectModel extends HiveObject {
+class ProjectModel extends HiveObject implements SelectableModel {
   ProjectModel({
     required this.id,
     required this.name,
@@ -53,6 +54,9 @@ class ProjectModel extends HiveObject {
   final String name;
   @HiveField(2)
   final List<DeviceModel> devices;
+
+  @override
+  String get label => name;
 
   ProjectModel copyWith({
     String? id,
