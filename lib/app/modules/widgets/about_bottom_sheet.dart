@@ -1,13 +1,35 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/extensions/build_context_extensions.dart';
 import '../../core/extensions/number_extensions.dart';
 
-class AboutBottomSheet extends StatelessWidget {
+class AboutBottomSheet extends StatefulWidget {
   const AboutBottomSheet({super.key});
+
+  @override
+  State<AboutBottomSheet> createState() => _AboutBottomSheetState();
+}
+
+class _AboutBottomSheetState extends State<AboutBottomSheet> {
+  String _appVersion = "";
+
+  @override
+  void initState() {
+    super.initState();
+    scheduleMicrotask(() async {
+      final info = await PackageInfo.fromPlatform();
+
+      setState(() {
+        _appVersion = "${info.version}+${info.buildNumber}";
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +44,11 @@ class AboutBottomSheet extends StatelessWidget {
                 height: 48.0,
               ),
             ),
-            // Text(
-            //   "Multiroom",
-            //   style: context.textTheme.titleLarge,
-            // ),
           ],
+        ),
+        Text(
+          "Multiroom v$_appVersion",
+          style: context.textTheme.bodySmall,
         ),
         const Divider(height: 24, indent: 24, endIndent: 24),
         Padding(
