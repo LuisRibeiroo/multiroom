@@ -54,7 +54,7 @@ class ScannerPageController extends BaseController {
       [
         effect(() {
           hasAvailableSlots.value = currentProject.value.devices.length < 3;
-          isMasterAvailable.value = currentProject.value.devices.isEmpty &&
+          isMasterAvailable.value = currentProject.value.devices.isEmpty ||
               currentProject.value.devices.every((d) => d.type != DeviceType.master);
           slave1Available.value = isMasterAvailable.peek() == false &&
               currentProject.value.devices.where((d) => d.type == DeviceType.slave).isEmpty;
