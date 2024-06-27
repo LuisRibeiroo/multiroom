@@ -25,7 +25,11 @@ class HomePageController extends BaseController with SocketMixin {
   HomePageController() : super(InitialState()) {
     projects.value = _settings.projects;
     currentProject.value = projects.first;
-    currentDevice.value = currentProject.value.devices.first;
+
+    if (currentProject.value.devices.isNotEmpty) {
+      currentDevice.value = currentProject.value.devices.first;
+    }
+
     currentEqualizer.value = equalizers.last;
 
     disposables.addAll([

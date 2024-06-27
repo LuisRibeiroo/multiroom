@@ -41,10 +41,10 @@ class ScannerPageController extends BaseController {
   final slave2Available = true.toSignal(debugLabel: "slave2Available");
   final hasAvailableSlots = false.toSignal(debugLabel: "hasAvailableSlots");
 
-  Computed<List<DeviceModel>> get _localDevices => computed(
-        () => projects.value.expand((p) => p.devices).toList(),
-        debugLabel: "localDevices",
-      );
+  final _localDevices = listSignal(
+    <DeviceModel>[],
+    debugLabel: "localDevices",
+  );
 
   Future<void> init() async {
     projects.value = settings.projects;
@@ -64,6 +64,9 @@ class ScannerPageController extends BaseController {
           if (hasAvailableSlots.value == false) {
             stopUdpServer();
           }
+        }),
+        effect(() {
+          _localDevices.value = projects.value.expand((p) => p.devices).toList();
         }),
         effect(() {
           if (isUdpListening.value) {
