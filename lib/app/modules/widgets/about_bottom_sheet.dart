@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/extensions/number_extensions.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import '../../core/extensions/number_extensions.dart';
 import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -60,7 +61,7 @@ class AboutBottomSheet extends StatelessWidget {
           },
         ),
         ListTile(
-          leading: const Icon(Icons.whatshot_rounded),
+          leading: Icon(MdiIcons.whatsapp),
           trailing: const Icon(Icons.arrow_forward_rounded),
           title: const Text("(12) 98257-0319"),
           subtitle: const Text("WhatsApp"),
