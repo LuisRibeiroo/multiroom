@@ -99,6 +99,7 @@ class ZonesExpandableCard extends StatelessWidget {
                                     child: ZoneDetailEditTile(
                                       zone: wrapper.stereoZone,
                                       wrapper: wrapper,
+                                      hideEditButton: isEditing && editingZone.id != wrapper.id,
                                       isEditing: editingWrapper.id == wrapper.id && isEditing,
                                       onChangeZoneName: onChangeZoneName,
                                       toggleEditing: toggleEditingZone,
@@ -116,6 +117,7 @@ class ZonesExpandableCard extends StatelessWidget {
                                         label: wrapper.monoZones.right.id,
                                         zone: wrapper.monoZones.right,
                                         wrapper: wrapper,
+                                        hideEditButton: isEditing && editingZone.id != wrapper.monoZones.right.id,
                                         isEditing: editingZone.id == wrapper.monoZones.right.id && isEditing,
                                         onChangeZoneName: onChangeZoneName,
                                         toggleEditing: toggleEditingZone,
@@ -134,6 +136,7 @@ class ZonesExpandableCard extends StatelessWidget {
                                       label: wrapper.monoZones.left.id,
                                       zone: wrapper.monoZones.left,
                                       wrapper: wrapper,
+                                      hideEditButton: isEditing && editingZone.id != wrapper.monoZones.left.id,
                                       isEditing: editingZone.id == wrapper.monoZones.left.id && isEditing,
                                       onChangeZoneName: onChangeZoneName,
                                       toggleEditing: toggleEditingZone,

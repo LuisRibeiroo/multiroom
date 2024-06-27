@@ -15,6 +15,7 @@ class ZoneDetailEditTile extends StatelessWidget {
     required this.toggleEditing,
     required this.onTapEditMaxVolume,
     required this.maxVolume,
+    required this.hideEditButton,
     this.label = "",
   });
 
@@ -26,6 +27,7 @@ class ZoneDetailEditTile extends StatelessWidget {
   final Function(ZoneWrapperModel, ZoneModel) toggleEditing;
   final Function() onTapEditMaxVolume;
   final int maxVolume;
+  final bool hideEditButton;
 
   @override
   Widget build(BuildContext context) {
@@ -53,13 +55,19 @@ class ZoneDetailEditTile extends StatelessWidget {
           ),
         ),
         12.asSpace,
-        IconButton(
-          onPressed: () => toggleEditing(wrapper, zone),
-          icon: AnimatedSwitcher(
-            duration: Durations.short3,
-            child: Icon(
-              key: ValueKey(isEditing),
-              isEditing ? Icons.check_rounded : Icons.edit_rounded,
+        AnimatedSize(
+          duration: Durations.short3,
+          child: Visibility(
+            visible: hideEditButton == false,
+            child: IconButton(
+              onPressed: () => toggleEditing(wrapper, zone),
+              icon: AnimatedSwitcher(
+                duration: Durations.short3,
+                child: Icon(
+                  key: ValueKey(isEditing),
+                  isEditing ? Icons.check_rounded : Icons.edit_rounded,
+                ),
+              ),
             ),
           ),
         ),
