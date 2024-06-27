@@ -104,7 +104,7 @@ class _ScannerPageState extends State<ScannerPage> {
     scheduleMicrotask(() async {
       await _controller.init();
 
-      if (_controller.localDevices.isEmpty) {
+      if (_controller.localDevices.value.isEmpty) {
         _showProjectListBottomSheet();
       }
     });
@@ -138,15 +138,36 @@ class _ScannerPageState extends State<ScannerPage> {
           ),
           body: Watch(
             (_) => Visibility(
-              visible: _controller.localDevices.isEmpty,
+              visible: _controller.projects.isEmpty,
               replacement: ListView.builder(
                 padding: const EdgeInsets.all(12),
-                itemCount: _controller.localDevices.length,
+                itemCount: _controller.projects.length,
                 itemBuilder: (_, index) => Watch(
-                  (_) => DeviceListTile(
-                    device: _controller.localDevices[index],
-                    onTapConfigDevice: _controller.onTapConfigDevice,
-                  ),
+                  (_) {
+                    final proj = _controller.projects[index];
+
+                    return Card.outlined(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              proj.name,
+                              style: context.textTheme.titleLarge,
+                            ),
+                            8.asSpace,
+                            ...List.generate(
+                              proj.devices.length,
+                              (idx) => DeviceListTile(
+                                device: proj.devices[idx],
+                                onTapConfigDevice: _controller.onTapConfigDevice,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
               child: Center(

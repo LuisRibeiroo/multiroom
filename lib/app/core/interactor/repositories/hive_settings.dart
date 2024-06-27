@@ -77,7 +77,7 @@ class HiveSettings implements SettingsContract {
 
   @override
   void saveProjects(List<ProjectModel> value) {
-    _logger.d("SAVE PROJECTS --> PARAM: [$value]}");
+    _logger.d("SAVE PROJECTS --> LENGHT: ${value.length} | PARAM: [$value]}");
 
     _box.put("projects", value);
   }

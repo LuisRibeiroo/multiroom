@@ -9,6 +9,7 @@ import '../../../../../injector.dart';
 import '../../../../../routes.g.dart';
 import '../../../../core/enums/device_type.dart';
 import '../../../../core/enums/page_state.dart';
+import '../../../../core/extensions/list_extensions.dart';
 import '../../../../core/extensions/socket_extensions.dart';
 import '../../../../core/extensions/stream_iterator_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
@@ -29,7 +30,6 @@ class ScannerPageController extends BaseController {
 
   final isUdpListening = false.toSignal(debugLabel: "isUdpListening");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
-  final localDevices = listSignal<DeviceModel>([], debugLabel: "localDevices");
   final networkDevices = listSignal<NetworkDeviceModel>([], debugLabel: "networkDevices");
   final deviceType = NetworkDeviceType.undefined.toSignal(debugLabel: "deviceType");
   final projectName = "".toSignal(debugLabel: "projectName");
@@ -40,19 +40,24 @@ class ScannerPageController extends BaseController {
   final slave2Available = true.toSignal(debugLabel: "slave2Available");
   final hasAvailableSlots = false.toSignal(debugLabel: "hasAvailableSlots");
 
+  Computed<List<DeviceModel>> get localDevices => computed(
+        () => projects.value.expand((p) => p.devices).toList(),
+        debugLabel: "localDevices",
+      );
+
   Future<void> init() async {
-    localDevices.value = settings.devices;
     projects.value = settings.projects;
 
     disposables.addAll(
       [
         effect(() {
-          hasAvailableSlots.value = localDevices.length < 3;
-          isMasterAvailable.value = localDevices.isEmpty && localDevices.every((d) => d.type != DeviceType.master);
-          slave1Available.value =
-              isMasterAvailable.peek() == false && localDevices.where((d) => d.type == DeviceType.slave).isEmpty;
-          slave2Available.value =
-              slave1Available.peek() == false && localDevices.where((d) => d.type == DeviceType.slave).length == 1;
+          hasAvailableSlots.value = currentProject.value.devices.length < 3;
+          isMasterAvailable.value = currentProject.value.devices.isEmpty &&
+              currentProject.value.devices.every((d) => d.type != DeviceType.master);
+          slave1Available.value = isMasterAvailable.peek() == false &&
+              currentProject.value.devices.where((d) => d.type == DeviceType.slave).isEmpty;
+          slave2Available.value = slave1Available.peek() == false &&
+              currentProject.value.devices.where((d) => d.type == DeviceType.slave).length == 1;
 
           if (hasAvailableSlots.value == false) {
             stopUdpServer();
@@ -103,7 +108,7 @@ class ScannerPageController extends BaseController {
             final (serialNumber, firmware) = DatagramDataParser.getSerialAndFirmware(datagram.data);
 
             // Ignore already added devices
-            if (localDevices.any((d) => d.serialNumber == serialNumber) ||
+            if (localDevices.value.any((d) => d.serialNumber == serialNumber) ||
                 networkDevices.any((d) => d.serialNumber == serialNumber)) {
               return;
             }
@@ -162,9 +167,9 @@ class ScannerPageController extends BaseController {
 
     Routefly.push(routePaths.modules.configs.pages.deviceConfiguration, arguments: device).then(
       (_) async {
-        if (localDevices.peek() != settings.devices) {
-          localDevices.value = settings.devices;
-        }
+        // if (localDevices.peek() != settings.devices) {
+        //   localDevices.value = settings.devices;
+        // }
         if (projects.peek() != settings.projects) {
           projects.value = settings.projects;
         }
@@ -189,7 +194,7 @@ class ScannerPageController extends BaseController {
       // type: DeviceType.fromString(type),
     );
 
-    localDevices.add(newDevice);
+    _updateProject(newDevice);
     onTapConfigDevice(newDevice);
 
     deviceType.value = deviceType.initialValue;
@@ -205,6 +210,15 @@ class ScannerPageController extends BaseController {
 
     currentProject.value = project;
     projectName.value = projectName.initialValue;
+  }
+
+  void _updateProject(DeviceModel newDevice) {
+    currentProject.value = currentProject.peek().copyWith(devices: [...currentProject.peek().devices, newDevice]);
+
+    final List<ProjectModel> newProjects = List.from(projects.peek());
+    newProjects.replaceWhere((p) => p.id == currentProject.peek().id, currentProject.value);
+
+    projects.value = newProjects;
   }
 
   Future<String> _setDeviceType(String ip, DeviceType type) async {
@@ -258,7 +272,7 @@ class ScannerPageController extends BaseController {
     hasAvailableSlots.value = hasAvailableSlots.initialValue;
 
     projects.value = <ProjectModel>[];
-    localDevices.value = <DeviceModel>[];
+    // localDevices.value = <DeviceModel>[];
     networkDevices.value = <NetworkDeviceModel>[];
   }
 }
