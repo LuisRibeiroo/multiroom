@@ -57,7 +57,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     disposables.addAll([
       effect(
         () {
-          settings.saveDevice(device.value);
+          settings.saveDevice(device: device.value);
         },
       ),
       effect(() {

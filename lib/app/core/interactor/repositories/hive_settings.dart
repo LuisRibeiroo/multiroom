@@ -23,28 +23,16 @@ class HiveSettings implements SettingsContract {
   String get technicianAccessHash => "640c5fc8cd23285fd33b66bdf0c4570d";
 
   @override
-  void saveDevice(DeviceModel device) {
+  void saveDevice({required DeviceModel device}) {
     _logger.d("SAVE DEVICE --> PARAM: [$device]}");
 
-    final List<DeviceModel> newList = List.from(devices);
-    newList.replaceWhere((d) => d.serialNumber == device.serialNumber, device);
-    _box.put("devices", newList);
-  }
+    ProjectModel updatedProj = projects.firstWhere((p) => p.id == device.projectId);
+    final updatedDevices = updatedProj.devices;
+    updatedDevices.replaceWhere((d) => d.serialNumber == device.serialNumber, device);
 
-  @override
-  void saveDevices(List<DeviceModel> value) {
-    _logger.d("SAVE DEVICES --> PARAM: [$value]}");
+    updatedProj = updatedProj.copyWith(devices: updatedDevices);
 
-    _box.put("devices", value);
-  }
-
-  @override
-  List<DeviceModel> get devices {
-    final data = _box.get("devices", defaultValue: <DeviceModel>[]);
-
-    _logger.d("GET DEVICES --> LENGTH: [${data.length}] | VALUE: $data");
-
-    return List.castFrom<dynamic, DeviceModel>(data);
+    saveProject(updatedProj);
   }
 
   @override

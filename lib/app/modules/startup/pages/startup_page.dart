@@ -79,7 +79,7 @@ class _StartupPageState extends State<StartupPage> {
       // settings.saveDevices([]);
 
       await Future.delayed(const Duration(seconds: 1), () {
-        if (settings.devices.isEmpty) {
+        if (settings.projects.isEmpty) {
           Routefly.replace(routePaths.modules.configs.pages.configs);
           Routefly.pushNavigate(routePaths.modules.configs.pages.configs);
         } else {

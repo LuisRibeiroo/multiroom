@@ -73,9 +73,6 @@ class ScannerPageController extends BaseController {
           }
         }),
         effect(() {
-          settings.saveDevices(_localDevices.value);
-        }),
-        effect(() {
           settings.saveProjects(projects.value);
           hasDevices.value = projects.value.expand((p) => p.devices).toList().isNotEmpty;
         }),
