@@ -47,10 +47,11 @@ class HomePageController extends BaseController with SocketMixin {
           channels.value = value.zones.first.channels;
         }
 
-        if (currentDevice.previousValue != value) {
-          logger.d("Save device --> ${value.serialNumber}");
-          _settings.saveDevice(value);
-        }
+        // TODO: Test and remove it
+        // if (currentDevice.previousValue != value) {
+        //   logger.d("Save device --> ${value.serialNumber}");
+        //   _settings.saveDevice(value);
+        // }
       }),
     ]);
   }
