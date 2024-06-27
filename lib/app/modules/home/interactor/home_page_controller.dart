@@ -100,6 +100,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     if (device.serialNumber != currentDevice.value.serialNumber) {
       currentDevice.value = device;
+      await restartSocket(newIp: device.ip);
     }
 
     if (currentDevice.previousValue!.serialNumber != currentDevice.value.serialNumber ||
@@ -110,6 +111,10 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> setProject(ProjectModel proj) async {
+    if (currentProject.value.id == proj.id) {
+      return;
+    }
+
     _updateSignals(project: proj);
   }
 
@@ -228,7 +233,7 @@ class HomePageController extends BaseController with SocketMixin {
     });
   }
 
-  void _updateSignals({ProjectModel? project}) {
+  Future<void> _updateSignals({ProjectModel? project}) async {
     currentProject.value = project ?? projects.value.first;
     currentDevice.value = currentProject.value.devices.first;
     zones.value = currentDevice.value.zones;
@@ -238,6 +243,9 @@ class HomePageController extends BaseController with SocketMixin {
     } else {
       currentZone.value = zones.first;
     }
+
+    await restartSocket(newIp: currentDevice.value.ip);
+    _updateAllDeviceData(currentZone.value);
   }
 
   Future<void> _debounceSendCommand(String cmd) async {

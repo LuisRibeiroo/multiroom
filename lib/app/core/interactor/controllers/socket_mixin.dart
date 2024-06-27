@@ -20,6 +20,14 @@ mixin SocketMixin {
     _streamIterator = StreamIterator(_socket!);
   }
 
+  Future<void> restartSocket({required String newIp}) async {
+    if (_socket != null) {
+      _socket!.close();
+    }
+
+    await initSocket(ip: newIp);
+  }
+
   Future<String> socketSender(String cmd, {bool longRet = false}) async {
     // Logger(
     //     printer: SimplePrinter(

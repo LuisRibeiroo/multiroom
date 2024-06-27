@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
               title: "Zonas",
               icon: Icons.surround_sound_rounded,
             ),
-            Expanded(
+            Flexible(
               child: ListView(
                 shrinkWrap: true,
                 children: _getDeviceZoneTiles(),
