@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:logger/logger.dart';
+import 'package:multiroom/app/core/extensions/socket_extensions.dart';
+import 'package:multiroom/app/core/extensions/stream_iterator_extensions.dart';
 
 mixin SocketMixin {
   Socket? _socket;
@@ -20,19 +21,19 @@ mixin SocketMixin {
   }
 
   Future<String> socketSender(String cmd, {bool longRet = false}) async {
-    Logger(
-        printer: SimplePrinter(
-      printTime: true,
-      colors: false,
-    )).d("MOCK CMD --> [$cmd]");
-    return "mr_cmd=OK";
+    // Logger(
+    //     printer: SimplePrinter(
+    //   printTime: true,
+    //   colors: false,
+    // )).d("MOCK CMD --> [$cmd]");
+    // return "mr_cmd=OK";
 
-    // if (_socket == null || _streamIterator == null) {
-    //   throw Exception("É necessário incializar o socket");
-    // }
+    if (_socket == null || _streamIterator == null) {
+      throw Exception("É necessário incializar o socket");
+    }
 
-    // _socket!.writeLog(cmd);
-    // return await _streamIterator!.readSync(longResponse: longRet);
+    _socket!.writeLog(cmd);
+    return await _streamIterator!.readSync(longResponse: longRet);
   }
 
   void mixinDispose() {

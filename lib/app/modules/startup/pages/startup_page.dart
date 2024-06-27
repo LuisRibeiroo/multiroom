@@ -7,10 +7,8 @@ import 'package:routefly/routefly.dart';
 
 import '../../../../injector.dart';
 import '../../../../routes.g.dart';
-import '../../../core/enums/zone_mode.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
-import '../../../core/models/zone_wrapper_model.dart';
 
 class StartupPage extends StatefulWidget {
   const StartupPage({super.key});
@@ -35,14 +33,14 @@ class _StartupPageState extends State<StartupPage> {
 
       final settings = injector.get<SettingsContract>();
 
-      final testZones = List.generate(
-        8,
-        (idx) => ZoneWrapperModel.builder(
-          index: idx + 1,
-          name: "Zona ${idx + 1}",
-          mode: idx.isEven ? ZoneMode.stereo : ZoneMode.mono,
-        ),
-      );
+      // final testZones = List.generate(
+      //   8,
+      //   (idx) => ZoneWrapperModel.builder(
+      //     index: idx + 1,
+      //     name: "Zona ${idx + 1}",
+      //     mode: idx.isEven ? ZoneMode.stereo : ZoneMode.mono,
+      //   ),
+      // );
 
       // settings.saveDevices([
       //   DeviceModel.builder(

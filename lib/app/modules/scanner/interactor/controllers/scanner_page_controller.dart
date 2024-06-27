@@ -129,15 +129,15 @@ class ScannerPageController extends BaseController {
         },
       );
 
-      for (int i = 0; i < 5; i++) {
-        networkDevices.add(
-          NetworkDeviceModel(
-            ip: "192.168.0.${i + 1}",
-            serialNumber: "MR-123456-00$i",
-            firmware: "1.0",
-          ),
-        );
-      }
+      // for (int i = 0; i < 5; i++) {
+      //   networkDevices.add(
+      //     NetworkDeviceModel(
+      //       ip: "192.168.0.${i + 1}",
+      //       serialNumber: "MR-123456-00$i",
+      //       firmware: "1.0",
+      //     ),
+      //   );
+      // }
 
       // await Future.delayed(
       //   const Duration(seconds: 2),
@@ -170,9 +170,6 @@ class ScannerPageController extends BaseController {
 
     Routefly.push(routePaths.modules.configs.pages.deviceConfiguration, arguments: device).then(
       (_) async {
-        // if (localDevices.peek() != settings.devices) {
-        //   localDevices.value = settings.devices;
-        // }
         if (projects.peek() != settings.projects) {
           projects.value = settings.projects;
         }
@@ -181,10 +178,10 @@ class ScannerPageController extends BaseController {
   }
 
   Future<void> onConfirmAddDevice(NetworkDeviceModel netDevice) async {
-    // final type = await _setDeviceType(
-    //   netDevice.ip,
-    //   DeviceType.fromString(deviceType.value.name.lettersOnly),
-    // );
+    final type = await _setDeviceType(
+      netDevice.ip,
+      DeviceType.fromString(deviceType.value.name.lettersOnly),
+    );
 
     final newDevice = DeviceModel.builder(
       projectId: currentProject.value.id,
@@ -193,8 +190,8 @@ class ScannerPageController extends BaseController {
       serialNumber: netDevice.serialNumber,
       version: netDevice.firmware,
       name: deviceType.value.readable,
-      type: DeviceType.fromString(deviceType.value.name.lettersOnly),
-      // type: DeviceType.fromString(type),
+      // type: DeviceType.fromString(deviceType.value.name.lettersOnly),
+      type: DeviceType.fromString(type),
     );
 
     _updateProject(newDevice);
@@ -283,7 +280,6 @@ class ScannerPageController extends BaseController {
     hasAvailableSlots.value = hasAvailableSlots.initialValue;
 
     projects.value = <ProjectModel>[];
-    // localDevices.value = <DeviceModel>[];
     networkDevices.value = <NetworkDeviceModel>[];
   }
 }

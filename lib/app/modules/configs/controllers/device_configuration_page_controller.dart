@@ -38,7 +38,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     deviceName.value = dev.name;
 
     try {
-      // await initSocket(ip: dev.ip);
+      await initSocket(ip: dev.ip);
     } catch (exception) {
       logger.e(exception);
       setError(exception as Exception);
@@ -46,13 +46,13 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     final configs = await _getDeviceData();
 
-    // device.value = device.value.copyWith(
-    //   zoneWrappers: _parseZones(configs),
-    // );
+    device.value = device.value.copyWith(
+      zoneWrappers: _parseZones(configs),
+    );
 
-    // device.value = device.value.copyWith(
-    //   groups: _parseGroups(configs),
-    // );
+    device.value = device.value.copyWith(
+      groups: _parseGroups(configs),
+    );
 
     disposables.addAll([
       effect(
@@ -277,10 +277,6 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   void _updateGroupZones(ZoneModel zone) {
-    // if (availableZones.contains(zone)) {
-    //   return;
-    // }
-
     for (final group in device.peek().groups) {
       final zoneIndex = group.zones.indexWhere((z) => z.id == zone.id);
 
