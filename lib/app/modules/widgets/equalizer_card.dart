@@ -58,43 +58,51 @@ class _EqualizerCardState extends State<EqualizerCard> {
               height: 250,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  widget.currentEqualizer.frequencies.length,
-                  (index) {
-                    final current = widget.currentEqualizer.frequencies[index];
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        shrinkWrap: true,
+                        itemCount: widget.currentEqualizer.frequencies.length,
+                        itemBuilder: (_, index) {
+                          final current = widget.currentEqualizer.frequencies[index];
 
-                    return Column(
-                      children: [
-                        Text(
-                          current.name,
-                          style: context.textTheme.bodyMedium,
-                        ),
-                        Watch(
-                          (_) => Expanded(
-                            child: RotatedBox(
-                              quarterTurns: 3,
-                              child: Slider(
-                                min: -12,
-                                max: 12,
-                                divisions: 24 ~/ 3,
-                                value: current.value.toDouble(),
-                                onChanged: (v) {
-                                  widget.onUpdateFrequency(
-                                    current.copyWith(value: v.floor()),
-                                  );
-                                },
+                          return Column(
+                            children: [
+                              Text(
+                                current.name,
+                                style: context.textTheme.bodyMedium,
                               ),
-                            ),
-                          ),
-                        ),
-                        Text(
-                          "${current.value.floor()}db",
-                          style: context.textTheme.labelLarge,
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                              Watch(
+                                (_) => Expanded(
+                                  child: RotatedBox(
+                                    quarterTurns: 3,
+                                    child: Slider(
+                                      min: -12,
+                                      max: 12,
+                                      divisions: 24 ~/ 3,
+                                      value: current.value.toDouble(),
+                                      onChanged: (v) {
+                                        widget.onUpdateFrequency(
+                                          current.copyWith(value: v.floor()),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                "${current.value.floor()}db",
+                                style: context.textTheme.labelLarge,
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
