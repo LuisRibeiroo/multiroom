@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:multiroom/app/core/extensions/socket_extensions.dart';
-import 'package:multiroom/app/core/extensions/stream_iterator_extensions.dart';
+import '../../extensions/socket_extensions.dart';
+import '../../extensions/stream_iterator_extensions.dart';
 
 mixin SocketMixin {
   Socket? _socket;
