@@ -264,10 +264,19 @@ class ScannerPageController extends BaseController {
     }
   }
 
+  void _clearEmptyProjects() {
+    final emptyProjects = projects.value = projects.value.where((p) => p.devices.isEmpty).toList();
+
+    for (final p in emptyProjects) {
+      settings.removeProject(p.id);
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
 
+    _clearEmptyProjects();
     stopUdpServer();
     isUdpListening.value = isUdpListening.initialValue;
     deviceType.value = deviceType.initialValue;
