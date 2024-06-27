@@ -230,7 +230,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   void onRemoveDevice() {
-    settings.removeDevice(device.value.serialNumber);
+    settings.removeDevice(projectId: device.value.projectId, deviceId: device.value.serialNumber);
   }
 
   Future<void> onSetMaxVolume(ZoneWrapperModel wrapper, ZoneModel zone) async {

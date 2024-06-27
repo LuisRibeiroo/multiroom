@@ -151,9 +151,16 @@ class _ScannerPageState extends State<ScannerPage> {
                         padding: const EdgeInsets.all(12.0),
                         child: Column(
                           children: [
-                            Text(
-                              proj.name,
-                              style: context.textTheme.titleLarge,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.group_work_rounded),
+                                12.asSpace,
+                                Text(
+                                  proj.name,
+                                  style: context.textTheme.titleLarge,
+                                ),
+                              ],
                             ),
                             8.asSpace,
                             ...List.generate(

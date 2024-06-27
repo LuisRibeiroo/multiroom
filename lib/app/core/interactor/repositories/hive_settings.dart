@@ -48,13 +48,16 @@ class HiveSettings implements SettingsContract {
   }
 
   @override
-  void removeDevice(String id) {
-    final List<DeviceModel> devices = List.from(this.devices);
-    devices.removeWhere((d) => d.serialNumber == id);
+  void removeDevice({required String projectId, required String deviceId}) {
+    ProjectModel updatedProj = projects.firstWhere((p) => p.id == projectId);
+    final updatedDevices = updatedProj.devices;
+    updatedDevices.removeWhere((d) => d.serialNumber == deviceId);
 
-    _logger.d("REMOVE DEVICE --> PARAM: [$id] | LENGHT: [${devices.length}] NEW VALUE: $devices");
+    updatedProj = updatedProj.copyWith(devices: updatedDevices);
 
-    _box.put("devices", devices);
+    _logger.d("REMOVE DEVICE --> PARAM: [$deviceId] | LENGHT: [${updatedDevices.length}] NEW VALUE: $updatedDevices");
+
+    saveProject(updatedProj);
   }
 
   @override
