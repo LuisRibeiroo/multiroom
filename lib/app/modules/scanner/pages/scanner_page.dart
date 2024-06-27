@@ -162,6 +162,8 @@ class _ScannerPageState extends State<ScannerPage> {
                 itemBuilder: (_, index) => Watch(
                   (_) => ProjectListCard(
                     project: _controller.projects[index],
+                    showAvailability: true,
+                    deviceAvailabilityMap: _controller.devicesAvailability.value,
                     onTapConfigDevice: _controller.onTapConfigDevice,
                     onTapRemoveProject: (proj) => _showProjectDeletionBottomSheet(
                       proj,
@@ -277,6 +279,4 @@ class TypeSelectionBottomSheet extends StatelessWidget {
       ],
     );
   }
-
-  
 }

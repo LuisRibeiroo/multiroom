@@ -10,10 +10,9 @@ import '../../../../../routes.g.dart';
 import '../../../../core/enums/device_type.dart';
 import '../../../../core/enums/page_state.dart';
 import '../../../../core/extensions/list_extensions.dart';
-import '../../../../core/extensions/socket_extensions.dart';
-import '../../../../core/extensions/stream_iterator_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/interactor/controllers/base_controller.dart';
+import '../../../../core/interactor/controllers/socket_mixin.dart';
 import '../../../../core/interactor/repositories/settings_contract.dart';
 import '../../../../core/models/device_model.dart';
 import '../../../../core/models/project_model.dart';
@@ -21,7 +20,7 @@ import '../../../../core/utils/datagram_data_parser.dart';
 import '../../../../core/utils/mr_cmd_builder.dart';
 import '../models/network_device_model.dart';
 
-class ScannerPageController extends BaseController {
+class ScannerPageController extends BaseController with SocketMixin {
   ScannerPageController() : super(InitialState());
 
   UDP? _udpServer;
@@ -46,6 +45,8 @@ class ScannerPageController extends BaseController {
     debugLabel: "localDevices",
   );
 
+  final devicesAvailability = mapSignal(<String, bool>{}, debugLabel: "devicesAvailability");
+
   Future<void> init() async {
     projects.value = settings.projects;
     hasDevices.value = projects.value.expand((p) => p.devices).toList().isNotEmpty;
@@ -65,8 +66,10 @@ class ScannerPageController extends BaseController {
             stopUdpServer();
           }
         }),
-        effect(() {
+        effect(() async {
           _localDevices.value = projects.value.expand((p) => p.devices).toList();
+
+          _updateDevicesAvailability();
         }),
         effect(() {
           if (isUdpListening.value) {
@@ -220,6 +223,19 @@ class ScannerPageController extends BaseController {
     currentProject.value = currentProject.initialValue;
   }
 
+  Future<void> _updateDevicesAvailability() async {
+    for (final d in _localDevices) {
+      try {
+        await restartSocket(newIp: d.ip);
+        await socketSender(MrCmdBuilder.expansionMode);
+
+        devicesAvailability[d.serialNumber] = true;
+      } catch (exception) {
+        devicesAvailability[d.serialNumber] = false;
+      }
+    }
+  }
+
   void _updateProject(DeviceModel newDevice) {
     currentProject.value = currentProject.peek().copyWith(devices: [...currentProject.peek().devices, newDevice]);
 
@@ -230,30 +246,22 @@ class ScannerPageController extends BaseController {
   }
 
   Future<String> _setDeviceType(String ip, DeviceType type) async {
-    final Socket socket;
-
     try {
-      socket = await run(
-        () => Socket.connect(
-          ip,
-          4998,
-          timeout: const Duration(seconds: 2),
+      await restartSocket(newIp: ip);
+
+      final response = MrCmdBuilder.parseResponse(
+        await socketSender(
+          MrCmdBuilder.setExpansionMode(type: type),
         ),
       );
-
-      final streamIterator = StreamIterator(socket);
-
-      socket.writeLog(MrCmdBuilder.setExpansionMode(type: type));
-      final response = MrCmdBuilder.parseResponse(await streamIterator.readSync());
 
       if (response.contains("OK") == false) {
         throw Exception("Erro ao configurar dispositivo, tente novamente.");
       }
 
-      socket.writeLog(MrCmdBuilder.expansionMode);
-      final deviceMode = MrCmdBuilder.parseResponse(await streamIterator.readSync());
-
-      socket.close().ignore();
+      final deviceMode = MrCmdBuilder.parseResponse(
+        await socketSender(MrCmdBuilder.expansionMode),
+      );
 
       return deviceMode;
     } catch (exception) {
@@ -275,6 +283,7 @@ class ScannerPageController extends BaseController {
   @override
   void dispose() {
     super.dispose();
+    mixinDispose();
 
     _clearEmptyProjects();
     stopUdpServer();
@@ -288,6 +297,7 @@ class ScannerPageController extends BaseController {
     slave2Available.value = slave2Available.initialValue;
     hasAvailableSlots.value = hasAvailableSlots.initialValue;
 
+    devicesAvailability.value = <String, bool>{};
     projects.value = <ProjectModel>[];
     networkDevices.value = <NetworkDeviceModel>[];
   }

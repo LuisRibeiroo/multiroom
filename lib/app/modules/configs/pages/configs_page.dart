@@ -59,6 +59,8 @@ class _ConfigsPageState extends State<ConfigsPage> {
                 itemBuilder: (_, index) => Watch(
                   (_) => ProjectListCard(
                     project: _controller.projects[index],
+                    deviceAvailabilityMap: const {},
+                    showAvailability: false,
                     onTapConfigDevice: (d) => OptionsMenu.showTechBottomSheet(context, device: d),
                     onTapRemoveProject: null,
                   ),
