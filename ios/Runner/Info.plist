@@ -61,5 +61,9 @@
 		<string>bluetooth</string>
 		<key>NSUserTrackingUsageDescription</key>
 		<string>appTrackingTransparency</string>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>tel</string>
+		</array>
 	</dict>
 </plist>

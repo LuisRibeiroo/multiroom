@@ -7,6 +7,7 @@ import '../../../../routes.g.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/models/device_model.dart';
 import '../../configs/pages/configs_page.dart';
+import '../../widgets/about_bottom_sheet.dart';
 import '../controllers/options_bottom_sheet_controller.dart';
 
 class OptionsMenu {
@@ -27,7 +28,14 @@ class OptionsMenu {
           ListTile(
             leading: const Icon(Icons.info_outline_rounded),
             title: const Text("Sobre"),
-            onTap: () {},
+            onTap: () {
+              Routefly.pop(context);
+
+              context.showCustomModalBottomSheet(
+                isScrollControlled: false,
+                child: const AboutBottomSheet(),
+              );
+            },
           ),
         ],
       ),
