@@ -96,17 +96,25 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> setCurrentDeviceAndZone(DeviceModel device, ZoneModel zone) async {
-    channels.set(zone.channels);
+    try {
+      channels.set(zone.channels);
 
-    if (device.serialNumber != currentDevice.value.serialNumber) {
-      currentDevice.value = device;
-      await restartSocket(newIp: device.ip);
-    }
+      if (device.serialNumber != currentDevice.value.serialNumber) {
+        currentDevice.value = device;
+        await run(() => restartSocket(newIp: device.ip));
+      }
 
-    if (currentDevice.previousValue!.serialNumber != currentDevice.value.serialNumber ||
-        currentZone.value.id != zone.id) {
-      logger.i("UPDATE ALL DATA");
-      await _updateAllDeviceData(zone);
+      if (currentDevice.previousValue!.serialNumber != currentDevice.value.serialNumber ||
+          currentZone.value.id != zone.id) {
+        logger.i("UPDATE ALL DATA");
+        await _updateAllDeviceData(zone);
+      }
+    } catch (exception) {
+      if (exception is Exception) {
+        setError(exception);
+      } else {
+        setError(Exception(exception));
+      }
     }
   }
 
