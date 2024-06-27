@@ -126,7 +126,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       isEditingZone.value = false;
       editingZone.value = editingZone.initialValue;
 
-      await _readCommand(
+      await socketSender(
         MrCmdBuilder.setZoneMode(
           zone: zone,
           mode: isStereo ? ZoneMode.stereo : ZoneMode.mono,
@@ -144,20 +144,20 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   void onChangeZoneName(ZoneModel zone, String value) {
     if (editingWrapper.value.isStereo) {
-      editingWrapper.value = editingWrapper.value.copyWith(stereoZone: zone.copyWith(name: value));
+      editingWrapper.value = editingWrapper.peek().copyWith(stereoZone: zone.copyWith(name: value));
     } else {
       if (zone.side == MonoSide.left) {
-        editingWrapper.value = editingWrapper.value.copyWith(
-          monoZones: editingWrapper.value.monoZones.copyWith(
-            left: zone.copyWith(name: value),
-          ),
-        );
+        editingWrapper.value = editingWrapper.peek().copyWith(
+              monoZones: editingWrapper.peek().monoZones.copyWith(
+                    left: zone.copyWith(name: value),
+                  ),
+            );
       } else {
-        editingWrapper.value = editingWrapper.value.copyWith(
-          monoZones: editingWrapper.value.monoZones.copyWith(
-            right: zone.copyWith(name: value),
-          ),
-        );
+        editingWrapper.value = editingWrapper.peek().copyWith(
+              monoZones: editingWrapper.peek().monoZones.copyWith(
+                    right: zone.copyWith(name: value),
+                  ),
+            );
       }
     }
   }
@@ -167,8 +167,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   void toggleEditingZone(ZoneWrapperModel wrapper, ZoneModel zone) {
-    if (wrapper.id == editingWrapper.value.id && zone.id == editingZone.value.id) {
-      isEditingZone.value = !isEditingZone.value;
+    if (wrapper.id == editingWrapper.value.id && zone.id == editingZone.peek().id) {
+      isEditingZone.value = !isEditingZone.peek();
     } else {
       isEditingZone.value = true;
       editingWrapper.value = wrapper;
@@ -178,18 +178,20 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
 
     if (isEditingZone.value == false) {
-      device.value = device.value.copyWith(
-        zoneWrappers: device.value.zoneWrappers
-            .map(
-              (z) => z.id == editingWrapper.value.id ? editingWrapper.value : z,
-            )
-            .toList(),
-      );
+      device.value = device.peek().copyWith(
+            zoneWrappers: device
+                .peek()
+                .zoneWrappers
+                .map(
+                  (z) => z.id == editingWrapper.peek().id ? editingWrapper.value : z,
+                )
+                .toList(),
+          );
 
       _updateGroupZones(switch (zone.side) {
-        MonoSide.undefined => editingWrapper.value.stereoZone,
-        MonoSide.left => editingWrapper.value.monoZones.left,
-        MonoSide.right => editingWrapper.value.monoZones.right,
+        MonoSide.undefined => editingWrapper.peek().stereoZone,
+        MonoSide.left => editingWrapper.peek().monoZones.left,
+        MonoSide.right => editingWrapper.peek().monoZones.right,
       });
 
       editingZone.value = editingZone.initialValue;
@@ -302,14 +304,6 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
         break;
       }
-    }
-  }
-
-  Future<void> _readCommand(String cmd) async {
-    final response = MrCmdBuilder.parseResponse(await socketSender(cmd));
-
-    if (response.contains("OK") == false) {
-      throw Exception("Erro ao enviar comando --> CMD: [$cmd] | RESPONSE: [$response]");
     }
   }
 
