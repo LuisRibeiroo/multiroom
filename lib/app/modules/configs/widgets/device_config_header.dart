@@ -6,6 +6,7 @@ import '../../../core/extensions/number_extensions.dart';
 import '../../../core/extensions/string_extensions.dart';
 import '../../../core/models/device_model.dart';
 import '../../scanner/widgets/device_type_indicator.dart';
+import '../../widgets/icon_text_tile.dart';
 import 'delete_device_confirm_bottom_sheet.dart';
 
 class DeviceConfigHeader extends StatelessWidget {
@@ -50,24 +51,33 @@ class DeviceConfigHeader extends StatelessWidget {
                   label: device.type.name.capitalize,
                 ),
                 12.asSpace,
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      device.ip,
-                      style: context.textTheme.titleMedium,
-                    ),
-                    4.asSpace,
-                    Text(
-                      device.serialNumber,
-                    ),
-                    Text(
-                      "Ver ${device.version}",
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      IconTextTile(
+                        icon: Icons.group_work_rounded,
+                        text: device.projectName,
+                        style: context.textTheme.titleMedium,
+                      ),
+                      12.asSpace,
+                      IconTextTile(
+                        icon: Icons.wifi_tethering_rounded,
+                        text: device.ip,
+                        style: context.textTheme.titleMedium,
+                      ),
+                      IconTextTile(
+                        icon: Icons.document_scanner_rounded,
+                        text: device.serialNumber,
+                      ),
+                      IconTextTile(
+                        icon: Icons.info_rounded,
+                        text: "Ver ${device.version}",
+                      ),
+                    ],
+                  ),
                 ),
                 12.asSpace,
-                const Spacer(),
                 IconButton.outlined(
                   onPressed: () => _showDeviceDeletionBottomSheet(context),
                   icon: const Icon(Icons.delete_rounded),

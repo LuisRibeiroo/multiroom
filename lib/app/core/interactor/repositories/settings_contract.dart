@@ -7,6 +7,7 @@ abstract class SettingsContract {
 
   List<ProjectModel> get projects;
   void saveProject(ProjectModel project);
+  void saveProjects(List<ProjectModel> value);
   void removeProject(String id);
 
   List<DeviceModel> get devices;

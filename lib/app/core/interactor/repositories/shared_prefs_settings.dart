@@ -67,6 +67,14 @@ final class SharedPrefsSettings implements SettingsContract {
   }
 
   @override
+  void saveProjects(List<ProjectModel> value) {
+    final jsonProjects = value.map((d) => jsonEncode(d.toMap())).toList();
+
+    _logger.d("SAVE PROJECTS --> PARAM: [$value] | NEW VALUE: $jsonProjects");
+    _prefs.setStringList("projects", jsonProjects).ignore();
+  }
+
+  @override
   void removeDevice(String id) {
     final currentList = devices;
     final index = currentList.indexWhere((d) => d.serialNumber == id);

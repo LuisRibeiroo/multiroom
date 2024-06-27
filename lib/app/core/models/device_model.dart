@@ -19,7 +19,8 @@ class DeviceModel extends HiveObject {
     required this.version,
     required this.type,
     this.active = true,
-    this.masterName = "",
+    required this.projectName,
+    required this.projectId,
   });
 
   factory DeviceModel.empty() {
@@ -31,10 +32,14 @@ class DeviceModel extends HiveObject {
       groups: [],
       version: "",
       type: DeviceType.master,
+      projectName: "",
+      projectId: "",
     );
   }
 
   factory DeviceModel.builder({
+    required String projectName,
+    required String projectId,
     required String serialNumber,
     required String name,
     required String ip,
@@ -42,6 +47,8 @@ class DeviceModel extends HiveObject {
     DeviceType? type,
   }) {
     return DeviceModel(
+      projectId: projectId,
+      projectName: projectName,
       serialNumber: serialNumber,
       name: name,
       zoneWrappers: List.generate(
@@ -60,6 +67,8 @@ class DeviceModel extends HiveObject {
 
   factory DeviceModel.fromMap(Map<String, dynamic> map) {
     return DeviceModel(
+      projectId: map['projectId'],
+      projectName: map['projectName'],
       serialNumber: map['serialNumber'],
       name: map['name'],
       ip: map['ip'],
@@ -67,13 +76,14 @@ class DeviceModel extends HiveObject {
       groups: List.from(map['groups']?.map((x) => ZoneGroupModel.fromMap(x))),
       version: map['version'],
       type: DeviceType.values[map['type']],
-      masterName: map['masterName'],
       active: map['active'],
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
+      'projectId': projectId,
+      'projectName': projectName,
       'serialNumber': serialNumber,
       'name': name,
       'ip': ip,
@@ -81,7 +91,6 @@ class DeviceModel extends HiveObject {
       'groups': groups.map((x) => x.toMap()).toList(),
       'version': version,
       'type': type.index,
-      'masterName': masterName,
       'active': active,
     };
   }
@@ -101,9 +110,11 @@ class DeviceModel extends HiveObject {
   @HiveField(6)
   final DeviceType type;
   @HiveField(7)
-  final String masterName;
+  final String projectName;
   @HiveField(8)
   final bool active;
+  @HiveField(9)
+  final String projectId;
 
   bool get isEmpty =>
       serialNumber == DeviceModel.empty().serialNumber &&
@@ -138,8 +149,9 @@ class DeviceModel extends HiveObject {
     List<ZoneGroupModel>? groups,
     String? version,
     DeviceType? type,
-    String? masterName,
     bool? active,
+    String? projectName,
+    String? projectId,
   }) {
     return DeviceModel(
       serialNumber: serialNumber ?? this.serialNumber,
@@ -149,13 +161,14 @@ class DeviceModel extends HiveObject {
       groups: groups ?? this.groups,
       version: version ?? this.version,
       type: type ?? this.type,
-      masterName: masterName ?? this.masterName,
       active: active ?? this.active,
+      projectName: projectName ?? this.projectName,
+      projectId: projectId ?? this.projectId,
     );
   }
 
   @override
   String toString() {
-    return 'DeviceModel(serialNumber: $serialNumber, name: $name, ip: $ip, zoneWrappers: $zoneWrappers, groups: $groups, version: $version, type: $type, masterName: $masterName, active: $active)';
+    return 'DeviceModel(serialNumber: $serialNumber, name: $name, ip: $ip, projectId: $projectId, projectName: $projectName, zoneWrappers: $zoneWrappers, groups: $groups, version: $version, type: $type, projectId: $projectId, active: $active)';
   }
 }

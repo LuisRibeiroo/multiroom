@@ -58,7 +58,6 @@ class _ConfigsPageState extends State<ConfigsPage> {
                 itemBuilder: (_, index) => Watch(
                   (_) => DeviceListTile(
                     device: _controller.localDevices[index],
-                    onChangeActive: _controller.onChangeActive,
                     onTapConfigDevice: (d) => OptionsMenu.showTechBottomSheet(context, device: d),
                   ),
                 ),

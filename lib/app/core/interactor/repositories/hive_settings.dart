@@ -48,9 +48,6 @@ class HiveSettings implements SettingsContract {
   }
 
   @override
-  List<ProjectModel> get projects => throw UnimplementedError();
-
-  @override
   void removeDevice(String id) {
     final List<DeviceModel> devices = List.from(this.devices);
     devices.removeWhere((d) => d.serialNumber == id);
@@ -61,8 +58,37 @@ class HiveSettings implements SettingsContract {
   }
 
   @override
-  void removeProject(String id) {}
+  List<ProjectModel> get projects {
+    final data = _box.get("projects", defaultValue: <ProjectModel>[]);
+
+    _logger.d("GET PROJECTS --> LENGTH: [${data.length}] | VALUE: $data");
+
+    return List.castFrom<dynamic, ProjectModel>(data);
+  }
 
   @override
-  void saveProject(ProjectModel project) {}
+  void saveProject(ProjectModel project) {
+    _logger.d("SAVE PROJECT --> PARAM: [$project]}");
+
+    final List<ProjectModel> newList = List.from(projects);
+    newList.replaceWhere((d) => d.id == project.id, project);
+    _box.put("projects", newList);
+  }
+
+  @override
+  void saveProjects(List<ProjectModel> value) {
+    _logger.d("SAVE PROJECTS --> PARAM: [$value]}");
+
+    _box.put("projects", value);
+  }
+
+  @override
+  void removeProject(String id) {
+    final List<ProjectModel> projs = List.from(projects);
+    projs.removeWhere((d) => d.id == id);
+
+    _logger.d("REMOVE PROJECT --> PARAM: [$id] | LENGHT: [${projs.length}] NEW VALUE: $projs");
+
+    _box.put("projects", projs);
+  }
 }

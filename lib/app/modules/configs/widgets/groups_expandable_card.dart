@@ -67,7 +67,7 @@ class GroupsExpandableCard extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.group_work_rounded),
+                                const Icon(Icons.home_work_rounded),
                                 12.asSpace,
                                 Expanded(
                                   child: TextFormField(

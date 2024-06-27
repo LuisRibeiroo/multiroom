@@ -4,17 +4,16 @@ import '../../../core/enums/device_type.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/device_model.dart';
+import '../../widgets/icon_text_tile.dart';
 
 class DeviceListTile extends StatelessWidget {
   const DeviceListTile({
     super.key,
     required this.device,
-    required this.onChangeActive,
     required this.onTapConfigDevice,
   });
 
   final DeviceModel device;
-  final Function(DeviceModel, bool) onChangeActive;
   final Function(DeviceModel) onTapConfigDevice;
 
   @override
@@ -23,47 +22,31 @@ class DeviceListTile extends StatelessWidget {
       child: InkWell(
         onTap: () => onTapConfigDevice(device),
         child: Padding(
-          padding: const EdgeInsets.only(top: 12.0, bottom: 12.0, right: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 18),
           child: Row(
             children: [
-              Checkbox(
-                value: device.active,
-                onChanged: (value) => onChangeActive(device, value!),
-              ),
-              12.asSpace,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      device.name,
+                    IconTextTile(
+                      icon: Icons.surround_sound_rounded,
+                      text: device.name,
                       style: context.textTheme.titleLarge,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    8.asSpace,
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                device.ip,
-                                style: context.textTheme.bodyLarge,
-                              ),
-                              Text(
-                                device.serialNumber,
-                                style: context.textTheme.bodySmall,
-                              ),
-                              Text(
-                                "Ver ${device.version}",
-                                style: context.textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                    12.asSpace,
+                    IconTextTile(
+                      icon: Icons.wifi_tethering_rounded,
+                      text: device.ip,
+                      style: context.textTheme.bodyLarge,
+                    ),
+                    IconTextTile(
+                      icon: Icons.document_scanner_rounded,
+                      text: device.serialNumber,
+                    ),
+                    IconTextTile(
+                      icon: Icons.info_rounded,
+                      text: "Ver ${device.version}",
                     ),
                   ],
                 ),
@@ -86,13 +69,10 @@ class DeviceListTile extends StatelessWidget {
                   style: context.textTheme.bodyLarge,
                 ),
               ),
-              12.asSpace,
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12.0),
-                child: Icon(
-                  Icons.tune_rounded,
-                  size: 28,
-                ),
+              24.asSpace,
+              const Icon(
+                Icons.tune_rounded,
+                size: 28,
               ),
             ],
           ),

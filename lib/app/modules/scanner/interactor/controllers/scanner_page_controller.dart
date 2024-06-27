@@ -15,6 +15,7 @@ import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/interactor/controllers/base_controller.dart';
 import '../../../../core/interactor/repositories/settings_contract.dart';
 import '../../../../core/models/device_model.dart';
+import '../../../../core/models/project_model.dart';
 import '../../../../core/utils/datagram_data_parser.dart';
 import '../../../../core/utils/mr_cmd_builder.dart';
 import '../models/network_device_model.dart';
@@ -27,9 +28,12 @@ class ScannerPageController extends BaseController {
   final settings = injector.get<SettingsContract>();
 
   final isUdpListening = false.toSignal(debugLabel: "isUdpListening");
+  final projects = listSignal<ProjectModel>([], debugLabel: "projects");
   final localDevices = listSignal<DeviceModel>([], debugLabel: "localDevices");
   final networkDevices = listSignal<NetworkDeviceModel>([], debugLabel: "networkDevices");
   final deviceType = NetworkDeviceType.undefined.toSignal(debugLabel: "deviceType");
+  final projectName = "".toSignal(debugLabel: "projectName");
+  final currentProject = ProjectModel.empty().toSignal(debugLabel: "currentProject");
 
   final isMasterAvailable = true.toSignal(debugLabel: "isMasterAvailable");
   final slave1Available = true.toSignal(debugLabel: "slave1Available");
@@ -38,6 +42,7 @@ class ScannerPageController extends BaseController {
 
   Future<void> init() async {
     localDevices.value = settings.devices;
+    projects.value = settings.projects;
 
     disposables.addAll(
       [
@@ -62,6 +67,9 @@ class ScannerPageController extends BaseController {
         }),
         effect(() {
           settings.saveDevices(localDevices.value);
+        }),
+        effect(() {
+          settings.saveProjects(projects.value);
         }),
       ],
     );
@@ -147,12 +155,7 @@ class ScannerPageController extends BaseController {
     isUdpListening.value = false;
   }
 
-  void onChangeActive(DeviceModel device, bool value) {
-    final List<DeviceModel> tempList = List.from(localDevices.peek());
-    tempList[tempList.indexWhere((d) => d.serialNumber == device.serialNumber)] = device.copyWith(active: value);
-
-    localDevices.value = tempList;
-  }
+  Computed<bool> get isProjectNameValid => computed(() => projectName.value.isNotNullOrEmpty);
 
   void onTapConfigDevice(DeviceModel device) {
     stopUdpServer();
@@ -161,6 +164,9 @@ class ScannerPageController extends BaseController {
       (_) async {
         if (localDevices.peek() != settings.devices) {
           localDevices.value = settings.devices;
+        }
+        if (projects.peek() != settings.projects) {
+          projects.value = settings.projects;
         }
       },
     );
@@ -173,6 +179,8 @@ class ScannerPageController extends BaseController {
     // );
 
     final newDevice = DeviceModel.builder(
+      projectId: currentProject.value.id,
+      projectName: currentProject.value.name,
       ip: netDevice.ip,
       serialNumber: netDevice.serialNumber,
       version: netDevice.firmware,
@@ -186,6 +194,17 @@ class ScannerPageController extends BaseController {
 
     deviceType.value = deviceType.initialValue;
     networkDevices.removeWhere((d) => d.serialNumber == netDevice.serialNumber);
+  }
+
+  void addProject() {
+    final project = ProjectModel.builder(
+      name: projectName.value,
+    );
+
+    projects.add(project);
+
+    currentProject.value = project;
+    projectName.value = projectName.initialValue;
   }
 
   Future<String> _setDeviceType(String ip, DeviceType type) async {
@@ -230,7 +249,15 @@ class ScannerPageController extends BaseController {
     stopUdpServer();
     isUdpListening.value = isUdpListening.initialValue;
     deviceType.value = deviceType.initialValue;
+    projectName.value = projectName.initialValue;
+    currentProject.value = currentProject.initialValue;
 
+    isMasterAvailable.value = isMasterAvailable.initialValue;
+    slave1Available.value = slave1Available.initialValue;
+    slave2Available.value = slave2Available.initialValue;
+    hasAvailableSlots.value = hasAvailableSlots.initialValue;
+
+    projects.value = <ProjectModel>[];
     localDevices.value = <DeviceModel>[];
     networkDevices.value = <NetworkDeviceModel>[];
   }
