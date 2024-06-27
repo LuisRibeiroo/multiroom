@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/modules/widgets/icon_title.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -28,9 +29,20 @@ class _HomePageState extends State<HomePage> {
   void _showDevicesBottomSheet() {
     context.showCustomModalBottomSheet(
       child: Watch(
-        (_) => ListView(
-          shrinkWrap: true,
-          children: _getDeviceZoneTiles(),
+        (_) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const IconTitle(
+              title: "Zonas",
+              icon: Icons.surround_sound_rounded,
+            ),
+            Expanded(
+              child: ListView(
+                shrinkWrap: true,
+                children: _getDeviceZoneTiles(),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -41,6 +53,8 @@ class _HomePageState extends State<HomePage> {
       isScrollControlled: false,
       child: Watch(
         (_) => SelectableListView(
+          title: "Canais",
+          icon: Icons.input_rounded,
           options: _controller.channels,
           onSelect: _controller.setCurrentChannel,
           selectedOption: _controller.currentChannel.value,
@@ -54,6 +68,8 @@ class _HomePageState extends State<HomePage> {
       isScrollControlled: false,
       child: Watch(
         (_) => SelectableListView(
+          title: "Equalizadores",
+          icon: Icons.equalizer_rounded,
           options: _controller.equalizers,
           onSelect: _controller.setEqualizer,
           selectedOption: _controller.currentEqualizer.value,
@@ -67,6 +83,8 @@ class _HomePageState extends State<HomePage> {
       isScrollControlled: false,
       child: Watch(
         (_) => SelectableListView(
+          title: "Projetos",
+          icon: Icons.group_work_rounded,
           options: _controller.projects,
           onSelect: _controller.setProject,
           selectedOption: _controller.currentProject.value,

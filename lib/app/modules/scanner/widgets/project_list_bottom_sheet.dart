@@ -4,6 +4,7 @@ import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/project_model.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../widgets/icon_title.dart';
 
 class ProjectListBottomSheet extends StatelessWidget {
   const ProjectListBottomSheet({
@@ -24,16 +25,9 @@ class ProjectListBottomSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.group_work_rounded),
-              12.asSpace,
-              Text(
-                "Projetos",
-                style: context.textTheme.titleLarge,
-              ),
-            ],
+          const IconTitle(
+            icon: Icons.group_work_rounded,
+            title: "Projetos",
           ),
           18.asSpace,
           SizedBox(

@@ -1,10 +1,10 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import '../../../core/extensions/number_extensions.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../core/extensions/build_context_extensions.dart';
+import '../../../core/extensions/number_extensions.dart';
 import '../../../core/extensions/string_extensions.dart';
 import '../../../core/models/zone_group_model.dart';
 import '../../../core/models/zone_model.dart';
@@ -99,7 +99,7 @@ class GroupsExpandableCard extends StatelessWidget {
                                 AnimatedSize(
                                   duration: Durations.medium2,
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12.0),
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
                                     child: Column(
                                       key: ValueKey("${group.name}_${group.zones.length}"),
                                       children: [

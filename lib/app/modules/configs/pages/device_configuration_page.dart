@@ -1,5 +1,6 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/modules/widgets/icon_title.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -34,21 +35,31 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
     context.showCustomModalBottomSheet(
       isScrollControlled: false,
       child: Watch(
-        (_) => ListView.builder(
-          shrinkWrap: true,
-          itemCount: _controller.availableZones.value.length,
-          itemBuilder: (_, index) {
-            final zone = _controller.availableZones.value[index];
+        (_) => Column(
+          children: [
+            const IconTitle(
+              title: "Zonas",
+              icon: Icons.home_filled,
+            ),
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: _controller.availableZones.value.length,
+                itemBuilder: (_, index) {
+                  final zone = _controller.availableZones.value[index];
 
-            return ListTile(
-              title: Text(zone.label),
-              trailing: const Icon(Icons.add_circle_rounded),
-              onTap: () {
-                _controller.onAddZoneToGroup(group, zone);
-                Routefly.pop(context);
-              },
-            );
-          },
+                  return ListTile(
+                    title: Text(zone.label),
+                    trailing: const Icon(Icons.add_circle_rounded),
+                    onTap: () {
+                      _controller.onAddZoneToGroup(group, zone);
+                      Routefly.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
