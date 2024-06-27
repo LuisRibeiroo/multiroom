@@ -7,12 +7,14 @@ import 'package:signals/signals_flutter.dart';
 import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
+import '../../../core/models/project_model.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_overlay.dart';
+import '../../widgets/delete_confirmation_bottom_sheet.dart';
+import '../../widgets/project_list_card.dart';
 import '../interactor/controllers/scanner_page_controller.dart';
 import '../interactor/models/network_device_model.dart';
 import '../widgets/add_project_bottom_sheet.dart';
-import '../widgets/device_list_tile.dart';
 import '../widgets/network_devices_bottom_sheet.dart';
 import '../widgets/project_list_bottom_sheet.dart';
 
@@ -97,6 +99,19 @@ class _ScannerPageState extends State<ScannerPage> {
     );
   }
 
+  void _showProjectDeletionBottomSheet(
+    ProjectModel project,
+    Function() onConfirmRemoveProject,
+  ) {
+    context.showCustomModalBottomSheet(
+      isScrollControlled: false,
+      child: DeleteConfirmationBottomSheet(
+        deviceName: project.name,
+        onConfirm: onConfirmRemoveProject,
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -139,42 +154,19 @@ class _ScannerPageState extends State<ScannerPage> {
           body: Watch(
             (_) => Visibility(
               visible: _controller.projects.isEmpty,
-              replacement: ListView.builder(
+              replacement: ListView.separated(
                 padding: const EdgeInsets.all(12),
                 itemCount: _controller.projects.length,
+                separatorBuilder: (_, __) => 18.asSpace,
                 itemBuilder: (_, index) => Watch(
-                  (_) {
-                    final proj = _controller.projects[index];
-
-                    return Card.outlined(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.group_work_rounded),
-                                12.asSpace,
-                                Text(
-                                  proj.name,
-                                  style: context.textTheme.titleLarge,
-                                ),
-                              ],
-                            ),
-                            8.asSpace,
-                            ...List.generate(
-                              proj.devices.length,
-                              (idx) => DeviceListTile(
-                                device: proj.devices[idx],
-                                onTapConfigDevice: _controller.onTapConfigDevice,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+                  (_) => ProjectListCard(
+                    project: _controller.projects[index],
+                    onTapConfigDevice: _controller.onTapConfigDevice,
+                    onTapRemoveProject: (proj) => _showProjectDeletionBottomSheet(
+                      proj,
+                      () => _controller.removeProject(proj),
+                    ),
+                  ),
                 ),
               ),
               child: Center(

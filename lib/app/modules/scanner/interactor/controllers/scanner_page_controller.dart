@@ -212,6 +212,14 @@ class ScannerPageController extends BaseController {
     projectName.value = projectName.initialValue;
   }
 
+  void removeProject(ProjectModel project) {
+    settings.removeProject(project.id);
+    projects.value = settings.projects;
+
+    projectName.value = projectName.initialValue;
+    currentProject.value = currentProject.initialValue;
+  }
+
   void _updateProject(DeviceModel newDevice) {
     currentProject.value = currentProject.peek().copyWith(devices: [...currentProject.peek().devices, newDevice]);
 

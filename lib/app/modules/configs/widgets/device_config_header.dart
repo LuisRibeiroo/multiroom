@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:routefly/routefly.dart';
 
 import '../../../core/enums/device_type.dart';
 import '../../../core/extensions/build_context_extensions.dart';
@@ -6,8 +7,8 @@ import '../../../core/extensions/number_extensions.dart';
 import '../../../core/extensions/string_extensions.dart';
 import '../../../core/models/device_model.dart';
 import '../../scanner/widgets/device_type_indicator.dart';
+import '../../widgets/delete_confirmation_bottom_sheet.dart';
 import '../../widgets/icon_text_tile.dart';
-import 'delete_device_confirm_bottom_sheet.dart';
 
 class DeviceConfigHeader extends StatelessWidget {
   const DeviceConfigHeader({
@@ -30,9 +31,12 @@ class DeviceConfigHeader extends StatelessWidget {
   void _showDeviceDeletionBottomSheet(BuildContext context) {
     context.showCustomModalBottomSheet(
       isScrollControlled: false,
-      child: DeleteDeviceConfirmBottomSheet(
+      child: DeleteConfirmationBottomSheet(
         deviceName: device.name,
-        onConfirm: onDeleteDevice,
+        onConfirm: () {
+          onDeleteDevice();
+          Routefly.pop(context);
+        },
       ),
     );
   }

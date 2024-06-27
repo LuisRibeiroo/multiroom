@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 
-import '../../../core/extensions/build_context_extensions.dart';
-import '../../../core/extensions/number_extensions.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../core/extensions/build_context_extensions.dart';
+import '../../core/extensions/number_extensions.dart';
+import '../../core/widgets/app_button.dart';
 
-class DeleteDeviceConfirmBottomSheet extends StatelessWidget {
-  const DeleteDeviceConfirmBottomSheet({
+class DeleteConfirmationBottomSheet extends StatelessWidget {
+  const DeleteConfirmationBottomSheet({
     super.key,
     required this.deviceName,
     required this.onConfirm,
@@ -23,7 +23,7 @@ class DeleteDeviceConfirmBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "Tem certeza que deseja remover o dispositivo \"$deviceName\"?",
+            "Tem certeza que deseja remover \"$deviceName\"?",
             style: context.textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -47,7 +47,6 @@ class DeleteDeviceConfirmBottomSheet extends StatelessWidget {
                   onPressed: () {
                     onConfirm();
 
-                    Routefly.pop(context);
                     Routefly.pop(context);
                   },
                 ),

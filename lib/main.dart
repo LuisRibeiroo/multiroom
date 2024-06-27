@@ -22,9 +22,6 @@ void main() async {
   ]);
   SystemChannels.textInput.invokeMethod('TextInput.hide');
 
-  // final sharedPrefs = await SharedPreferences.getInstance();
-  // injector.addLazySingleton<SettingsContract>(() => SharedPrefsSettings(prefs: sharedPrefs));
-
   final hiveBox = await HiveUtils.init();
   injector.addLazySingleton<SettingsContract>(() => HiveSettings(box: hiveBox));
 
