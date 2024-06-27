@@ -44,7 +44,7 @@ extension ContextExt on BuildContext {
             ConstrainedBox(
               constraints: BoxConstraints(
                 // minHeight: size.height * .2,
-                maxHeight: sizeOf.height * maxHeight,
+                maxHeight: sizeOf.height * maxHeight - 8,
               ),
               child: SafeArea(
                 child: Padding(
