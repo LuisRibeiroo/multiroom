@@ -32,7 +32,6 @@ class OptionsMenu {
               Routefly.pop(context);
 
               context.showCustomModalBottomSheet(
-                isScrollControlled: false,
                 child: const AboutBottomSheet(),
               );
             },
