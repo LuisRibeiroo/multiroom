@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:routefly/routefly.dart';
 
 import '../../../core/enums/device_type.dart';
@@ -66,7 +67,7 @@ class DeviceConfigHeader extends StatelessWidget {
                       ),
                       12.asSpace,
                       IconTextTile(
-                        icon: Icons.wifi_tethering_rounded,
+                        icon: MdiIcons.ip,
                         text: device.ip,
                         style: context.textTheme.titleMedium,
                       ),

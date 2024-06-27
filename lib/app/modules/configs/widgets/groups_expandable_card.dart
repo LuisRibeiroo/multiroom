@@ -1,5 +1,6 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../../core/extensions/number_extensions.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -67,7 +68,7 @@ class GroupsExpandableCard extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.home_work_rounded),
+                                Icon(MdiIcons.homeGroup),
                                 12.asSpace,
                                 Expanded(
                                   child: TextFormField(
