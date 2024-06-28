@@ -218,10 +218,11 @@ class ScannerPageController extends BaseController with SocketMixin {
 
   void removeProject(ProjectModel project) {
     settings.removeProject(project.id);
-    projects.value = settings.projects;
 
     projectName.value = projectName.initialValue;
     currentProject.value = currentProject.initialValue;
+
+    projects.value = settings.projects;
   }
 
   Future<void> _updateDevicesAvailability() async {
