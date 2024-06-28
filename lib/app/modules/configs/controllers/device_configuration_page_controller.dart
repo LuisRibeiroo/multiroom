@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
@@ -123,25 +124,31 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     );
   }
 
-  Future<void> onChangeZoneMode(ZoneWrapperModel zone, bool isStereo) async {
+  Future<void> onChangeZoneMode(ZoneWrapperModel wrapper, bool isStereo) async {
     try {
       isEditingZone.value = false;
       editingZone.value = editingZone.initialValue;
 
       await socketSender(
         MrCmdBuilder.setZoneMode(
-          zone: zone,
+          zone: wrapper,
           mode: isStereo ? ZoneMode.stereo : ZoneMode.mono,
         ),
       );
 
-      editingWrapper.value = zone.copyWith(mode: isStereo ? ZoneMode.stereo : ZoneMode.mono);
+      editingWrapper.value = wrapper.copyWith(mode: isStereo ? ZoneMode.stereo : ZoneMode.mono);
 
       device.value = device.peek().copyWith(
-            zoneWrappers: device.peek().zoneWrappers.map((z) => z.id == zone.id ? editingWrapper.value : z).toList(),
+            zoneWrappers: device.peek().zoneWrappers.map((z) => z.id == wrapper.id ? editingWrapper.value : z).toList(),
           );
+
+      _updateGroupZones(editingWrapper.value);
     } catch (exception) {
-      setError(exception as Exception);
+      if (exception is Exception) {
+        setError(exception);
+      } else {
+        setError(Exception(exception));
+      }
     }
   }
 
@@ -191,7 +198,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
                 .toList(),
           );
 
-      _updateGroupZones(switch (zone.side) {
+      _updateGroupZoneNames(switch (zone.side) {
         MonoSide.undefined => editingWrapper.peek().stereoZone,
         MonoSide.left => editingWrapper.peek().monoZones.left,
         MonoSide.right => editingWrapper.peek().monoZones.right,
@@ -294,7 +301,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         );
   }
 
-  void _updateGroupZones(ZoneModel zone) {
+  void _updateGroupZoneNames(ZoneModel zone) {
     for (final group in device.peek().groups) {
       final zoneIndex = group.zones.indexWhere((z) => z.id == zone.id);
 
@@ -309,6 +316,29 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
         break;
       }
+    }
+  }
+
+  void _updateGroupZones(ZoneWrapperModel wrapper) {
+    // final removedZones = groupZones.difference(wrapper.zones.toSet());
+
+    for (final group in device.value.groups) {
+      final groupZones = group.zones.toSet();
+      final wrapperZones = wrapper.isStereo ? {wrapper.monoZones.left, wrapper.monoZones.right} : {wrapper.stereoZone};
+
+      final newZones = groupZones.intersection(wrapperZones);
+
+      if (newZones.isEmpty) {
+        continue;
+      }
+
+      final List<ZoneGroupModel> groups = List.from(device.peek().groups);
+      final idx = groups.indexOf(group);
+
+      groups[idx] = groups[idx].copyWith(zones: groupZones.difference(wrapperZones).toList());
+      device.value = device.peek().copyWith(groups: groups);
+
+      break;
     }
   }
 
@@ -403,10 +433,10 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     final grps = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("GRP"));
 
     final List<ZoneModel> zonesList = List.from(device.peek().zones);
-    final zonesMap = <String, List<ZoneModel>>{
-      "G1": device.value.groups[0].zones,
-      "G2": device.value.groups[1].zones,
-      "G3": device.value.groups[2].zones,
+    final zonesMap = <String, ZoneGroupModel>{
+      "G1": device.value.groups[0],
+      "G2": device.value.groups[1],
+      "G3": device.value.groups[2],
     };
 
     for (final grp in grps) {
@@ -418,28 +448,24 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
       switch (grp.key) {
         case _ when grp.key.startsWith("GRP[1]"):
-          zonesMap["G1"].addIfAbsent(zone);
+          zonesMap["G1"]!.zones.addIfAbsent(zone);
           break;
 
         case _ when grp.key.startsWith("GRP[2]"):
-          zonesMap["G2"].addIfAbsent(zone);
+          zonesMap["G2"]!.zones.addIfAbsent(zone);
           break;
 
         case _ when grp.key.startsWith("GRP[3]"):
-          zonesMap["G3"].addIfAbsent(zone);
+          zonesMap["G3"]!.zones.addIfAbsent(zone);
           break;
       }
     }
 
     final groupsList = <ZoneGroupModel>[];
 
-    for (final entry in zonesMap.entries) {
-      groupsList.add(ZoneGroupModel(
-        id: entry.key,
-        name: "Grupo ${entry.key.numbersOnly}",
-        zones: entry.value,
-      ));
-    }
+    zonesMap.entries.forEachIndexed((index, entry) {
+      groupsList.add(device.value.groups[index].copyWith(zones: entry.value.zones));
+    });
 
     return groupsList;
   }
@@ -452,6 +478,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     deviceName.value = deviceName.initialValue;
     device.value = device.initialValue;
     editingWrapper.value = editingWrapper.initialValue;
+    editingGroup.value = editingGroup.initialValue;
     editingZone.value = editingZone.initialValue;
     isEditingDevice.value = isEditingDevice.initialValue;
     isEditingZone.value = isEditingZone.initialValue;
