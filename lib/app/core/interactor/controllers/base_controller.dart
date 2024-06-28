@@ -75,7 +75,10 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
 
   void setError(Exception exception) {
     _update(ErrorState(exception: exception));
-    logger.e("$BaseController.setError --> [$exception]");
+    logger.e(
+      "$BaseController.setError --> [$exception]",
+      stackTrace: StackTrace.current,
+    );
   }
 
   @mustCallSuper

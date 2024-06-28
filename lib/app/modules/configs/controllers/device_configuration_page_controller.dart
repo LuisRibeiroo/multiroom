@@ -455,10 +455,10 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     final grps = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("GRP"));
 
     final List<ZoneModel> zonesList = List.from(device.peek().zones);
-    final zonesMap = <String, ZoneGroupModel>{
-      "G1": device.value.groups[0],
-      "G2": device.value.groups[1],
-      "G3": device.value.groups[2],
+    final zonesMap = <String, List<ZoneModel>>{
+      "G1": List.from(device.value.groups[0].zones),
+      "G2": List.from(device.value.groups[1].zones),
+      "G3": List.from(device.value.groups[2].zones),
     };
 
     for (final grp in grps) {
@@ -470,15 +470,15 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
       switch (grp.key) {
         case _ when grp.key.startsWith("GRP[1]"):
-          zonesMap["G1"]!.zones.addIfAbsent(zone);
+          zonesMap["G1"]!.addIfAbsent(zone);
           break;
 
         case _ when grp.key.startsWith("GRP[2]"):
-          zonesMap["G2"]!.zones.addIfAbsent(zone);
+          zonesMap["G2"]!.addIfAbsent(zone);
           break;
 
         case _ when grp.key.startsWith("GRP[3]"):
-          zonesMap["G3"]!.zones.addIfAbsent(zone);
+          zonesMap["G3"]!.addIfAbsent(zone);
           break;
       }
     }
@@ -486,7 +486,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     final groupsList = <ZoneGroupModel>[];
 
     zonesMap.entries.forEachIndexed((index, entry) {
-      groupsList.add(device.value.groups[index].copyWith(zones: entry.value.zones));
+      groupsList.add(device.value.groups[index].copyWith(zones: entry.value));
     });
 
     return groupsList;

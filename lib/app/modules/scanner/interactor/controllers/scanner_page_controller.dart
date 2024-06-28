@@ -202,7 +202,9 @@ class ScannerPageController extends BaseController with SocketMixin {
     onTapConfigDevice(newDevice);
 
     deviceType.value = deviceType.initialValue;
-    networkDevices.removeWhere((d) => d.serialNumber == netDevice.serialNumber);
+    if (networkDevices.any((n) => n.serialNumber == netDevice.serialNumber)) {
+      networkDevices.removeWhere((d) => d.serialNumber == netDevice.serialNumber);
+    }
   }
 
   void addProject() {
