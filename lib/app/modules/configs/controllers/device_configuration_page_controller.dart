@@ -241,6 +241,16 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   Future<void> onFactoryRestore() async {
     await socketSender(MrCmdBuilder.setDefaultConfigs);
 
+    device.value = DeviceModel.builder(
+      projectName: device.value.projectName,
+      projectId: device.value.projectId,
+      serialNumber: device.value.serialNumber,
+      name: device.value.name,
+      ip: device.value.ip,
+      version: device.value.version,
+      type: device.value.type,
+    );
+
     await _updateDeviceData();
   }
 
@@ -367,17 +377,29 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     final zonesList = <ZoneWrapperModel>[];
 
     for (final mode in modes) {
-      ZoneWrapperModel wrapper = switch (mode.key) {
-        "MODE1" => device.value.zoneWrappers[0], //ZoneWrapperModel.builder(index: 1, name: "Zona 1"),
-        "MODE2" => device.value.zoneWrappers[1], //ZoneWrapperModel.builder(index: 2, name: "Zona 2"),
-        "MODE3" => device.value.zoneWrappers[2], //ZoneWrapperModel.builder(index: 3, name: "Zona 3"),
-        "MODE4" => device.value.zoneWrappers[3], //ZoneWrapperModel.builder(index: 4, name: "Zona 4"),
-        "MODE5" => device.value.zoneWrappers[4], //ZoneWrapperModel.builder(index: 5, name: "Zona 5"),
-        "MODE6" => device.value.zoneWrappers[5], //ZoneWrapperModel.builder(index: 6, name: "Zona 6"),
-        "MODE7" => device.value.zoneWrappers[6], //ZoneWrapperModel.builder(index: 7, name: "Zona 7"),
-        "MODE8" => device.value.zoneWrappers[7], //ZoneWrapperModel.builder(index: 8, name: "Zona 8"),
-        _ => ZoneWrapperModel.empty(),
-      };
+      ZoneWrapperModel wrapper = device.value.zoneWrappers.isEmpty
+          ? switch (mode.key) {
+              "MODE1" => ZoneWrapperModel.builder(index: 1, name: "Zona 1"),
+              "MODE2" => ZoneWrapperModel.builder(index: 2, name: "Zona 2"),
+              "MODE3" => ZoneWrapperModel.builder(index: 3, name: "Zona 3"),
+              "MODE4" => ZoneWrapperModel.builder(index: 4, name: "Zona 4"),
+              "MODE5" => ZoneWrapperModel.builder(index: 5, name: "Zona 5"),
+              "MODE6" => ZoneWrapperModel.builder(index: 6, name: "Zona 6"),
+              "MODE7" => ZoneWrapperModel.builder(index: 7, name: "Zona 7"),
+              "MODE8" => ZoneWrapperModel.builder(index: 8, name: "Zona 8"),
+              _ => ZoneWrapperModel.empty(),
+            }
+          : switch (mode.key) {
+              "MODE1" => device.value.zoneWrappers[0], //ZoneWrapperModel.builder(index: 1, name: "Zona 1"),
+              "MODE2" => device.value.zoneWrappers[1], //ZoneWrapperModel.builder(index: 2, name: "Zona 2"),
+              "MODE3" => device.value.zoneWrappers[2], //ZoneWrapperModel.builder(index: 3, name: "Zona 3"),
+              "MODE4" => device.value.zoneWrappers[3], //ZoneWrapperModel.builder(index: 4, name: "Zona 4"),
+              "MODE5" => device.value.zoneWrappers[4], //ZoneWrapperModel.builder(index: 5, name: "Zona 5"),
+              "MODE6" => device.value.zoneWrappers[5], //ZoneWrapperModel.builder(index: 6, name: "Zona 6"),
+              "MODE7" => device.value.zoneWrappers[6], //ZoneWrapperModel.builder(index: 7, name: "Zona 7"),
+              "MODE8" => device.value.zoneWrappers[7], //ZoneWrapperModel.builder(index: 8, name: "Zona 8"),
+              _ => ZoneWrapperModel.empty(),
+            };
 
       if (wrapper.isEmpty) {
         continue;
