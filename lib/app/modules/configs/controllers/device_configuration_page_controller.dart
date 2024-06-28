@@ -38,24 +38,27 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     deviceName.value = dev.name;
 
     try {
-      await restartSocket(newIp: dev.ip);
+      await initSocket(ip: dev.ip);
       await run(_updateDeviceData);
     } catch (exception) {
       logger.e(exception);
-      setError(exception as Exception);
+      if (exception is Exception) {
+        setError(exception);
+      } else {
+        setError(Exception(exception));
+      }
     }
 
     disposables.addAll([
-      effect(
-        () {
-          settings.saveDevice(device: device.value);
-        },
-      ),
       effect(() {
-        availableZones.value = device.value.zones
-            .where((zone) => device.value.groups.map((g) => g.zones.contains(zone)).every((v) => !v))
-            .toList();
+        final differenceZones =
+            device.value.zones.toSet().difference(device.value.groups.expand((g) => g.zones).toSet());
+
+        availableZones.value = differenceZones.toList();
       }),
+      effect(() {
+        settings.saveDevice(device: device.value);
+      })
     ]);
   }
 
@@ -63,7 +66,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     isEditingDevice.value = isEditingDevice.value == false;
 
     if (isEditingDevice.value == false) {
-      device.value = device.value.copyWith(name: deviceName.value);
+      device.value = device.peek().copyWith(name: deviceName.value);
     }
   }
 
@@ -79,14 +82,13 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     final List<ZoneGroupModel> groups = List.from(device.peek().groups);
     final List<ZoneModel> tempZones = List.from(group.zones);
 
-    final idx = groups.indexOf(group);
-    groups[idx] = groups[idx].copyWith(zones: tempZones..add(zone));
-    device.value = device.value.copyWith(groups: groups);
+    groups.replaceWhere((g) => g.id == group.id, group.copyWith(zones: tempZones..add(zone)));
+    device.value = device.peek().copyWith(groups: groups);
 
     await socketSender(
       MrCmdBuilder.setGroup(
-        group: groups[idx],
-        zones: groups[idx].zones,
+        group: group,
+        zones: group.zones,
       ),
     );
 
@@ -111,7 +113,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     final idx = groups.indexOf(group);
 
     groups[idx] = groups[idx].copyWith(zones: tempZones..remove(zone));
-    device.value = device.value.copyWith(groups: groups);
+    device.value = device.peek().copyWith(groups: groups);
 
     await socketSender(
       MrCmdBuilder.setGroup(
@@ -135,8 +137,9 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
       editingWrapper.value = zone.copyWith(mode: isStereo ? ZoneMode.stereo : ZoneMode.mono);
 
-      device.value = device.value.copyWith(
-          zoneWrappers: device.value.zoneWrappers.map((z) => z.id == zone.id ? editingWrapper.value : z).toList());
+      device.value = device.peek().copyWith(
+            zoneWrappers: device.peek().zoneWrappers.map((z) => z.id == zone.id ? editingWrapper.value : z).toList(),
+          );
     } catch (exception) {
       setError(exception as Exception);
     }
@@ -200,8 +203,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   void toggleEditingGroup(ZoneGroupModel group) {
-    if (group.id == editingGroup.value.id) {
-      isEditingGroup.value = !isEditingGroup.value;
+    if (group.id == editingGroup.peek().id) {
+      isEditingGroup.value = !isEditingGroup.peek();
     } else {
       isEditingGroup.value = true;
       editingGroup.value = group;
@@ -209,21 +212,23 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       return;
     }
 
-    if (isEditingGroup.value == false) {
-      device.value = device.value.copyWith(
-        groups: device.value.groups
-            .map(
-              (z) => z.id == editingGroup.value.id ? editingGroup.value : z,
-            )
-            .toList(),
-      );
+    if (isEditingGroup.peek() == false) {
+      device.value = device.peek().copyWith(
+            groups: device
+                .peek()
+                .groups
+                .map(
+                  (z) => z.id == editingGroup.peek().id ? editingGroup.value : z,
+                )
+                .toList(),
+          );
 
       editingGroup.value = editingGroup.initialValue;
     }
   }
 
   void onRemoveDevice() {
-    settings.removeDevice(projectId: device.value.projectId, deviceId: device.value.serialNumber);
+    settings.removeDevice(projectId: device.peek().projectId, deviceId: device.peek().serialNumber);
   }
 
   Future<void> onFactoryRestore() async {
@@ -260,7 +265,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
               .peek()
               .zoneWrappers
               .map(
-                (z) => z.id == editingWrapper.value.id ? editingWrapper.value : z,
+                (z) => z.id == editingWrapper.peek().id ? editingWrapper.value : z,
               )
               .toList(),
         );
@@ -280,13 +285,13 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   Future<void> _updateDeviceData() async {
     final configs = await _getDeviceData();
 
-    device.value = device.value.copyWith(
-      zoneWrappers: _parseZones(configs),
-    );
+    device.value = device.peek().copyWith(
+          zoneWrappers: _parseZones(configs),
+        );
 
-    device.value = device.value.copyWith(
-      groups: _parseGroups(configs),
-    );
+    device.value = device.peek().copyWith(
+          groups: _parseGroups(configs),
+        );
   }
 
   void _updateGroupZones(ZoneModel zone) {
@@ -300,7 +305,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
         newZones[zoneIndex] = zone;
         groups[idx] = groups[idx].copyWith(zones: newZones);
-        device.value = device.value.copyWith(groups: groups);
+        device.value = device.peek().copyWith(groups: groups);
 
         break;
       }
@@ -333,14 +338,14 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     for (final mode in modes) {
       ZoneWrapperModel wrapper = switch (mode.key) {
-        "MODE1" => ZoneWrapperModel.builder(index: 1, name: "Zona 1"),
-        "MODE2" => ZoneWrapperModel.builder(index: 2, name: "Zona 2"),
-        "MODE3" => ZoneWrapperModel.builder(index: 3, name: "Zona 3"),
-        "MODE4" => ZoneWrapperModel.builder(index: 4, name: "Zona 4"),
-        "MODE5" => ZoneWrapperModel.builder(index: 5, name: "Zona 5"),
-        "MODE6" => ZoneWrapperModel.builder(index: 6, name: "Zona 6"),
-        "MODE7" => ZoneWrapperModel.builder(index: 7, name: "Zona 7"),
-        "MODE8" => ZoneWrapperModel.builder(index: 8, name: "Zona 8"),
+        "MODE1" => device.value.zoneWrappers[0], //ZoneWrapperModel.builder(index: 1, name: "Zona 1"),
+        "MODE2" => device.value.zoneWrappers[1], //ZoneWrapperModel.builder(index: 2, name: "Zona 2"),
+        "MODE3" => device.value.zoneWrappers[2], //ZoneWrapperModel.builder(index: 3, name: "Zona 3"),
+        "MODE4" => device.value.zoneWrappers[3], //ZoneWrapperModel.builder(index: 4, name: "Zona 4"),
+        "MODE5" => device.value.zoneWrappers[4], //ZoneWrapperModel.builder(index: 5, name: "Zona 5"),
+        "MODE6" => device.value.zoneWrappers[5], //ZoneWrapperModel.builder(index: 6, name: "Zona 6"),
+        "MODE7" => device.value.zoneWrappers[6], //ZoneWrapperModel.builder(index: 7, name: "Zona 7"),
+        "MODE8" => device.value.zoneWrappers[7], //ZoneWrapperModel.builder(index: 8, name: "Zona 8"),
         _ => ZoneWrapperModel.empty(),
       };
 
@@ -399,9 +404,9 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     final List<ZoneModel> zonesList = List.from(device.peek().zones);
     final zonesMap = <String, List<ZoneModel>>{
-      "G1": [],
-      "G2": [],
-      "G3": [],
+      "G1": device.value.groups[0].zones,
+      "G2": device.value.groups[1].zones,
+      "G3": device.value.groups[2].zones,
     };
 
     for (final grp in grps) {

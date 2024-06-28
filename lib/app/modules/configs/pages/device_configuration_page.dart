@@ -42,7 +42,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
               title: "Zonas",
               icon: Icons.home_filled,
             ),
-            Expanded(
+            Flexible(
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: _controller.availableZones.value.length,

@@ -173,9 +173,10 @@ class ScannerPageController extends BaseController with SocketMixin {
 
     Routefly.push(routePaths.modules.configs.pages.deviceConfiguration, arguments: device).then(
       (_) async {
-        if (projects.peek() != settings.projects) {
+        await run(() async {
           projects.value = settings.projects;
-        }
+          await Future.delayed(const Duration(milliseconds: 500));
+        });
       },
     );
   }
@@ -226,7 +227,7 @@ class ScannerPageController extends BaseController with SocketMixin {
   Future<void> _updateDevicesAvailability() async {
     for (final d in _localDevices) {
       try {
-        await restartSocket(newIp: d.ip);
+        await restartSocket(ip: d.ip);
         await socketSender(MrCmdBuilder.expansionMode);
 
         devicesAvailability[d.serialNumber] = true;
@@ -247,7 +248,7 @@ class ScannerPageController extends BaseController with SocketMixin {
 
   Future<String> _setDeviceType(String ip, DeviceType type) async {
     try {
-      await restartSocket(newIp: ip);
+      await restartSocket(ip: ip);
 
       final response = MrCmdBuilder.parseResponse(
         await socketSender(

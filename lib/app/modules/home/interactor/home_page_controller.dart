@@ -101,7 +101,7 @@ class HomePageController extends BaseController with SocketMixin {
 
       if (device.serialNumber != currentDevice.value.serialNumber) {
         currentDevice.value = device;
-        await run(() => restartSocket(newIp: device.ip));
+        await run(() => restartSocket(ip: device.ip));
       }
 
       if (currentDevice.previousValue!.serialNumber != currentDevice.value.serialNumber ||
@@ -254,7 +254,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     await run(() async {
       try {
-        await restartSocket(newIp: currentDevice.value.ip);
+        await restartSocket(ip: currentDevice.value.ip);
         await _updateAllDeviceData(currentZone.value);
       } catch (exception) {
         if (exception is Exception) {

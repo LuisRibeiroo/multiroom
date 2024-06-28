@@ -59,25 +59,28 @@ class DeviceListTile extends StatelessWidget {
               ),
               Column(
                 children: [
-                  AnimatedToggleSwitch.dual(
-                    current: isAvailable,
-                    first: false,
-                    second: true,
-                    height: 40,
-                    indicatorSize: const Size.square(38),
-                    active: false,
-                    inactiveOpacity: 1,
-                    style: ToggleStyle(
-                      indicatorColor: context.colorScheme.inversePrimary,
-                      borderColor: context.colorScheme.inversePrimary,
-                    ),
-                    iconBuilder: (value) => Icon(
-                      value ? Icons.wifi_rounded : Icons.wifi_off_rounded,
-                      color: value ? context.colorScheme.primary : context.theme.disabledColor,
-                    ),
-                    textBuilder: (value) => Text(
-                      value ? "ONLINE" : "OFFLINE",
-                      style: context.textTheme.bodyMedium,
+                  Visibility(
+                    visible: showAvailability,
+                    child: AnimatedToggleSwitch.dual(
+                      current: isAvailable,
+                      first: false,
+                      second: true,
+                      height: 40,
+                      indicatorSize: const Size.square(38),
+                      active: false,
+                      inactiveOpacity: 1,
+                      style: ToggleStyle(
+                        indicatorColor: context.colorScheme.inversePrimary,
+                        borderColor: context.colorScheme.inversePrimary,
+                      ),
+                      iconBuilder: (value) => Icon(
+                        value ? Icons.wifi_rounded : Icons.wifi_off_rounded,
+                        color: value ? context.colorScheme.primary : context.theme.disabledColor,
+                      ),
+                      textBuilder: (value) => Text(
+                        value ? "ONLINE" : "OFFLINE",
+                        style: context.textTheme.bodyMedium,
+                      ),
                     ),
                   ),
                   24.asSpace,

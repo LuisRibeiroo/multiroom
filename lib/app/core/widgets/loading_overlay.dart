@@ -56,7 +56,7 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
             child: Stack(
               children: [
                 Opacity(
-                  opacity: 0.2,
+                  opacity: 0.4,
                   child: ModalBarrier(
                     color: Colors.black,
                     dismissible: widget.dismissible,
