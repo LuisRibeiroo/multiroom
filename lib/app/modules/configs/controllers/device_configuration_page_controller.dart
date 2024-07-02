@@ -76,22 +76,30 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   Future<void> onAddZoneToGroup(ZoneGroupModel group, ZoneModel zone) async {
-    if (group.zones.contains(zone)) {
-      // Show error
+    try {
+      if (group.zones.contains(zone)) {
+        // Show error
+      }
+
+      final List<ZoneGroupModel> groups = List.from(device.peek().groups);
+      final List<ZoneModel> tempZones = List.from(group.zones);
+
+      groups.replaceWhere((g) => g.id == group.id, group.copyWith(zones: tempZones..add(zone)));
+      device.value = device.peek().copyWith(groups: groups);
+
+      await socketSender(
+        MrCmdBuilder.setGroup(
+          group: group,
+          zones: group.zones,
+        ),
+      );
+    } catch (exception) {
+      if (exception is Exception) {
+        setError(exception);
+      } else {
+        setError(Exception(exception));
+      }
     }
-
-    final List<ZoneGroupModel> groups = List.from(device.peek().groups);
-    final List<ZoneModel> tempZones = List.from(group.zones);
-
-    groups.replaceWhere((g) => g.id == group.id, group.copyWith(zones: tempZones..add(zone)));
-    device.value = device.peek().copyWith(groups: groups);
-
-    await socketSender(
-      MrCmdBuilder.setGroup(
-        group: group,
-        zones: group.zones,
-      ),
-    );
 
     // TODO: Check if we need this cmd
     // if (groups[idx].zones.length == 1) {
