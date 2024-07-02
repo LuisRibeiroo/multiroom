@@ -30,8 +30,10 @@ class DeviceListTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 18),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
+                flex: 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -57,58 +59,60 @@ class DeviceListTile extends StatelessWidget {
                   ],
                 ),
               ),
-              Column(
-                children: [
-                  Visibility(
-                    visible: showAvailability,
-                    child: IgnorePointer(
-                      ignoring: true,
-                      child: AnimatedToggleSwitch.dual(
-                        current: isAvailable,
-                        first: false,
-                        second: true,
-                        height: 40,
-                        indicatorSize: const Size.square(38),
-                        style: ToggleStyle(
-                          indicatorColor: context.colorScheme.inversePrimary,
-                          borderColor: context.colorScheme.inversePrimary,
-                        ),
-                        iconBuilder: (value) => Icon(
-                          value ? Icons.wifi_rounded : Icons.wifi_off_rounded,
-                          color: value ? context.colorScheme.primary : context.theme.disabledColor,
-                        ),
-                        textBuilder: (value) => Text(
-                          value ? "ONLINE" : "OFFLINE",
-                          style: context.textTheme.bodyMedium,
+              Flexible(
+                child: Column(
+                  children: [
+                    Visibility(
+                      visible: showAvailability,
+                      child: IgnorePointer(
+                        ignoring: true,
+                        child: AnimatedToggleSwitch.dual(
+                          current: isAvailable,
+                          first: false,
+                          second: true,
+                          height: 32,
+                          indicatorSize: const Size.square(28),
+                          style: ToggleStyle(
+                            indicatorColor: context.colorScheme.inversePrimary,
+                            borderColor: context.colorScheme.inversePrimary,
+                          ),
+                          iconBuilder: (value) => Icon(
+                            value ? Icons.wifi_rounded : Icons.wifi_off_rounded,
+                            color: value ? context.colorScheme.primary : context.theme.disabledColor,
+                            size: 20,
+                          ),
+                          textBuilder: (value) => Text(
+                            value ? "ON" : "OFF",
+                            style: context.textTheme.bodyMedium,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  24.asSpace,
-                  Container(
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: device.type == DeviceType.master
-                          ? context.colorScheme.inversePrimary
-                          : context.colorScheme.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: context.colorScheme.primary,
+                    Container(
+                      margin: const EdgeInsets.only(top: 12),
+                      width: 32,
+                      height: 32,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: device.type == DeviceType.master
+                            ? context.colorScheme.inversePrimary
+                            : context.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: context.colorScheme.primary,
+                        ),
+                      ),
+                      child: Text(
+                        device.type.name[0].toUpperCase(),
+                        style: context.textTheme.bodyLarge,
                       ),
                     ),
-                    child: Text(
-                      device.type.name[0].toUpperCase(),
-                      style: context.textTheme.bodyLarge,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              24.asSpace,
+              8.asSpace,
               const Icon(
                 Icons.tune_rounded,
-                size: 28,
               ),
             ],
           ),
