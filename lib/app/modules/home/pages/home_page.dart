@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import '../../widgets/icon_title.dart';
 import 'package:routefly/routefly.dart';
@@ -120,15 +118,6 @@ class _HomePageState extends State<HomePage> {
     }
 
     return tiles;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    scheduleMicrotask(() async {
-      await _controller.init();
-    });
   }
 
   @override

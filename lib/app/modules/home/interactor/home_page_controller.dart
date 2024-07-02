@@ -87,14 +87,6 @@ class HomePageController extends BaseController with SocketMixin {
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
 
-  Future<void> init() async {
-    try {
-      await initSocket(ip: currentDevice.value.ip);
-    } catch (exception) {
-      setError(exception as Exception);
-    }
-  }
-
   Future<void> setCurrentDeviceAndZone(DeviceModel device, ZoneModel zone) async {
     try {
       channels.set(zone.channels);
