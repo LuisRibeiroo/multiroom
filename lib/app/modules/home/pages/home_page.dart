@@ -138,7 +138,10 @@ class _HomePageState extends State<HomePage> {
               title: const Text('Multiroom'),
               actions: [
                 IconButton(
-                  onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
+                  onPressed: () => OptionsMenu.showOptionsBottomSheet(
+                    context,
+                    state: _controller.state,
+                  ),
                   icon: const Icon(Icons.more_vert_rounded),
                 ),
               ],

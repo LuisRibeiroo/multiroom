@@ -8,7 +8,7 @@ import 'app/modules/shared/controllers/options_bottom_sheet_controller.dart';
 
 final injector = AutoInjector(
   on: (i) {
-    i.addLazySingleton(OptionsBottomSheetController.new);
+    i.add(OptionsBottomSheetController.new);
     i.addLazySingleton(HomePageController.new);
     i.addLazySingleton(ConfigsPageController.new);
     i.addLazySingleton(ScannerPageController.new);
