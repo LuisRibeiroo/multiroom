@@ -51,7 +51,7 @@ class ShareDialog extends StatelessWidget {
                   ),
                 ),
                 24.asSpace,
-                Text(
+                SelectableText(
                   projectAddress,
                   style: context.textTheme.titleMedium,
                 ),
@@ -63,6 +63,8 @@ class ShareDialog extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.copy_rounded),
                       onPressed: () async {
+                        Navigator.pop(context);
+
                         await Clipboard.setData(
                           ClipboardData(text: projectAddress),
                         );
