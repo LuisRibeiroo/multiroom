@@ -29,7 +29,7 @@ class ImportDataPageController extends BaseController {
   Future<void> _downloadAndUpdateFile(String projectId) async {
     try {
       if (projectId.length == 11 && projectId.startsWith("MR-")) {
-        final response = await run(
+        final response = await run<Response>(
           () => Dio().get(
             "https://multiroom.s3.sa-east-1.amazonaws.com/$projectId",
             onReceiveProgress: _showDownloadProgress,
@@ -40,6 +40,11 @@ class ImportDataPageController extends BaseController {
             ),
           ),
         );
+
+        if ((response.statusCode ?? 500) >= 400) {
+          setError(Exception("Código não encontrado"));
+          return;
+        }
 
         await HiveUtils.closeBox();
 
