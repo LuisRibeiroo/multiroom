@@ -71,6 +71,7 @@ class ShareDialog extends StatelessWidget {
 
                         toastification.show(
                           type: ToastificationType.success,
+                          style: ToastificationStyle.minimal,
                           autoCloseDuration: const Duration(seconds: 2),
                           title: const Text("Código copiado"),
                         );

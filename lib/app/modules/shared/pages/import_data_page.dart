@@ -35,6 +35,7 @@ class _ImportDataPageState extends State<ImportDataPage> with WidgetsBindingObse
           if (_controller.state.value is SuccessState) {
             toastification.show(
               type: ToastificationType.success,
+              style: ToastificationStyle.minimal,
               autoCloseDuration: const Duration(seconds: 5),
               title: const Text("Sucesso!"),
               description: const Text("Todos os dados foram importados com sucesso"),
