@@ -61,6 +61,8 @@
 		<string>bluetooth</string>
 		<key>NSUserTrackingUsageDescription</key>
 		<string>appTrackingTransparency</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Câmera necessária para importar projetos</string>
 		<key>LSApplicationQueriesSchemes</key>
 		<array>
 			<string>tel</string>

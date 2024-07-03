@@ -15,14 +15,28 @@ import '../../models/zone_model.dart';
 import '../../models/zone_wrapper_model.dart';
 
 class HiveUtils {
+  static const boxName = "multiroom_db";
+
   static Future<Box> init() async {
     // Register all Hive Adapters on storage/hive_helper/hive_adapters.dart file
     _registerAdapters();
 
+    return loadBox();
+  }
+
+  static Future<Box> loadBox() async {
+    await closeBox();
+
     final dir = await getApplicationDocumentsDirectory();
     await Hive.initFlutter(dir.path);
 
-    return Hive.openBox('multiroom_db');
+    return Hive.openBox(boxName);
+  }
+
+  static Future<void> closeBox() async {
+    if (Hive.isBoxOpen(boxName)) {
+      await Hive.close();
+    }
   }
 }
 

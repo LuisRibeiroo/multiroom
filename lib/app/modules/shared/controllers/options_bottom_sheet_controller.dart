@@ -11,10 +11,12 @@ import '../../../core/enums/page_state.dart';
 import '../../../core/extensions/string_extensions.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
+import '../../../core/interactor/utils/hive_utils.dart';
 
 class OptionsBottomSheetController extends BaseController {
   OptionsBottomSheetController() : super(InitialState()) {
     showShareOption.value = settings.projects.isNotEmpty;
+    showTechAccessOption.value = settings.projects.isNotEmpty;
 
     disposables.addAll([
       effect(
@@ -30,7 +32,9 @@ class OptionsBottomSheetController extends BaseController {
   final password = "".toSignal(debugLabel: "password");
   final errorMessage = "".toSignal(debugLabel: "errorMessage");
   final isPasswordVisible = false.toSignal(debugLabel: "isPasswordVisible");
+
   final showShareOption = false.toSignal(debugLabel: "showShareOption");
+  final showTechAccessOption = false.toSignal(debugLabel: "showTechAccessOption");
 
   bool onTapAccess() {
     /// !Control@061
@@ -52,10 +56,11 @@ class OptionsBottomSheetController extends BaseController {
       pageState.value = LoadingState();
 
       final dir = await getApplicationDocumentsDirectory();
-      final file = File("${dir.path}/multiroom_db.hive");
+      final file = File("${dir.path}/${HiveUtils.boxName}.hive");
       final data = file.readAsBytesSync();
       final base64Data = base64Encode(data);
       final info = await DeviceInfoPlugin().deviceInfo;
+      final deviceHash = info.data["id"].toString().toProjectId;
 
       final response = await Dio().post(
         "https://9uodgvwql2.execute-api.sa-east-1.amazonaws.com/multiroomprofile/upload",
@@ -66,12 +71,12 @@ class OptionsBottomSheetController extends BaseController {
         ),
         data: {
           "content": base64Data,
-          "filename": "${info.data["id"]}.hive",
+          "filename": deviceHash,
         },
       );
 
       if (response.statusCode != 200) {
-        logger.e("FIle Upload error --> $response");
+        logger.e("File Upload error --> $response");
         throw Exception("Erro ao fazer upload do arquivo, tente novamente");
       }
 
@@ -81,7 +86,7 @@ class OptionsBottomSheetController extends BaseController {
       pageState.value = InitialState();
       logger.d("RESPONSE --> $url");
 
-      return body["fileUrl"];
+      return deviceHash;
     } catch (exception) {
       if (exception is Exception) {
         pageState.value = ErrorState(exception: exception);

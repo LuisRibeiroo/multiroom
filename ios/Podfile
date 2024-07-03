@@ -55,23 +55,13 @@ post_install do |installer|
         'PERMISSION_LOCATION=1',
         'PERMISSION_LOCATION_WHENINUSE=0',
 
+        'PERMISSION_CAMERA=1',
+
         ## dart: PermissionGroup.notification
         'PERMISSION_NOTIFICATIONS=1',
 
-        ## dart: PermissionGroup.sensors
-        'PERMISSION_SENSORS=1',
-
-        ## dart: PermissionGroup.bluetooth
-        'PERMISSION_BLUETOOTH=1',
-
         ## dart: PermissionGroup.appTrackingTransparency
         'PERMISSION_APP_TRACKING_TRANSPARENCY=1',
-
-        ## dart: PermissionGroup.criticalAlerts
-        'PERMISSION_CRITICAL_ALERTS=1',
-
-        ## dart: PermissionGroup.criticalAlerts
-        'PERMISSION_ASSISTANT=1',
     ]
     end
   end

@@ -8,6 +8,12 @@ extension TextInputFormatterExt on TextInputFormatter {
       _IpAddressInputFormatter(),
     ];
   }
+
+  static List<TextInputFormatter> upperCase() {
+    return [
+      _UpperCaseTextFormatter(),
+    ];
+  }
 }
 
 class _IpAddressInputFormatter extends TextInputFormatter {
@@ -64,6 +70,16 @@ class _IpAddressInputFormatter extends TextInputFormatter {
         offset: buffer.length,
         affinity: newValue.selection.affinity,
       ),
+    );
+  }
+}
+
+class _UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
     );
   }
 }

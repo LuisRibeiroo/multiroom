@@ -43,4 +43,12 @@ extension StringExt on String? {
 
     return md5.convert(utf8.encode(this!)).toString();
   }
+
+  String get toProjectId {
+    if (this == null) {
+      return "";
+    }
+
+    return "MR-${getMd5.substring(0, 8).toUpperCase()}";
+  }
 }

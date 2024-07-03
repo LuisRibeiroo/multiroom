@@ -11,13 +11,16 @@ class HiveSettings implements SettingsContract {
     required Box box,
   }) : _box = box;
 
-  final Box _box;
+  Box _box;
   final _logger = Logger(
     printer: SimplePrinter(
       printTime: true,
       colors: false,
     ),
   );
+
+  @override
+  void updateReference(dynamic newRef) => _box = newRef as Box;
 
   @override
   String get technicianAccessHash => "640c5fc8cd23285fd33b66bdf0c4570d";

@@ -41,12 +41,9 @@ class _ConfigsPageState extends State<ConfigsPage> {
               leading: Image.asset("assets/logo.png"),
               title: const Text("Configurações"),
               actions: [
-                Visibility(
-                  visible: _controller.projects.isNotEmpty,
-                  child: IconButton(
-                    onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
-                    icon: const Icon(Icons.more_vert_rounded),
-                  ),
+                IconButton(
+                  onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
+                  icon: const Icon(Icons.more_vert_rounded),
                 ),
               ],
             ),
