@@ -125,7 +125,7 @@ class _AppButtonState extends State<AppButton> {
         if (states.contains(WidgetState.disabled)) {
           baseColor = switch (widget.type) {
             ButtonType.text => baseColor,
-            _ => context.colorScheme.primary,
+            _ => Colors.white.withOpacity(.7),
           };
         }
 
