@@ -27,13 +27,14 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
       equalizer: fields[7] as EqualizerModel,
       wrapperId: fields[9] == null ? '' : fields[9] as String,
       side: fields[8] as MonoSide,
+      isGroup: fields[10] == null ? false : fields[10] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, ZoneModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
       ..writeByte(8)
       ..write(obj.side)
       ..writeByte(9)
-      ..write(obj.wrapperId);
+      ..write(obj.wrapperId)
+      ..writeByte(10)
+      ..write(obj.isGroup);
   }
 
   @override

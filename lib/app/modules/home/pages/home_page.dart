@@ -31,9 +31,34 @@ class _HomePageState extends State<HomePage> {
         (_) => Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const IconTitle(
-              title: "Zonas",
-              icon: Icons.surround_sound_rounded,
+            Stack(
+              children: [
+                const IconTitle(
+                  title: "Zonas",
+                  icon: Icons.surround_sound_rounded,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      onPressed: () {
+                        Routefly.pop(context);
+
+                        Routefly.push(
+                          routePaths.modules.home.pages.editZones,
+                          arguments: {
+                            "project": _controller.currentProject.value,
+                          },
+                        ).then((_) => _controller.syncLocalData());
+                      },
+                      icon: const Icon(
+                        Icons.edit_rounded,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             Flexible(
               child: ListView(

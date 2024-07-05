@@ -21,6 +21,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     required this.equalizer,
     required this.wrapperId,
     this.side = MonoSide.undefined,
+    this.isGroup = false,
   });
 
   factory ZoneModel.builder({
@@ -43,6 +44,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       balance: 50,
       equalizer: EqualizerModel.builder(name: "Custom"),
       side: side,
+      isGroup: false,
     );
   }
 
@@ -72,6 +74,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       balance: map['balance'],
       equalizer: EqualizerModel.fromMap(map['equalizer']),
       side: MonoSide.values[map['side']],
+      isGroup: map['isGroup'],
     );
   }
 
@@ -87,6 +90,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       'balance': balance,
       'equalizer': equalizer.toMap(),
       'side': side.index,
+      'isGroup': isGroup,
     };
   }
 
@@ -110,6 +114,8 @@ class ZoneModel extends Equatable implements SelectableModel {
   final MonoSide side;
   @HiveField(9, defaultValue: "")
   final String wrapperId;
+  @HiveField(10, defaultValue: false)
+  final bool isGroup;
 
   bool get isEmpty => id == ZoneModel.empty().id;
   bool get isStereo => side == MonoSide.undefined;
@@ -126,6 +132,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     int? balance,
     EqualizerModel? equalizer,
     MonoSide? side,
+    bool? isGroup,
   }) {
     return ZoneModel(
       id: id,
@@ -138,6 +145,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       balance: balance ?? this.balance,
       equalizer: equalizer ?? this.equalizer,
       side: side ?? this.side,
+      isGroup: isGroup ?? this.isGroup,
     );
   }
 
@@ -153,5 +161,6 @@ class ZoneModel extends Equatable implements SelectableModel {
         balance,
         equalizer,
         side,
+        isGroup,
       ];
 }
