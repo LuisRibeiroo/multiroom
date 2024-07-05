@@ -7,6 +7,7 @@ import '../../../../injector.dart';
 import '../../../core/enums/mono_side.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/enums/zone_mode.dart';
+import '../../../core/extensions/iterable_extensions.dart';
 import '../../../core/extensions/list_extensions.dart';
 import '../../../core/extensions/string_extensions.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
@@ -338,8 +339,6 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   void _updateGroupZones(ZoneWrapperModel wrapper) {
-    // final removedZones = groupZones.difference(wrapper.zones.toSet());
-
     for (final group in device.value.groups) {
       final groupZones = group.zones.toSet();
       final wrapperZones = wrapper.isStereo ? {wrapper.monoZones.left, wrapper.monoZones.right} : {wrapper.stereoZone};
@@ -379,125 +378,141 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   List<ZoneWrapperModel> _parseZones(Map<String, String> configs) {
-    final modes = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("MODE"));
-    final maxVols = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("VOL_MAX"));
-
-    final zonesList = <ZoneWrapperModel>[];
-
-    for (final mode in modes) {
-      ZoneWrapperModel wrapper = device.value.zoneWrappers.isEmpty
-          ? switch (mode.key) {
-              "MODE1" => ZoneWrapperModel.builder(index: 1, name: "Zona 1"),
-              "MODE2" => ZoneWrapperModel.builder(index: 2, name: "Zona 2"),
-              "MODE3" => ZoneWrapperModel.builder(index: 3, name: "Zona 3"),
-              "MODE4" => ZoneWrapperModel.builder(index: 4, name: "Zona 4"),
-              "MODE5" => ZoneWrapperModel.builder(index: 5, name: "Zona 5"),
-              "MODE6" => ZoneWrapperModel.builder(index: 6, name: "Zona 6"),
-              "MODE7" => ZoneWrapperModel.builder(index: 7, name: "Zona 7"),
-              "MODE8" => ZoneWrapperModel.builder(index: 8, name: "Zona 8"),
-              _ => ZoneWrapperModel.empty(),
-            }
-          : switch (mode.key) {
-              "MODE1" => device.value.zoneWrappers[0], //ZoneWrapperModel.builder(index: 1, name: "Zona 1"),
-              "MODE2" => device.value.zoneWrappers[1], //ZoneWrapperModel.builder(index: 2, name: "Zona 2"),
-              "MODE3" => device.value.zoneWrappers[2], //ZoneWrapperModel.builder(index: 3, name: "Zona 3"),
-              "MODE4" => device.value.zoneWrappers[3], //ZoneWrapperModel.builder(index: 4, name: "Zona 4"),
-              "MODE5" => device.value.zoneWrappers[4], //ZoneWrapperModel.builder(index: 5, name: "Zona 5"),
-              "MODE6" => device.value.zoneWrappers[5], //ZoneWrapperModel.builder(index: 6, name: "Zona 6"),
-              "MODE7" => device.value.zoneWrappers[6], //ZoneWrapperModel.builder(index: 7, name: "Zona 7"),
-              "MODE8" => device.value.zoneWrappers[7], //ZoneWrapperModel.builder(index: 8, name: "Zona 8"),
-              _ => ZoneWrapperModel.empty(),
-            };
-
-      if (wrapper.isEmpty) {
-        continue;
-      }
-
-      if (mode.value.toUpperCase() == "STEREO") {
-        final maxVolume = maxVols.firstWhere(
-          (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")),
-          orElse: () => MapEntry(wrapper.id, "100"),
-        );
-
-        wrapper = wrapper.copyWith(
-          mode: ZoneMode.stereo,
-          stereoZone: wrapper.stereoZone.copyWith(
-            maxVolume: int.parse(maxVolume.value.numbersOnly),
-          ),
-        );
-      } else {
-        final maxVolumeR = maxVols
-            .firstWhere(
-              (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")) && entry.key.endsWith("R"),
-              orElse: () => MapEntry(wrapper.id, "100"),
-            )
-            .value;
-
-        final maxVolumeL = maxVols
-            .firstWhere(
-              (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")) && entry.key.endsWith("L"),
-              orElse: () => MapEntry(wrapper.id, "100"),
-            )
-            .value;
-
-        wrapper = wrapper.copyWith(
-          mode: ZoneMode.mono,
-          monoZones: wrapper.monoZones.copyWith(
-            right: wrapper.monoZones.right.copyWith(
-              maxVolume: int.parse(maxVolumeR.numbersOnly),
-            ),
-            left: wrapper.monoZones.left.copyWith(
-              maxVolume: int.parse(maxVolumeL.numbersOnly),
-            ),
-          ),
-        );
-      }
-
-      zonesList.add(wrapper);
+    if (configs.entries.isNullOrEmpty) {
+      return <ZoneWrapperModel>[];
     }
 
-    return zonesList;
+    try {
+      final modes = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("MODE"));
+      final maxVols = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("VOL_MAX"));
+
+      final zonesList = <ZoneWrapperModel>[];
+
+      for (final mode in modes) {
+        ZoneWrapperModel wrapper = device.value.zoneWrappers.isEmpty
+            ? switch (mode.key) {
+                "MODE1" => ZoneWrapperModel.builder(index: 1, name: "Zona 1"),
+                "MODE2" => ZoneWrapperModel.builder(index: 2, name: "Zona 2"),
+                "MODE3" => ZoneWrapperModel.builder(index: 3, name: "Zona 3"),
+                "MODE4" => ZoneWrapperModel.builder(index: 4, name: "Zona 4"),
+                "MODE5" => ZoneWrapperModel.builder(index: 5, name: "Zona 5"),
+                "MODE6" => ZoneWrapperModel.builder(index: 6, name: "Zona 6"),
+                "MODE7" => ZoneWrapperModel.builder(index: 7, name: "Zona 7"),
+                "MODE8" => ZoneWrapperModel.builder(index: 8, name: "Zona 8"),
+                _ => ZoneWrapperModel.empty(),
+              }
+            : switch (mode.key) {
+                "MODE1" => device.value.zoneWrappers[0],
+                "MODE2" => device.value.zoneWrappers[1],
+                "MODE3" => device.value.zoneWrappers[2],
+                "MODE4" => device.value.zoneWrappers[3],
+                "MODE5" => device.value.zoneWrappers[4],
+                "MODE6" => device.value.zoneWrappers[5],
+                "MODE7" => device.value.zoneWrappers[6],
+                "MODE8" => device.value.zoneWrappers[7],
+                _ => ZoneWrapperModel.empty(),
+              };
+
+        if (wrapper.isEmpty) {
+          continue;
+        }
+
+        if (mode.value.toUpperCase() == "STEREO") {
+          final maxVolume = maxVols.firstWhere(
+            (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")),
+            orElse: () => MapEntry(wrapper.id, "100"),
+          );
+
+          wrapper = wrapper.copyWith(
+            mode: ZoneMode.stereo,
+            stereoZone: wrapper.stereoZone.copyWith(
+              maxVolume: int.parse(maxVolume.value.numbersOnly),
+            ),
+          );
+        } else {
+          final maxVolumeR = maxVols
+              .firstWhere(
+                (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")) && entry.key.endsWith("R"),
+                orElse: () => MapEntry(wrapper.id, "100"),
+              )
+              .value;
+
+          final maxVolumeL = maxVols
+              .firstWhere(
+                (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")) && entry.key.endsWith("L"),
+                orElse: () => MapEntry(wrapper.id, "100"),
+              )
+              .value;
+
+          wrapper = wrapper.copyWith(
+            mode: ZoneMode.mono,
+            monoZones: wrapper.monoZones.copyWith(
+              right: wrapper.monoZones.right.copyWith(
+                maxVolume: int.parse(maxVolumeR.numbersOnly),
+              ),
+              left: wrapper.monoZones.left.copyWith(
+                maxVolume: int.parse(maxVolumeL.numbersOnly),
+              ),
+            ),
+          );
+        }
+
+        zonesList.add(wrapper);
+      }
+
+      return zonesList;
+    } on StateError {
+      return <ZoneWrapperModel>[];
+    }
   }
 
   List<ZoneGroupModel> _parseGroups(Map<String, String> configs) {
-    final grps = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("GRP"));
-
-    final List<ZoneModel> zonesList = List.from(device.peek().zones);
-    final zonesMap = <String, List<ZoneModel>>{
-      "G1": List.from(device.value.groups[0].zones),
-      "G2": List.from(device.value.groups[1].zones),
-      "G3": List.from(device.value.groups[2].zones),
-    };
-
-    for (final grp in grps) {
-      if (grp.value.contains("null")) {
-        continue;
-      }
-
-      final zone = zonesList.firstWhere((z) => z.id == grp.value);
-
-      switch (grp.key) {
-        case _ when grp.key.startsWith("GRP[1]"):
-          zonesMap["G1"]!.addIfAbsent(zone);
-          break;
-
-        case _ when grp.key.startsWith("GRP[2]"):
-          zonesMap["G2"]!.addIfAbsent(zone);
-          break;
-
-        case _ when grp.key.startsWith("GRP[3]"):
-          zonesMap["G3"]!.addIfAbsent(zone);
-          break;
-      }
+    if (configs.entries.isNullOrEmpty) {
+      return <ZoneGroupModel>[];
     }
 
-    final groupsList = <ZoneGroupModel>[];
+    try {
+      final grps = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("GRP"));
 
-    zonesMap.entries.forEachIndexed((index, entry) {
-      groupsList.add(device.value.groups[index].copyWith(zones: entry.value));
-    });
+      final List<ZoneModel> zonesList = List.from(device.peek().zones);
+      final zonesMap = <String, List<ZoneModel>>{
+        "G1": List.from(device.value.groups[0].zones),
+        "G2": List.from(device.value.groups[1].zones),
+        "G3": List.from(device.value.groups[2].zones),
+      };
 
-    return groupsList;
+      for (final grp in grps) {
+        if (grp.value.contains("null")) {
+          continue;
+        }
+
+        final zone = zonesList.firstWhere((z) => z.id == grp.value);
+
+        switch (grp.key) {
+          case _ when grp.key.startsWith("GRP[1]"):
+            zonesMap["G1"]!.addIfAbsent(zone);
+            break;
+
+          case _ when grp.key.startsWith("GRP[2]"):
+            zonesMap["G2"]!.addIfAbsent(zone);
+            break;
+
+          case _ when grp.key.startsWith("GRP[3]"):
+            zonesMap["G3"]!.addIfAbsent(zone);
+            break;
+        }
+      }
+
+      final groupsList = <ZoneGroupModel>[];
+
+      zonesMap.entries.forEachIndexed((index, entry) {
+        groupsList.add(device.value.groups[index].copyWith(zones: entry.value));
+      });
+
+      return groupsList;
+    } on StateError {
+      return <ZoneGroupModel>[];
+    }
   }
 
   @override
