@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/extensions/build_context_extensions.dart';
-import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/models/zone_wrapper_model.dart';
+import '../../shared/widgets/text_edit_tile.dart';
 
 class ZoneDetailEditTile extends StatelessWidget {
   const ZoneDetailEditTile({
@@ -43,32 +42,13 @@ class ZoneDetailEditTile extends StatelessWidget {
           onPressed: onTapEditMaxVolume,
         ),
         Expanded(
-          child: TextFormField(
-            enabled: isEditing,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelText: label,
-            ),
+          child: TextEditTile(
+            itemId: label,
             initialValue: zone.name,
-            onChanged: (value) => onChangeZoneName(zone, value),
-            style: context.textTheme.titleSmall,
-          ),
-        ),
-        12.asSpace,
-        AnimatedSize(
-          duration: Durations.short3,
-          child: Visibility(
-            visible: hideEditButton == false,
-            child: IconButton(
-              onPressed: () => toggleEditing(wrapper, zone),
-              icon: AnimatedSwitcher(
-                duration: Durations.short3,
-                child: Icon(
-                  key: ValueKey(isEditing),
-                  isEditing ? Icons.check_rounded : Icons.edit_rounded,
-                ),
-              ),
-            ),
+            isEditing: isEditing,
+            onChangeValue: (_, value) => onChangeZoneName(zone, value),
+            toggleEditing: (_) => toggleEditing(wrapper, zone),
+            hideEditButton: hideEditButton,
           ),
         ),
       ],

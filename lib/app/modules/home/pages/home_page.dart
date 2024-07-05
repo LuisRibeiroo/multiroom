@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multiroom/routes.g.dart';
 import '../../widgets/icon_title.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
@@ -56,6 +57,17 @@ class _HomePageState extends State<HomePage> {
           options: _controller.channels,
           onSelect: _controller.setCurrentChannel,
           selectedOption: _controller.currentChannel.value,
+          onTapEdit: () {
+            Routefly.pop(context);
+
+            Routefly.push(
+              routePaths.modules.home.pages.editChannels,
+              arguments: {
+                "device": _controller.currentDevice.value,
+                "zone": _controller.currentZone.value,
+              },
+            ).then((_) => _controller.syncLocalData());
+          },
         ),
       ),
     );

@@ -19,16 +19,19 @@ class ZoneModel extends Equatable implements SelectableModel {
     required this.volume,
     required this.balance,
     required this.equalizer,
+    required this.wrapperId,
     this.side = MonoSide.undefined,
   });
 
   factory ZoneModel.builder({
     required String id,
     required String name,
+    required String wrapperId,
     MonoSide side = MonoSide.undefined,
   }) {
     return ZoneModel(
       id: "Z$id",
+      wrapperId: wrapperId,
       name: name,
       active: true,
       channels: List.generate(
@@ -46,6 +49,7 @@ class ZoneModel extends Equatable implements SelectableModel {
   factory ZoneModel.empty() {
     return ZoneModel(
       id: 'Z0',
+      wrapperId: '',
       name: '',
       active: false,
       channels: const [],
@@ -59,6 +63,7 @@ class ZoneModel extends Equatable implements SelectableModel {
   factory ZoneModel.fromMap(Map<String, dynamic> map) {
     return ZoneModel(
       id: map['id'],
+      wrapperId: map['wrapperId'],
       name: map['name'],
       active: map['active'],
       channels: List<ChannelModel>.from(map['channels']?.map((x) => ChannelModel.fromMap(x))),
@@ -73,6 +78,7 @@ class ZoneModel extends Equatable implements SelectableModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'wrapperId': wrapperId,
       'name': name,
       'active': active,
       'channels': channels.map((x) => x.toMap()).toList(),
@@ -102,6 +108,8 @@ class ZoneModel extends Equatable implements SelectableModel {
   final EqualizerModel equalizer;
   @HiveField(8)
   final MonoSide side;
+  @HiveField(9, defaultValue: "")
+  final String wrapperId;
 
   bool get isEmpty => id == ZoneModel.empty().id;
   bool get isStereo => side == MonoSide.undefined;
@@ -121,6 +129,7 @@ class ZoneModel extends Equatable implements SelectableModel {
   }) {
     return ZoneModel(
       id: id,
+      wrapperId: wrapperId,
       name: name ?? this.name,
       active: active ?? this.active,
       channels: channels ?? this.channels,
@@ -135,6 +144,7 @@ class ZoneModel extends Equatable implements SelectableModel {
   @override
   List<Object?> get props => [
         id,
+        wrapperId,
         name,
         active,
         channels,

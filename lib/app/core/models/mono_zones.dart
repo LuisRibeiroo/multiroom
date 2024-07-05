@@ -23,15 +23,18 @@ class MonoZones extends Equatable {
   factory MonoZones.builder({
     required String id,
     required String name,
+    required String wrapperId,
   }) {
     return MonoZones(
       left: ZoneModel.builder(
         id: "${id}L",
+        wrapperId: wrapperId,
         name: "${name}L",
         side: MonoSide.left,
       ),
       right: ZoneModel.builder(
         id: "${id}R",
+        wrapperId: wrapperId,
         name: "${name}R",
         side: MonoSide.right,
       ),

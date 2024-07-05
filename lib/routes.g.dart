@@ -2,13 +2,14 @@
 
 import 'package:routefly/routefly.dart';
 
-import 'app/modules/configs/pages/configs_page.dart' as a4;
-import 'app/modules/configs/pages/device_configuration_page.dart' as a3;
+import 'app/modules/configs/pages/configs_page.dart' as a5;
+import 'app/modules/configs/pages/device_configuration_page.dart' as a4;
+import 'app/modules/home/pages/edit_channels_page.dart' as a1;
 import 'app/modules/home/pages/home_page.dart' as a0;
-import 'app/modules/scanner/pages/scanner_page.dart' as a6;
-import 'app/modules/shared/pages/import_data_page.dart' as a2;
-import 'app/modules/startup/pages/startup_page.dart' as a5;
-import 'app/modules/udp/ui/pages/udp_page.dart' as a1;
+import 'app/modules/scanner/pages/scanner_page.dart' as a7;
+import 'app/modules/shared/pages/import_data_page.dart' as a3;
+import 'app/modules/startup/pages/startup_page.dart' as a6;
+import 'app/modules/udp/ui/pages/udp_page.dart' as a2;
 
 List<RouteEntity> get routes => [
       RouteEntity(
@@ -21,12 +22,21 @@ List<RouteEntity> get routes => [
         ),
       ),
       RouteEntity(
+        key: '/modules/home/pages/edit_channels',
+        uri: Uri.parse('/modules/home/pages/edit_channels'),
+        routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
+          ctx,
+          settings,
+          const a1.EditChannelsPage(),
+        ),
+      ),
+      RouteEntity(
         key: '/modules/udp/ui/pages/udp',
         uri: Uri.parse('/modules/udp/ui/pages/udp'),
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a1.UdpPage(),
+          const a2.UdpPage(),
         ),
       ),
       RouteEntity(
@@ -35,7 +45,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a2.ImportDataPage(),
+          const a3.ImportDataPage(),
         ),
       ),
       RouteEntity(
@@ -44,7 +54,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a3.DeviceConfigurationPage(),
+          const a4.DeviceConfigurationPage(),
         ),
       ),
       RouteEntity(
@@ -53,7 +63,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a4.ConfigsPage(),
+          const a5.ConfigsPage(),
         ),
       ),
       RouteEntity(
@@ -62,7 +72,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a5.StartupPage(),
+          const a6.StartupPage(),
         ),
       ),
       RouteEntity(
@@ -71,7 +81,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a6.ScannerPage(),
+          const a7.ScannerPage(),
         ),
       ),
     ];
@@ -85,6 +95,7 @@ const routePaths = (
       pages: (
         path: '/modules/home/pages',
         home: '/modules/home/pages/home',
+        editChannels: '/modules/home/pages/edit_channels',
       ),
     ),
     udp: (

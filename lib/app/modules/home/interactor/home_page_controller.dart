@@ -135,7 +135,7 @@ class HomePageController extends BaseController with SocketMixin {
       return;
     }
 
-    final channelIndex = channels.indexWhere((c) => c.name == channel.name);
+    final channelIndex = channels.indexWhere((c) => c.id == channel.id);
     final tempList = List<ChannelModel>.from(channels);
 
     tempList[channelIndex] = channel;
@@ -243,6 +243,8 @@ class HomePageController extends BaseController with SocketMixin {
     } else {
       currentZone.value = zones.first;
     }
+
+    channels.value = currentZone.value.channels;
 
     await run(() async {
       try {

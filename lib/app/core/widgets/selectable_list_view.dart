@@ -14,6 +14,7 @@ class SelectableListView<T extends SelectableModel> extends StatelessWidget {
     required this.onSelect,
     this.showSelectedIndicator = true,
     this.showSubtitle = false,
+    this.onTapEdit,
   });
 
   final String title;
@@ -23,15 +24,33 @@ class SelectableListView<T extends SelectableModel> extends StatelessWidget {
   final T selectedOption;
   final bool showSelectedIndicator;
   final Function(T) onSelect;
+  final Function()? onTapEdit;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconTitle(
-          title: title,
-          icon: icon,
+        Stack(
+          children: [
+            IconTitle(
+              title: title,
+              icon: icon,
+            ),
+            Visibility(
+              visible: onTapEdit != null,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: IconButton(
+                    icon: const Icon(Icons.edit_rounded),
+                    onPressed: onTapEdit?.call,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         Flexible(
           child: ListView.builder(

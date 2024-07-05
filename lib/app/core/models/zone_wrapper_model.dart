@@ -22,16 +22,16 @@ class ZoneWrapperModel extends Equatable {
     ZoneMode mode = ZoneMode.stereo,
   }) {
     return ZoneWrapperModel(
-      id: "Z$index",
+      id: "ZW$index",
       mode: mode,
-      stereoZone: ZoneModel.builder(id: "$index", name: name),
-      monoZones: MonoZones.builder(id: "$index", name: name),
+      stereoZone: ZoneModel.builder(id: "$index", wrapperId: "ZW$index", name: name),
+      monoZones: MonoZones.builder(id: "$index", wrapperId: "ZW$index", name: name),
     );
   }
 
   factory ZoneWrapperModel.empty() {
     return ZoneWrapperModel(
-      id: "Z0",
+      id: "ZW0",
       mode: ZoneMode.stereo,
       stereoZone: ZoneModel.empty(),
       monoZones: MonoZones.empty(),
