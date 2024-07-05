@@ -60,6 +60,7 @@ class _EditZonesPageState extends State<EditZonesPage> {
                       ),
                       24.asSpace,
                       ListView.separated(
+                        physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: device.groupedZones.length,
                         separatorBuilder: (_, __) => 12.asSpace,
