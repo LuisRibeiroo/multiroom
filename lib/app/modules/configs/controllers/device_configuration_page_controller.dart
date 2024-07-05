@@ -462,6 +462,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
       return zonesList;
     } on StateError {
+      logger.w("No Modes/Max Vol (MODE/VOL_MAX) received");
+
       return <ZoneWrapperModel>[];
     }
   }
@@ -511,6 +513,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
       return groupsList;
     } on StateError {
+      logger.w("No Groups (GRP) received");
       return <ZoneGroupModel>[];
     }
   }
