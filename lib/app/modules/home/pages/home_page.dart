@@ -135,7 +135,20 @@ class _HomePageState extends State<HomePage> {
           child: Scaffold(
             appBar: AppBar(
               leading: Image.asset("assets/logo.png"),
-              title: const Text('Multiroom'),
+              title: GestureDetector(
+                onTap: _showProjectsBottomSheet,
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        _controller.currentProject.value.name,
+                      ),
+                    ),
+                    8.asSpace,
+                    const Icon(Icons.arrow_drop_down_rounded),
+                  ],
+                ),
+              ),
               actions: [
                 IconButton(
                   onPressed: () => OptionsMenu.showOptionsBottomSheet(

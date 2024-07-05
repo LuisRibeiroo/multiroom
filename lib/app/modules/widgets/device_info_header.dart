@@ -39,21 +39,6 @@ class DeviceInfoHeader extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
         child: Column(
           children: [
-            AnimatedSize(
-              duration: Durations.short4,
-              child: Visibility(
-                visible: showProjectsButton,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 24.0),
-                  child: AppButton(
-                    type: ButtonType.primary,
-                    text: project.name,
-                    leading: const Icon(Icons.group_work_rounded),
-                    onPressed: onChangeProject,
-                  ),
-                ),
-              ),
-            ),
             Row(
               children: [
                 Expanded(
