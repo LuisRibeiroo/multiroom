@@ -69,7 +69,7 @@ class _ConfigsPageState extends State<ConfigsPage> {
                 ? FloatingActionButton.extended(
                     icon: const Icon(Icons.settings_input_antenna_rounded),
                     label: const Text("Iniciar configuração"),
-                    onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
+                    onPressed: () => OptionsMenu.showTechBottomSheet(context),
                   )
                 : FloatingActionButton.extended(
                     icon: const Icon(Icons.check_rounded),
