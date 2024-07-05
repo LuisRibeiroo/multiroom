@@ -60,7 +60,7 @@ class OptionsBottomSheetController extends BaseController {
       final data = file.readAsBytesSync();
       final base64Data = base64Encode(data);
       final info = await DeviceInfoPlugin().deviceInfo;
-      final deviceHash = info.data["id"].toString().toProjectId;
+      final deviceHash = (info.data["id"] ?? info.data["systemGUID"]).toString().toProjectId;
 
       final response = await Dio().post(
         "https://9uodgvwql2.execute-api.sa-east-1.amazonaws.com/multiroomprofile/upload",
