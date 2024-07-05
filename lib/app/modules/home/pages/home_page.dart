@@ -135,7 +135,7 @@ class _HomePageState extends State<HomePage> {
           child: Scaffold(
             appBar: AppBar(
               leading: Image.asset("assets/logo.png"),
-              title: GestureDetector(
+              title: InkWell(
                 onTap: _showProjectsBottomSheet,
                 child: Row(
                   children: [
