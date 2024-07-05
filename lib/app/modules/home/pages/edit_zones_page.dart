@@ -37,7 +37,7 @@ class _EditZonesPageState extends State<EditZonesPage> {
         state: _controller.state,
         child: Scaffold(
           appBar: AppBar(
-            title: Text("${_controller.project.value.name} - Zonas"),
+            title: Text(_controller.project.value.name),
           ),
           body: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),

@@ -137,7 +137,7 @@ class DeviceModel extends HiveObject {
       }
     }
 
-    return temp..sort((a, b) => a.name.compareTo(b.name));
+    return temp..sort((a, b) => a.id.compareTo(b.id));
   }
 
   DeviceModel copyWith({
