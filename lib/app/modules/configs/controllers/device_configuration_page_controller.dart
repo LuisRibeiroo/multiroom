@@ -384,7 +384,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     try {
       final modes = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("MODE"));
-      final maxVols = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("VOL_MAX"));
+      // final maxVols = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("VOL_MAX"));
 
       final zonesList = <ZoneWrapperModel>[];
 
@@ -418,41 +418,41 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         }
 
         if (mode.value.toUpperCase() == "STEREO") {
-          final maxVolume = maxVols.firstWhere(
-            (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")),
-            orElse: () => MapEntry(wrapper.id, "100"),
-          );
+          // final maxVolume = maxVols.firstWhere(
+          //   (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")),
+          //   orElse: () => MapEntry(wrapper.id, "100"),
+          // );
 
           wrapper = wrapper.copyWith(
             mode: ZoneMode.stereo,
             stereoZone: wrapper.stereoZone.copyWith(
-              maxVolume: int.parse(maxVolume.value.numbersOnly),
-            ),
+                // maxVolume: int.parse(maxVolume.value.numbersOnly),
+                ),
           );
         } else {
-          final maxVolumeR = maxVols
-              .firstWhere(
-                (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")) && entry.key.endsWith("R"),
-                orElse: () => MapEntry(wrapper.id, "100"),
-              )
-              .value;
+          // final maxVolumeR = maxVols
+          //     .firstWhere(
+          //       (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")) && entry.key.endsWith("R"),
+          //       orElse: () => MapEntry(wrapper.id, "100"),
+          //     )
+          //     .value;
 
-          final maxVolumeL = maxVols
-              .firstWhere(
-                (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")) && entry.key.endsWith("L"),
-                orElse: () => MapEntry(wrapper.id, "100"),
-              )
-              .value;
+          // final maxVolumeL = maxVols
+          //     .firstWhere(
+          //       (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")) && entry.key.endsWith("L"),
+          //       orElse: () => MapEntry(wrapper.id, "100"),
+          //     )
+          //     .value;
 
           wrapper = wrapper.copyWith(
             mode: ZoneMode.mono,
             monoZones: wrapper.monoZones.copyWith(
               right: wrapper.monoZones.right.copyWith(
-                maxVolume: int.parse(maxVolumeR.numbersOnly),
-              ),
+                  // maxVolume: int.parse(maxVolumeR.numbersOnly),
+                  ),
               left: wrapper.monoZones.left.copyWith(
-                maxVolume: int.parse(maxVolumeL.numbersOnly),
-              ),
+                  // maxVolume: int.parse(maxVolumeL.numbersOnly),
+                  ),
             ),
           );
         }
@@ -477,10 +477,11 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       final grps = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("GRP"));
 
       final List<ZoneModel> zonesList = List.from(device.peek().zones);
+
       final zonesMap = <String, List<ZoneModel>>{
-        "G1": List.from(device.value.groups[0].zones),
-        "G2": List.from(device.value.groups[1].zones),
-        "G3": List.from(device.value.groups[2].zones),
+        "G1": [],
+        "G2": [],
+        "G3": [],
       };
 
       for (final grp in grps) {

@@ -50,7 +50,7 @@ abstract final class MrCmdBuilder {
     required ZoneWrapperModel zone,
     required ZoneMode mode,
   }) =>
-      "${MultiroomCommands.mrZoneModeSet.value},${zone.id},${mode.name}";
+      "${MultiroomCommands.mrZoneModeSet.value},${zone.id.replaceAll("W", "")},${mode.name}";
 
   static String getChannel({
     required ZoneModel zone,
