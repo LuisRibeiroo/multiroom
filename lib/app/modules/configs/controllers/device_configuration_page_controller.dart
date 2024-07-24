@@ -9,7 +9,6 @@ import '../../../core/enums/page_state.dart';
 import '../../../core/enums/zone_mode.dart';
 import '../../../core/extensions/iterable_extensions.dart';
 import '../../../core/extensions/list_extensions.dart';
-import '../../../core/extensions/string_extensions.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
 import '../../../core/interactor/controllers/socket_mixin.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
