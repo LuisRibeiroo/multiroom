@@ -142,7 +142,7 @@ class _AboutBottomSheetState extends State<AboutBottomSheet> {
                         ),
                         TextSpan(
                           text:
-                              "• Customização: Dê nomes às zonas e aos inputs para facilitar a navegação no aplicativo e crie uma experiência de áudio única e envolvente em cada espaço da sua casa ou empresa\n",
+                              "• Customização: Dê nomes às zonas e aos inputs para facilitar a navegação no aplicativo e crie uma experiência de áudio única e envolvente em cada espaço da sua casa ou empresa",
                         ),
                       ],
                     ),
@@ -152,10 +152,10 @@ class _AboutBottomSheetState extends State<AboutBottomSheet> {
             ),
           ),
         ),
-        24.asSpace,
+        20.asSpace,
         SelectableText(
           "Contato e Suporte",
-          style: context.textTheme.titleSmall,
+          style: context.textTheme.titleMedium,
         ),
         ListTile(
           leading: const Icon(Icons.web_rounded),
