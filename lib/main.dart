@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:routefly/routefly.dart';
 import 'package:toastification/toastification.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'app/core/interactor/repositories/hive_settings.dart';
 import 'app/core/interactor/repositories/settings_contract.dart';
@@ -15,6 +16,25 @@ import 'routes.g.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await windowManager.ensureInitialized();
+
+  const size = Size(800, 930);
+  WindowOptions windowOptions = const WindowOptions(
+    size: size,
+    maximumSize: size,
+    minimumSize: size,
+    backgroundColor: Colors.transparent,
+    title: "MRAudio",
+    windowButtonVisibility: false,
+  );
+
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.setMaximizable(false);
+
+    await windowManager.show();
+    await windowManager.focus();
+  });
 
   EquatableConfig.stringify = true;
 
