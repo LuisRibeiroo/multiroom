@@ -6,7 +6,6 @@ import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
 import '../../../../routes.g.dart';
-import '../../../core/enums/mono_side.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
 import '../../../core/interactor/controllers/socket_mixin.dart';
@@ -17,7 +16,6 @@ import '../../../core/models/equalizer_model.dart';
 import '../../../core/models/frequency.dart';
 import '../../../core/models/project_model.dart';
 import '../../../core/models/zone_model.dart';
-import '../../../core/models/zone_wrapper_model.dart';
 import '../../../core/utils/debouncer.dart';
 import '../../../core/utils/mr_cmd_builder.dart';
 
@@ -40,6 +38,11 @@ class HomePageController extends BaseController with SocketMixin {
         }
 
         hasMultipleProjects.value = projects.length > 1;
+      }),
+      effect(() {
+        if (state.value is SuccessState) {
+          restartSocket(ip: currentDevice.value.ip);
+        }
       }),
       currentDevice.subscribe((value) async {
         if (value.isEmpty) {
@@ -266,47 +269,12 @@ class HomePageController extends BaseController with SocketMixin {
         await socketSender(cmd);
       } catch (exception) {
         setError(Exception("Erro no comando [$cmd] --> $exception"));
+
+        if (exception.toString().contains("Bad state")) {
+          await restartSocket(ip: currentDevice.value.ip);
+        }
       }
     });
-  }
-
-  List<ZoneWrapperModel> _getUpdatedZones(ZoneModel zone) {
-    List<ZoneWrapperModel> newZones = List.from(currentDevice.peek().zoneWrappers);
-    int idx = -1;
-
-    for (final wrapper in newZones) {
-      final tempZ = wrapper.zones.firstWhere(
-        (z) => z.id == zone.id,
-        orElse: () => ZoneModel.empty(),
-      );
-
-      if (tempZ.isEmpty) {
-        continue;
-      }
-
-      idx = newZones.indexOf(wrapper);
-      break;
-    }
-
-    if (idx == -1) {
-      throw Exception("Zone not found ${zone.id}");
-    }
-
-    ZoneWrapperModel newWrapper = newZones[idx];
-
-    if (newWrapper.isStereo) {
-      newWrapper = newWrapper.copyWith(stereoZone: zone);
-    } else {
-      if (zone.side == MonoSide.left) {
-        newWrapper = newWrapper.copyWith(monoZones: newWrapper.monoZones.copyWith(left: zone));
-      } else {
-        newWrapper = newWrapper.copyWith(monoZones: newWrapper.monoZones.copyWith(right: zone));
-      }
-    }
-
-    newZones[idx] = newWrapper;
-
-    return newZones;
   }
 
   Future<void> _updateAllDeviceData(ZoneModel zone) async {

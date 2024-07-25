@@ -67,5 +67,18 @@
 		<array>
 			<string>tel</string>
 		</array>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLName</key>
+				<string>br.com.itfast.multiroom.multiroom</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>MRAudio</string>
+				</array>
+			</dict>
+		</array>
 	</dict>
 </plist>

@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:routefly/routefly.dart';
 import 'package:toastification/toastification.dart';
 
@@ -27,7 +29,23 @@ void main() async {
 
   injector.commit();
 
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+
+    _restartAppDialog();
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    _restartAppDialog();
+
+    return true;
+  };
+
   runApp(const ToastificationWrapper(child: MyApp()));
+}
+
+void _restartAppDialog() {
+  Restart.restartApp();
 }
 
 class MyApp extends StatelessWidget {

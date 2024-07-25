@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/routes.g.dart';
-import '../../widgets/icon_title.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../../injector.dart';
+import '../../../../routes.g.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/widgets/loading_overlay.dart';
@@ -13,6 +12,7 @@ import '../../../core/widgets/selectable_list_view.dart';
 import '../../shared/pages/options_bottom_sheet.dart';
 import '../../widgets/device_controls.dart';
 import '../../widgets/device_info_header.dart';
+import '../../widgets/icon_title.dart';
 import '../interactor/home_page_controller.dart';
 
 class HomePage extends StatefulWidget {
@@ -169,6 +169,7 @@ class _HomePageState extends State<HomePage> {
         },
         child: LoadingOverlay(
           state: _controller.state,
+          currentIp: _controller.currentDevice.value.ip,
           child: Scaffold(
             appBar: AppBar(
               leading: Image.asset("assets/logo.png"),
