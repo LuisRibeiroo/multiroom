@@ -1,6 +1,6 @@
 import 'package:auto_injector/auto_injector.dart';
-import 'package:multiroom/app/core/interactor/controllers/loading_overlay_controller.dart';
 
+import 'app/core/interactor/controllers/loading_overlay_controller.dart';
 import 'app/modules/configs/controllers/configs_page_controller.dart';
 import 'app/modules/configs/controllers/device_configuration_page_controller.dart';
 import 'app/modules/home/interactor/edit_channels_page_controller.dart';

@@ -17,6 +17,7 @@ class AboutBottomSheet extends StatefulWidget {
 }
 
 class _AboutBottomSheetState extends State<AboutBottomSheet> {
+  String _appName = "";
   String _appVersion = "";
 
   @override
@@ -26,6 +27,7 @@ class _AboutBottomSheetState extends State<AboutBottomSheet> {
       final info = await PackageInfo.fromPlatform();
 
       setState(() {
+        _appName = info.appName;
         _appVersion = "${info.version}+${info.buildNumber}";
       });
     });
@@ -49,7 +51,7 @@ class _AboutBottomSheetState extends State<AboutBottomSheet> {
             ],
           ),
           Text(
-            "Multiroom v$_appVersion",
+            "$_appName v$_appVersion",
             style: context.textTheme.bodySmall,
           ),
           const Divider(height: 24, indent: 24, endIndent: 24),

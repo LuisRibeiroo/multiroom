@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "br.com.itfast.multiroom" "\0"
-            VALUE "FileDescription", "multiroom" "\0"
+            VALUE "FileDescription", "MRAudio" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "multiroom" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2024 br.com.itfast.multiroom. All rights reserved." "\0"
-            VALUE "OriginalFilename", "multiroom.exe" "\0"
-            VALUE "ProductName", "multiroom" "\0"
+            VALUE "InternalName", "multirrom" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 ControlArt. All rights reserved." "\0"
+            VALUE "OriginalFilename", "mraudio.exe" "\0"
+            VALUE "ProductName", "MRAudio" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

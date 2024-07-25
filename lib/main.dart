@@ -25,7 +25,6 @@ void main() async {
     maximumSize: size,
     minimumSize: size,
     backgroundColor: Colors.transparent,
-    title: "MRAudio",
     windowButtonVisibility: false,
   );
 

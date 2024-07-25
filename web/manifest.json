@@ -1,6 +1,6 @@
 {
-    "name": "multiroom",
-    "short_name": "multiroom",
+    "name": "MRAudio",
+    "short_name": "MRAudio",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
