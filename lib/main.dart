@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,24 +19,28 @@ import 'routes.g.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await windowManager.ensureInitialized();
+  if (Platform.isAndroid == false && Platform.isIOS == false) {
+    await windowManager.ensureInitialized();
 
-  const size = Size(800, 930);
-  WindowOptions windowOptions = const WindowOptions(
-    size: size,
-    maximumSize: size,
-    minimumSize: size,
-    backgroundColor: Colors.transparent,
-    windowButtonVisibility: false,
-  );
+    const size = Size(800, 930);
+    WindowOptions windowOptions = const WindowOptions(
+      size: size,
+      maximumSize: size,
+      minimumSize: size,
+      backgroundColor: Colors.transparent,
+      windowButtonVisibility: false,
+    );
 
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.setMaximizable(false);
-    await windowManager.setResizable(false);
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.setMaximizable(false);
+      await windowManager.setResizable(false);
 
-    await windowManager.show();
-    await windowManager.focus();
-  });
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
+
+  
 
   EquatableConfig.stringify = true;
 
