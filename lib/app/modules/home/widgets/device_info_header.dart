@@ -1,12 +1,12 @@
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/extensions/build_context_extensions.dart';
-import '../../core/extensions/number_extensions.dart';
-import '../../core/models/channel_model.dart';
-import '../../core/models/project_model.dart';
-import '../../core/models/zone_model.dart';
-import '../../core/widgets/app_button.dart';
+import '../../../core/extensions/build_context_extensions.dart';
+import '../../../core/extensions/number_extensions.dart';
+import '../../../core/models/channel_model.dart';
+import '../../../core/models/project_model.dart';
+import '../../../core/models/zone_model.dart';
+import '../../../core/widgets/app_button.dart';
 
 class DeviceInfoHeader extends StatelessWidget {
   const DeviceInfoHeader({

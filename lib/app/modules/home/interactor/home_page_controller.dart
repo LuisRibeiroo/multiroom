@@ -53,12 +53,6 @@ class HomePageController extends BaseController with SocketMixin {
           zones.value = value.zones;
           channels.value = value.zones.first.channels;
         }
-
-        // TODO: Test and remove it
-        // if (currentDevice.previousValue != value) {
-        //   logger.d("Save device --> ${value.serialNumber}");
-        //   _settings.saveDevice(value);
-        // }
       }),
     ]);
   }
@@ -87,6 +81,7 @@ class HomePageController extends BaseController with SocketMixin {
   final currentChannel = ChannelModel.empty().toSignal(debugLabel: "currentChannel");
   final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
   final hasMultipleProjects = false.toSignal(debugLabel: "hasMultipleProjects");
+  final expandedMode = true.toSignal(debugLabel: "expandedMode");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
 
@@ -121,18 +116,18 @@ class HomePageController extends BaseController with SocketMixin {
     _updateSignals(project: proj);
   }
 
-  Future<void> setZoneActive(bool active) async {
+  Future<void> setZoneActive(bool active, {ZoneModel? zone}) async {
     currentZone.value = currentZone.value.copyWith(active: active);
 
     _debounceSendCommand(
       MrCmdBuilder.setPower(
-        zone: currentZone.value,
+        zone: zone ?? currentZone.value,
         active: active,
       ),
     );
   }
 
-  void setCurrentChannel(ChannelModel channel) {
+  void setCurrentChannel(ChannelModel channel, {ZoneModel? zone}) {
     if (channel.id == currentChannel.value.id) {
       logger.i("SET CHANNEL [SAME CHANNEL] --> ${channel.id}");
       return;
@@ -148,7 +143,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     _debounceSendCommand(
       MrCmdBuilder.setChannel(
-        zone: currentZone.value,
+        zone: zone ?? currentZone.value,
         channel: channel,
       ),
     );
@@ -165,12 +160,12 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  void setVolume(int volume) {
+  void setVolume(int volume, {ZoneModel? zone}) {
     currentZone.value = currentZone.value.copyWith(volume: volume);
 
     _debounceSendCommand(
       MrCmdBuilder.setVolume(
-        zone: currentZone.value,
+        zone: zone ?? currentZone.value,
         volume: volume,
       ),
     );
@@ -234,6 +229,10 @@ class HomePageController extends BaseController with SocketMixin {
         ],
       );
     });
+  }
+
+  void toggleExpandedMode() {
+    expandedMode.value = !expandedMode.value;
   }
 
   Future<void> _updateSignals({ProjectModel? project}) async {
@@ -391,5 +390,6 @@ class HomePageController extends BaseController with SocketMixin {
     currentZone.value = currentZone.initialValue;
     currentChannel.value = currentChannel.initialValue;
     currentEqualizer.value = currentEqualizer.initialValue;
+    expandedMode.value = expandedMode.initialValue;
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/modules/home/widgets/summary_zones_list.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -10,8 +11,8 @@ import '../../../core/extensions/number_extensions.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../../core/widgets/selectable_list_view.dart';
 import '../../shared/pages/options_bottom_sheet.dart';
-import '../../widgets/device_controls.dart';
-import '../../widgets/device_info_header.dart';
+import '../widgets/device_info_header.dart';
+import '../widgets/zone_controls.dart';
 import '../../widgets/icon_title.dart';
 import '../interactor/home_page_controller.dart';
 
@@ -188,6 +189,14 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               actions: [
+                AnimatedSwitcher(
+                  duration: Durations.short4,
+                  child: IconButton(
+                    key: ValueKey(_controller.expandedMode.value),
+                    onPressed: _controller.toggleExpandedMode,
+                    icon: Icon(_controller.expandedMode.value ? Icons.unfold_less_rounded : Icons.unfold_more_rounded),
+                  ),
+                ),
                 IconButton(
                   onPressed: () => OptionsMenu.showOptionsBottomSheet(
                     context,
@@ -201,31 +210,42 @@ class _HomePageState extends State<HomePage> {
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      DeviceInfoHeader(
-                        showProjectsButton: _controller.hasMultipleProjects.value,
-                        project: _controller.currentProject.value,
-                        deviceName: _controller.currentDevice.value.name,
-                        currentZone: _controller.currentZone.value,
-                        currentChannel: _controller.currentChannel.value,
-                        onChangeActive: _controller.setZoneActive,
-                        onChangeDevice: _showDevicesBottomSheet,
-                        onChangeChannel: _showChannelsBottomSheet,
-                        onChangeProject: _showProjectsBottomSheet,
-                      ),
-                      12.asSpace,
-                      DeviceControls(
-                        currentZone: _controller.currentZone.value,
-                        currentEqualizer: _controller.currentEqualizer.value,
-                        equalizers: _controller.equalizers.value,
-                        onChangeBalance: _controller.setBalance,
-                        onChangeVolume: _controller.setVolume,
-                        onUpdateFrequency: _controller.setFrequency,
-                        onChangeEqualizer: _showEqualizersBottomSheet,
-                      ),
-                    ],
+                  child: AnimatedSize(
+                    key: ValueKey("Size_${_controller.expandedMode.value}"),
+                    duration: Durations.short4,
+                    child: _controller.expandedMode.value
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              DeviceInfoHeader(
+                                showProjectsButton: _controller.hasMultipleProjects.value,
+                                project: _controller.currentProject.value,
+                                deviceName: _controller.currentDevice.value.name,
+                                currentZone: _controller.currentZone.value,
+                                currentChannel: _controller.currentChannel.value,
+                                onChangeActive: _controller.setZoneActive,
+                                onChangeDevice: _showDevicesBottomSheet,
+                                onChangeChannel: _showChannelsBottomSheet,
+                                onChangeProject: _showProjectsBottomSheet,
+                              ),
+                              12.asSpace,
+                              ZoneControls(
+                                currentZone: _controller.currentZone.value,
+                                currentEqualizer: _controller.currentEqualizer.value,
+                                equalizers: _controller.equalizers.value,
+                                onChangeBalance: _controller.setBalance,
+                                onChangeVolume: _controller.setVolume,
+                                onUpdateFrequency: _controller.setFrequency,
+                                onChangeEqualizer: _showEqualizersBottomSheet,
+                              ),
+                            ],
+                          )
+                        : SummaryZonesList(
+                            zones: _controller.currentDevice.value.groupedZones,
+                            onChangeActive: _controller.setZoneActive,
+                            onChangeChannel: _showChannelsBottomSheet,
+                            onChangeVolume: _controller.setVolume,
+                          ),
                   ),
                 ),
               ),

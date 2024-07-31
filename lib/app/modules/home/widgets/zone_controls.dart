@@ -2,16 +2,16 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../../core/enums/mono_side.dart';
-import '../../core/extensions/build_context_extensions.dart';
-import '../../core/models/equalizer_model.dart';
-import '../../core/models/frequency.dart';
-import '../../core/models/zone_model.dart';
-import 'equalizer_card.dart';
-import 'slider_card.dart';
+import '../../../core/enums/mono_side.dart';
+import '../../../core/extensions/build_context_extensions.dart';
+import '../../../core/models/equalizer_model.dart';
+import '../../../core/models/frequency.dart';
+import '../../../core/models/zone_model.dart';
+import '../../widgets/equalizer_card.dart';
+import '../../widgets/slider_card.dart';
 
-class DeviceControls extends StatelessWidget {
-  const DeviceControls({
+class ZoneControls extends StatelessWidget {
+  const ZoneControls({
     super.key,
     required this.equalizers,
     required this.currentZone,
