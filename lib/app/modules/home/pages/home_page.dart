@@ -1,3 +1,4 @@
+import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:multiroom/app/modules/home/widgets/summary_zones_list.dart';
 import 'package:routefly/routefly.dart';
@@ -177,6 +178,7 @@ class _HomePageState extends State<HomePage> {
               title: InkWell(
                 onTap: _showProjectsBottomSheet,
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Flexible(
                       child: Text(
@@ -189,14 +191,34 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               actions: [
-                AnimatedSwitcher(
-                  duration: Durations.short4,
-                  child: IconButton(
-                    key: ValueKey(_controller.expandedMode.value),
-                    onPressed: _controller.toggleExpandedMode,
-                    icon: Icon(_controller.expandedMode.value ? Icons.unfold_less_rounded : Icons.unfold_more_rounded),
+                SizedBox(
+                  width: 72,
+                  child: AnimatedToggleSwitch.dual(
+                    current: _controller.expandedMode.value,
+                    first: false, second: true,
+                    onChanged: (_) => _controller.toggleExpandedMode(),
+                    height: 32,
+                    indicatorSize: const Size.fromWidth(26),
+                    // textBuilder: (value) => Text(
+                    //   value ? "Full" : "Resumo",
+                    //   style: context.textTheme.titleSmall,
+                    // ),
+                    iconBuilder: (value) => Icon(
+                      value ? Icons.zoom_out_map_rounded : Icons.zoom_in_map_rounded,
+                      color: context.colorScheme.onPrimary,
+                      size: 20,
+                    ),
                   ),
                 ),
+                8.asSpace,
+                // AnimatedSwitcher(
+                //   duration: Durations.short4,
+                //   child: IconButton(
+                //     key: ValueKey(_controller.expandedMode.value),
+                //     onPressed: _controller.toggleExpandedMode,
+                //     icon: Icon(_controller.expandedMode.value ? Icons.unfold_less_rounded : Icons.unfold_more_rounded),
+                //   ),
+                // ),
                 IconButton(
                   onPressed: () => OptionsMenu.showOptionsBottomSheet(
                     context,
@@ -210,8 +232,8 @@ class _HomePageState extends State<HomePage> {
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
-                  child: AnimatedSize(
-                    key: ValueKey("Size_${_controller.expandedMode.value}"),
+                  child: AnimatedSwitcher(
+                    key: ValueKey("Switcher${_controller.expandedMode.value}"),
                     duration: Durations.short4,
                     child: _controller.expandedMode.value
                         ? Column(

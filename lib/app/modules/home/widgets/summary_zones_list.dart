@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../core/extensions/build_context_extensions.dart';
+import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/zone_model.dart';
 import '../../widgets/icon_text_tile.dart';
 import 'summary_zone_controls.dart';
@@ -33,6 +34,7 @@ class SummaryZonesList extends StatelessWidget {
                 text: "Zonas",
                 style: context.textTheme.titleLarge,
               ),
+              12.asSpace,
               ...List.generate(
                 zones.length,
                 (index) {
