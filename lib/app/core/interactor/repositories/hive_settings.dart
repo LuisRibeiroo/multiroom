@@ -85,4 +85,12 @@ class HiveSettings implements SettingsContract {
 
     _box.put("projects", projs);
   }
+
+  @override
+  bool get expandedViewMode => _box.get("expandedViewMode", defaultValue: false);
+
+  @override
+  set expandedViewMode(bool value) {
+    _box.put("expandedViewMode", value);
+  }
 }

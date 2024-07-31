@@ -4,9 +4,11 @@ import '../../models/device_model.dart';
 
 abstract class SettingsContract {
   String get technicianAccessHash;
+  List<ProjectModel> get projects;
+  bool get expandedViewMode;
+  set expandedViewMode(bool value);
 
   void updateReference(dynamic newRef);
-  List<ProjectModel> get projects;
   void saveProject(ProjectModel project);
   void saveProjects(List<ProjectModel> value);
   void removeProject(String id);

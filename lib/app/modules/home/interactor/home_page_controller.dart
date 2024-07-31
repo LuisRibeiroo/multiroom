@@ -23,6 +23,7 @@ class HomePageController extends BaseController with SocketMixin {
   HomePageController() : super(InitialState()) {
     projects.value = _settings.projects;
     currentProject.value = projects.first;
+    expandedMode.value = _settings.expandedViewMode;
 
     if (currentProject.value.devices.isNotEmpty) {
       currentDevice.value = currentProject.value.devices.first;
@@ -233,6 +234,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   void toggleExpandedMode() {
     expandedMode.value = !expandedMode.value;
+    _settings.expandedViewMode = expandedMode.value;
   }
 
   Future<void> _updateSignals({ProjectModel? project}) async {
