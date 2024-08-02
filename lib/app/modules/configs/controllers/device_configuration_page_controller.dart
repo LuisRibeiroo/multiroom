@@ -71,10 +71,6 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
   }
 
-  void onTapEditZone(ZoneWrapperModel zone) {
-    editingWrapper.value = zone;
-  }
-
   Future<void> onAddZoneToGroup(ZoneGroupModel group, ZoneModel zone) async {
     try {
       if (group.zones.contains(zone)) {
