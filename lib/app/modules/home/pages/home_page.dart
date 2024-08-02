@@ -1,6 +1,5 @@
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/modules/home/widgets/summary_zones_list.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -14,10 +13,11 @@ import '../../../core/models/zone_model.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../../core/widgets/selectable_list_view.dart';
 import '../../shared/pages/options_bottom_sheet.dart';
-import '../widgets/device_info_header.dart';
-import '../widgets/zone_controls.dart';
 import '../../widgets/icon_title.dart';
 import '../interactor/home_page_controller.dart';
+import '../widgets/device_info_header.dart';
+import '../widgets/summary_zones_list.dart';
+import '../widgets/zone_controls.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
