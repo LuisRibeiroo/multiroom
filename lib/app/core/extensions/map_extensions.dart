@@ -1,6 +1,10 @@
 import 'string_extensions.dart';
 
 extension MapExt<T, E> on Map<T, E>? {
+  bool get isNullOrEmpty {
+    return this == null || this!.isEmpty;
+  }
+
   void removeNulls() {
     if (this == null) {
       return;

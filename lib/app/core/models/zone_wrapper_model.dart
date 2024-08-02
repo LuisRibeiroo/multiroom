@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../enums/mono_side.dart';
 import '../enums/zone_mode.dart';
 import 'mono_zones.dart';
 import 'zone_model.dart';
@@ -70,15 +71,42 @@ class ZoneWrapperModel extends Equatable {
 
   ZoneWrapperModel copyWith({
     ZoneMode? mode,
-    ZoneModel? stereoZone,
+    ZoneModel? zone,
     MonoZones? monoZones,
   }) {
-    return ZoneWrapperModel(
-      id: id,
-      mode: mode ?? this.mode,
-      stereoZone: stereoZone ?? this.stereoZone,
-      monoZones: monoZones ?? this.monoZones,
-    );
+    if (isStereo) {
+      return ZoneWrapperModel(
+        id: id,
+        mode: mode ?? this.mode,
+        stereoZone: zone ?? stereoZone,
+        monoZones: monoZones ?? this.monoZones,
+      );
+    } else {
+      if (zone == null) {
+        return ZoneWrapperModel(
+          id: id,
+          mode: mode ?? this.mode,
+          stereoZone: stereoZone,
+          monoZones: monoZones ?? this.monoZones,
+        );
+      }
+
+      if (zone.side == MonoSide.left) {
+        return ZoneWrapperModel(
+          id: id,
+          mode: mode ?? this.mode,
+          stereoZone: stereoZone,
+          monoZones: this.monoZones.copyWith(left: zone),
+        );
+      } else {
+        return ZoneWrapperModel(
+          id: id,
+          mode: mode ?? this.mode,
+          stereoZone: stereoZone,
+          monoZones: this.monoZones.copyWith(right: zone),
+        );
+      }
+    }
   }
 
   bool get isEmpty => this == ZoneWrapperModel.empty();

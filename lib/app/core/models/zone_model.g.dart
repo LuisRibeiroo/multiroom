@@ -28,13 +28,16 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
       wrapperId: fields[9] == null ? '' : fields[9] as String,
       side: fields[8] as MonoSide,
       isGroup: fields[10] == null ? false : fields[10] as bool,
+      channel: fields[11] == null
+          ? const ChannelModel.empty()
+          : fields[11] as ChannelModel,
     );
   }
 
   @override
   void write(BinaryWriter writer, ZoneModel obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -56,7 +59,9 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
       ..writeByte(9)
       ..write(obj.wrapperId)
       ..writeByte(10)
-      ..write(obj.isGroup);
+      ..write(obj.isGroup)
+      ..writeByte(11)
+      ..write(obj.channel);
   }
 
   @override

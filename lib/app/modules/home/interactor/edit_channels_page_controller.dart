@@ -1,7 +1,6 @@
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
-import '../../../core/enums/mono_side.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/extensions/list_extensions.dart';
 import '../../../core/extensions/string_extensions.dart';
@@ -65,15 +64,7 @@ class EditChannelsPageController extends BaseController {
       zone.value = newZone;
 
       ZoneWrapperModel wrapper = device.value.zoneWrappers.firstWhere((zw) => zw.id == zone.value.wrapperId);
-      if (wrapper.isStereo) {
-        wrapper = wrapper.copyWith(stereoZone: newZone);
-      } else {
-        if (zone.value.side == MonoSide.right) {
-          wrapper = wrapper.copyWith(monoZones: wrapper.monoZones.copyWith(right: newZone));
-        } else {
-          wrapper = wrapper.copyWith(monoZones: wrapper.monoZones.copyWith(left: newZone));
-        }
-      }
+      wrapper = wrapper.copyWith(zone: newZone);
 
       final newWrappers = device.value.zoneWrappers..replaceWhere((z) => z.id == wrapper.id, wrapper);
 

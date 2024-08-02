@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
+import 'package:multiroom/app/core/extensions/map_extensions.dart';
 
 import 'selectable_model.dart';
 
@@ -13,13 +14,7 @@ class ChannelModel extends Equatable implements SelectableModel {
     required this.active,
   });
 
-  factory ChannelModel.empty() {
-    return const ChannelModel(
-      id: "CH1",
-      name: "",
-      active: false,
-    );
-  }
+  const ChannelModel.empty() : this(id: "CH1", name: "", active: false);
 
   factory ChannelModel.builder({required int index, required String name}) {
     return ChannelModel(
@@ -29,9 +24,13 @@ class ChannelModel extends Equatable implements SelectableModel {
     );
   }
 
-  factory ChannelModel.fromMap(Map<String, dynamic> map) {
+  factory ChannelModel.fromMap(Map<String, dynamic>? map) {
+    if (map.isNullOrEmpty) {
+      return const ChannelModel.empty();
+    }
+
     return ChannelModel(
-      id: map['id'],
+      id: map!['id'],
       name: map['name'],
       active: map['active'],
     );
@@ -52,7 +51,7 @@ class ChannelModel extends Equatable implements SelectableModel {
   @HiveField(2)
   final bool active;
 
-  bool get isEmpty => this == ChannelModel.empty();
+  bool get isEmpty => this == const ChannelModel.empty();
 
   @override
   String get label => name;

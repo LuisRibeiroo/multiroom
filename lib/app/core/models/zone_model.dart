@@ -22,6 +22,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     required this.wrapperId,
     this.side = MonoSide.undefined,
     this.isGroup = false,
+    this.channel = const ChannelModel.empty(),
   });
 
   factory ZoneModel.builder({
@@ -45,6 +46,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       equalizer: EqualizerModel.builder(name: "Custom"),
       side: side,
       isGroup: false,
+      channel: ChannelModel.builder(index: 1, name: "Input 1"),
     );
   }
 
@@ -59,6 +61,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       balance: 0,
       maxVolume: 0,
       equalizer: EqualizerModel.empty(),
+      channel: const ChannelModel.empty(),
     );
   }
 
@@ -75,6 +78,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       equalizer: EqualizerModel.fromMap(map['equalizer']),
       side: MonoSide.values[map['side']],
       isGroup: map['isGroup'],
+      channel: map['channel'] != null ? ChannelModel.fromMap(map['channel']) : const ChannelModel.empty(),
     );
   }
 
@@ -91,6 +95,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       'equalizer': equalizer.toMap(),
       'side': side.index,
       'isGroup': isGroup,
+      'channel': channel.toMap(),
     };
   }
 
@@ -116,6 +121,8 @@ class ZoneModel extends Equatable implements SelectableModel {
   final String wrapperId;
   @HiveField(10, defaultValue: false)
   final bool isGroup;
+  @HiveField(11, defaultValue: ChannelModel.empty())
+  final ChannelModel channel;
 
   bool get isEmpty => id == ZoneModel.empty().id;
   bool get isStereo => side == MonoSide.undefined;
@@ -133,6 +140,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     EqualizerModel? equalizer,
     MonoSide? side,
     bool? isGroup,
+    ChannelModel? channel,
   }) {
     return ZoneModel(
       id: id,
@@ -146,6 +154,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       equalizer: equalizer ?? this.equalizer,
       side: side ?? this.side,
       isGroup: isGroup ?? this.isGroup,
+      channel: channel ?? this.channel,
     );
   }
 
@@ -162,5 +171,6 @@ class ZoneModel extends Equatable implements SelectableModel {
         equalizer,
         side,
         isGroup,
+        channel,
       ];
 }

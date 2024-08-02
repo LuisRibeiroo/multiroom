@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/extensions/list_extensions.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -55,11 +56,15 @@ class HomePageController extends BaseController with SocketMixin {
           channels.value = value.zones.first.channels;
         }
       }),
+      effect(() {
+        projectZones.value = currentProject.value.devices.fold(<ZoneModel>[], (pv, d) => pv..addAll(d.zones));
+      }),
     ]);
   }
 
   final _settings = injector.get<SettingsContract>();
 
+  final projectZones = listSignal<ZoneModel>([], debugLabel: "projectZones");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
   final channels = listSignal<ChannelModel>([], debugLabel: "channels");
   final zones = listSignal<ZoneModel>([], debugLabel: "zones");
@@ -79,7 +84,6 @@ class HomePageController extends BaseController with SocketMixin {
   final currentProject = ProjectModel.empty().toSignal(debugLabel: "currentProject");
   final currentDevice = DeviceModel.empty().toSignal(debugLabel: "currentDevice");
   final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
-  final currentChannel = ChannelModel.empty().toSignal(debugLabel: "currentChannel");
   final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
   final hasMultipleProjects = false.toSignal(debugLabel: "hasMultipleProjects");
   final expandedMode = true.toSignal(debugLabel: "expandedMode");
@@ -126,10 +130,16 @@ class HomePageController extends BaseController with SocketMixin {
         active: active,
       ),
     );
+
+    if (zone != null) {
+      _updateProject(zone: zone.copyWith(active: active));
+    } else {
+      _updateProject(zone: currentZone.value);
+    }
   }
 
   void setCurrentChannel(ChannelModel channel, {ZoneModel? zone}) {
-    if (channel.id == currentChannel.value.id) {
+    if (channel.id == (zone?.channel.id ?? currentZone.value.channel.id)) {
       logger.i("SET CHANNEL [SAME CHANNEL] --> ${channel.id}");
       return;
     }
@@ -139,8 +149,10 @@ class HomePageController extends BaseController with SocketMixin {
 
     tempList[channelIndex] = channel;
 
-    currentZone.value = currentZone.value.copyWith(channels: tempList);
-    currentChannel.value = channel;
+    currentZone.value = currentZone.value.copyWith(
+      channels: tempList,
+      channel: channel,
+    );
 
     _debounceSendCommand(
       MrCmdBuilder.setChannel(
@@ -148,6 +160,12 @@ class HomePageController extends BaseController with SocketMixin {
         channel: channel,
       ),
     );
+
+    if (zone != null) {
+      _updateProject(zone: zone.copyWith(channel: channel));
+    } else {
+      _updateProject(zone: currentZone.value);
+    }
   }
 
   void setBalance(int balance) {
@@ -170,6 +188,12 @@ class HomePageController extends BaseController with SocketMixin {
         volume: volume,
       ),
     );
+
+    if (zone != null) {
+      _updateProject(zone: zone.copyWith(volume: volume));
+    } else {
+      _updateProject(zone: currentZone.value);
+    }
   }
 
   Future<void> setEqualizer(EqualizerModel equalizer) async {
@@ -235,6 +259,25 @@ class HomePageController extends BaseController with SocketMixin {
   void toggleExpandedMode() {
     expandedMode.value = !expandedMode.value;
     _settings.expandedViewMode = expandedMode.value;
+  }
+
+  void _updateProject({required ZoneModel zone}) {
+    final newWrapper = currentDevice.peek().zoneWrappers.firstWhere((w) => w.id == zone.wrapperId);
+    final newDevice = currentDevice.peek().copyWith(
+          zoneWrappers: currentDevice.peek().zoneWrappers
+            ..replaceWhere(
+              (w) => w.id == newWrapper.id,
+              newWrapper.copyWith(zone: zone),
+            ),
+        );
+
+    currentProject.value = currentProject.peek().copyWith(
+          devices: currentProject.peek().devices
+            ..replaceWhere(
+              (d) => d.serialNumber == newDevice.serialNumber,
+              newDevice,
+            ),
+        );
   }
 
   Future<void> _updateSignals({ProjectModel? project}) async {
@@ -344,11 +387,6 @@ class HomePageController extends BaseController with SocketMixin {
       ),
     ));
 
-    currentChannel.value = channels.value.firstWhere(
-      (c) => c.id.trim() == channelStr.trim(),
-      orElse: () => currentChannel.value,
-    );
-
     final equalizer = zone.equalizer;
     final newEqualizer = EqualizerModel.custom(
       frequencies: [
@@ -374,7 +412,13 @@ class HomePageController extends BaseController with SocketMixin {
       volume: int.tryParse(volume) ?? zone.volume,
       balance: int.tryParse(balance) ?? zone.balance,
       equalizer: newEqualizer,
+      channel: channels.value.firstWhere(
+        (c) => c.id.trim() == channelStr.trim(),
+        orElse: () => channels.first,
+      ),
     );
+
+    _updateProject(zone: currentZone.value);
 
     // currentDevice.value = currentDevice.value.copyWith(zoneWrappers: _getUpdatedZones(currentZone.value));
   }
@@ -390,7 +434,6 @@ class HomePageController extends BaseController with SocketMixin {
     currentProject.value = currentProject.initialValue;
     currentDevice.value = currentDevice.initialValue;
     currentZone.value = currentZone.initialValue;
-    currentChannel.value = currentChannel.initialValue;
     currentEqualizer.value = currentEqualizer.initialValue;
     expandedMode.value = expandedMode.initialValue;
   }

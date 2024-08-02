@@ -9,6 +9,8 @@ import '../../../../injector.dart';
 import '../../../../routes.g.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
+import '../../../core/models/channel_model.dart';
+import '../../../core/models/zone_model.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../../core/widgets/selectable_list_view.dart';
 import '../../shared/pages/options_bottom_sheet.dart';
@@ -74,7 +76,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showChannelsBottomSheet() {
+  void _showChannelsBottomSheet({ZoneModel? zone}) {
     context.showCustomModalBottomSheet(
       isScrollControlled: false,
       child: Watch(
@@ -82,8 +84,10 @@ class _HomePageState extends State<HomePage> {
           title: "Canais",
           icon: Icons.input_rounded,
           options: _controller.channels,
-          onSelect: _controller.setCurrentChannel,
-          selectedOption: _controller.currentChannel.value,
+          onSelect: zone != null
+              ? (ChannelModel c) => _controller.setCurrentChannel(c, zone: zone)
+              : _controller.setCurrentChannel,
+          selectedOption: _controller.currentZone.value.channel,
           onTapEdit: () {
             Routefly.pop(context);
 
@@ -244,7 +248,7 @@ class _HomePageState extends State<HomePage> {
                                 project: _controller.currentProject.value,
                                 deviceName: _controller.currentDevice.value.name,
                                 currentZone: _controller.currentZone.value,
-                                currentChannel: _controller.currentChannel.value,
+                                currentChannel: _controller.currentZone.value.channel,
                                 onChangeActive: _controller.setZoneActive,
                                 onChangeDevice: _showDevicesBottomSheet,
                                 onChangeChannel: _showChannelsBottomSheet,
@@ -263,7 +267,7 @@ class _HomePageState extends State<HomePage> {
                             ],
                           )
                         : SummaryZonesList(
-                            zones: _controller.currentDevice.value.groupedZones,
+                            zones: _controller.projectZones.value,
                             onChangeActive: _controller.setZoneActive,
                             onChangeChannel: _showChannelsBottomSheet,
                             onChangeVolume: _controller.setVolume,

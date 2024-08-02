@@ -25,13 +25,13 @@ class SummaryZoneControls extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card.outlined(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         child: Column(
           children: [
             Row(
               children: [
-                const Icon(Icons.settings_rounded),
-                24.asSpace,
+                const Icon(Icons.home_filled),
+                12.asSpace,
                 Expanded(
                   child: Text(
                     zone.name,
@@ -58,15 +58,15 @@ class SummaryZoneControls extends StatelessWidget {
               ],
             ),
             18.asSpace,
-            AnimatedSwitcher(
-              duration: Durations.short4,
-              child: SizedBox(
-                width: context.sizeOf.width / 2,
+            SizedBox(
+              width: context.sizeOf.width / 2,
+              child: AnimatedSwitcher(
+                duration: Durations.short4,
                 child: AppButton(
+                  key: ValueKey("${zone.name}_${zone.channel.name}"),
                   type: ButtonType.secondary,
-                  key: const ValueKey("Channel 1"),
                   leading: const Icon(Icons.input_rounded),
-                  text: "Channel 1",
+                  text: zone.channel.name,
                   onPressed: onChangeChannel,
                 ),
               ),

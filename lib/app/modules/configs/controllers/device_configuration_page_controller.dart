@@ -161,23 +161,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   void onChangeZoneName(ZoneModel zone, String value) {
-    if (editingWrapper.value.isStereo) {
-      editingWrapper.value = editingWrapper.peek().copyWith(stereoZone: zone.copyWith(name: value));
-    } else {
-      if (zone.side == MonoSide.left) {
-        editingWrapper.value = editingWrapper.peek().copyWith(
-              monoZones: editingWrapper.peek().monoZones.copyWith(
-                    left: zone.copyWith(name: value),
-                  ),
-            );
-      } else {
-        editingWrapper.value = editingWrapper.peek().copyWith(
-              monoZones: editingWrapper.peek().monoZones.copyWith(
-                    right: zone.copyWith(name: value),
-                  ),
-            );
-      }
-    }
+    editingWrapper.value = editingWrapper.peek().copyWith(zone: zone.copyWith(name: value));
   }
 
   void onChangeGroupName(ZoneGroupModel group, String value) {
@@ -263,27 +247,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   Future<void> onSetMaxVolume(ZoneWrapperModel wrapper, ZoneModel zone) async {
-    if (wrapper.isStereo) {
-      editingWrapper.value = wrapper.copyWith(stereoZone: zone.copyWith(maxVolume: maxVolume.value));
-    } else {
-      if (zone.side == MonoSide.left) {
-        editingWrapper.value = wrapper.copyWith(
-          monoZones: wrapper.monoZones.copyWith(
-            left: zone.copyWith(
-              maxVolume: maxVolume.value,
-            ),
-          ),
-        );
-      } else {
-        editingWrapper.value = wrapper.copyWith(
-          monoZones: wrapper.monoZones.copyWith(
-            right: zone.copyWith(
-              maxVolume: maxVolume.value,
-            ),
-          ),
-        );
-      }
-    }
+    editingWrapper.value = wrapper.copyWith(zone: zone.copyWith(maxVolume: maxVolume.value));
 
     device.value = device.peek().copyWith(
           zoneWrappers: device
@@ -424,7 +388,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
           wrapper = wrapper.copyWith(
             mode: ZoneMode.stereo,
-            stereoZone: wrapper.stereoZone.copyWith(
+            zone: wrapper.stereoZone.copyWith(
                 // maxVolume: int.parse(maxVolume.value.numbersOnly),
                 ),
           );
