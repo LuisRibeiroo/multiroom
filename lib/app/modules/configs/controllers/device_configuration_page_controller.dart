@@ -100,16 +100,6 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         setError(Exception(exception));
       }
     }
-
-    // TODO: Check if we need this cmd
-    // if (groups[idx].zones.length == 1) {
-    //   await socketSender(
-    //     MrCmdBuilder.setChannel(
-    //       zone: groups[idx].zones.first,
-    //       channel: groups[idx].zones.first.channels.first,
-    //     ),
-    //   );
-    // }
   }
 
   Future<void> onRemoveZoneFromGroup(ZoneGroupModel group, ZoneModel zone) async {
