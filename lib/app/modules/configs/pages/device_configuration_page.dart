@@ -87,6 +87,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                 title: "Volume",
                 caption: "${_controller.maxVolume.value}%",
                 value: _controller.maxVolume.value,
+                min: 15,
                 onChanged: _controller.maxVolume.set,
               ),
               24.asSpace,

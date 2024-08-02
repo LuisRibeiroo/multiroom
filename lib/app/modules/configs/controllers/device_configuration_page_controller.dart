@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:multiroom/app/core/extensions/string_extensions.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
@@ -243,19 +244,17 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     editingWrapper.value = wrapper.copyWith(zone: zone.copyWith(maxVolume: maxVolume.value));
 
     device.value = device.peek().copyWith(
-          zoneWrappers: device
-              .peek()
-              .zoneWrappers
-              .map(
-                (z) => z.id == editingWrapper.peek().id ? editingWrapper.value : z,
-              )
-              .toList(),
+          zoneWrappers: device.peek().zoneWrappers
+            ..replaceWhere(
+              (w) => w.id == wrapper.id,
+              editingWrapper.value,
+            ),
         );
 
     try {
       await socketSender(MrCmdBuilder.setMaxVolume(
         zone: zone,
-        volume: maxVolume.value,
+        volumePercent: maxVolume.value,
       ));
 
       maxVolume.value = maxVolume.initialValue;
@@ -340,7 +339,9 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     try {
       final modes = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("MODE"));
-      // final maxVols = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("VOL_MAX"));
+      final maxVols = configs.entries.where(
+        (entry) => entry.key.toUpperCase().startsWith("LIM") && entry.key.toUpperCase().contains("THRESHOLD"),
+      );
 
       final zonesList = <ZoneWrapperModel>[];
 
@@ -374,41 +375,45 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         }
 
         if (mode.value.toUpperCase() == "STEREO") {
-          // final maxVolume = maxVols.firstWhere(
-          //   (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")),
-          //   orElse: () => MapEntry(wrapper.id, "100"),
-          // );
+          final maxVolume = maxVols.firstWhere(
+            (entry) => entry.key.numbersOnly[0] == (int.parse(wrapper.id.numbersOnly) - 1).toString(),
+            orElse: () => MapEntry(wrapper.id, "100"),
+          );
 
           wrapper = wrapper.copyWith(
             mode: ZoneMode.stereo,
             zone: wrapper.stereoZone.copyWith(
-                // maxVolume: int.parse(maxVolume.value.numbersOnly),
-                ),
+              maxVolume: MrCmdBuilder.fromDbToPercent(maxVolume.value.numbersOnly),
+            ),
           );
         } else {
-          // final maxVolumeR = maxVols
-          //     .firstWhere(
-          //       (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")) && entry.key.endsWith("R"),
-          //       orElse: () => MapEntry(wrapper.id, "100"),
-          //     )
-          //     .value;
+          final maxVolumeR = maxVols
+              .firstWhere(
+                (entry) =>
+                    entry.key.numbersOnly[0] == (int.parse(wrapper.id.numbersOnly) - 1).toString() &&
+                    entry.key.numbersOnly[1] == "0",
+                orElse: () => MapEntry(wrapper.id, "100"),
+              )
+              .value;
 
-          // final maxVolumeL = maxVols
-          //     .firstWhere(
-          //       (entry) => entry.key.contains(wrapper.id.replaceAll("Z", "")) && entry.key.endsWith("L"),
-          //       orElse: () => MapEntry(wrapper.id, "100"),
-          //     )
-          //     .value;
+          final maxVolumeL = maxVols
+              .firstWhere(
+                (entry) =>
+                    entry.key.numbersOnly[0] == (int.parse(wrapper.id.numbersOnly) - 1).toString() &&
+                    entry.key.numbersOnly[1] == "1",
+                orElse: () => MapEntry(wrapper.id, "100"),
+              )
+              .value;
 
           wrapper = wrapper.copyWith(
             mode: ZoneMode.mono,
             monoZones: wrapper.monoZones.copyWith(
               right: wrapper.monoZones.right.copyWith(
-                  // maxVolume: int.parse(maxVolumeR.numbersOnly),
-                  ),
+                maxVolume: MrCmdBuilder.fromDbToPercent(maxVolumeL.numbersOnly),
+              ),
               left: wrapper.monoZones.left.copyWith(
-                  // maxVolume: int.parse(maxVolumeL.numbersOnly),
-                  ),
+                maxVolume: MrCmdBuilder.fromDbToPercent(maxVolumeR.numbersOnly),
+              ),
             ),
           );
         }

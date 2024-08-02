@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/models/zone_model.dart';
@@ -36,7 +38,7 @@ class ZoneDetailEditTile extends StatelessWidget {
           icon: Column(
             children: [
               const Icon(Icons.volume_up_rounded),
-              Text("$maxVolume"),
+              Text("${min(maxVolume, 100)}"),
             ],
           ),
           onPressed: onTapEditMaxVolume,

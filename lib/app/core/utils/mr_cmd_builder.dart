@@ -26,6 +26,10 @@ abstract final class MrCmdBuilder {
     return configs..removeNulls();
   }
 
+  static int fromDbToPercent(String value) => (4.25 * double.parse(value.numbersOnly) + 117).toInt();
+
+  static int fromPercentToDb(int value) => (((value - 117) / 4.25) * 100).truncate();
+
   static String get configs => MultiroomCommands.mrCfgShow.value;
 
   static String get params => MultiroomCommands.mrParShow.value;
@@ -127,7 +131,9 @@ abstract final class MrCmdBuilder {
 
   static String setMaxVolume({
     required ZoneModel zone,
-    required int volume,
+    required int volumePercent,
   }) =>
-      "${MultiroomCommands.mrVolMaxSet.value},${zone.id},$volume";
+      "${MultiroomCommands.mrVolMaxSet.value},${zone.id},${MrCmdBuilder.fromPercentToDb(volumePercent)},100000,2000";
+  
+
 }
