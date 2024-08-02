@@ -99,7 +99,7 @@ class ZonesExpandableCard extends StatelessWidget {
                                     child: ZoneDetailEditTile(
                                       zone: wrapper.stereoZone,
                                       wrapper: wrapper,
-                                      hideEditButton: isEditing && editingZone.id != wrapper.id,
+                                      hideEditButton: isEditing && editingZone.id != wrapper.stereoZone.id,
                                       isEditing: editingWrapper.id == wrapper.id && isEditing,
                                       onChangeZoneName: onChangeZoneName,
                                       toggleEditing: toggleEditingZone,
@@ -130,20 +130,18 @@ class ZonesExpandableCard extends StatelessWidget {
                                   8.asSpace,
                                   Visibility(
                                     visible: wrapper.isStereo == false,
-                                    child: Watch(
-                                      (_) => ZoneDetailEditTile(
-                                        label: wrapper.monoZones.right.id,
-                                        zone: wrapper.monoZones.right,
-                                        wrapper: wrapper,
-                                        hideEditButton: isEditing && editingZone.id != wrapper.monoZones.right.id,
-                                        isEditing: editingZone.id == wrapper.monoZones.right.id && isEditing,
-                                        onChangeZoneName: onChangeZoneName,
-                                        toggleEditing: toggleEditingZone,
-                                        maxVolume: wrapper.monoZones.right.maxVolume,
-                                        onTapEditMaxVolume: () => onEdtiMaxVolume(
-                                          wrapper,
-                                          wrapper.monoZones.right,
-                                        ),
+                                    child: ZoneDetailEditTile(
+                                      label: wrapper.monoZones.right.id,
+                                      zone: wrapper.monoZones.right,
+                                      wrapper: wrapper,
+                                      hideEditButton: isEditing && editingZone.id != wrapper.monoZones.right.id,
+                                      isEditing: editingZone.id == wrapper.monoZones.right.id && isEditing,
+                                      onChangeZoneName: onChangeZoneName,
+                                      toggleEditing: toggleEditingZone,
+                                      maxVolume: wrapper.monoZones.right.maxVolume,
+                                      onTapEditMaxVolume: () => onEdtiMaxVolume(
+                                        wrapper,
+                                        wrapper.monoZones.right,
                                       ),
                                     ),
                                   ),
