@@ -111,7 +111,6 @@ abstract final class MrCmdBuilder {
 
   static String getGroup({
     required ZoneGroupModel group,
-    required Frequency frequency,
   }) =>
       "${MultiroomCommands.mrGroupGet.value},${group.id.numbersOnly}";
 

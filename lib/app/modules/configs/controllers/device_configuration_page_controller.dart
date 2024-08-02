@@ -78,15 +78,22 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       }
 
       final List<ZoneGroupModel> groups = List.from(device.peek().groups);
-      final List<ZoneModel> tempZones = List.from(group.zones);
+      final updatedZones = [...group.zones, zone];
 
-      groups.replaceWhere((g) => g.id == group.id, group.copyWith(zones: tempZones..add(zone)));
-      device.value = device.peek().copyWith(groups: groups);
+      device.value = device.peek().copyWith(
+            groups: groups
+              ..replaceWhere(
+                (g) => g.id == group.id,
+                group.copyWith(
+                  zones: updatedZones,
+                ),
+              ),
+          );
 
       await socketSender(
         MrCmdBuilder.setGroup(
           group: group,
-          zones: group.zones,
+          zones: updatedZones,
         ),
       );
     } catch (exception) {
@@ -466,8 +473,9 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       });
 
       return groupsList;
-    } on StateError {
+    } on StateError catch (e) {
       logger.w("No Groups (GRP) received");
+      setError(Exception(e));
 
       return <ZoneGroupModel>[];
     } catch (exception) {
