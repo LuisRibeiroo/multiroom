@@ -452,7 +452,11 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
           continue;
         }
 
-        final zone = zonesList.firstWhere((z) => z.id == grp.value);
+        final zone = zonesList.firstWhereOrNull((z) => z.id == grp.value);
+
+        if (zone == null) {
+          continue;
+        }
 
         switch (grp.key) {
           case _ when grp.key.startsWith("GRP[1]"):
@@ -478,6 +482,12 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       return groupsList;
     } on StateError {
       logger.w("No Groups (GRP) received");
+
+      return <ZoneGroupModel>[];
+    } catch (exception) {
+      logger.e(exception);
+      setError(exception as Exception);
+
       return <ZoneGroupModel>[];
     }
   }
