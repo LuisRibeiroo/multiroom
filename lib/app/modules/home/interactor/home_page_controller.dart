@@ -52,7 +52,6 @@ class HomePageController extends BaseController with SocketMixin {
         }
 
         if (value.serialNumber != currentDevice.previousValue!.serialNumber) {
-          zones.value = value.zones;
           channels.value = value.zones.first.channels;
         }
       }),
@@ -67,7 +66,6 @@ class HomePageController extends BaseController with SocketMixin {
   final projectZones = listSignal<ZoneModel>([], debugLabel: "projectZones");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
   final channels = listSignal<ChannelModel>([], debugLabel: "channels");
-  final zones = listSignal<ZoneModel>([], debugLabel: "zones");
   final equalizers = listSignal<EqualizerModel>(
     [
       EqualizerModel.builder(name: "Rock", v60: 2, v250: 0, v1k: 1, v3k: 2, v6k: 2, v16k: 1),
@@ -283,12 +281,12 @@ class HomePageController extends BaseController with SocketMixin {
   Future<void> _updateSignals({ProjectModel? project}) async {
     currentProject.value = project ?? projects.value.first;
     currentDevice.value = currentProject.value.devices.first;
-    zones.value = currentDevice.value.zones;
+    final zone = currentDevice.value.zones.first;
 
-    if (currentDevice.value.isZoneInGroup(zones.first)) {
-      currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.contains(zones.first)).asZone;
+    if (currentDevice.value.isZoneInGroup(zone)) {
+      currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.contains(zone)).asZone;
     } else {
-      currentZone.value = zones.first;
+      currentZone.value = zone;
     }
 
     channels.value = currentZone.value.channels;
@@ -429,7 +427,6 @@ class HomePageController extends BaseController with SocketMixin {
     mixinDispose();
 
     projects.value = <ProjectModel>[];
-    zones.value = <ZoneModel>[];
 
     currentProject.value = currentProject.initialValue;
     currentDevice.value = currentDevice.initialValue;
