@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
@@ -16,6 +17,7 @@ import '../../../core/models/device_model.dart';
 import '../../../core/models/equalizer_model.dart';
 import '../../../core/models/frequency.dart';
 import '../../../core/models/project_model.dart';
+import '../../../core/models/zone_group_model.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/utils/debouncer.dart';
 import '../../../core/utils/mr_cmd_builder.dart';
@@ -260,22 +262,26 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   void _updateProject({required ZoneModel zone}) {
-    final newWrapper = currentDevice.peek().zoneWrappers.firstWhere((w) => w.id == zone.wrapperId);
-    final newDevice = currentDevice.peek().copyWith(
-          zoneWrappers: currentDevice.peek().zoneWrappers
-            ..replaceWhere(
-              (w) => w.id == newWrapper.id,
-              newWrapper.copyWith(zone: zone),
-            ),
-        );
+    ZoneGroupModel? group;
 
-    currentProject.value = currentProject.peek().copyWith(
-          devices: currentProject.peek().devices
-            ..replaceWhere(
-              (d) => d.serialNumber == newDevice.serialNumber,
-              newDevice,
-            ),
-        );
+    if (currentDevice.value.isZoneInGroup(zone)) {
+      group = currentDevice.value.groups.firstWhereOrNull((g) => g.zones.containsZone(zone));
+    }
+
+    final newWrapper = currentDevice.value.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId);
+    final newDevice = currentDevice.value.copyWith(
+      zoneWrappers: currentDevice.value.zoneWrappers.withReplacement(
+        (w) => w.id == newWrapper.id,
+        newWrapper.copyWith(zone: zone.isGroup ? zone.copyWith(name: group!.getZone(zone.id).name) : zone),
+      ),
+    );
+
+    currentProject.value = currentProject.value.copyWith(
+      devices: currentProject.value.devices.withReplacement(
+        (d) => d.serialNumber == newDevice.serialNumber,
+        newDevice,
+      ),
+    );
   }
 
   Future<void> _updateSignals({ProjectModel? project}) async {
@@ -284,7 +290,7 @@ class HomePageController extends BaseController with SocketMixin {
     final zone = currentDevice.value.zones.first;
 
     if (currentDevice.value.isZoneInGroup(zone)) {
-      currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.contains(zone)).asZone;
+      currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.containsZone(zone)).asZone;
     } else {
       currentZone.value = zone;
     }

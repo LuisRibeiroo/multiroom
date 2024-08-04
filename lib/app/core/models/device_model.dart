@@ -124,14 +124,16 @@ class DeviceModel extends HiveObject {
 
   bool get emptyGroups => groups.every((g) => g.hasZones == false);
 
-  bool isZoneInGroup(ZoneModel zone) => groups.any((g) => g.zones.contains(zone));
+  bool isZoneInGroup(ZoneModel zone) => groups.any((g) => g.zones.containsZone(zone)) || zone.isGroup;
 
   List<ZoneModel> get groupedZones {
-    final temp = zones.where((zone) => groups.map((g) => g.zones.contains(zone)).every((v) => !v)).toList();
+    final temp = zones
+        .where((zone) => groups.map((g) => g.zones.containsZone(zone)).every((v) => !v))
+        .toList();
 
     for (final g in groups) {
       if (g.hasZones) {
-        if (temp.where((z) => z.name == g.asZone.name).isEmpty) {
+        if (temp.where((z) => z.id == g.asZone.id).isEmpty) {
           temp.add(g.asZone);
         }
       }

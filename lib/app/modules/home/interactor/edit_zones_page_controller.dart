@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
@@ -47,10 +46,10 @@ class EditZonesPageController extends BaseController {
       DeviceModel newDevice = DeviceModel.empty();
       // final List<ChannelModel> newChannels = List.from(zone.peek().channels);
       if (zone.isGroup) {
-        final currentGroup = device.groups.firstWhere((g) => g.zones.firstWhereOrNull((z) => z.id == zone.id) != null);
+        final currentGroup = device.groups.firstWhere((g) => g.zones.containsZone(zone));
         final newGroup = currentGroup.copyWith(name: editingZoneName.value);
 
-        final newGroups = device.groups..replaceWhere((g) => g.id == newGroup.id, newGroup);
+        final newGroups = device.groups.withReplacement((g) => g.id == newGroup.id, newGroup);
         newDevice = device.copyWith(groups: newGroups);
       } else {
         final newZone = device.zones.firstWhere((c) => c.id == zone.id).copyWith(name: editingZoneName.value);
@@ -58,11 +57,12 @@ class EditZonesPageController extends BaseController {
         ZoneWrapperModel wrapper = device.zoneWrappers.firstWhere((zw) => zw.id == zone.wrapperId);
         wrapper = wrapper.copyWith(zone: newZone);
 
-        final newWrappers = device.zoneWrappers..replaceWhere((z) => z.id == wrapper.id, wrapper);
+        final newWrappers = device.zoneWrappers.withReplacement((z) => z.id == wrapper.id, wrapper);
         newDevice = device.copyWith(zoneWrappers: newWrappers);
       }
 
-      final newDevices = project.peek().devices..replaceWhere((d) => d.serialNumber == device.serialNumber, newDevice);
+      final newDevices =
+          project.peek().devices.withReplacement((d) => d.serialNumber == device.serialNumber, newDevice);
       project.value = project.peek().copyWith(devices: newDevices);
 
       _settings.saveProject(project.value);

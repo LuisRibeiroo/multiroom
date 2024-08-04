@@ -51,14 +51,13 @@ class EditChannelsPageController extends BaseController {
       final List<ChannelModel> newChannels = List.from(zone.peek().channels);
 
       final newZone = zone.value.copyWith(
-        channels: newChannels
-          ..replaceWhere(
-            (c) => c.id == channelId,
-            ChannelModel.builder(
-              index: int.parse(channelId.numbersOnly),
-              name: editingChannelName.value,
-            ),
+        channels: newChannels.withReplacement(
+          (c) => c.id == channelId,
+          ChannelModel.builder(
+            index: int.parse(channelId.numbersOnly),
+            name: editingChannelName.value,
           ),
+        ),
       );
 
       zone.value = newZone;
@@ -66,7 +65,7 @@ class EditChannelsPageController extends BaseController {
       ZoneWrapperModel wrapper = device.value.zoneWrappers.firstWhere((zw) => zw.id == zone.value.wrapperId);
       wrapper = wrapper.copyWith(zone: newZone);
 
-      final newWrappers = device.value.zoneWrappers..replaceWhere((z) => z.id == wrapper.id, wrapper);
+      final newWrappers = device.value.zoneWrappers.withReplacement((z) => z.id == wrapper.id, wrapper);
 
       device.value = device.peek().copyWith(zoneWrappers: newWrappers);
       _settings.saveDevice(device: device.value);

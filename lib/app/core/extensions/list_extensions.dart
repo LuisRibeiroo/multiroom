@@ -39,4 +39,22 @@ extension ListExt<E> on List<E>? {
       }
     }
   }
+
+  List<E> withReplacement(bool Function(E) test, E element) {
+    if (this == null) {
+      return [element];
+    }
+
+    List<E> list = List<E>.from(this!);
+
+    for (E e in list) {
+      if (test(e)) {
+        final idx = list.indexOf(e);
+        list.remove(e);
+        list.insert(idx, element);
+      }
+    }
+
+    return list;
+  }
 }

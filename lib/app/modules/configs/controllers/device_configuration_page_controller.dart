@@ -74,7 +74,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   Future<void> onAddZoneToGroup(ZoneGroupModel group, ZoneModel zone) async {
     try {
-      if (group.zones.contains(zone)) {
+      if (group.zones.containsZone(zone)) {
         // Show error
       }
 
@@ -82,13 +82,12 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       final updatedZones = [...group.zones, zone];
 
       device.value = device.peek().copyWith(
-            groups: groups
-              ..replaceWhere(
-                (g) => g.id == group.id,
-                group.copyWith(
-                  zones: updatedZones,
-                ),
+            groups: groups.withReplacement(
+              (g) => g.id == group.id,
+              group.copyWith(
+                zones: updatedZones,
               ),
+            ),
           );
 
       await socketSender(
@@ -107,7 +106,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   Future<void> onRemoveZoneFromGroup(ZoneGroupModel group, ZoneModel zone) async {
-    if (group.zones.contains(zone) == false) {
+    if (group.zones.containsZone(zone) == false) {
       return;
     }
 
@@ -244,11 +243,10 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     editingWrapper.value = wrapper.copyWith(zone: zone.copyWith(maxVolume: maxVolume.value));
 
     device.value = device.peek().copyWith(
-          zoneWrappers: device.peek().zoneWrappers
-            ..replaceWhere(
-              (w) => w.id == wrapper.id,
-              editingWrapper.value,
-            ),
+          zoneWrappers: device.peek().zoneWrappers.withReplacement(
+                (w) => w.id == wrapper.id,
+                editingWrapper.value,
+              ),
         );
 
     try {
@@ -450,7 +448,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
           continue;
         }
 
-        final zone = zonesList.firstWhereOrNull((z) => z.id == grp.value);
+        final zone = zonesList.getZoneById(grp.value);
 
         if (zone == null) {
           continue;

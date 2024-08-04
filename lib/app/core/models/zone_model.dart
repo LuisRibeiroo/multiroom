@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -5,6 +6,7 @@ import '../enums/mono_side.dart';
 import 'channel_model.dart';
 import 'equalizer_model.dart';
 import 'selectable_model.dart';
+import 'zone_group_model.dart';
 
 part 'zone_model.g.dart';
 
@@ -23,6 +25,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     this.side = MonoSide.undefined,
     this.isGroup = false,
     this.channel = const ChannelModel.empty(),
+    this.groupId = "",
   });
 
   factory ZoneModel.builder({
@@ -79,6 +82,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       side: MonoSide.values[map['side']],
       isGroup: map['isGroup'],
       channel: map['channel'] != null ? ChannelModel.fromMap(map['channel']) : const ChannelModel.empty(),
+      groupId: map['groupId'],
     );
   }
 
@@ -94,8 +98,9 @@ class ZoneModel extends Equatable implements SelectableModel {
       'balance': balance,
       'equalizer': equalizer.toMap(),
       'side': side.index,
-      'isGroup': isGroup,
+      'isGroup': isGroup, 
       'channel': channel.toMap(),
+      'groupId': groupId, 
     };
   }
 
@@ -123,9 +128,15 @@ class ZoneModel extends Equatable implements SelectableModel {
   final bool isGroup;
   @HiveField(11, defaultValue: ChannelModel.empty())
   final ChannelModel channel;
+  @HiveField(12, defaultValue: "")
+  final String groupId;
 
   bool get isEmpty => id == ZoneModel.empty().id;
   bool get isStereo => side == MonoSide.undefined;
+
+  ZoneModel extractFromGroup({required ZoneGroupModel group}) {
+    return group.zones.firstWhere((z) => z.id == id);
+  }
 
   @override
   String get label => name;
@@ -141,6 +152,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     MonoSide? side,
     bool? isGroup,
     ChannelModel? channel,
+    String? groupId,
   }) {
     return ZoneModel(
       id: id,
@@ -155,6 +167,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       side: side ?? this.side,
       isGroup: isGroup ?? this.isGroup,
       channel: channel ?? this.channel,
+      groupId: groupId ?? this.groupId,
     );
   }
 
@@ -172,5 +185,16 @@ class ZoneModel extends Equatable implements SelectableModel {
         side,
         isGroup,
         channel,
+        groupId,
       ];
+}
+
+extension ZoneListExt on List<ZoneModel> {
+  ZoneModel? getZoneById(String id) {
+    return firstWhereOrNull((z) => z.id == id);
+  }
+
+  bool containsZone(ZoneModel zone) {
+    return any((z) => z.id == zone.id);
+  }
 }
