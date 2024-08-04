@@ -58,7 +58,7 @@ class HomePageController extends BaseController with SocketMixin {
         }
       }),
       effect(() {
-        projectZones.value = currentProject.value.devices.fold(<ZoneModel>[], (pv, d) => pv..addAll(d.zones));
+        projectZones.value = currentProject.value.devices.fold(<ZoneModel>[], (pv, d) => pv..addAll(d.groupedZones));
       }),
     ]);
   }
@@ -264,23 +264,43 @@ class HomePageController extends BaseController with SocketMixin {
   void _updateProject({required ZoneModel zone}) {
     ZoneGroupModel? group;
 
-    if (currentDevice.value.isZoneInGroup(zone)) {
+    if (zone.isGroup) {
       group = currentDevice.value.groups.firstWhereOrNull((g) => g.zones.containsZone(zone));
     }
 
-    final newWrapper = currentDevice.value.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId);
-    final newDevice = currentDevice.value.copyWith(
-      zoneWrappers: currentDevice.value.zoneWrappers.withReplacement(
-        (w) => w.id == newWrapper.id,
-        newWrapper.copyWith(zone: zone.isGroup ? zone.copyWith(name: group!.getZone(zone.id).name) : zone),
+    final updatedZone = zone.isGroup ? zone.copyWith(name: group?.getZone(zone.id).name) : zone;
+    final updatedGroup = group?.copyWith(
+      zones: group.zones.withReplacement(
+        (z) => z.id == zone.id,
+        updatedZone,
       ),
     );
+    final updatedGroups = group == null
+        ? null
+        : currentDevice.value.groups.withReplacement(
+            (g) => g.id == group!.id,
+            updatedGroup!,
+          );
+    final updatedWrapper = currentDevice.value.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId).copyWith(zone: updatedZone);
 
+    final updatedWrappers = currentDevice.value.zoneWrappers.withReplacement(
+      (w) => w.id == updatedWrapper.id,
+      updatedWrapper,
+    );
+
+    final newDevice = currentDevice.value.copyWith(
+      zoneWrappers: updatedWrappers,
+      groups: updatedGroups,
+    );
+
+    final updatedDevice = currentProject.value.devices.withReplacement(
+      (d) => d.serialNumber == newDevice.serialNumber,
+      newDevice,
+    );
+
+    currentDevice.value = newDevice;
     currentProject.value = currentProject.value.copyWith(
-      devices: currentProject.value.devices.withReplacement(
-        (d) => d.serialNumber == newDevice.serialNumber,
-        newDevice,
-      ),
+      devices: updatedDevice,
     );
   }
 
