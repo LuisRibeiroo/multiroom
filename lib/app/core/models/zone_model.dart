@@ -6,7 +6,6 @@ import '../enums/mono_side.dart';
 import 'channel_model.dart';
 import 'equalizer_model.dart';
 import 'selectable_model.dart';
-import 'zone_group_model.dart';
 
 part 'zone_model.g.dart';
 
@@ -17,7 +16,6 @@ class ZoneModel extends Equatable implements SelectableModel {
     required this.name,
     required this.active,
     required this.channels,
-    required this.maxVolume,
     required this.volume,
     required this.balance,
     required this.equalizer,
@@ -26,6 +24,8 @@ class ZoneModel extends Equatable implements SelectableModel {
     this.isGroup = false,
     this.channel = const ChannelModel.empty(),
     this.groupId = "",
+    this.maxVolumeLeft = 100,
+    this.maxVolumeRight = 100,
   });
 
   factory ZoneModel.builder({
@@ -43,7 +43,6 @@ class ZoneModel extends Equatable implements SelectableModel {
         8,
         (idx) => ChannelModel.builder(index: idx + 1, name: "Input ${idx + 1}"),
       ),
-      maxVolume: 100,
       volume: 50,
       balance: 50,
       equalizer: EqualizerModel.builder(name: "Custom"),
@@ -62,7 +61,6 @@ class ZoneModel extends Equatable implements SelectableModel {
       channels: const [],
       volume: 0,
       balance: 0,
-      maxVolume: 0,
       equalizer: EqualizerModel.empty(),
       channel: const ChannelModel.empty(),
     );
@@ -76,13 +74,14 @@ class ZoneModel extends Equatable implements SelectableModel {
       active: map['active'],
       channels: List<ChannelModel>.from(map['channels']?.map((x) => ChannelModel.fromMap(x))),
       volume: map['volume'],
-      maxVolume: map['maxVolume'],
       balance: map['balance'],
       equalizer: EqualizerModel.fromMap(map['equalizer']),
       side: MonoSide.values[map['side']],
       isGroup: map['isGroup'],
       channel: map['channel'] != null ? ChannelModel.fromMap(map['channel']) : const ChannelModel.empty(),
       groupId: map['groupId'],
+      maxVolumeLeft: map['maxVolumeLeft'],
+      maxVolumeRight: map['maxVolumeRight'],
     );
   }
 
@@ -94,13 +93,14 @@ class ZoneModel extends Equatable implements SelectableModel {
       'active': active,
       'channels': channels.map((x) => x.toMap()).toList(),
       'volume': volume,
-      'maxVolume': maxVolume,
       'balance': balance,
       'equalizer': equalizer.toMap(),
       'side': side.index,
-      'isGroup': isGroup, 
+      'isGroup': isGroup,
       'channel': channel.toMap(),
-      'groupId': groupId, 
+      'groupId': groupId,
+      'maxVolumeLeft': maxVolumeLeft,
+      'maxVolumeRight': maxVolumeRight,
     };
   }
 
@@ -112,8 +112,6 @@ class ZoneModel extends Equatable implements SelectableModel {
   final bool active;
   @HiveField(3)
   final List<ChannelModel> channels;
-  @HiveField(4)
-  final int maxVolume;
   @HiveField(5)
   final int volume;
   @HiveField(6)
@@ -130,13 +128,14 @@ class ZoneModel extends Equatable implements SelectableModel {
   final ChannelModel channel;
   @HiveField(12, defaultValue: "")
   final String groupId;
+  @HiveField(13, defaultValue: 100)
+  final int maxVolumeLeft;
+  @HiveField(14, defaultValue: 100)
+  final int maxVolumeRight;
 
   bool get isEmpty => id == ZoneModel.empty().id;
   bool get isStereo => side == MonoSide.undefined;
-
-  ZoneModel extractFromGroup({required ZoneGroupModel group}) {
-    return group.zones.firstWhere((z) => z.id == id);
-  }
+  int get maxVolume => isStereo || side == MonoSide.right ? maxVolumeRight : maxVolumeLeft;
 
   @override
   String get label => name;
@@ -146,13 +145,14 @@ class ZoneModel extends Equatable implements SelectableModel {
     bool? active,
     List<ChannelModel>? channels,
     int? volume,
-    int? maxVolume,
     int? balance,
     EqualizerModel? equalizer,
     MonoSide? side,
     bool? isGroup,
     ChannelModel? channel,
     String? groupId,
+    int? maxVolumeLeft,
+    int? maxVolumeRight,
   }) {
     return ZoneModel(
       id: id,
@@ -161,13 +161,14 @@ class ZoneModel extends Equatable implements SelectableModel {
       active: active ?? this.active,
       channels: channels ?? this.channels,
       volume: volume ?? this.volume,
-      maxVolume: maxVolume ?? this.maxVolume,
       balance: balance ?? this.balance,
       equalizer: equalizer ?? this.equalizer,
       side: side ?? this.side,
       isGroup: isGroup ?? this.isGroup,
       channel: channel ?? this.channel,
       groupId: groupId ?? this.groupId,
+      maxVolumeLeft: maxVolumeLeft ?? this.maxVolumeLeft,
+      maxVolumeRight: maxVolumeRight ?? this.maxVolumeRight,
     );
   }
 
@@ -179,13 +180,14 @@ class ZoneModel extends Equatable implements SelectableModel {
         active,
         channels,
         volume,
-        maxVolume,
         balance,
         equalizer,
         side,
         isGroup,
         channel,
         groupId,
+        maxVolumeLeft,
+        maxVolumeRight,
       ];
 }
 

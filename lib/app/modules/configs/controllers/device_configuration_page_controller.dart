@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:multiroom/app/core/extensions/string_extensions.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
@@ -240,7 +239,13 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   Future<void> onSetMaxVolume(ZoneWrapperModel wrapper, ZoneModel zone) async {
-    editingWrapper.value = wrapper.copyWith(zone: zone.copyWith(maxVolume: maxVolume.value));
+    final newZone = zone.isStereo
+        ? zone.copyWith(maxVolumeRight: maxVolume.value)
+        : zone.side == MonoSide.right
+            ? zone.copyWith(maxVolumeRight: maxVolume.value)
+            : zone.copyWith(maxVolumeLeft: maxVolume.value);
+
+    editingWrapper.value = wrapper.copyWith(zone: newZone);
 
     device.value = device.peek().copyWith(
           zoneWrappers: device.peek().zoneWrappers.withReplacement(
@@ -265,7 +270,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     final configs = await _getDeviceData();
 
     device.value = device.peek().copyWith(
-          zoneWrappers: _parseZones(configs),
+          zoneWrappers: await _parseZones(configs),
         );
 
     device.value = device.peek().copyWith(
@@ -330,17 +335,13 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
   }
 
-  List<ZoneWrapperModel> _parseZones(Map<String, String> configs) {
+  Future<List<ZoneWrapperModel>> _parseZones(Map<String, String> configs) async {
     if (configs.entries.isNullOrEmpty) {
       return <ZoneWrapperModel>[];
     }
 
     try {
       final modes = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("MODE"));
-      final maxVols = configs.entries.where(
-        (entry) => entry.key.toUpperCase().startsWith("LIM") && entry.key.toUpperCase().contains("THRESHOLD"),
-      );
-
       final zonesList = <ZoneWrapperModel>[];
 
       for (final mode in modes) {
@@ -372,56 +373,30 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
           continue;
         }
 
-        if (mode.value.toUpperCase() == "STEREO") {
-          final maxVolume = maxVols.firstWhere(
-            (entry) => entry.key.numbersOnly[0] == (int.parse(wrapper.id.numbersOnly) - 1).toString(),
-            orElse: () => MapEntry(wrapper.id, "100"),
-          );
+        final maxVolR = await _getZoneMaxVol(wrapper.monoZones.right);
+        final maxVolL = await _getZoneMaxVol(wrapper.monoZones.left);
 
-          wrapper = wrapper.copyWith(
-            mode: ZoneMode.stereo,
-            zone: wrapper.stereoZone.copyWith(
-              maxVolume: MrCmdBuilder.fromDbToPercent(maxVolume.value.numbersOnly),
+        wrapper = wrapper.copyWith(
+          mode: mode.value.toUpperCase() == "STEREO" ? ZoneMode.stereo : ZoneMode.mono,
+          zone: wrapper.stereoZone.copyWith(
+            maxVolumeRight: MrCmdBuilder.fromDbToPercent(maxVolR),
+          ),
+          monoZones: wrapper.monoZones.copyWith(
+            right: wrapper.monoZones.right.copyWith(
+              maxVolumeRight: MrCmdBuilder.fromDbToPercent(maxVolR),
             ),
-          );
-        } else {
-          final maxVolumeR = maxVols
-              .firstWhere(
-                (entry) =>
-                    entry.key.numbersOnly[0] == (int.parse(wrapper.id.numbersOnly) - 1).toString() &&
-                    entry.key.numbersOnly[1] == "0",
-                orElse: () => MapEntry(wrapper.id, "100"),
-              )
-              .value;
-
-          final maxVolumeL = maxVols
-              .firstWhere(
-                (entry) =>
-                    entry.key.numbersOnly[0] == (int.parse(wrapper.id.numbersOnly) - 1).toString() &&
-                    entry.key.numbersOnly[1] == "1",
-                orElse: () => MapEntry(wrapper.id, "100"),
-              )
-              .value;
-
-          wrapper = wrapper.copyWith(
-            mode: ZoneMode.mono,
-            monoZones: wrapper.monoZones.copyWith(
-              right: wrapper.monoZones.right.copyWith(
-                maxVolume: MrCmdBuilder.fromDbToPercent(maxVolumeL.numbersOnly),
-              ),
-              left: wrapper.monoZones.left.copyWith(
-                maxVolume: MrCmdBuilder.fromDbToPercent(maxVolumeR.numbersOnly),
-              ),
+            left: wrapper.monoZones.left.copyWith(
+              maxVolumeLeft: MrCmdBuilder.fromDbToPercent(maxVolL),
             ),
-          );
-        }
+          ),
+        );
 
         zonesList.add(wrapper);
       }
 
       return zonesList;
     } on StateError {
-      logger.w("No Modes/Max Vol (MODE/VOL_MAX) received");
+      logger.w("No Modes (MODE) received");
 
       return <ZoneWrapperModel>[];
     }
@@ -486,6 +461,24 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       setError(exception as Exception);
 
       return <ZoneGroupModel>[];
+    }
+  }
+
+  Future<String> _getZoneMaxVol(ZoneModel zone) async {
+    try {
+      final response = await socketSender(
+        MrCmdBuilder.getMaxVolume(zone: zone),
+      );
+
+      final parsedResponse = response.split(",").first.substring(response.indexOf("=") + 1);
+      logger.d("RESPONSE >>> $response | PARSED <<< $parsedResponse");
+
+      return parsedResponse;
+    } catch (exception) {
+      logger.e(exception);
+      setError(exception as Exception);
+
+      return "";
     }
   }
 

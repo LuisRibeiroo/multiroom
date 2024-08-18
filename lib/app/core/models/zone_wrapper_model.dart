@@ -98,7 +98,9 @@ class ZoneWrapperModel extends Equatable {
           stereoZone: stereoZone,
           monoZones: this.monoZones.copyWith(left: zone),
         );
-      } else {
+      }
+
+      if (zone.side == MonoSide.right) {
         return ZoneWrapperModel(
           id: id,
           mode: mode ?? this.mode,
@@ -106,6 +108,13 @@ class ZoneWrapperModel extends Equatable {
           monoZones: this.monoZones.copyWith(right: zone),
         );
       }
+
+      return ZoneWrapperModel(
+        id: id,
+        mode: mode ?? this.mode,
+        stereoZone: stereoZone,
+        monoZones: this.monoZones,
+      );
     }
   }
 

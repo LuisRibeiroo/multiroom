@@ -27,7 +27,7 @@ class HiveSettings implements SettingsContract {
 
   @override
   void saveDevice({required DeviceModel device}) {
-    _logger.d("SAVE DEVICE --> PARAM: [$device]}");
+    // _logger.d("SAVE DEVICE --> PARAM: [$device]}");
 
     ProjectModel updatedProj = projects.firstWhere((p) => p.id == device.projectId);
     final updatedDevices = updatedProj.devices;
@@ -46,7 +46,7 @@ class HiveSettings implements SettingsContract {
 
     updatedProj = updatedProj.copyWith(devices: updatedDevices);
 
-    _logger.d("REMOVE DEVICE --> PARAM: [$deviceId] | LENGHT: [${updatedDevices.length}] NEW VALUE: $updatedDevices");
+    // _logger.d("REMOVE DEVICE --> PARAM: [$deviceId] | LENGHT: [${updatedDevices.length}] NEW VALUE: $updatedDevices");
 
     saveProject(updatedProj);
   }
@@ -55,14 +55,14 @@ class HiveSettings implements SettingsContract {
   List<ProjectModel> get projects {
     final data = _box.get("projects", defaultValue: <ProjectModel>[]);
 
-    _logger.d("GET PROJECTS --> LENGTH: [${data.length}] | VALUE: $data");
+    // _logger.d("GET PROJECTS --> LENGTH: [${data.length}] | VALUE: $data");
 
     return List.castFrom<dynamic, ProjectModel>(data);
   }
 
   @override
   void saveProject(ProjectModel project) {
-    _logger.d("SAVE PROJECT --> PARAM: [$project]}");
+    // _logger.d("SAVE PROJECT --> PARAM: [$project]}");
 
     final List<ProjectModel> newList = List.from(projects);
     newList.replaceWhere((d) => d.id == project.id, project);
@@ -71,7 +71,7 @@ class HiveSettings implements SettingsContract {
 
   @override
   void saveProjects(List<ProjectModel> value) {
-    _logger.d("SAVE PROJECTS --> LENGHT: ${value.length} | PARAM: [$value]}");
+    // _logger.d("SAVE PROJECTS --> LENGHT: ${value.length} | PARAM: [$value]}");
 
     _box.put("projects", value);
   }
@@ -81,7 +81,7 @@ class HiveSettings implements SettingsContract {
     final List<ProjectModel> projs = List.from(projects);
     projs.removeWhere((d) => d.id == id);
 
-    _logger.d("REMOVE PROJECT --> PARAM: [$id] | LENGHT: [${projs.length}] NEW VALUE: $projs");
+    // _logger.d("REMOVE PROJECT --> PARAM: [$id] | LENGHT: [${projs.length}] NEW VALUE: $projs");
 
     _box.put("projects", projs);
   }

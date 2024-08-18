@@ -21,7 +21,6 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
       name: fields[1] as String,
       active: fields[2] as bool,
       channels: (fields[3] as List).cast<ChannelModel>(),
-      maxVolume: fields[4] as int,
       volume: fields[5] as int,
       balance: fields[6] as int,
       equalizer: fields[7] as EqualizerModel,
@@ -32,13 +31,15 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
           ? const ChannelModel.empty()
           : fields[11] as ChannelModel,
       groupId: fields[12] == null ? '' : fields[12] as String,
+      maxVolumeLeft: fields[13] == null ? 100 : fields[13] as int,
+      maxVolumeRight: fields[14] == null ? 100 : fields[14] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, ZoneModel obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,8 +48,6 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
       ..write(obj.active)
       ..writeByte(3)
       ..write(obj.channels)
-      ..writeByte(4)
-      ..write(obj.maxVolume)
       ..writeByte(5)
       ..write(obj.volume)
       ..writeByte(6)
@@ -64,7 +63,11 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
       ..writeByte(11)
       ..write(obj.channel)
       ..writeByte(12)
-      ..write(obj.groupId);
+      ..write(obj.groupId)
+      ..writeByte(13)
+      ..write(obj.maxVolumeLeft)
+      ..writeByte(14)
+      ..write(obj.maxVolumeRight);
   }
 
   @override

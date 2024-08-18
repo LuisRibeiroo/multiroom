@@ -76,7 +76,7 @@ class ImportDataPageController extends BaseController {
 
   void _showDownloadProgress(received, total) {
     if (total != -1) {
-      logger.d("Download state -> ${(received / total * 100).toStringAsFixed(0)}%");
+      // logger.d("Download state -> ${(received / total * 100).toStringAsFixed(0)}%");
     }
   }
 
