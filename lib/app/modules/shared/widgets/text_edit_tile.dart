@@ -25,6 +25,7 @@ class TextEditTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
+        12.asSpace,
         Expanded(
           child: TextFormField(
             enabled: isEditing,

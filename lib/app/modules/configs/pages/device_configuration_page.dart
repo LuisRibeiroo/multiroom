@@ -1,17 +1,17 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import '../../widgets/icon_title.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
+import '../../../core/extensions/string_extensions.dart';
 import '../../../core/models/zone_group_model.dart';
-import '../../../core/models/zone_model.dart';
 import '../../../core/models/zone_wrapper_model.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_overlay.dart';
+import '../../widgets/icon_title.dart';
 import '../../widgets/slider_card.dart';
 import '../controllers/device_configuration_page_controller.dart';
 import '../widgets/device_config_header.dart';
@@ -68,8 +68,10 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
 
   void _showMaxVolumeEditBottomSheet(
     ZoneWrapperModel wrapper,
-    ZoneModel zone,
   ) {
+    _controller.maxVolumeL.set(wrapper.maxVolumeLeft);
+    _controller.maxVolumeR.set(wrapper.maxVolumeRight);
+
     context.showCustomModalBottomSheet(
       child: Watch(
         (_) => Padding(
@@ -78,23 +80,31 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "Configure o volume máximo para a zona \"${zone.name}\"",
+                "Configure o volume máximo para a Zona ${wrapper.id.numbersOnly}",
                 style: context.textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
-              24.asSpace,
+              12.asSpace,
               SliderCard(
-                title: "Volume",
-                caption: "${_controller.maxVolume.value}%",
-                value: _controller.maxVolume.value,
+                title: "Volume ${wrapper.monoZones.left.id}",
+                caption: "${_controller.maxVolumeL.value}%",
+                value: _controller.maxVolumeL.value,
                 min: 15,
-                onChanged: _controller.maxVolume.set,
+                onChanged: _controller.maxVolumeL.set,
+              ),
+              8.asSpace,
+              SliderCard(
+                title: "Volume ${wrapper.monoZones.right.id}",
+                caption: "${_controller.maxVolumeR.value}%",
+                value: _controller.maxVolumeR.value,
+                min: 15,
+                onChanged: _controller.maxVolumeR.set,
               ),
               24.asSpace,
               AppButton(
                 text: "Confirmar",
                 onPressed: () {
-                  _controller.onSetMaxVolume(wrapper, zone);
+                  _controller.onSetMaxVolume(wrapper);
                   Routefly.pop(context);
                 },
               ),

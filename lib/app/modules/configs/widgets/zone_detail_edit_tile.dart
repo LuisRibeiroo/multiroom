@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 import '../../../core/models/zone_model.dart';
@@ -14,8 +12,6 @@ class ZoneDetailEditTile extends StatelessWidget {
     required this.isEditing,
     required this.onChangeZoneName,
     required this.toggleEditing,
-    required this.onTapEditMaxVolume,
-    required this.maxVolume,
     required this.hideEditButton,
     this.label = "",
   });
@@ -26,23 +22,12 @@ class ZoneDetailEditTile extends StatelessWidget {
   final bool isEditing;
   final Function(ZoneModel, String) onChangeZoneName;
   final Function(ZoneWrapperModel, ZoneModel) toggleEditing;
-  final Function() onTapEditMaxVolume;
-  final int maxVolume;
   final bool hideEditButton;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        IconButton(
-          icon: Column(
-            children: [
-              const Icon(Icons.volume_up_rounded),
-              Text("${min(maxVolume, 100)}"),
-            ],
-          ),
-          onPressed: onTapEditMaxVolume,
-        ),
         Expanded(
           child: TextEditTile(
             itemId: label,

@@ -40,8 +40,6 @@ void main() async {
     });
   }
 
-  
-
   EquatableConfig.stringify = true;
 
   // Lock the orientation to landscape

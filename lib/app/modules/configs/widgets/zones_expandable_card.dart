@@ -32,7 +32,7 @@ class ZonesExpandableCard extends StatelessWidget {
   final Function(ZoneWrapperModel, bool) onChangeZoneMode;
   final Function(ZoneModel, String) onChangeZoneName;
   final Function(ZoneWrapperModel, ZoneModel) toggleEditingZone;
-  final Function(ZoneWrapperModel, ZoneModel) onEdtiMaxVolume;
+  final Function(ZoneWrapperModel) onEdtiMaxVolume;
 
   @override
   Widget build(BuildContext context) {
@@ -66,26 +66,44 @@ class ZonesExpandableCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12.0),
                       child: Column(
                         children: [
-                          ListTile(
-                            title: Text("Zona ${idx + 1}"),
-                            onTap: () => onChangeZoneMode(wrapper, !wrapper.isStereo),
-                            leading: const Icon(Icons.home_filled),
-                            trailing: AnimatedToggleSwitch.dual(
-                              current: wrapper.isStereo,
-                              first: true,
-                              second: false,
-                              onChanged: (value) => onChangeZoneMode(wrapper, value),
-                              textBuilder: (value) => Text(
-                                wrapper.mode.name.capitalize,
-                                style: context.textTheme.titleSmall,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ListTile(
+                                  title: Text("Zona ${idx + 1}"),
+                                  // onTap: () => onChangeZoneMode(wrapper, !wrapper.isStereo),
+                                  leading: const Icon(Icons.home_filled),
+                                  trailing: AnimatedToggleSwitch.dual(
+                                    current: wrapper.isStereo,
+                                    first: true,
+                                    second: false,
+                                    onChanged: (value) => onChangeZoneMode(wrapper, value),
+                                    textBuilder: (value) => Text(
+                                      wrapper.mode.name.capitalize,
+                                      style: context.textTheme.titleSmall,
+                                    ),
+                                    height: 40,
+                                    indicatorSize: const Size.square(38),
+                                    iconBuilder: (value) => Icon(
+                                      value ? Icons.multitrack_audio_rounded : Icons.speaker_rounded,
+                                      color: context.colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              height: 40,
-                              indicatorSize: const Size.square(38),
-                              iconBuilder: (value) => Icon(
-                                value ? Icons.multitrack_audio_rounded : Icons.speaker_rounded,
-                                color: context.colorScheme.onPrimary,
+                              Padding(
+                                padding: const EdgeInsets.only(right: 12.0),
+                                child: IconButton(
+                                  icon: const Column(
+                                    children: [
+                                      Icon(Icons.volume_up_rounded),
+                                      Text("MÁX"),
+                                    ],
+                                  ),
+                                  onPressed: () => onEdtiMaxVolume(wrapper),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                           AnimatedSize(
                             duration: Durations.medium2,
@@ -103,11 +121,6 @@ class ZonesExpandableCard extends StatelessWidget {
                                       isEditing: editingWrapper.id == wrapper.id && isEditing,
                                       onChangeZoneName: onChangeZoneName,
                                       toggleEditing: toggleEditingZone,
-                                      maxVolume: wrapper.stereoZone.maxVolume,
-                                      onTapEditMaxVolume: () => onEdtiMaxVolume(
-                                        wrapper,
-                                        wrapper.stereoZone,
-                                      ),
                                     ),
                                   ),
                                   Visibility(
@@ -120,11 +133,6 @@ class ZonesExpandableCard extends StatelessWidget {
                                       isEditing: editingZone.id == wrapper.monoZones.left.id && isEditing,
                                       onChangeZoneName: onChangeZoneName,
                                       toggleEditing: toggleEditingZone,
-                                      maxVolume: wrapper.monoZones.left.maxVolume,
-                                      onTapEditMaxVolume: () => onEdtiMaxVolume(
-                                        wrapper,
-                                        wrapper.monoZones.left,
-                                      ),
                                     ),
                                   ),
                                   8.asSpace,
@@ -138,11 +146,6 @@ class ZonesExpandableCard extends StatelessWidget {
                                       isEditing: editingZone.id == wrapper.monoZones.right.id && isEditing,
                                       onChangeZoneName: onChangeZoneName,
                                       toggleEditing: toggleEditingZone,
-                                      maxVolume: wrapper.monoZones.right.maxVolume,
-                                      onTapEditMaxVolume: () => onEdtiMaxVolume(
-                                        wrapper,
-                                        wrapper.monoZones.right,
-                                      ),
                                     ),
                                   ),
                                 ],

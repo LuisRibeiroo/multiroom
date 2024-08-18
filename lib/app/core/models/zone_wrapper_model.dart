@@ -122,6 +122,9 @@ class ZoneWrapperModel extends Equatable {
   bool get isStereo => mode == ZoneMode.stereo;
   List<ZoneModel> get zones => isStereo ? [stereoZone] : [monoZones.left, monoZones.right];
 
+  int get maxVolumeRight => isStereo ? stereoZone.maxVolumeRight : monoZones.right.maxVolumeRight;
+  int get maxVolumeLeft => isStereo ? stereoZone.maxVolumeLeft : monoZones.left.maxVolumeLeft;
+
   @override
   List<Object?> get props => [
         id,

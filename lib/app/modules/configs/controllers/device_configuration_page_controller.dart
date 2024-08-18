@@ -32,7 +32,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   final isEditingZone = false.toSignal(debugLabel: "isEditingZone");
   final isEditingGroup = false.toSignal(debugLabel: "isEditingGroup");
   final availableZones = listSignal([], debugLabel: "availableZones");
-  final maxVolume = 100.toSignal(debugLabel: "maxVolume");
+  final maxVolumeL = 100.toSignal(debugLabel: "maxVolumeR");
+  final maxVolumeR = 100.toSignal(debugLabel: "maxVolumeL");
 
   Future<void> init({required DeviceModel dev}) async {
     device.value = dev;
@@ -238,14 +239,21 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     await _updateDeviceData();
   }
 
-  Future<void> onSetMaxVolume(ZoneWrapperModel wrapper, ZoneModel zone) async {
-    final newZone = zone.isStereo
-        ? zone.copyWith(maxVolumeRight: maxVolume.value)
-        : zone.side == MonoSide.right
-            ? zone.copyWith(maxVolumeRight: maxVolume.value)
-            : zone.copyWith(maxVolumeLeft: maxVolume.value);
-
-    editingWrapper.value = wrapper.copyWith(zone: newZone);
+  Future<void> onSetMaxVolume(ZoneWrapperModel wrapper) async {
+    editingWrapper.value = wrapper.copyWith(
+      zone: wrapper.isStereo
+          ? wrapper.stereoZone.copyWith(
+              maxVolumeRight: maxVolumeR.value,
+              maxVolumeLeft: maxVolumeL.value,
+            )
+          : null,
+      monoZones: wrapper.isStereo
+          ? null
+          : wrapper.monoZones.copyWith(
+              left: wrapper.monoZones.left.copyWith(maxVolumeLeft: maxVolumeL.value),
+              right: wrapper.monoZones.right.copyWith(maxVolumeRight: maxVolumeR.value),
+            ),
+    );
 
     device.value = device.peek().copyWith(
           zoneWrappers: device.peek().zoneWrappers.withReplacement(
@@ -256,11 +264,14 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     try {
       await socketSender(MrCmdBuilder.setMaxVolume(
-        zone: zone,
-        volumePercent: maxVolume.value,
+        zone: wrapper.monoZones.left,
+        volumePercent: maxVolumeL.value,
       ));
 
-      maxVolume.value = maxVolume.initialValue;
+      await socketSender(MrCmdBuilder.setMaxVolume(
+        zone: wrapper.monoZones.right,
+        volumePercent: maxVolumeR.value,
+      ));
     } catch (exception) {
       setError(Exception("Erro ao definir volume máximo --> $exception"));
     }
@@ -495,7 +506,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     isEditingDevice.value = isEditingDevice.initialValue;
     isEditingZone.value = isEditingZone.initialValue;
     isEditingGroup.value = isEditingGroup.initialValue;
-    maxVolume.value = maxVolume.initialValue;
+    maxVolumeL.value = maxVolumeL.initialValue;
+    maxVolumeR.value = maxVolumeR.initialValue;
 
     availableZones.value = <ZoneModel>[];
   }
