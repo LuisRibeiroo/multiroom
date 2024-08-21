@@ -26,7 +26,8 @@ abstract final class MrCmdBuilder {
     return configs..removeNulls();
   }
 
-  static int fromDbToPercent(String value) => (4.25 * (double.parse(value.numbersOnly) / 100) + 117).toInt();
+  static int fromDbToPercent(String value) =>
+      (4.25 * ((double.tryParse(value.numbersOnly) ?? -400.00) / 100) + 117).toInt();
 
   static int fromPercentToDb(int value) => (((value - 117) / 4.25) * 100).truncate();
 

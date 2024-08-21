@@ -32,8 +32,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   final isEditingZone = false.toSignal(debugLabel: "isEditingZone");
   final isEditingGroup = false.toSignal(debugLabel: "isEditingGroup");
   final availableZones = listSignal([], debugLabel: "availableZones");
-  final maxVolumeL = 100.toSignal(debugLabel: "maxVolumeR");
-  final maxVolumeR = 100.toSignal(debugLabel: "maxVolumeL");
+  final maxVolumeL = 100.toSignal(debugLabel: "maxVolumeL");
+  final maxVolumeR = 100.toSignal(debugLabel: "maxVolumeR");
 
   Future<void> init({required DeviceModel dev}) async {
     device.value = dev;
