@@ -87,6 +87,7 @@ class HomePageController extends BaseController with SocketMixin {
   final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
   final hasMultipleProjects = false.toSignal(debugLabel: "hasMultipleProjects");
   final expandedMode = true.toSignal(debugLabel: "expandedMode");
+  final generalError = false.toSignal(debugLabel: "generalError");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
 
@@ -105,11 +106,8 @@ class HomePageController extends BaseController with SocketMixin {
         await _updateAllDeviceData(zone);
       }
     } catch (exception) {
-      if (exception is Exception) {
-        setError(exception);
-      } else {
-        setError(Exception(exception));
-      }
+      logger.e(exception);
+      setError(Exception("Erro ao enviar comando"));
     }
   }
 
@@ -281,7 +279,8 @@ class HomePageController extends BaseController with SocketMixin {
             (g) => g.id == group!.id,
             updatedGroup!,
           );
-    final updatedWrapper = currentDevice.value.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId).copyWith(zone: updatedZone);
+    final updatedWrapper =
+        currentDevice.value.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId).copyWith(zone: updatedZone);
 
     final updatedWrappers = currentDevice.value.zoneWrappers.withReplacement(
       (w) => w.id == updatedWrapper.id,
@@ -322,11 +321,10 @@ class HomePageController extends BaseController with SocketMixin {
         await restartSocket(ip: currentDevice.value.ip);
         await _updateAllDeviceData(currentZone.value);
       } catch (exception) {
-        if (exception is Exception) {
-          setError(exception);
-        } else {
-          setError(Exception(exception));
-        }
+        generalError.value = true;
+
+        logger.e(exception);
+        setError(Exception("Erro iniciar comunicação com o Multiroom"));
       }
     });
   }
@@ -336,7 +334,9 @@ class HomePageController extends BaseController with SocketMixin {
       try {
         await socketSender(cmd);
       } catch (exception) {
-        setError(Exception("Erro no comando [$cmd] --> $exception"));
+        logger.e("Erro no comando [$cmd] --> $exception");
+        // setError(Exception("Erro no comando [$cmd] --> $exception"));
+        setError(Exception("Erro ao enviar comando"));
 
         if (exception.toString().contains("Bad state")) {
           await restartSocket(ip: currentDevice.value.ip);
@@ -443,8 +443,6 @@ class HomePageController extends BaseController with SocketMixin {
     );
 
     _updateProject(zone: currentZone.value);
-
-    // currentDevice.value = currentDevice.value.copyWith(zoneWrappers: _getUpdatedZones(currentZone.value));
   }
 
   @override
@@ -459,5 +457,6 @@ class HomePageController extends BaseController with SocketMixin {
     currentZone.value = currentZone.initialValue;
     currentEqualizer.value = currentEqualizer.initialValue;
     expandedMode.value = expandedMode.initialValue;
+    generalError.value = generalError.initialValue;
   }
 }

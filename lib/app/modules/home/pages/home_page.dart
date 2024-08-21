@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
@@ -10,6 +12,7 @@ import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/channel_model.dart';
 import '../../../core/models/zone_model.dart';
+import '../../../core/widgets/error_dialog.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../../core/widgets/selectable_list_view.dart';
 import '../../shared/pages/options_bottom_sheet.dart';
@@ -161,6 +164,26 @@ class _HomePageState extends State<HomePage> {
     }
 
     return tiles;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    scheduleMicrotask(() {
+      _controller.disposables.add(
+        effect(() async {
+          if (_controller.generalError.value) {
+            await ErrorDialog.show(
+              context: context,
+              pageState: _controller.state,
+              currentIp: _controller.currentDevice.value.ip,
+              onSuccess: () => _controller.generalError.value = false,
+            );
+          }
+        }),
+      );
+    });
   }
 
   @override
