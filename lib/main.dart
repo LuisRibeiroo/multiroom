@@ -22,7 +22,7 @@ void main() async {
   if (Platform.isAndroid == false && Platform.isIOS == false) {
     await windowManager.ensureInitialized();
 
-    const size = Size(800, 930);
+    const size = Size(700, 830);
     WindowOptions windowOptions = const WindowOptions(
       size: size,
       maximumSize: size,
