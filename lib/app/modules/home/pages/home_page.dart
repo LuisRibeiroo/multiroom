@@ -174,6 +174,7 @@ class _HomePageState extends State<HomePage> {
           }
         },
         child: LoadingOverlay(
+          key: const ValueKey("HomePage_Key"),
           state: _controller.state,
           currentIp: _controller.currentDevice.value.ip,
           child: Scaffold(

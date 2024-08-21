@@ -17,7 +17,7 @@ final injector = AutoInjector(
     i.addLazySingleton(HomePageController.new);
     i.add(EditChannelsPageController.new);
     i.add(EditZonesPageController.new);
-    i.addLazySingleton(LoadingOverlayController.new);
+    i.add(LoadingOverlayController.new);
     i.addLazySingleton(ConfigsPageController.new);
     i.addLazySingleton(ScannerPageController.new);
     i.addLazySingleton(DeviceConfigurationPageController.new);
