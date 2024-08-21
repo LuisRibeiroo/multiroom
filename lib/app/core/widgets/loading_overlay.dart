@@ -130,7 +130,7 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
             _controller.incrementErrorCounter();
           });
 
-          if (_controller.errorCounter.peek() > 2) {
+          if (_controller.errorCounter.peek() > 1) {
             _showDialog();
             return;
           }
