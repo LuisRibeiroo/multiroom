@@ -1,5 +1,3 @@
-import '../models/zone_group_model.dart';
-
 import '../enums/device_type.dart';
 import '../enums/multiroom_commands.dart';
 import '../enums/zone_mode.dart';
@@ -7,6 +5,7 @@ import '../extensions/map_extensions.dart';
 import '../extensions/string_extensions.dart';
 import '../models/channel_model.dart';
 import '../models/frequency.dart';
+import '../models/zone_group_model.dart';
 import '../models/zone_model.dart';
 import '../models/zone_wrapper_model.dart';
 
@@ -30,8 +29,6 @@ abstract final class MrCmdBuilder {
       (4.25 * ((double.tryParse(value.numbersOnly) ?? -400.00) / 100) + 117).toInt();
 
   static int fromPercentToDb(int value) => (((value - 117) / 4.25) * 100).truncate();
-
-  static String get configs => MultiroomCommands.mrCfgShow.value;
 
   static String get params => MultiroomCommands.mrParShow.value;
 
@@ -115,9 +112,9 @@ abstract final class MrCmdBuilder {
       "${MultiroomCommands.mrEqSet.value},${zone.id},${frequency.id},${gain * 10}";
 
   static String getGroup({
-    required ZoneGroupModel group,
+    required int groupId,
   }) =>
-      "${MultiroomCommands.mrGroupGet.value},${group.id.numbersOnly}";
+      "${MultiroomCommands.mrGroupGet.value},$groupId";
 
   static String setGroup({
     required ZoneGroupModel group,

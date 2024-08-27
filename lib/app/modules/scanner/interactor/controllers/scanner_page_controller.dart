@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:udp/udp.dart';
@@ -194,11 +195,12 @@ class ScannerPageController extends BaseController with SocketMixin {
       serialNumber: netDevice.serialNumber,
       version: netDevice.firmware,
       name: deviceType.value.readable,
-      // type: DeviceType.fromString(deviceType.value.name.lettersOnly),
       type: DeviceType.fromString(type),
     );
 
     _updateProject(newDevice);
+
+    await Future.delayed(Durations.long2);
     onTapConfigDevice(newDevice);
 
     deviceType.value = deviceType.initialValue;

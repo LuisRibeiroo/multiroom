@@ -14,7 +14,6 @@ enum MultiroomCommands {
   mrPwrGet(value: "mr_power_get"),
 
   /// --> Technician commands
-  mrCfgShow(value: "mr_cfg_show"),
   mrCfgDefaultSet(value: "mr_cfg_default_set"),
   mrExpModeGet(value: "mr_exp_mode_get"),
   mrExpModeSet(value: "mr_exp_mode_set"),

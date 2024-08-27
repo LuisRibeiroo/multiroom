@@ -7,7 +7,6 @@ import '../../../../injector.dart';
 import '../../../core/enums/mono_side.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/enums/zone_mode.dart';
-import '../../../core/extensions/iterable_extensions.dart';
 import '../../../core/extensions/list_extensions.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
 import '../../../core/interactor/controllers/socket_mixin.dart';
@@ -278,14 +277,9 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   Future<void> _updateDeviceData() async {
-    final configs = await _getDeviceData();
-
     device.value = device.peek().copyWith(
-          zoneWrappers: await _parseZones(configs),
-        );
-
-    device.value = device.peek().copyWith(
-          groups: _parseGroups(configs),
+          zoneWrappers: await _getZones(),
+          groups: await _getGroups(),
         );
   }
 
@@ -328,67 +322,18 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
   }
 
-  Future<Map<String, String>> _getDeviceData() async {
-    try {
-      final configs = MrCmdBuilder.parseConfigs(
-        await socketSender(
-          MrCmdBuilder.configs,
-          longRet: true,
-        ),
-      );
-
-      return configs;
-    } catch (exception) {
-      logger.e(exception);
-      setError(exception as Exception);
-
-      rethrow;
-    }
-  }
-
-  Future<List<ZoneWrapperModel>> _parseZones(Map<String, String> configs) async {
-    if (configs.entries.isNullOrEmpty) {
-      return <ZoneWrapperModel>[];
-    }
+  Future<List<ZoneWrapperModel>> _getZones() async {
+    final zonesList = <ZoneWrapperModel>[];
 
     try {
-      final modes = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("MODE"));
-      final zonesList = <ZoneWrapperModel>[];
-
-      for (final mode in modes) {
-        ZoneWrapperModel wrapper = device.value.zoneWrappers.isEmpty
-            ? switch (mode.key) {
-                "MODE1" => ZoneWrapperModel.builder(index: 1, name: "Zona 1"),
-                "MODE2" => ZoneWrapperModel.builder(index: 2, name: "Zona 2"),
-                "MODE3" => ZoneWrapperModel.builder(index: 3, name: "Zona 3"),
-                "MODE4" => ZoneWrapperModel.builder(index: 4, name: "Zona 4"),
-                "MODE5" => ZoneWrapperModel.builder(index: 5, name: "Zona 5"),
-                "MODE6" => ZoneWrapperModel.builder(index: 6, name: "Zona 6"),
-                "MODE7" => ZoneWrapperModel.builder(index: 7, name: "Zona 7"),
-                "MODE8" => ZoneWrapperModel.builder(index: 8, name: "Zona 8"),
-                _ => ZoneWrapperModel.empty(),
-              }
-            : switch (mode.key) {
-                "MODE1" => device.value.zoneWrappers[0],
-                "MODE2" => device.value.zoneWrappers[1],
-                "MODE3" => device.value.zoneWrappers[2],
-                "MODE4" => device.value.zoneWrappers[3],
-                "MODE5" => device.value.zoneWrappers[4],
-                "MODE6" => device.value.zoneWrappers[5],
-                "MODE7" => device.value.zoneWrappers[6],
-                "MODE8" => device.value.zoneWrappers[7],
-                _ => ZoneWrapperModel.empty(),
-              };
-
-        if (wrapper.isEmpty) {
-          continue;
-        }
+      for (final wrapper in device.value.zoneWrappers) {
+        final mode = MrCmdBuilder.parseResponse(await socketSender(MrCmdBuilder.getZoneMode(zone: wrapper.stereoZone)));
 
         final maxVolR = await _getZoneMaxVol(wrapper.monoZones.right);
         final maxVolL = await _getZoneMaxVol(wrapper.monoZones.left);
 
-        wrapper = wrapper.copyWith(
-          mode: mode.value.toUpperCase() == "STEREO" ? ZoneMode.stereo : ZoneMode.mono,
+        final setWrapper = wrapper.copyWith(
+          mode: mode.toUpperCase() == "STEREO" ? ZoneMode.stereo : ZoneMode.mono,
           zone: wrapper.stereoZone.copyWith(
             maxVolumeRight: MrCmdBuilder.fromDbToPercent(maxVolR),
           ),
@@ -402,7 +347,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
           ),
         );
 
-        zonesList.add(wrapper);
+        zonesList.add(setWrapper);
       }
 
       return zonesList;
@@ -413,45 +358,35 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
   }
 
-  List<ZoneGroupModel> _parseGroups(Map<String, String> configs) {
-    if (configs.entries.isNullOrEmpty) {
-      return <ZoneGroupModel>[];
-    }
-
+  Future<List<ZoneGroupModel>> _getGroups() async {
     try {
-      final grps = configs.entries.where((entry) => entry.key.toUpperCase().startsWith("GRP"));
-
+      final zonesMap = <int, List<ZoneModel>>{
+        1: [],
+        2: [],
+        3: [],
+      };
       final List<ZoneModel> zonesList = List.from(device.peek().zones);
 
-      final zonesMap = <String, List<ZoneModel>>{
-        "G1": [],
-        "G2": [],
-        "G3": [],
-      };
+      for (final grp in zonesMap.keys) {
+        final zones = MrCmdBuilder.parseResponse(
+          await socketSender(
+            longRet: true,
+            MrCmdBuilder.getGroup(groupId: grp),
+          ),
+        );
 
-      for (final grp in grps) {
-        if (grp.value.contains("null")) {
+        if (zones.toLowerCase().contains("null")) {
           continue;
         }
 
-        final zone = zonesList.getZoneById(grp.value);
+        for (final z in zones.split(",")) {
+          final zone = zonesList.getZoneById(z);
 
-        if (zone == null) {
-          continue;
-        }
+          if (zone == null) {
+            continue;
+          }
 
-        switch (grp.key) {
-          case _ when grp.key.startsWith("GRP[1]"):
-            zonesMap["G1"]!.addIfAbsent(zone);
-            break;
-
-          case _ when grp.key.startsWith("GRP[2]"):
-            zonesMap["G2"]!.addIfAbsent(zone);
-            break;
-
-          case _ when grp.key.startsWith("GRP[3]"):
-            zonesMap["G3"]!.addIfAbsent(zone);
-            break;
+          zonesMap[grp].addIfAbsent(zone);
         }
       }
 
@@ -482,7 +417,6 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       );
 
       final parsedResponse = response.split(",").first.substring(response.indexOf("=") + 1);
-      logger.d("RESPONSE >>> $response | PARSED <<< $parsedResponse");
 
       return parsedResponse;
     } catch (exception) {
