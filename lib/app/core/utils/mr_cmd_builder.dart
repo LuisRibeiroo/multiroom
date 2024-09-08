@@ -34,6 +34,8 @@ abstract final class MrCmdBuilder {
 
   static String get expansionMode => MultiroomCommands.mrExpModeGet.value;
 
+  static String get firmwareVersion => MultiroomCommands.mrFirmwareGet.value;
+
   static String get setDefaultConfigs => MultiroomCommands.mrCfgDefaultSet.value;
 
   static String get setDefaultParams => MultiroomCommands.mrParDefaultSet.value;

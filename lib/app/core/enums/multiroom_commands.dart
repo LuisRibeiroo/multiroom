@@ -22,7 +22,8 @@ enum MultiroomCommands {
   mrGroupSet(value: "mr_group_set"),
   mrZoneModeSet(value: "mr_zone_mode_set"),
   mrVolMaxSet(value: "mr_lim_set"),
-  mrVolMaxGet(value: "mr_lim_get");
+  mrVolMaxGet(value: "mr_lim_get"),
+  mrFirmwareGet(value: "get_firmware_version");
 
   const MultiroomCommands({required this.value});
 

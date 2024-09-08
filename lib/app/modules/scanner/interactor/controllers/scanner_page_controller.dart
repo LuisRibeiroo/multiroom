@@ -68,9 +68,8 @@ class ScannerPageController extends BaseController with SocketMixin {
           }
         }),
         effect(() async {
+          await _updateDevicesAvailabilityAndFirmware();
           _localDevices.value = projects.value.expand((p) => p.devices).toList();
-
-          _updateDevicesAvailability();
         }),
         effect(() {
           if (isUdpListening.value) {
@@ -229,15 +228,27 @@ class ScannerPageController extends BaseController with SocketMixin {
     projects.value = settings.projects;
   }
 
-  Future<void> _updateDevicesAvailability() async {
-    for (final d in _localDevices) {
-      try {
-        await restartSocket(ip: d.ip);
-        await socketSender(MrCmdBuilder.expansionMode);
+  Future<void> _updateDevicesAvailabilityAndFirmware() async {
+    for (final proj in projects.value) {
+      for (final d in proj.devices) {
+        try {
+          await restartSocket(ip: d.ip);
+          final fw = MrCmdBuilder.parseResponse(await socketSender(MrCmdBuilder.firmwareVersion));
 
-        devicesAvailability[d.serialNumber] = true;
-      } catch (exception) {
-        devicesAvailability[d.serialNumber] = false;
+          final newDevices = proj.devices.withReplacement(
+            (device) => device.serialNumber == d.serialNumber,
+            d.copyWith(version: fw),
+          );
+
+          projects.value.replaceWhere(
+            (p) => p.id == proj.id,
+            proj.copyWith(devices: newDevices),
+          );
+
+          devicesAvailability[d.serialNumber] = true;
+        } catch (exception) {
+          devicesAvailability[d.serialNumber] = false;
+        }
       }
     }
   }

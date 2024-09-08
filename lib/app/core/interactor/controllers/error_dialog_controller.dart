@@ -16,7 +16,7 @@ class ErrorDialogController extends BaseController with SocketMixin {
 
     try {
       await restartSocket(ip: currentIp);
-      await socketSender(MrCmdBuilder.expansionMode);
+      await socketSender(MrCmdBuilder.firmwareVersion);
 
       pageState.value = InitialState();
 
