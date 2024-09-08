@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/extensions/build_context_extensions.dart';
 import '../../core/extensions/number_extensions.dart';
+import '../shared/pages/options_bottom_sheet.dart';
 
 class AboutBottomSheet extends StatefulWidget {
   const AboutBottomSheet({super.key});
@@ -38,15 +39,24 @@ class _AboutBottomSheetState extends State<AboutBottomSheet> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Stack(
           children: [
-            Expanded(
+            Align(
+              alignment: Alignment.center,
               child: Image.asset(
                 "assets/logo_completo.png",
                 height: 48.0,
               ),
             ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                padding: const EdgeInsets.only(right: 24.0),
+                
+                icon: const Icon(Icons.settings_rounded),
+                onPressed: () => OptionsMenu.showTechBottomSheet(context),
+              ),
+            )
           ],
         ),
         Text(
