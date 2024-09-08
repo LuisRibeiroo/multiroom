@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:udp/udp.dart';
@@ -87,6 +88,8 @@ class ScannerPageController extends BaseController with SocketMixin {
   }
 
   Future<void> startUdpServer() async {
+    await Permission.nearbyWifiDevices.request();
+
     if (isUdpListening.value) {
       return;
     }
