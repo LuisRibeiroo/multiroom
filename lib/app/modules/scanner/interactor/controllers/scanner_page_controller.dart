@@ -240,7 +240,7 @@ class ScannerPageController extends BaseController with SocketMixin {
 
           final newDevices = proj.devices.withReplacement(
             (device) => device.serialNumber == d.serialNumber,
-            d.copyWith(version: fw),
+            d.copyWith(version: fw.numbersOnly.isNotNullOrEmpty ? fw : d.version),
           );
 
           projects.value.replaceWhere(
