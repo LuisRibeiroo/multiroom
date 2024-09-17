@@ -133,5 +133,5 @@ abstract final class MrCmdBuilder {
     required ZoneModel zone,
     required int volumePercent,
   }) =>
-      "${MultiroomCommands.mrVolMaxSet.value},${zone.id},${MrCmdBuilder.fromPercentToDb(volumePercent)},100000,2000";
+      "${MultiroomCommands.mrVolMaxSet.value},${zone.id},$volumePercent";
 }

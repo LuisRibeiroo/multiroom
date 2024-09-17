@@ -335,14 +335,14 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         final setWrapper = wrapper.copyWith(
           mode: mode.toUpperCase() == "STEREO" ? ZoneMode.stereo : ZoneMode.mono,
           zone: wrapper.stereoZone.copyWith(
-            maxVolumeRight: MrCmdBuilder.fromDbToPercent(maxVolR),
+            maxVolumeRight: maxVolR,
           ),
           monoZones: wrapper.monoZones.copyWith(
             right: wrapper.monoZones.right.copyWith(
-              maxVolumeRight: MrCmdBuilder.fromDbToPercent(maxVolR),
+              maxVolumeRight: maxVolR,
             ),
             left: wrapper.monoZones.left.copyWith(
-              maxVolumeLeft: MrCmdBuilder.fromDbToPercent(maxVolL),
+              maxVolumeLeft: maxVolL,
             ),
           ),
         );
@@ -410,20 +410,20 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
   }
 
-  Future<String> _getZoneMaxVol(ZoneModel zone) async {
+  Future<int> _getZoneMaxVol(ZoneModel zone) async {
     try {
-      final response = await socketSender(
-        MrCmdBuilder.getMaxVolume(zone: zone),
+      final response = MrCmdBuilder.parseResponse(
+        await socketSender(
+          MrCmdBuilder.getMaxVolume(zone: zone),
+        ),
       );
 
-      final parsedResponse = response.split(",").first.substring(response.indexOf("=") + 1);
-
-      return parsedResponse;
+      return int.parse(response);
     } catch (exception) {
       logger.e(exception);
       setError(exception as Exception);
 
-      return "";
+      return 100;
     }
   }
 
