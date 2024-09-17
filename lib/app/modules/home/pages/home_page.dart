@@ -227,10 +227,6 @@ class _HomePageState extends State<HomePage> {
                     onChanged: (_) => _controller.toggleExpandedMode(),
                     height: 32,
                     indicatorSize: const Size.fromWidth(26),
-                    // textBuilder: (value) => Text(
-                    //   value ? "Full" : "Resumo",
-                    //   style: context.textTheme.titleSmall,
-                    // ),
                     iconBuilder: (value) => Icon(
                       value ? Icons.zoom_out_map_rounded : Icons.zoom_in_map_rounded,
                       color: context.colorScheme.onPrimary,
@@ -239,14 +235,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 8.asSpace,
-                // AnimatedSwitcher(
-                //   duration: Durations.short4,
-                //   child: IconButton(
-                //     key: ValueKey(_controller.expandedMode.value),
-                //     onPressed: _controller.toggleExpandedMode,
-                //     icon: Icon(_controller.expandedMode.value ? Icons.unfold_less_rounded : Icons.unfold_more_rounded),
-                //   ),
-                // ),
                 IconButton(
                   onPressed: () => OptionsMenu.showOptionsBottomSheet(
                     context,

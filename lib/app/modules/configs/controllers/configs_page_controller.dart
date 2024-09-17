@@ -19,6 +19,11 @@ class ConfigsPageController extends BaseController {
     projects.value = settings.projects;
   }
 
+  void removeProject(ProjectModel project) {
+    settings.removeProject(project.id);
+    projects.value = settings.projects;
+  }
+
   @override
   void dispose() {
     super.dispose();

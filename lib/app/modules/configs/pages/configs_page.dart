@@ -59,7 +59,7 @@ class _ConfigsPageState extends State<ConfigsPage> {
                     deviceAvailabilityMap: const {},
                     showAvailability: false,
                     onTapConfigDevice: (d) => OptionsMenu.showTechBottomSheet(context, device: d),
-                    onTapRemoveProject: null,
+                    onTapRemoveProject: _controller.removeProject,
                   ),
                 ),
               ),

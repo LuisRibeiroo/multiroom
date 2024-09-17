@@ -36,7 +36,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     disposables.addAll([
       effect(() {
-        if (projects.isEmpty) {
+        if (projects.isEmpty || currentProject.value.devices.isEmpty) {
           Routefly.replace(routePaths.modules.configs.pages.configs);
           Routefly.pushNavigate(routePaths.modules.configs.pages.configs);
         }
