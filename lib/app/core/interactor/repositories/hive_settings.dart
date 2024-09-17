@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import 'package:logger/logger.dart';
 
 import '../../extensions/list_extensions.dart';
 import '../../models/device_model.dart';
@@ -12,12 +11,12 @@ class HiveSettings implements SettingsContract {
   }) : _box = box;
 
   Box _box;
-  final _logger = Logger(
-    printer: SimplePrinter(
-      printTime: true,
-      colors: false,
-    ),
-  );
+  // final _logger = Logger(
+  //   printer: SimplePrinter(
+  //     printTime: true,
+  //     colors: false,
+  //   ),
+  // );
 
   @override
   void updateReference(dynamic newRef) => _box = newRef as Box;
