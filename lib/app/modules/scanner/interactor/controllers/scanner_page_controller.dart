@@ -237,10 +237,11 @@ class ScannerPageController extends BaseController with SocketMixin {
         try {
           await restartSocket(ip: d.ip);
           final fw = MrCmdBuilder.parseResponse(await socketSender(MrCmdBuilder.firmwareVersion));
+          final formatted = "${fw.substring(0, 2)}.${fw.substring(2)}";
 
           final newDevices = proj.devices.withReplacement(
             (device) => device.serialNumber == d.serialNumber,
-            d.copyWith(version: fw.numbersOnly.isNotNullOrEmpty ? fw : d.version),
+            d.copyWith(version: formatted.numbersOnly.isNotNullOrEmpty ? formatted : d.version),
           );
 
           projects.value.replaceWhere(
