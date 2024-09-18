@@ -50,11 +50,12 @@ class _AboutBottomSheetState extends State<AboutBottomSheet> {
             ),
             Align(
               alignment: Alignment.centerRight,
-              child: IconButton(
+              child: Padding(
                 padding: const EdgeInsets.only(right: 24.0),
-                
-                icon: const Icon(Icons.settings_rounded),
-                onPressed: () => OptionsMenu.showTechBottomSheet(context),
+                child: IconButton(
+                  icon: const Icon(Icons.settings_rounded),
+                  onPressed: () => OptionsMenu.showTechBottomSheet(context),
+                ),
               ),
             )
           ],
