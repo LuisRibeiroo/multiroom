@@ -40,6 +40,7 @@ class SummaryZonesList extends StatelessWidget {
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: zones.length,
+                physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
                   final zone = zones[index];
 
