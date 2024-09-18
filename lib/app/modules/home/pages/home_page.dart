@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
@@ -29,8 +28,9 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   final _controller = injector.get<HomePageController>();
+  late TabController _tabControler;
 
   void _showDevicesBottomSheet() {
     context.showCustomModalBottomSheet(
@@ -170,6 +170,11 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
+    _tabControler = TabController(
+      vsync: this,
+      length: 2,
+    );
+
     scheduleMicrotask(() {
       _controller.disposables.add(
         effect(() async {
@@ -219,22 +224,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               actions: [
-                SizedBox(
-                  width: 72,
-                  child: AnimatedToggleSwitch.dual(
-                    current: _controller.expandedMode.value,
-                    first: false, second: true,
-                    onChanged: (_) => _controller.toggleExpandedMode(),
-                    height: 32,
-                    indicatorSize: const Size.fromWidth(26),
-                    iconBuilder: (value) => Icon(
-                      value ? Icons.zoom_out_map_rounded : Icons.zoom_in_map_rounded,
-                      color: context.colorScheme.onPrimary,
-                      size: 20,
-                    ),
-                  ),
-                ),
-                8.asSpace,
                 IconButton(
                   onPressed: () => OptionsMenu.showOptionsBottomSheet(
                     context,
@@ -243,49 +232,75 @@ class _HomePageState extends State<HomePage> {
                   icon: const Icon(Icons.more_vert_rounded),
                 ),
               ],
+              bottom: TabBar(
+                indicatorSize: TabBarIndicatorSize.tab,
+                controller: _tabControler,
+                tabs: const [
+                  Tab(
+                    height: 48,
+                    text: 'Resumo',
+                    icon: Icon(Icons.zoom_out),
+                  ),
+                  Tab(
+                    height: 48,
+                    text: 'Detalhe',
+                    icon: Icon(Icons.zoom_in),
+                  ),
+                ],
+              ),
             ),
             body: SafeArea(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
-                  child: AnimatedSwitcher(
-                    key: ValueKey("Switcher${_controller.expandedMode.value}"),
-                    duration: Durations.short4,
-                    child: _controller.expandedMode.value
-                        ? Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              DeviceInfoHeader(
-                                showProjectsButton: _controller.hasMultipleProjects.value,
-                                project: _controller.currentProject.value,
-                                deviceName: _controller.currentDevice.value.name,
-                                currentZone: _controller.currentZone.value,
-                                currentChannel: _controller.currentZone.value.channel,
-                                onChangeActive: _controller.setZoneActive,
-                                onChangeDevice: _showDevicesBottomSheet,
-                                onChangeChannel: _showChannelsBottomSheet,
-                                onChangeProject: _showProjectsBottomSheet,
-                              ),
-                              12.asSpace,
-                              ZoneControls(
-                                currentZone: _controller.currentZone.value,
-                                currentEqualizer: _controller.currentEqualizer.value,
-                                equalizers: _controller.equalizers.value,
-                                onChangeBalance: _controller.setBalance,
-                                onChangeVolume: _controller.setVolume,
-                                onUpdateFrequency: _controller.setFrequency,
-                                onChangeEqualizer: _showEqualizersBottomSheet,
-                              ),
-                            ],
-                          )
-                        : SummaryZonesList(
-                            zones: _controller.projectZones.value,
-                            onChangeActive: _controller.setZoneActive,
-                            onChangeChannel: _showChannelsBottomSheet,
-                            onChangeVolume: _controller.setVolume,
-                          ),
+              child: TabBarView(
+                controller: _tabControler,
+                children: [
+                  SingleChildScrollView(
+                    primary: true,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 18),
+                      child: SummaryZonesList(
+                        zones: _controller.projectZones.value,
+                        onChangeActive: _controller.setZoneActive,
+                        onChangeChannel: _showChannelsBottomSheet,
+                        onChangeVolume: _controller.setVolume,
+                        onTapZone: (zone) {
+                          _tabControler.animateTo(1);
+                          _controller.setCurrentZone(zone: zone);
+                        },
+                      ),
+                    ),
                   ),
-                ),
+                  SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 18),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DeviceInfoHeader(
+                            showProjectsButton: _controller.hasMultipleProjects.value,
+                            project: _controller.currentProject.value,
+                            deviceName: _controller.currentDevice.value.name,
+                            currentZone: _controller.currentZone.value,
+                            currentChannel: _controller.currentZone.value.channel,
+                            onChangeActive: _controller.setZoneActive,
+                            onChangeDevice: _showDevicesBottomSheet,
+                            onChangeChannel: _showChannelsBottomSheet,
+                            onChangeProject: _showProjectsBottomSheet,
+                          ),
+                          12.asSpace,
+                          ZoneControls(
+                            currentZone: _controller.currentZone.value,
+                            currentEqualizer: _controller.currentEqualizer.value,
+                            equalizers: _controller.equalizers.value,
+                            onChangeBalance: _controller.setBalance,
+                            onChangeVolume: _controller.setVolume,
+                            onUpdateFrequency: _controller.setFrequency,
+                            onChangeEqualizer: _showEqualizersBottomSheet,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

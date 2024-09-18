@@ -13,12 +13,14 @@ class SummaryZonesList extends StatelessWidget {
     required this.onChangeActive,
     required this.onChangeChannel,
     required this.onChangeVolume,
+    required this.onTapZone,
   });
 
   final List<ZoneModel> zones;
   final Function(bool, {ZoneModel? zone}) onChangeActive;
   final Function({ZoneModel? zone}) onChangeChannel;
   final Function(int, {ZoneModel? zone}) onChangeVolume;
+  final Function(ZoneModel zone) onTapZone;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,7 @@ class SummaryZonesList extends StatelessWidget {
 
                   return SummaryZoneControls(
                     zone: zone,
+                    onTapCard: onTapZone,
                     onChangeActive: (value) => onChangeActive(value, zone: zone),
                     onChangeChannel: () => onChangeChannel(zone: zone),
                     onChangeVolume: (value) => onChangeVolume(value, zone: zone),
