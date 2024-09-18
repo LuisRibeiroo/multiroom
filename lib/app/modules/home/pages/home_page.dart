@@ -239,12 +239,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   Tab(
                     height: 48,
                     text: 'Resumo',
-                    icon: Icon(Icons.zoom_out),
+                    icon: Icon(Icons.list_rounded),
                   ),
                   Tab(
                     height: 48,
                     text: 'Detalhe',
-                    icon: Icon(Icons.zoom_in),
+                    icon: Icon(Icons.search_rounded),
                   ),
                 ],
               ),
