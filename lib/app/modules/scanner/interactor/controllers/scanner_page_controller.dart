@@ -29,18 +29,18 @@ class ScannerPageController extends BaseController with SocketMixin {
 
   final settings = injector.get<SettingsContract>();
 
-  final isUdpListening = false.asSignal(debugLabel: "isUdpListening");
+  final isUdpListening = false.toSignal(debugLabel: "isUdpListening");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
   final networkDevices = listSignal<NetworkDeviceModel>([], debugLabel: "networkDevices");
-  final deviceType = NetworkDeviceType.undefined.asSignal(debugLabel: "deviceType");
-  final projectName = "".asSignal(debugLabel: "projectName");
-  final currentProject = ProjectModel.empty().asSignal(debugLabel: "currentProject");
-  final hasDevices = false.asSignal(debugLabel: "hasDevices");
+  final deviceType = NetworkDeviceType.undefined.toSignal(debugLabel: "deviceType");
+  final projectName = "".toSignal(debugLabel: "projectName");
+  final currentProject = ProjectModel.empty().toSignal(debugLabel: "currentProject");
+  final hasDevices = false.toSignal(debugLabel: "hasDevices");
 
-  final isMasterAvailable = true.asSignal(debugLabel: "isMasterAvailable");
-  final slave1Available = true.asSignal(debugLabel: "slave1Available");
-  final slave2Available = true.asSignal(debugLabel: "slave2Available");
-  final hasAvailableSlots = false.asSignal(debugLabel: "hasAvailableSlots");
+  final isMasterAvailable = true.toSignal(debugLabel: "isMasterAvailable");
+  final slave1Available = true.toSignal(debugLabel: "slave1Available");
+  final slave2Available = true.toSignal(debugLabel: "slave2Available");
+  final hasAvailableSlots = false.toSignal(debugLabel: "hasAvailableSlots");
 
   final _localDevices = listSignal(
     <DeviceModel>[],

@@ -19,8 +19,8 @@ class ImportDataPageController extends BaseController {
 
   final _settings = injector.get<SettingsContract>();
 
-  final code = "".asSignal(debugLabel: "code");
-  final isValidProjectId = false.asSignal(debugLabel: "isValidProjectId");
+  final code = "".toSignal(debugLabel: "code");
+  final isValidProjectId = false.toSignal(debugLabel: "isValidProjectId");
 
   Future<void> handleBarCode(String value) => _downloadAndUpdateFile(value);
 

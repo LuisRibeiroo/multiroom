@@ -11,9 +11,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final email = "".asSignal();
-  final password = "".asSignal();
-  final isLoading = false.asSignal();
+  final email = "".toSignal();
+  final password = "".toSignal();
+  final isLoading = false.toSignal();
 
   bool get isValidData => isValidEmail && password.value.isNotEmpty;
 

@@ -8,8 +8,8 @@ import 'socket_mixin.dart';
 class LoadingOverlayController extends BaseController with SocketMixin {
   LoadingOverlayController() : super(InitialState());
 
-  final errorCounter = 0.asSignal(debugLabel: "errorCounter");
-  final deviceAvailable = false.asSignal(debugLabel: "deviceAvailable");
+  final errorCounter = 0.toSignal(debugLabel: "errorCounter");
+  final deviceAvailable = false.toSignal(debugLabel: "deviceAvailable");
 
   void incrementErrorCounter() {
     errorCounter.value++;
