@@ -336,6 +336,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
           mode: mode.toUpperCase() == "STEREO" ? ZoneMode.stereo : ZoneMode.mono,
           zone: wrapper.stereoZone.copyWith(
             maxVolumeRight: maxVolR,
+            maxVolumeLeft: maxVolL,
           ),
           monoZones: wrapper.monoZones.copyWith(
             right: wrapper.monoZones.right.copyWith(
