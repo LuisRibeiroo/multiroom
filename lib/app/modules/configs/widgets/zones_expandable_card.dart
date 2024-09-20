@@ -1,4 +1,3 @@
-import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
@@ -8,6 +7,7 @@ import '../../../core/extensions/number_extensions.dart';
 import '../../../core/extensions/string_extensions.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/models/zone_wrapper_model.dart';
+import '../../../core/widgets/app_switch.dart';
 import 'zone_detail_edit_tile.dart';
 
 class ZonesExpandableCard extends StatelessWidget {
@@ -73,26 +73,19 @@ class ZonesExpandableCard extends StatelessWidget {
                                   title: Text("Zona ${idx + 1}"),
                                   // onTap: () => onChangeZoneMode(wrapper, !wrapper.isStereo),
                                   leading: const Icon(Icons.home_filled),
-                                  trailing: AnimatedToggleSwitch.dual(
-                                    current: wrapper.isStereo,
-                                    first: true,
-                                    second: false,
-                                    onChanged: (value) => onChangeZoneMode(wrapper, value),
-                                    textBuilder: (value) => Text(
-                                      wrapper.mode.name.capitalize,
-                                      style: context.textTheme.titleSmall,
-                                    ),
-                                    height: 40,
-                                    indicatorSize: const Size.square(38),
-                                    iconBuilder: (value) => Icon(
-                                      value ? Icons.multitrack_audio_rounded : Icons.speaker_rounded,
-                                      color: context.colorScheme.onPrimary,
-                                    ),
-                                  ),
                                 ),
                               ),
+                              AppSwitch(
+                                onChangeActive: (value) => onChangeZoneMode(wrapper, value),
+                                value: wrapper.isStereo,
+                                icons: (
+                                  onIcon: Icons.multitrack_audio_rounded,
+                                  offIcon: Icons.speaker_rounded,
+                                ),
+                                labels: (onLabel: wrapper.mode.name.capitalize, offLabel: wrapper.mode.name.capitalize),
+                              ),
                               Padding(
-                                padding: const EdgeInsets.only(right: 12.0),
+                                padding: const EdgeInsets.only(right: 12),
                                 child: IconButton(
                                   icon: const Column(
                                     children: [
@@ -102,7 +95,7 @@ class ZonesExpandableCard extends StatelessWidget {
                                   ),
                                   onPressed: () => onEdtiMaxVolume(wrapper),
                                 ),
-                              ),
+                              )
                             ],
                           ),
                           AnimatedSize(

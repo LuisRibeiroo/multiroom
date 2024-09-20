@@ -1,10 +1,10 @@
-import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_switch.dart';
 import 'slider_icons.dart';
 
 class SummaryZoneControls extends StatelessWidget {
@@ -43,21 +43,9 @@ class SummaryZoneControls extends StatelessWidget {
                       style: context.textTheme.bodyLarge,
                     ),
                   ),
-                  AnimatedToggleSwitch.dual(
-                    current: zone.active,
-                    first: false,
-                    second: true,
-                    onChanged: onChangeActive,
-                    height: 40,
-                    indicatorSize: const Size.square(38),
-                    textBuilder: (value) => Text(
-                      value ? "ON" : "OFF",
-                      style: context.textTheme.titleSmall,
-                    ),
-                    iconBuilder: (value) => Icon(
-                      value ? Icons.power_rounded : Icons.power_off_rounded,
-                      color: context.colorScheme.onPrimary,
-                    ),
+                  AppSwitch(
+                    value: zone.active,
+                    onChangeActive: onChangeActive,
                   ),
                 ],
               ),
