@@ -89,7 +89,6 @@ class HomePageController extends BaseController with SocketMixin {
   final currentZone = ZoneModel.empty().asSignal(debugLabel: "currentZone");
   final currentEqualizer = EqualizerModel.empty().asSignal(debugLabel: "currentEqualizer");
   final hasMultipleProjects = false.asSignal(debugLabel: "hasMultipleProjects");
-  final generalError = false.asSignal(debugLabel: "generalError");
   final expandedViewMode = false.asSignal(debugLabel: "expandedViewMode");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
@@ -329,8 +328,6 @@ class HomePageController extends BaseController with SocketMixin {
         await restartSocket(ip: currentDevice.value.ip);
         await _updateAllDeviceData(currentZone.value);
       } catch (exception) {
-        generalError.value = true;
-
         logger.e(exception);
         setError(Exception("Erro iniciar comunicação com o Multiroom"));
       }
@@ -464,6 +461,5 @@ class HomePageController extends BaseController with SocketMixin {
     currentDevice.value = currentDevice.initialValue;
     currentZone.value = currentZone.initialValue;
     currentEqualizer.value = currentEqualizer.initialValue;
-    generalError.value = generalError.initialValue;
   }
 }

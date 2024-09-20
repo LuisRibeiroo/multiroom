@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
@@ -11,7 +9,6 @@ import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/channel_model.dart';
 import '../../../core/models/zone_model.dart';
-import '../../../core/widgets/error_dialog.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../../core/widgets/selectable_list_view.dart';
 import '../../shared/pages/options_bottom_sheet.dart';
@@ -184,20 +181,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       }
     });
 
-    scheduleMicrotask(() {
-      _controller.disposables.addAll([
-        effect(() async {
-          if (_controller.generalError.value) {
-            await ErrorDialog.show(
-              context: context,
-              pageState: _controller.state,
-              currentIp: _controller.currentDevice.value.ip,
-              onSuccess: () => _controller.generalError.value = false,
-            );
-          }
-        }),
-      ]);
-    });
+    // scheduleMicrotask(() {
+    //   _controller.disposables.addAll([
+    //     effect(() async {
+    //       // if (_controller.generalError.value) {
+    //       //   await ErrorDialog.show(
+    //       //     context: context,
+    //       //     pageState: _controller.state,
+    //       //     currentIp: _controller.currentDevice.value.ip,
+    //       //     onSuccess: () => _controller.generalError.value = false,
+    //       //   );
+    //       // }
+    //     }),
+    //   ]);
+    // });
   }
 
   @override
@@ -318,5 +315,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+
+    super.dispose();
   }
 }

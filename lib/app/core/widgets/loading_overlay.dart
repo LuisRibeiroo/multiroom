@@ -7,7 +7,6 @@ import 'package:toastification/toastification.dart';
 import '../../../injector.dart';
 import '../enums/page_state.dart';
 import '../interactor/controllers/loading_overlay_controller.dart';
-import 'error_dialog.dart';
 
 class LoadingOverlay extends StatefulWidget {
   const LoadingOverlay({
@@ -44,8 +43,7 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
           });
 
           if (_controller.errorCounter.peek() > 1) {
-            return ErrorDialog.show(
-              context: context,
+            _controller.checkDeviceAvailability(
               pageState: widget.state,
               currentIp: widget.currentIp,
             );

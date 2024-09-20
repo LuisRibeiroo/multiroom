@@ -1,6 +1,5 @@
 import 'package:auto_injector/auto_injector.dart';
 
-import 'app/core/interactor/controllers/error_dialog_controller.dart';
 import 'app/core/interactor/controllers/loading_overlay_controller.dart';
 import 'app/modules/configs/controllers/configs_page_controller.dart';
 import 'app/modules/configs/controllers/device_configuration_page_controller.dart';
@@ -19,7 +18,6 @@ final injector = AutoInjector(
     i.add(EditChannelsPageController.new);
     i.add(EditZonesPageController.new);
     i.add(LoadingOverlayController.new);
-    i.add(ErrorDialogController.new);
     i.addLazySingleton(ConfigsPageController.new);
     i.addLazySingleton(ScannerPageController.new);
     i.addLazySingleton(DeviceConfigurationPageController.new);

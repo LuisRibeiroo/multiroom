@@ -19,7 +19,7 @@ class LoadingOverlayController extends BaseController with SocketMixin {
     errorCounter.value = errorCounter.initialValue;
   }
 
-  Future<void> checkDeviceAvailability({
+  Future<bool> checkDeviceAvailability({
     required Signal<PageState> pageState,
     required String currentIp,
   }) async {
@@ -32,11 +32,15 @@ class LoadingOverlayController extends BaseController with SocketMixin {
       deviceAvailable.value = true;
 
       pageState.value = const SuccessState(data: null);
+
+      return true;
     } catch (exception) {
       deviceAvailable.value = false;
-    }
 
-    pageState.value = InitialState();
+      return false;
+    } finally {
+      pageState.value = InitialState();
+    }
   }
 
   @override
