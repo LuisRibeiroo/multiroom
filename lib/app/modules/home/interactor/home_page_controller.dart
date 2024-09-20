@@ -25,7 +25,11 @@ import '../../../core/utils/mr_cmd_builder.dart';
 class HomePageController extends BaseController with SocketMixin {
   HomePageController() : super(InitialState()) {
     projects.value = _settings.projects;
-    currentProject.value = projects.first;
+    currentProject.value = projects.firstWhere(
+      (p) => p.id == _settings.lastProjectId,
+      orElse: () => projects.first,
+    );
+    expandedViewMode.value = _settings.expandedViewMode;
 
     if (currentProject.value.devices.isNotEmpty) {
       currentDevice.value = currentProject.value.devices.first;
@@ -86,6 +90,7 @@ class HomePageController extends BaseController with SocketMixin {
   final currentEqualizer = EqualizerModel.empty().asSignal(debugLabel: "currentEqualizer");
   final hasMultipleProjects = false.asSignal(debugLabel: "hasMultipleProjects");
   final generalError = false.asSignal(debugLabel: "generalError");
+  final expandedViewMode = false.asSignal(debugLabel: "expandedViewMode");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
 
@@ -114,6 +119,7 @@ class HomePageController extends BaseController with SocketMixin {
       return;
     }
 
+    _settings.lastProjectId == proj.id;
     _updateSignals(project: proj);
   }
 
@@ -256,6 +262,11 @@ class HomePageController extends BaseController with SocketMixin {
     currentZone.value = zone;
   }
 
+  void setViewMode({required bool expanded}) {
+    expandedViewMode.value = expanded;
+    _settings.expandedViewMode = expanded;
+  }
+
   void _updateProject({required ZoneModel zone}) {
     ZoneGroupModel? group;
 
@@ -289,14 +300,14 @@ class HomePageController extends BaseController with SocketMixin {
       groups: updatedGroups,
     );
 
-    final updatedDevice = currentProject.value.devices.withReplacement(
+    final updatedDevices = currentProject.value.devices.withReplacement(
       (d) => d.serialNumber == newDevice.serialNumber,
       newDevice,
     );
 
     currentDevice.value = newDevice;
     currentProject.value = currentProject.value.copyWith(
-      devices: updatedDevice,
+      devices: updatedDevices,
     );
   }
 

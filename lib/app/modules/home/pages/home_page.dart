@@ -173,10 +173,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _tabControler = TabController(
       vsync: this,
       length: 2,
+      initialIndex: _controller.expandedViewMode.value ? 1 : 0,
     );
 
+    _tabControler.addListener(() {
+      if (_tabControler.index == 0) {
+        _controller.setViewMode(expanded: false);
+      } else {
+        _controller.setViewMode(expanded: true);
+      }
+    });
+
     scheduleMicrotask(() {
-      _controller.disposables.add(
+      _controller.disposables.addAll([
         effect(() async {
           if (_controller.generalError.value) {
             await ErrorDialog.show(
@@ -187,7 +196,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             );
           }
         }),
-      );
+      ]);
     });
   }
 

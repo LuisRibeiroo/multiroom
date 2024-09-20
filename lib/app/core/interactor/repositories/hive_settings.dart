@@ -89,7 +89,11 @@ class HiveSettings implements SettingsContract {
   bool get expandedViewMode => _box.get("expandedViewMode", defaultValue: false);
 
   @override
-  set expandedViewMode(bool value) {
-    _box.put("expandedViewMode", value);
-  }
+  set expandedViewMode(bool value) => _box.put("expandedViewMode", value);
+
+  @override
+  String get lastProjectId => _box.get("lastProjectId", defaultValue: "");
+
+  @override
+  set lastProjectId(String value) => _box.put("lastProjectId", value);
 }
