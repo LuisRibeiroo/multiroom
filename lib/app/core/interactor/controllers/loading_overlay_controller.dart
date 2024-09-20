@@ -9,7 +9,6 @@ class LoadingOverlayController extends BaseController with SocketMixin {
   LoadingOverlayController() : super(InitialState());
 
   final errorCounter = 0.toSignal(debugLabel: "errorCounter");
-  final deviceAvailable = false.toSignal(debugLabel: "deviceAvailable");
 
   void incrementErrorCounter() {
     errorCounter.value++;
@@ -29,14 +28,10 @@ class LoadingOverlayController extends BaseController with SocketMixin {
       await restartSocket(ip: currentIp);
       await socketSender(MrCmdBuilder.firmwareVersion);
 
-      deviceAvailable.value = true;
-
       pageState.value = const SuccessState(data: null);
 
       return true;
     } catch (exception) {
-      deviceAvailable.value = false;
-
       return false;
     } finally {
       pageState.value = InitialState();
@@ -49,6 +44,5 @@ class LoadingOverlayController extends BaseController with SocketMixin {
     mixinDispose();
 
     errorCounter.value = errorCounter.initialValue;
-    deviceAvailable.value = deviceAvailable.initialValue;
   }
 }

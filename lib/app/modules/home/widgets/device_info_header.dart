@@ -11,7 +11,7 @@ import '../../../core/widgets/device_state_indicator.dart';
 class DeviceInfoHeader extends StatelessWidget {
   const DeviceInfoHeader({
     super.key,
-    required this.showProjectsButton,
+    required this.isDeviceActive,
     required this.project,
     required this.deviceName,
     required this.currentZone,
@@ -22,7 +22,7 @@ class DeviceInfoHeader extends StatelessWidget {
     required this.onChangeProject,
   });
 
-  final bool showProjectsButton;
+  final bool isDeviceActive;
   final ProjectModel project;
   final String deviceName;
   final ZoneModel currentZone;
@@ -39,9 +39,7 @@ class DeviceInfoHeader extends StatelessWidget {
         padding: const EdgeInsets.only(left: 12, right: 12, bottom: 24, top: 12),
         child: Column(
           children: [
-            DeviceStateIndicator(
-              value: currentZone.active,
-            ),
+            DeviceStateIndicator(value: isDeviceActive),
             18.asSpace,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

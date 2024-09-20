@@ -24,6 +24,7 @@ class MonoZones extends Equatable {
     required String id,
     required String name,
     required String wrapperId,
+    required String deviceSerial,
   }) {
     return MonoZones(
       left: ZoneModel.builder(
@@ -31,12 +32,14 @@ class MonoZones extends Equatable {
         wrapperId: wrapperId,
         name: "${name}L",
         side: MonoSide.left,
+        deviceSerial: deviceSerial,
       ),
       right: ZoneModel.builder(
         id: "${id}R",
         wrapperId: wrapperId,
         name: "${name}R",
         side: MonoSide.right,
+        deviceSerial: deviceSerial,
       ),
     );
   }

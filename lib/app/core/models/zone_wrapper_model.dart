@@ -20,13 +20,24 @@ class ZoneWrapperModel extends Equatable {
   factory ZoneWrapperModel.builder({
     required int index,
     required String name,
+    required String deviceSerial,
     ZoneMode mode = ZoneMode.stereo,
   }) {
     return ZoneWrapperModel(
       id: "ZW$index",
       mode: mode,
-      stereoZone: ZoneModel.builder(id: "$index", wrapperId: "ZW$index", name: name),
-      monoZones: MonoZones.builder(id: "$index", wrapperId: "ZW$index", name: name),
+      stereoZone: ZoneModel.builder(
+        id: "$index",
+        wrapperId: "ZW$index",
+        name: name,
+        deviceSerial: deviceSerial,
+      ),
+      monoZones: MonoZones.builder(
+        id: "$index",
+        wrapperId: "ZW$index",
+        name: name,
+        deviceSerial: deviceSerial,
+      ),
     );
   }
 

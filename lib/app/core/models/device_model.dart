@@ -52,7 +52,11 @@ class DeviceModel extends HiveObject {
       name: name,
       zoneWrappers: List.generate(
         8,
-        (idx) => ZoneWrapperModel.builder(index: idx + 1, name: "Zona ${idx + 1}"),
+        (idx) => ZoneWrapperModel.builder(
+          index: idx + 1,
+          name: "Zona ${idx + 1}",
+          deviceSerial: serialNumber,
+        ),
       ),
       groups: List.generate(
         3,
@@ -127,9 +131,7 @@ class DeviceModel extends HiveObject {
   bool isZoneInGroup(ZoneModel zone) => groups.any((g) => g.zones.containsZone(zone));
 
   List<ZoneModel> get groupedZones {
-    final temp = zones
-        .where((zone) => groups.map((g) => g.zones.containsZone(zone)).every((v) => !v))
-        .toList();
+    final temp = zones.where((zone) => groups.map((g) => g.zones.containsZone(zone)).every((v) => !v)).toList();
 
     for (final g in groups) {
       if (g.hasZones) {

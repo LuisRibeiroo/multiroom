@@ -5,11 +5,13 @@ import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_switch.dart';
+import '../../../core/widgets/device_state_indicator.dart';
 import 'slider_icons.dart';
 
 class SummaryZoneControls extends StatelessWidget {
   const SummaryZoneControls({
     super.key,
+    required this.isDeviceActive,
     required this.zone,
     required this.onChangeActive,
     required this.onChangeChannel,
@@ -17,6 +19,7 @@ class SummaryZoneControls extends StatelessWidget {
     required this.onTapCard,
   });
 
+  final bool isDeviceActive;
   final ZoneModel zone;
   final Function(bool) onChangeActive;
   final Function() onChangeChannel;
@@ -32,6 +35,8 @@ class SummaryZoneControls extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           child: Column(
             children: [
+              DeviceStateIndicator(value: isDeviceActive),
+              18.asSpace,
               Row(
                 children: [
                   const Icon(Icons.home_filled),

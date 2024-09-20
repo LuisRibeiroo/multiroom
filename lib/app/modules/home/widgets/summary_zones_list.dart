@@ -1,14 +1,17 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
+import '../../../core/models/device_model.dart';
 import '../../../core/models/zone_model.dart';
 import '../../widgets/icon_text_tile.dart';
 import 'summary_zone_controls.dart';
 
-class SummaryZonesList extends StatelessWidget {
+class SummaryZonesList extends StatefulWidget {
   const SummaryZonesList({
     super.key,
+    required this.devices,
     required this.zones,
     required this.onChangeActive,
     required this.onChangeChannel,
@@ -16,12 +19,18 @@ class SummaryZonesList extends StatelessWidget {
     required this.onTapZone,
   });
 
+  final List<DeviceModel> devices;
   final List<ZoneModel> zones;
   final Function(bool, {ZoneModel? zone}) onChangeActive;
   final Function({ZoneModel? zone}) onChangeChannel;
   final Function(int, {ZoneModel? zone}) onChangeVolume;
   final Function(ZoneModel zone) onTapZone;
 
+  @override
+  State<SummaryZonesList> createState() => _SummaryZonesListState();
+}
+
+class _SummaryZonesListState extends State<SummaryZonesList> {
   @override
   Widget build(BuildContext context) {
     return Card.filled(
@@ -41,17 +50,21 @@ class SummaryZonesList extends StatelessWidget {
             Flexible(
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: zones.length,
+                itemCount: widget.zones.length,
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
-                  final zone = zones[index];
+                  final zone = widget.zones[index];
 
                   return SummaryZoneControls(
+                    isDeviceActive: widget.devices
+                            .firstWhereOrNull((element) => element.serialNumber == zone.deviceSerial)
+                            ?.active ??
+                        true,
                     zone: zone,
-                    onTapCard: onTapZone,
-                    onChangeActive: (value) => onChangeActive(value, zone: zone),
-                    onChangeChannel: () => onChangeChannel(zone: zone),
-                    onChangeVolume: (value) => onChangeVolume(value, zone: zone),
+                    onTapCard: widget.onTapZone,
+                    onChangeActive: (value) => widget.onChangeActive(value, zone: zone),
+                    onChangeChannel: () => widget.onChangeChannel(zone: zone),
+                    onChangeVolume: (value) => widget.onChangeVolume(value, zone: zone),
                   );
                 },
               ),

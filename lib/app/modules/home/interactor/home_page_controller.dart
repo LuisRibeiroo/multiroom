@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -43,8 +44,6 @@ class HomePageController extends BaseController with SocketMixin {
           Routefly.replace(routePaths.modules.configs.pages.configs);
           Routefly.pushNavigate(routePaths.modules.configs.pages.configs);
         }
-
-        hasMultipleProjects.value = projects.length > 1;
       }),
       effect(() {
         if (state.value is SuccessState) {
@@ -88,7 +87,6 @@ class HomePageController extends BaseController with SocketMixin {
   final currentDevice = DeviceModel.empty().toSignal(debugLabel: "currentDevice");
   final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
   final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
-  final hasMultipleProjects = false.toSignal(debugLabel: "hasMultipleProjects");
   final generalError = false.toSignal(debugLabel: "generalError");
   final expandedViewMode = false.toSignal(debugLabel: "expandedViewMode");
 
@@ -110,6 +108,8 @@ class HomePageController extends BaseController with SocketMixin {
       }
     } catch (exception) {
       logger.e(exception);
+
+      _setOfflineDeviceState();
       setError(Exception("Erro ao enviar comando"));
     }
   }
@@ -267,6 +267,35 @@ class HomePageController extends BaseController with SocketMixin {
     _settings.expandedViewMode = expanded;
   }
 
+  Future<void> _updateDevicesState() async {
+    for (final testDevice in currentProject.value.devices) {
+      DeviceModel newDevice;
+
+      try {
+        await Socket.connect(
+          testDevice.ip,
+          4998,
+          timeout: const Duration(seconds: 1),
+        ).then((s) => s.close());
+
+        newDevice = testDevice.copyWith(active: true);
+      } catch (exception) {
+        newDevice = testDevice.copyWith(active: false);
+      }
+
+      currentProject.value = currentProject.value.copyWith(
+        devices: currentProject.value.devices.withReplacement(
+          (d) => d.serialNumber == newDevice.serialNumber,
+          newDevice,
+        ),
+      );
+
+      if (currentDevice.value.serialNumber == newDevice.serialNumber) {
+        currentDevice.value = newDevice;
+      }
+    }
+  }
+
   void _updateProject({required ZoneModel zone}) {
     ZoneGroupModel? group;
 
@@ -309,6 +338,8 @@ class HomePageController extends BaseController with SocketMixin {
     currentProject.value = currentProject.value.copyWith(
       devices: updatedDevices,
     );
+
+    _updateDevicesState();
   }
 
   Future<void> _updateSignals({ProjectModel? project}) async {
@@ -327,9 +358,12 @@ class HomePageController extends BaseController with SocketMixin {
     await run(() async {
       try {
         await restartSocket(ip: currentDevice.value.ip);
+        await _updateDevicesState();
         await _updateAllDeviceData(currentZone.value);
       } catch (exception) {
         logger.e(exception);
+
+        _setOfflineDeviceState();
         setError(Exception("Erro iniciar comunicação com o Multiroom"));
       }
     });
@@ -339,9 +373,11 @@ class HomePageController extends BaseController with SocketMixin {
     _writeDebouncer(() async {
       try {
         await socketSender(cmd);
+        currentDevice.value = currentDevice.value.copyWith(active: true);
       } catch (exception) {
         logger.e("Erro no comando [$cmd] --> $exception");
         // setError(Exception("Erro no comando [$cmd] --> $exception"));
+        _setOfflineDeviceState();
         setError(Exception("Erro ao enviar comando"));
 
         if (exception.toString().contains("Bad state")) {
@@ -349,6 +385,12 @@ class HomePageController extends BaseController with SocketMixin {
         }
       }
     });
+  }
+
+  void _setOfflineDeviceState() {
+    if (currentDevice.value.active) {
+      currentDevice.value = currentDevice.value.copyWith(active: false);
+    }
   }
 
   Future<void> _updateAllDeviceData(ZoneModel zone) async {

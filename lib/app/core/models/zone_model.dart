@@ -26,12 +26,14 @@ class ZoneModel extends Equatable implements SelectableModel {
     this.groupId = "",
     this.maxVolumeLeft = 100,
     this.maxVolumeRight = 100,
+    this.deviceSerial = "",
   });
 
   factory ZoneModel.builder({
     required String id,
     required String name,
     required String wrapperId,
+    required String deviceSerial,
     MonoSide side = MonoSide.undefined,
   }) {
     return ZoneModel(
@@ -49,6 +51,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       side: side,
       isGroup: false,
       channel: ChannelModel.builder(index: 1, name: "Input 1"),
+      deviceSerial: deviceSerial,
     );
   }
 
@@ -82,6 +85,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       groupId: map['groupId'],
       maxVolumeLeft: map['maxVolumeLeft'],
       maxVolumeRight: map['maxVolumeRight'],
+      deviceSerial: map["deviceSerial"],
     );
   }
 
@@ -101,6 +105,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       'groupId': groupId,
       'maxVolumeLeft': maxVolumeLeft,
       'maxVolumeRight': maxVolumeRight,
+      'deviceSerial': deviceSerial,
     };
   }
 
@@ -132,6 +137,8 @@ class ZoneModel extends Equatable implements SelectableModel {
   final int maxVolumeLeft;
   @HiveField(14, defaultValue: 100)
   final int maxVolumeRight;
+  @HiveField(15, defaultValue: "")
+  final String deviceSerial;
 
   bool get isEmpty => id == ZoneModel.empty().id;
   bool get isStereo => side == MonoSide.undefined;
@@ -153,6 +160,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     String? groupId,
     int? maxVolumeLeft,
     int? maxVolumeRight,
+    String? deviceSerial,
   }) {
     return ZoneModel(
       id: id,
@@ -169,6 +177,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       groupId: groupId ?? this.groupId,
       maxVolumeLeft: maxVolumeLeft ?? this.maxVolumeLeft,
       maxVolumeRight: maxVolumeRight ?? this.maxVolumeRight,
+      deviceSerial: deviceSerial ?? this.deviceSerial,
     );
   }
 
@@ -188,6 +197,7 @@ class ZoneModel extends Equatable implements SelectableModel {
         groupId,
         maxVolumeLeft,
         maxVolumeRight,
+        deviceSerial,
       ];
 }
 

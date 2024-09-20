@@ -261,10 +261,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   controller: _tabControler,
                   children: [
                     SingleChildScrollView(
-                      primary: true,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 18),
                         child: SummaryZonesList(
+                          devices: _controller.currentProject.value.devices,
                           zones: _controller.projectZones.value,
                           onChangeActive: _controller.setZoneActive,
                           onChangeChannel: _showChannelsBottomSheet,
@@ -283,7 +283,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             DeviceInfoHeader(
-                              showProjectsButton: _controller.hasMultipleProjects.value,
+                              isDeviceActive: _controller.currentDevice.value.active,
                               project: _controller.currentProject.value,
                               deviceName: _controller.currentDevice.value.name,
                               currentZone: _controller.currentZone.value,
