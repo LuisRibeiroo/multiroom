@@ -37,7 +37,7 @@ dependencies:
   qr_flutter: ^4.1.0
   routefly: ^2.0.2
   share_plus: ^10.0.2
-  signals: ^5.2.2
+  signals: ^5.5.0
   toastification: ^2.0.0
   udp: ^5.0.3
   url_launcher: ^6.3.0
