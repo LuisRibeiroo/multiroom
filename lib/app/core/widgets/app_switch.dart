@@ -1,6 +1,7 @@
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/extensions/build_context_extensions.dart';
+
+import '../extensions/build_context_extensions.dart';
 
 class AppSwitch extends StatelessWidget {
   const AppSwitch({

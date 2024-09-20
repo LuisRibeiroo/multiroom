@@ -6,6 +6,7 @@ import '../../../core/models/project_model.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_switch.dart';
+import '../../../core/widgets/device_state_indicator.dart';
 
 class DeviceInfoHeader extends StatelessWidget {
   const DeviceInfoHeader({
@@ -35,9 +36,13 @@ class DeviceInfoHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card.outlined(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+        padding: const EdgeInsets.only(left: 12, right: 12, bottom: 24, top: 12),
         child: Column(
           children: [
+            DeviceStateIndicator(
+              value: currentZone.active,
+            ),
+            18.asSpace,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

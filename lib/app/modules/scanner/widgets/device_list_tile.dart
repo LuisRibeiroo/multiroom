@@ -1,4 +1,3 @@
-import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -6,6 +5,7 @@ import '../../../core/enums/device_type.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/device_model.dart';
+import '../../../core/widgets/device_state_indicator.dart';
 import '../../widgets/icon_text_tile.dart';
 
 class DeviceListTile extends StatelessWidget {
@@ -64,28 +64,8 @@ class DeviceListTile extends StatelessWidget {
                   children: [
                     Visibility(
                       visible: showAvailability,
-                      child: IgnorePointer(
-                        ignoring: true,
-                        child: AnimatedToggleSwitch.dual(
-                          current: isAvailable,
-                          first: false,
-                          second: true,
-                          height: 32,
-                          indicatorSize: const Size.square(28),
-                          style: ToggleStyle(
-                            indicatorColor: context.colorScheme.inversePrimary,
-                            borderColor: context.colorScheme.inversePrimary,
-                          ),
-                          iconBuilder: (value) => Icon(
-                            value ? Icons.wifi_rounded : Icons.wifi_off_rounded,
-                            color: value ? context.colorScheme.primary : context.theme.disabledColor,
-                            size: 20,
-                          ),
-                          textBuilder: (value) => Text(
-                            value ? "ON" : "OFF",
-                            style: context.textTheme.bodyMedium,
-                          ),
-                        ),
+                      child: DeviceStateIndicator(
+                        value: isAvailable,
                       ),
                     ),
                     Container(
