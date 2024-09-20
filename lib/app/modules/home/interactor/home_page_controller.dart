@@ -80,12 +80,12 @@ class HomePageController extends BaseController with SocketMixin {
     debugLabel: "equalizers",
   );
 
-  final currentProject = ProjectModel.empty().toSignal(debugLabel: "currentProject");
-  final currentDevice = DeviceModel.empty().toSignal(debugLabel: "currentDevice");
-  final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
-  final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
-  final hasMultipleProjects = false.toSignal(debugLabel: "hasMultipleProjects");
-  final generalError = false.toSignal(debugLabel: "generalError");
+  final currentProject = ProjectModel.empty().asSignal(debugLabel: "currentProject");
+  final currentDevice = DeviceModel.empty().asSignal(debugLabel: "currentDevice");
+  final currentZone = ZoneModel.empty().asSignal(debugLabel: "currentZone");
+  final currentEqualizer = EqualizerModel.empty().asSignal(debugLabel: "currentEqualizer");
+  final hasMultipleProjects = false.asSignal(debugLabel: "hasMultipleProjects");
+  final generalError = false.asSignal(debugLabel: "generalError");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
 
