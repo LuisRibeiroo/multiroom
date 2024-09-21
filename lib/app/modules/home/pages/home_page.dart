@@ -181,21 +181,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         _controller.setViewMode(expanded: true);
       }
     });
-
-    // scheduleMicrotask(() {
-    //   _controller.disposables.addAll([
-    //     effect(() async {
-    //       // if (_controller.generalError.value) {
-    //       //   await ErrorDialog.show(
-    //       //     context: context,
-    //       //     pageState: _controller.state,
-    //       //     currentIp: _controller.currentDevice.value.ip,
-    //       //     onSuccess: () => _controller.generalError.value = false,
-    //       //   );
-    //       // }
-    //     }),
-    //   ]);
-    // });
   }
 
   @override

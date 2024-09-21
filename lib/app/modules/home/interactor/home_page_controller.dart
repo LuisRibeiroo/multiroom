@@ -263,6 +263,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   void setCurrentZone({required ZoneModel zone}) {
     currentZone.value = zone;
+    channels.value = currentZone.value.channels;
     currentEqualizer.value = currentZone.value.equalizer;
   }
 
@@ -373,6 +374,13 @@ class HomePageController extends BaseController with SocketMixin {
     }
 
     channels.value = currentZone.value.channels;
+
+    currentZone.value = currentZone.value.copyWith(
+      channel: channels.firstWhere(
+        (c) => c.id == currentZone.value.channel.id,
+        orElse: () => channels.first,
+      ),
+    );
 
     await run(() async {
       try {
