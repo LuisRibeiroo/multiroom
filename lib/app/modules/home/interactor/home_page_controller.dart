@@ -283,17 +283,21 @@ class HomePageController extends BaseController with SocketMixin {
         newDevice = testDevice.copyWith(active: false);
       }
 
-      currentProject.value = currentProject.value.copyWith(
-        devices: currentProject.value.devices.withReplacement(
-          (d) => d.serialNumber == newDevice.serialNumber,
-          newDevice,
-        ),
-      );
-
       if (currentDevice.value.serialNumber == newDevice.serialNumber) {
         currentDevice.value = newDevice;
       }
+
+      _updateDeviceProject(device: newDevice);
     }
+  }
+
+  void _updateDeviceProject({required DeviceModel device}) {
+    currentProject.value = currentProject.value.copyWith(
+      devices: currentProject.value.devices.withReplacement(
+        (d) => d.serialNumber == device.serialNumber,
+        device,
+      ),
+    );
   }
 
   void _updateProject({required ZoneModel zone}) {
@@ -324,22 +328,29 @@ class HomePageController extends BaseController with SocketMixin {
       updatedWrapper,
     );
 
-    final newDevice = currentDevice.value.copyWith(
+    currentDevice.value = currentDevice.value.copyWith(
       zoneWrappers: updatedWrappers,
       groups: updatedGroups,
     );
 
     final updatedDevices = currentProject.value.devices.withReplacement(
-      (d) => d.serialNumber == newDevice.serialNumber,
-      newDevice,
+      (d) => d.serialNumber == currentDevice.value.serialNumber,
+      currentDevice.value,
     );
 
-    currentDevice.value = newDevice;
     currentProject.value = currentProject.value.copyWith(
       devices: updatedDevices,
     );
 
     _updateDevicesState();
+  }
+
+  void _setOfflineDeviceState() {
+    if (currentDevice.value.active) {
+      currentDevice.value = currentDevice.value.copyWith(active: false);
+
+      _updateDeviceProject(device: currentDevice.value);
+    }
   }
 
   Future<void> _updateSignals({ProjectModel? project}) async {
@@ -385,12 +396,6 @@ class HomePageController extends BaseController with SocketMixin {
         }
       }
     });
-  }
-
-  void _setOfflineDeviceState() {
-    if (currentDevice.value.active) {
-      currentDevice.value = currentDevice.value.copyWith(active: false);
-    }
   }
 
   Future<void> _updateAllDeviceData(ZoneModel zone) async {
