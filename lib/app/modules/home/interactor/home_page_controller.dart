@@ -121,6 +121,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     _settings.lastProjectId == proj.id;
     _updateSignals(project: proj);
+    state.value = InitialState();
   }
 
   Future<void> setZoneActive(bool active, {ZoneModel? zone}) async {

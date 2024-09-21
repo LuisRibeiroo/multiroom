@@ -16,6 +16,7 @@ class LoadingOverlay extends StatefulWidget {
     this.dismissible = false,
     this.loadingWidget,
     this.currentIp = "",
+    this.onTap,
   });
 
   final Signal<PageState> state;
@@ -23,6 +24,7 @@ class LoadingOverlay extends StatefulWidget {
   final bool dismissible;
   final Widget? loadingWidget;
   final String currentIp;
+  final Function()? onTap;
 
   @override
   State<LoadingOverlay> createState() => _LoadingOverlayState();
@@ -36,7 +38,7 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
     super.initState();
 
     scheduleMicrotask(() {
-      _controller.disposables.add(effect(() {
+      _controller.disposables.add(effect(() async {
         if (widget.state.value is ErrorState) {
           untracked(() {
             _controller.incrementErrorCounter();
@@ -84,8 +86,12 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
                 Visibility(
                   visible: widget.loadingWidget == null,
                   replacement: widget.loadingWidget ?? const SizedBox.shrink(),
-                  child: const Center(
-                    child: CircularProgressIndicator(),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: widget.onTap,
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
                   ),
                 )
               ],

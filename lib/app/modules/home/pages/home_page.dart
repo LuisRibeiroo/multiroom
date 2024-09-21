@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:toastification/toastification.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../../injector.dart';
@@ -207,55 +208,62 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             await _controller.syncLocalData();
           }
         },
-        child: LoadingOverlay(
-          key: const ValueKey("HomePage_Key"),
-          state: _controller.state,
-          currentIp: _controller.currentDevice.value.ip,
-          child: Scaffold(
-            appBar: AppBar(
-              leading: Image.asset("assets/logo.png"),
-              title: InkWell(
-                onTap: _showProjectsBottomSheet,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        _controller.currentProject.value.name,
-                      ),
+        child: Scaffold(
+          appBar: AppBar(
+            leading: Image.asset("assets/logo.png"),
+            title: InkWell(
+              onTap: _showProjectsBottomSheet,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      _controller.currentProject.value.name,
                     ),
-                    8.asSpace,
-                    const Icon(Icons.arrow_drop_down_rounded),
-                  ],
-                ),
-              ),
-              actions: [
-                IconButton(
-                  onPressed: () => OptionsMenu.showOptionsBottomSheet(
-                    context,
-                    state: _controller.state,
                   ),
-                  icon: const Icon(Icons.more_vert_rounded),
-                ),
-              ],
-              bottom: TabBar(
-                indicatorSize: TabBarIndicatorSize.tab,
-                controller: _tabControler,
-                tabs: const [
-                  Tab(
-                    height: 48,
-                    text: 'Resumo',
-                    icon: Icon(Icons.list_rounded),
-                  ),
-                  Tab(
-                    height: 48,
-                    text: 'Detalhe',
-                    icon: Icon(Icons.search_rounded),
-                  ),
+                  8.asSpace,
+                  const Icon(Icons.arrow_drop_down_rounded),
                 ],
               ),
             ),
-            body: SafeArea(
+            actions: [
+              IconButton(
+                onPressed: () => OptionsMenu.showOptionsBottomSheet(
+                  context,
+                  state: _controller.state,
+                ),
+                icon: const Icon(Icons.more_vert_rounded),
+              ),
+            ],
+            bottom: TabBar(
+              indicatorSize: TabBarIndicatorSize.tab,
+              controller: _tabControler,
+              tabs: const [
+                Tab(
+                  height: 48,
+                  text: 'Resumo',
+                  icon: Icon(Icons.list_rounded),
+                ),
+                Tab(
+                  height: 48,
+                  text: 'Detalhe',
+                  icon: Icon(Icons.search_rounded),
+                ),
+              ],
+            ),
+          ),
+          body: LoadingOverlay(
+            key: const ValueKey("HomePage_Key"),
+            state: _controller.state,
+            currentIp: _controller.currentDevice.value.ip,
+            onTap: () => toastification.show(
+              title:
+                  const Text("O dispositivo está offline. Os controles serão liberados quando houver nova comunicação"),
+              autoCloseDuration: const Duration(seconds: 3),
+              style: ToastificationStyle.minimal,
+              type: ToastificationType.info,
+            ),
+            child: SafeArea(
               child: Watch(
                 (_) => TabBarView(
                   controller: _tabControler,
