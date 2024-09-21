@@ -26,10 +26,7 @@ import '../../../core/utils/mr_cmd_builder.dart';
 class HomePageController extends BaseController with SocketMixin {
   HomePageController() : super(InitialState()) {
     projects.value = _settings.projects;
-    currentProject.value = projects.firstWhere(
-      (p) => p.id == _settings.lastProjectId,
-      orElse: () => projects.first,
-    );
+    currentProject.value = _getLastProject();
     expandedViewMode.value = _settings.expandedViewMode;
 
     if (currentProject.value.devices.isNotEmpty) {
@@ -272,6 +269,13 @@ class HomePageController extends BaseController with SocketMixin {
     _settings.expandedViewMode = expanded;
   }
 
+  ProjectModel _getLastProject() {
+    return projects.firstWhere(
+      (p) => p.id == _settings.lastProjectId,
+      orElse: () => projects.first,
+    );
+  }
+
   Future<void> _updateDevicesState() async {
     for (final testDevice in currentProject.value.devices) {
       DeviceModel newDevice;
@@ -359,11 +363,7 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> _updateSignals({ProjectModel? project}) async {
-    currentProject.value = project ??
-        projects.firstWhere(
-          (p) => p.id == _settings.lastProjectId,
-          orElse: () => projects.first,
-        );
+    currentProject.value = project ?? _getLastProject();
     currentDevice.value = currentProject.value.devices.first;
     final zone = currentDevice.value.zones.first;
 
