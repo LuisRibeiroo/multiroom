@@ -58,10 +58,13 @@ class HomePageController extends BaseController with SocketMixin {
         if (value.serialNumber != currentDevice.previousValue!.serialNumber) {
           channels.value = value.zones.first.channels;
         }
+
+        _settings.saveDevice(device: currentDevice.value);
       }),
       effect(() {
         projectZones.value = currentProject.value.devices.fold(<ZoneModel>[], (pv, d) => pv..addAll(d.groupedZones));
       }),
+      effect(() {})
     ]);
   }
 
@@ -87,7 +90,6 @@ class HomePageController extends BaseController with SocketMixin {
   final currentDevice = DeviceModel.empty().toSignal(debugLabel: "currentDevice");
   final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
   final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
-  final generalError = false.toSignal(debugLabel: "generalError");
   final expandedViewMode = false.toSignal(debugLabel: "expandedViewMode");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
@@ -261,6 +263,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   void setCurrentZone({required ZoneModel zone}) {
     currentZone.value = zone;
+    currentEqualizer.value = currentZone.value.equalizer;
   }
 
   void setViewMode({required bool expanded}) {
@@ -355,7 +358,11 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> _updateSignals({ProjectModel? project}) async {
-    currentProject.value = project ?? projects.value.first;
+    currentProject.value = project ??
+        projects.firstWhere(
+          (p) => p.id == _settings.lastProjectId,
+          orElse: () => projects.first,
+        );
     currentDevice.value = currentProject.value.devices.first;
     final zone = currentDevice.value.zones.first;
 

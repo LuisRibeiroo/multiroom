@@ -275,7 +275,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           devices: _controller.currentProject.value.devices,
                           zones: _controller.projectZones.value,
                           onChangeActive: _controller.setZoneActive,
-                          onChangeChannel: _showChannelsBottomSheet,
+                          onChangeChannel: ({ZoneModel? zone}) {
+                            _controller.setCurrentZone(zone: zone!);
+                            _showChannelsBottomSheet(zone: zone);
+                          },
                           onChangeVolume: _controller.setVolume,
                           onTapZone: (zone) {
                             _tabControler.animateTo(1);
