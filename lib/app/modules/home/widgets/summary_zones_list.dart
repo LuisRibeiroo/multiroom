@@ -59,7 +59,7 @@ class _SummaryZonesListState extends State<SummaryZonesList> {
                     isDeviceActive: widget.devices
                             .firstWhereOrNull((element) => element.serialNumber == zone.deviceSerial)
                             ?.active ??
-                        true,
+                        false,
                     zone: zone,
                     onTapCard: widget.onTapZone,
                     onChangeActive: (value) => widget.onChangeActive(value, zone: zone),
