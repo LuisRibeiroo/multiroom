@@ -327,11 +327,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     try {
       for (final wrapper in device.value.zoneWrappers) {
-        final mode = MrCmdBuilder.parseResponse(await socketSender(MrCmdBuilder.getZoneMode(zone: wrapper.stereoZone)))
-                    .toUpperCase() ==
-                "STEREO"
-            ? ZoneMode.stereo
-            : ZoneMode.mono;
+        final mode = await _getZoneMode(wrapper);
         final statusActive = await _getZonesStatus(wrapper, mode);
 
         final maxVolR = await _getZoneMaxVol(wrapper.monoZones.right);
@@ -457,6 +453,21 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
           await socketSender(MrCmdBuilder.getPower(zone: zone)),
         ).toUpperCase() ==
         "ON";
+  }
+
+  Future<ZoneMode> _getZoneMode(ZoneWrapperModel wrapper) async {
+    try {
+      return MrCmdBuilder.parseResponse(
+                await socketSender(MrCmdBuilder.getZoneMode(zone: wrapper.stereoZone)),
+              ).toUpperCase() ==
+              "STEREO"
+          ? ZoneMode.stereo
+          : ZoneMode.mono;
+    } catch (exception) {
+      logger.e("Erro ao recuperar tipo da Zona [${wrapper.stereoZone.id}] -> $exception");
+
+      return ZoneMode.stereo;
+    }
   }
 
   @override

@@ -128,6 +128,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
     return Watch(
       (_) => LoadingOverlay(
         state: _controller.state,
+        currentIp: _controller.device.value.ip,
         child: Scaffold(
           appBar: AppBar(
             title: const Text("Configuração do dispositivo"),
