@@ -196,20 +196,24 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         child: Scaffold(
           appBar: AppBar(
             leading: Image.asset("assets/logo.png"),
-            title: InkWell(
-              onTap: _showProjectsBottomSheet,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      _controller.currentProject.value.name,
-                    ),
+            title: Row(
+              children: [
+                InkWell(
+                  onTap: _showProjectsBottomSheet,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          _controller.currentProject.value.name,
+                        ),
+                      ),
+                      8.asSpace,
+                      const Icon(Icons.arrow_drop_down_rounded),
+                    ],
                   ),
-                  8.asSpace,
-                  const Icon(Icons.arrow_drop_down_rounded),
-                ],
-              ),
+                ),
+              ],
             ),
             actions: [
               IconButton(
@@ -220,22 +224,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 icon: const Icon(Icons.more_vert_rounded),
               ),
             ],
-            bottom: TabBar(
-              indicatorSize: TabBarIndicatorSize.tab,
-              controller: _tabControler,
-              tabs: const [
-                Tab(
-                  height: 48,
-                  text: 'Resumo',
-                  icon: Icon(Icons.list_rounded),
-                ),
-                Tab(
-                  height: 48,
-                  text: 'Detalhe',
-                  icon: Icon(Icons.search_rounded),
-                ),
-              ],
-            ),
+            // bottom: TabBar(
+            //   indicatorSize: TabBarIndicatorSize.tab,
+            //   controller: _tabControler,
+            //   tabs: const [
+            //     Tab(
+            //       height: 48,
+            //       text: 'Resumo',
+            //       icon: Icon(Icons.list_rounded),
+            //     ),
+            //     Tab(
+            //       height: 48,
+            //       text: 'Detalhe',
+            //       icon: Icon(Icons.search_rounded),
+            //     ),
+            //   ],
+            // ),
           ),
           body: LoadingOverlay(
             key: const ValueKey("HomePage_Key"),
@@ -268,6 +272,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           onTapZone: (zone) {
                             _tabControler.animateTo(1);
                             _controller.setCurrentZone(zone: zone);
+                            setState(() {});
                           },
                         ),
                       ),
@@ -308,6 +313,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
             ),
           ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
+          floatingActionButton: _tabControler.index == 1
+              ? FloatingActionButton.small(
+                  child: const Icon(Icons.arrow_back_rounded),
+                  onPressed: () {
+                    _tabControler.animateTo(0);
+                    setState(() {});
+                  })
+              : null,
         ),
       ),
     );
