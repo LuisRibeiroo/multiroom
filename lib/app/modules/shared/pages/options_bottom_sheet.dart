@@ -10,10 +10,10 @@ import '../../../../routes.g.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/models/device_model.dart';
-import '../../configs/pages/configs_page.dart';
 import '../../widgets/about_bottom_sheet.dart';
 import '../controllers/options_bottom_sheet_controller.dart';
 import '../widgets/share_dialog.dart';
+import 'tech_access_bottom_sheet.dart';
 
 class OptionsMenu {
   static Future<T?> showOptionsBottomSheet<T>(

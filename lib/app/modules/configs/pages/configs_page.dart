@@ -5,9 +5,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../../injector.dart';
 import '../../../../routes.g.dart';
-import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
-import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../shared/pages/options_bottom_sheet.dart';
 import '../../widgets/project_list_card.dart';
@@ -90,66 +88,5 @@ class _ConfigsPageState extends State<ConfigsPage> {
     _controller.dispose();
 
     super.dispose();
-  }
-}
-
-class TechAccessBottomSheet extends StatelessWidget {
-  const TechAccessBottomSheet({
-    super.key,
-    required this.errorMessage,
-    required this.onChangePassword,
-    required this.onTapAccess,
-    required this.onTapConfigDevice,
-    required this.isPasswordVisible,
-    required this.onTogglePasswordVisible,
-  });
-
-  final String errorMessage;
-  final bool isPasswordVisible;
-  final Function(String) onChangePassword;
-  final Function() onTapAccess;
-  final Function()? onTapConfigDevice;
-  final Function() onTogglePasswordVisible;
-
-  @override
-  Widget build(BuildContext context) {
-    return Watch(
-      (_) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Acesso técnico",
-              style: context.textTheme.headlineSmall,
-            ),
-            8.asSpace,
-            TextFormField(
-              obscureText: isPasswordVisible == false,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: 'Senha',
-                errorText: errorMessage,
-                suffixIcon: AnimatedSwitcher(
-                  duration: Durations.short3,
-                  child: IconButton(
-                    key: ValueKey(isPasswordVisible),
-                    icon: Icon(isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded),
-                    onPressed: onTogglePasswordVisible,
-                  ),
-                ),
-              ),
-              onChanged: onChangePassword,
-            ),
-            12.asSpace,
-            AppButton(
-              text: "Acessar",
-              onPressed: onTapConfigDevice ?? onTapAccess,
-            ),
-            24.asSpace,
-          ],
-        ),
-      ),
-    );
   }
 }
