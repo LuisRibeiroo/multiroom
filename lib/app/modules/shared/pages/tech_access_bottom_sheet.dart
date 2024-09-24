@@ -42,6 +42,7 @@ class TechAccessBottomSheet extends StatelessWidget {
             8.asSpace,
             TextFormField(
               obscureText: isPasswordVisible == false,
+              textInputAction: TextInputAction.done,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(borderSide: BorderSide(color: Colors.amber)),
                 labelText: 'Senha',
@@ -55,6 +56,7 @@ class TechAccessBottomSheet extends StatelessWidget {
                 ),
               ),
               onChanged: onChangePassword,
+              onFieldSubmitted: (_) => onTapConfigDevice?.call() ?? onTapAccess(),
             ),
             AnimatedSwitcher(
               duration: Durations.short2,
