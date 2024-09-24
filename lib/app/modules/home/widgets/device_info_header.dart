@@ -39,7 +39,10 @@ class DeviceInfoHeader extends StatelessWidget {
         padding: const EdgeInsets.only(left: 12, right: 12, bottom: 24, top: 12),
         child: Column(
           children: [
-            DeviceStateIndicator(value: isDeviceActive),
+            Align(
+              alignment: Alignment.centerRight,
+              child: DeviceStateIndicator(value: isDeviceActive),
+            ),
             18.asSpace,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
