@@ -83,12 +83,15 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       setError: true,
       () async {
         try {
-          if (group.zones.containsZone(zone)) {
-            // Show error
-          }
-
           final List<ZoneGroupModel> groups = List.from(device.peek().groups);
           final updatedZones = [...group.zones, zone];
+
+          await socketSender(
+            MrCmdBuilder.setGroup(
+              group: group,
+              zones: updatedZones,
+            ),
+          );
 
           device.value = device.peek().copyWith(
                 groups: groups.withReplacement(
@@ -98,13 +101,6 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
                   ),
                 ),
               );
-
-          await socketSender(
-            MrCmdBuilder.setGroup(
-              group: group,
-              zones: updatedZones,
-            ),
-          );
         } catch (exception) {
           logger.e("Erro ao adicionar Zona a um grupo --> $exception");
           setError(Exception("Erro ao enviar comando"));
@@ -125,24 +121,20 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         final List<ZoneModel> tempZones = List.from(group.zones);
         final idx = groups.indexOf(group);
 
-        groups[idx] = groups[idx].copyWith(zones: tempZones..remove(zone));
-        device.value = device.peek().copyWith(groups: groups);
-
         await socketSender(
           MrCmdBuilder.setGroup(
             group: groups[idx],
             zones: groups[idx].zones,
           ),
         );
+
+        groups[idx] = groups[idx].copyWith(zones: tempZones..remove(zone));
+        device.value = device.peek().copyWith(groups: groups);
       },
     );
   }
 
   Future<void> onChangeZoneMode(ZoneWrapperModel wrapper, bool isStereo) async {
-    await run(
-      setError: true,
-      () async {},
-    );
     await run(
       setError: true,
       () async {

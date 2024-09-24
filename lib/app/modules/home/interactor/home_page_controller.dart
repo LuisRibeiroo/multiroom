@@ -119,7 +119,10 @@ class HomePageController extends BaseController with SocketMixin {
     }
 
     _settings.lastProjectId == proj.id;
-    _updateSignals(project: proj);
+    _updateSignals(
+      project: proj,
+      readAllZones: true,
+    );
     state.value = InitialState();
   }
 
@@ -239,7 +242,9 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  Future<void> syncLocalData() async {
+  Future<void> syncLocalData({
+    bool readAllZones = false,
+  }) async {
     await run(() {
       projects.value = _settings.projects;
 
@@ -250,7 +255,7 @@ class HomePageController extends BaseController with SocketMixin {
               return;
             }
 
-            _updateSignals();
+            _updateSignals(readAllZones: readAllZones);
             return null;
           }),
         ],
@@ -362,7 +367,10 @@ class HomePageController extends BaseController with SocketMixin {
     }
   }
 
-  Future<void> _updateSignals({ProjectModel? project}) async {
+  Future<void> _updateSignals({
+    ProjectModel? project,
+    bool readAllZones = false,
+  }) async {
     currentProject.value = project ?? _getLastProject();
     currentDevice.value = currentProject.value.devices.first;
     final zone = currentDevice.value.zones.first;
@@ -387,6 +395,14 @@ class HomePageController extends BaseController with SocketMixin {
         await restartSocket(ip: currentDevice.value.ip);
         await _updateDevicesState();
         await _updateAllDeviceData(currentZone.value);
+
+        if (readAllZones) {
+          for (final device in currentProject.value.devices) {
+            for (final zone in device.groupedZones) {
+              await _updateAllDeviceData(zone, updateCurrentZone: false);
+            }
+          }
+        }
       } catch (exception) {
         logger.e(exception);
 
@@ -414,7 +430,10 @@ class HomePageController extends BaseController with SocketMixin {
     });
   }
 
-  Future<void> _updateAllDeviceData(ZoneModel zone) async {
+  Future<void> _updateAllDeviceData(
+    ZoneModel zone, {
+    bool updateCurrentZone = true,
+  }) async {
     while (socketInit == false) {
       await Future.delayed(Durations.short3);
     }
@@ -500,7 +519,7 @@ class HomePageController extends BaseController with SocketMixin {
       currentEqualizer.value = equalizers[eqIndex];
     }
 
-    currentZone.value = zone.copyWith(
+    final updatedZone = zone.copyWith(
       active: active == "on" ? true : false,
       volume: int.tryParse(volume) ?? zone.volume,
       balance: int.tryParse(balance) ?? zone.balance,
@@ -511,7 +530,11 @@ class HomePageController extends BaseController with SocketMixin {
       ),
     );
 
-    _updateProject(zone: currentZone.value);
+    if (updateCurrentZone) {
+      currentZone.value = updatedZone;
+    }
+
+    _updateProject(zone: updatedZone);
   }
 
   @override
