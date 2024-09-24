@@ -43,22 +43,18 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     try {
       await initSocket(ip: dev.ip);
       await run(
-        setSucces: true,
+        setError: true,
         () async {
           try {
             await _updateDeviceData();
           } catch (exception) {
-            throw Exception("Erro ao ler informações do dispositivo");
+            setError(Exception("Erro ao ler informações do dispositivo"));
           }
         },
       );
     } catch (exception) {
-      logger.e(exception);
-      if (exception is Exception) {
-        setError(exception);
-      } else {
-        setError(Exception(exception));
-      }
+      logger.e("Erro ao ler informações do dispositivo --> $exception");
+      setError(Exception("Erro ao ler informações do dispositivo"));
     }
 
     disposables.addAll([
@@ -84,7 +80,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   Future<void> onAddZoneToGroup(ZoneGroupModel group, ZoneModel zone) async {
     await run(
-      setSucces: true,
+      setError: true,
       () async {
         try {
           if (group.zones.containsZone(zone)) {
@@ -110,11 +106,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
             ),
           );
         } catch (exception) {
-          if (exception is Exception) {
-            rethrow;
-          } else {
-            throw Exception(exception);
-          }
+          logger.e("Erro ao adicionar Zona a um grupo --> $exception");
+          setError(Exception("Erro ao enviar comando"));
         }
       },
     );
@@ -122,7 +115,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   Future<void> onRemoveZoneFromGroup(ZoneGroupModel group, ZoneModel zone) async {
     await run(
-      setSucces: true,
+      setError: true,
       () async {
         if (group.zones.containsZone(zone) == false) {
           return;
@@ -147,11 +140,11 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   Future<void> onChangeZoneMode(ZoneWrapperModel wrapper, bool isStereo) async {
     await run(
-      setSucces: true,
+      setError: true,
       () async {},
     );
     await run(
-      setSucces: true,
+      setError: true,
       () async {
         try {
           isEditingZone.value = false;
@@ -173,11 +166,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
           _updateGroupZones(editingWrapper.value);
         } catch (exception) {
-          if (exception is Exception) {
-            rethrow;
-          } else {
-            throw Exception(exception);
-          }
+          logger.e("Erro ao mudar o modo da zona --> $exception");
+          setError(Exception("Erro ao enviar comando"));
         }
       },
     );
@@ -255,7 +245,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   Future<void> onFactoryRestore() async {
     await run(
-      setSucces: true,
+      setError: true,
       () async {
         try {
           // await restartSocket(ip: device.value.ip);
@@ -280,7 +270,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
           await _updateDeviceData();
         } catch (exception) {
-          throw Exception("Erro ao enviar comando");
+          logger.e("Erro ao resetar dispositivo --> $exception");
+          setError(Exception("Erro ao enviar comando"));
         }
       },
     );
@@ -288,7 +279,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   Future<void> onSetMaxVolume(ZoneWrapperModel wrapper) async {
     await run(
-      setSucces: true,
+      setError: true,
       () async {
         editingWrapper.value = wrapper.copyWith(
           zone: wrapper.isStereo
@@ -323,7 +314,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
             volumePercent: maxVolumeR.value,
           ));
         } catch (exception) {
-          throw Exception("Erro ao definir volume máximo --> $exception");
+          logger.e("Erro ao definir volume máximo --> $exception");
+          setError(Exception("Erro ao enviar comando"));
         }
       },
     );
@@ -478,8 +470,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
       return int.parse(response);
     } catch (exception) {
-      logger.e(exception);
-      setError(exception as Exception);
+      logger.e("Erro ao ler volume máximo --> $exception");
+      setError(Exception("Erro ao enviar comando"));
 
       return 100;
     }

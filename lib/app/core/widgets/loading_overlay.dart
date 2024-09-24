@@ -58,9 +58,11 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
             type: ToastificationType.error,
           );
         } else {
-          untracked(() {
-            _controller.resetErrorCounter();
-          });
+          if (widget.state.value is SuccessState) {
+            untracked(() {
+              _controller.resetErrorCounter();
+            });
+          }
         }
       }));
     });

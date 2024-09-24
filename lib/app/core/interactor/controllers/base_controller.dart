@@ -57,7 +57,11 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
     _stateNotifier.value = newState;
   }
 
-  Future<R> run<R>(Function action, {bool setSucces = false}) async {
+  Future<R> run<R>(
+    Function action, {
+    bool setSucces = false,
+    bool setError = false,
+  }) async {
     try {
       _update(LoadingState());
 
@@ -67,7 +71,7 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
 
       return result as R;
     } catch (e) {
-      _update(setSucces ? ErrorState(exception: e as Exception) : InitialState());
+      _update(setError ? ErrorState(exception: e as Exception) : InitialState());
 
       return Future.error(e);
     }
