@@ -126,14 +126,14 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
   @override
   Widget build(BuildContext context) {
     return Watch(
-      (_) => LoadingOverlay(
-        state: _controller.state,
-        currentIp: _controller.device.value.ip,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text("Configuração do dispositivo"),
-          ),
-          body: SingleChildScrollView(
+      (_) => Scaffold(
+        appBar: AppBar(
+          title: const Text("Configuração do dispositivo"),
+        ),
+        body: LoadingOverlay(
+          state: _controller.state,
+          currentIp: _controller.device.value.ip,
+          child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(

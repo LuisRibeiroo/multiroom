@@ -42,7 +42,16 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     try {
       await initSocket(ip: dev.ip);
-      await run(_updateDeviceData);
+      await run(
+        setSucces: true,
+        () async {
+          try {
+            await _updateDeviceData();
+          } catch (exception) {
+            throw Exception("Erro ao ler informações do dispositivo");
+          }
+        },
+      );
     } catch (exception) {
       logger.e(exception);
       if (exception is Exception) {
@@ -74,84 +83,104 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   Future<void> onAddZoneToGroup(ZoneGroupModel group, ZoneModel zone) async {
-    try {
-      if (group.zones.containsZone(zone)) {
-        // Show error
-      }
+    await run(
+      setSucces: true,
+      () async {
+        try {
+          if (group.zones.containsZone(zone)) {
+            // Show error
+          }
 
-      final List<ZoneGroupModel> groups = List.from(device.peek().groups);
-      final updatedZones = [...group.zones, zone];
+          final List<ZoneGroupModel> groups = List.from(device.peek().groups);
+          final updatedZones = [...group.zones, zone];
 
-      device.value = device.peek().copyWith(
-            groups: groups.withReplacement(
-              (g) => g.id == group.id,
-              group.copyWith(
-                zones: updatedZones,
-              ),
+          device.value = device.peek().copyWith(
+                groups: groups.withReplacement(
+                  (g) => g.id == group.id,
+                  group.copyWith(
+                    zones: updatedZones,
+                  ),
+                ),
+              );
+
+          await socketSender(
+            MrCmdBuilder.setGroup(
+              group: group,
+              zones: updatedZones,
             ),
           );
-
-      await socketSender(
-        MrCmdBuilder.setGroup(
-          group: group,
-          zones: updatedZones,
-        ),
-      );
-    } catch (exception) {
-      if (exception is Exception) {
-        setError(exception);
-      } else {
-        setError(Exception(exception));
-      }
-    }
+        } catch (exception) {
+          if (exception is Exception) {
+            rethrow;
+          } else {
+            throw Exception(exception);
+          }
+        }
+      },
+    );
   }
 
   Future<void> onRemoveZoneFromGroup(ZoneGroupModel group, ZoneModel zone) async {
-    if (group.zones.containsZone(zone) == false) {
-      return;
-    }
+    await run(
+      setSucces: true,
+      () async {
+        if (group.zones.containsZone(zone) == false) {
+          return;
+        }
 
-    final List<ZoneGroupModel> groups = List.from(device.peek().groups);
-    final List<ZoneModel> tempZones = List.from(group.zones);
-    final idx = groups.indexOf(group);
+        final List<ZoneGroupModel> groups = List.from(device.peek().groups);
+        final List<ZoneModel> tempZones = List.from(group.zones);
+        final idx = groups.indexOf(group);
 
-    groups[idx] = groups[idx].copyWith(zones: tempZones..remove(zone));
-    device.value = device.peek().copyWith(groups: groups);
+        groups[idx] = groups[idx].copyWith(zones: tempZones..remove(zone));
+        device.value = device.peek().copyWith(groups: groups);
 
-    await socketSender(
-      MrCmdBuilder.setGroup(
-        group: groups[idx],
-        zones: groups[idx].zones,
-      ),
+        await socketSender(
+          MrCmdBuilder.setGroup(
+            group: groups[idx],
+            zones: groups[idx].zones,
+          ),
+        );
+      },
     );
   }
 
   Future<void> onChangeZoneMode(ZoneWrapperModel wrapper, bool isStereo) async {
-    try {
-      isEditingZone.value = false;
-      editingZone.value = editingZone.initialValue;
+    await run(
+      setSucces: true,
+      () async {},
+    );
+    await run(
+      setSucces: true,
+      () async {
+        try {
+          isEditingZone.value = false;
+          editingZone.value = editingZone.initialValue;
 
-      await socketSender(
-        MrCmdBuilder.setZoneMode(
-          zone: wrapper,
-          mode: isStereo ? ZoneMode.stereo : ZoneMode.mono,
-        ),
-      );
-
-      editingWrapper.value = wrapper.copyWith(mode: isStereo ? ZoneMode.stereo : ZoneMode.mono);
-
-      device.value = device.peek().copyWith(
-            zoneWrappers: device.peek().zoneWrappers.map((z) => z.id == wrapper.id ? editingWrapper.value : z).toList(),
+          await socketSender(
+            MrCmdBuilder.setZoneMode(
+              zone: wrapper,
+              mode: isStereo ? ZoneMode.stereo : ZoneMode.mono,
+            ),
           );
 
-      _updateGroupZones(editingWrapper.value);
-    } catch (exception) {
-      if (exception is Exception) {
-        setError(exception);
-      } else {
-        setError(Exception(exception));
-      }
-    }
+          editingWrapper.value = wrapper.copyWith(mode: isStereo ? ZoneMode.stereo : ZoneMode.mono);
+
+          device.value = device.peek().copyWith(
+                zoneWrappers:
+                    device.peek().zoneWrappers.map((z) => z.id == wrapper.id ? editingWrapper.value : z).toList(),
+              );
+
+          _updateGroupZones(editingWrapper.value);
+        } catch (exception) {
+          if (exception is Exception) {
+            rethrow;
+          } else {
+            throw Exception(exception);
+          }
+        }
+      },
+    );
   }
 
   void onChangeZoneName(ZoneModel zone, String value) {
@@ -225,66 +254,79 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   Future<void> onFactoryRestore() async {
-    await run(() async {
-      await socketSender(MrCmdBuilder.setDefaultConfigs);
+    await run(
+      setSucces: true,
+      () async {
+        try {
+          // await restartSocket(ip: device.value.ip);
+          await socketSender(MrCmdBuilder.setDefaultConfigs);
 
-      device.value = DeviceModel.builder(
-        projectName: device.value.projectName,
-        projectId: device.value.projectId,
-        serialNumber: device.value.serialNumber,
-        name: device.value.name,
-        ip: device.value.ip,
-        version: device.value.version,
-        type: device.value.type,
-      );
+          device.value = DeviceModel.builder(
+            projectName: device.value.projectName,
+            projectId: device.value.projectId,
+            serialNumber: device.value.serialNumber,
+            name: device.value.name,
+            ip: device.value.ip,
+            version: device.value.version,
+            type: device.value.type,
+          );
 
-      toastification.show(
-        type: ToastificationType.success,
-        style: ToastificationStyle.minimal,
-        autoCloseDuration: const Duration(seconds: 2),
-        title: const Text("Dispositivo restaurado"),
-      );
+          toastification.show(
+            type: ToastificationType.success,
+            style: ToastificationStyle.minimal,
+            autoCloseDuration: const Duration(seconds: 2),
+            title: const Text("Dispositivo restaurado"),
+          );
 
-      await _updateDeviceData();
-    });
+          await _updateDeviceData();
+        } catch (exception) {
+          throw Exception("Erro ao enviar comando");
+        }
+      },
+    );
   }
 
   Future<void> onSetMaxVolume(ZoneWrapperModel wrapper) async {
-    editingWrapper.value = wrapper.copyWith(
-      zone: wrapper.isStereo
-          ? wrapper.stereoZone.copyWith(
-              maxVolumeRight: maxVolumeR.value,
-              maxVolumeLeft: maxVolumeL.value,
-            )
-          : null,
-      monoZones: wrapper.isStereo
-          ? null
-          : wrapper.monoZones.copyWith(
-              left: wrapper.monoZones.left.copyWith(maxVolumeLeft: maxVolumeL.value),
-              right: wrapper.monoZones.right.copyWith(maxVolumeRight: maxVolumeR.value),
-            ),
-    );
-
-    device.value = device.peek().copyWith(
-          zoneWrappers: device.peek().zoneWrappers.withReplacement(
-                (w) => w.id == wrapper.id,
-                editingWrapper.value,
-              ),
+    await run(
+      setSucces: true,
+      () async {
+        editingWrapper.value = wrapper.copyWith(
+          zone: wrapper.isStereo
+              ? wrapper.stereoZone.copyWith(
+                  maxVolumeRight: maxVolumeR.value,
+                  maxVolumeLeft: maxVolumeL.value,
+                )
+              : null,
+          monoZones: wrapper.isStereo
+              ? null
+              : wrapper.monoZones.copyWith(
+                  left: wrapper.monoZones.left.copyWith(maxVolumeLeft: maxVolumeL.value),
+                  right: wrapper.monoZones.right.copyWith(maxVolumeRight: maxVolumeR.value),
+                ),
         );
 
-    try {
-      await socketSender(MrCmdBuilder.setMaxVolume(
-        zone: wrapper.monoZones.left,
-        volumePercent: maxVolumeL.value,
-      ));
+        device.value = device.peek().copyWith(
+              zoneWrappers: device.peek().zoneWrappers.withReplacement(
+                    (w) => w.id == wrapper.id,
+                    editingWrapper.value,
+                  ),
+            );
 
-      await socketSender(MrCmdBuilder.setMaxVolume(
-        zone: wrapper.monoZones.right,
-        volumePercent: maxVolumeR.value,
-      ));
-    } catch (exception) {
-      setError(Exception("Erro ao definir volume máximo --> $exception"));
-    }
+        try {
+          await socketSender(MrCmdBuilder.setMaxVolume(
+            zone: wrapper.monoZones.left,
+            volumePercent: maxVolumeL.value,
+          ));
+
+          await socketSender(MrCmdBuilder.setMaxVolume(
+            zone: wrapper.monoZones.right,
+            volumePercent: maxVolumeR.value,
+          ));
+        } catch (exception) {
+          throw Exception("Erro ao definir volume máximo --> $exception");
+        }
+      },
+    );
   }
 
   Future<void> _updateDeviceData() async {
