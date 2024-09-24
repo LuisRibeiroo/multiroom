@@ -327,22 +327,30 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
     try {
       for (final wrapper in device.value.zoneWrappers) {
-        final mode = MrCmdBuilder.parseResponse(await socketSender(MrCmdBuilder.getZoneMode(zone: wrapper.stereoZone)));
+        final mode = MrCmdBuilder.parseResponse(await socketSender(MrCmdBuilder.getZoneMode(zone: wrapper.stereoZone)))
+                    .toUpperCase() ==
+                "STEREO"
+            ? ZoneMode.stereo
+            : ZoneMode.mono;
+        final statusActive = await _getZonesStatus(wrapper, mode);
 
         final maxVolR = await _getZoneMaxVol(wrapper.monoZones.right);
         final maxVolL = await _getZoneMaxVol(wrapper.monoZones.left);
 
         final setWrapper = wrapper.copyWith(
-          mode: mode.toUpperCase() == "STEREO" ? ZoneMode.stereo : ZoneMode.mono,
+          mode: mode,
           zone: wrapper.stereoZone.copyWith(
+            active: statusActive.stereo,
             maxVolumeRight: maxVolR,
             maxVolumeLeft: maxVolL,
           ),
           monoZones: wrapper.monoZones.copyWith(
             right: wrapper.monoZones.right.copyWith(
+              active: statusActive.right,
               maxVolumeRight: maxVolR,
             ),
             left: wrapper.monoZones.left.copyWith(
+              active: statusActive.left,
               maxVolumeLeft: maxVolL,
             ),
           ),
@@ -426,6 +434,29 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
       return 100;
     }
+  }
+
+  Future<({bool stereo, bool left, bool right})> _getZonesStatus(
+    ZoneWrapperModel wrapper,
+    ZoneMode mode,
+  ) async {
+    if (mode == ZoneMode.stereo) {
+      final status = await _getActive(wrapper.stereoZone);
+
+      return (stereo: status, left: false, right: false);
+    } else {
+      final left = await _getActive(wrapper.monoZones.left);
+      final right = await _getActive(wrapper.monoZones.right);
+
+      return (stereo: false, left: left, right: right);
+    }
+  }
+
+  Future<bool> _getActive(ZoneModel zone) async {
+    return MrCmdBuilder.parseResponse(
+          await socketSender(MrCmdBuilder.getPower(zone: zone)),
+        ).toUpperCase() ==
+        "ON";
   }
 
   @override
