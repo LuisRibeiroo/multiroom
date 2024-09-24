@@ -21,7 +21,7 @@ extension StreamIteratorExt on StreamIterator {
       }
 
       final response = String.fromCharCodes(current);
-      _logger.i("<<< $response");
+      _logger.i("[DBG] <<< $response");
 
       return response;
     } catch (exception) {
