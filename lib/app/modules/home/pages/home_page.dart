@@ -180,6 +180,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       } else {
         _controller.setViewMode(expanded: true);
       }
+
+      setState(() {});
     });
   }
 
@@ -195,6 +197,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         },
         child: Scaffold(
           appBar: AppBar(
+            centerTitle: false,
             leading: Image.asset("assets/logo.png"),
             title: Row(
               children: [
@@ -224,22 +227,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 icon: const Icon(Icons.more_vert_rounded),
               ),
             ],
-            // bottom: TabBar(
-            //   indicatorSize: TabBarIndicatorSize.tab,
-            //   controller: _tabControler,
-            //   tabs: const [
-            //     Tab(
-            //       height: 48,
-            //       text: 'Resumo',
-            //       icon: Icon(Icons.list_rounded),
-            //     ),
-            //     Tab(
-            //       height: 48,
-            //       text: 'Detalhe',
-            //       icon: Icon(Icons.search_rounded),
-            //     ),
-            //   ],
-            // ),
           ),
           body: LoadingOverlay(
             key: const ValueKey("HomePage_Key"),
@@ -317,10 +304,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           floatingActionButton: _tabControler.index == 1
               ? FloatingActionButton.small(
                   child: const Icon(Icons.arrow_back_rounded),
-                  onPressed: () {
-                    _tabControler.animateTo(0);
-                    setState(() {});
-                  })
+                  onPressed: () => _tabControler.animateTo(0),
+                )
               : null,
         ),
       ),
