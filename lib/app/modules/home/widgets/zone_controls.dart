@@ -86,6 +86,7 @@ class ZoneControls extends StatelessWidget {
                                 max: _maxBalance,
                                 divisions: _maxBalance ~/ 5,
                                 label: "${100 - currentZone.balance} | ${(currentZone.balance)}",
+                                inactiveColor: context.colorScheme.primary,
                               ),
                             ),
                             AnimatedOpacity(
