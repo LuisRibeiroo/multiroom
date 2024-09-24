@@ -193,7 +193,7 @@ class _ScannerPageState extends State<ScannerPage> {
           floatingActionButton: FloatingActionButton(
             // onPressed: _showNetworkDevicesBottomSheet,
             onPressed: _showProjectListBottomSheet,
-            child: const Icon(Icons.settings_input_antenna_rounded),
+            child: const Icon(Icons.add_rounded),
           ),
         ),
       ),
