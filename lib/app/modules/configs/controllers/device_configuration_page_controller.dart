@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:toastification/toastification.dart';
 
 import '../../../../injector.dart';
 import '../../../core/enums/mono_side.dart';
@@ -223,19 +225,28 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   Future<void> onFactoryRestore() async {
-    await socketSender(MrCmdBuilder.setDefaultConfigs);
+    await run(() async {
+      await socketSender(MrCmdBuilder.setDefaultConfigs);
 
-    device.value = DeviceModel.builder(
-      projectName: device.value.projectName,
-      projectId: device.value.projectId,
-      serialNumber: device.value.serialNumber,
-      name: device.value.name,
-      ip: device.value.ip,
-      version: device.value.version,
-      type: device.value.type,
-    );
+      device.value = DeviceModel.builder(
+        projectName: device.value.projectName,
+        projectId: device.value.projectId,
+        serialNumber: device.value.serialNumber,
+        name: device.value.name,
+        ip: device.value.ip,
+        version: device.value.version,
+        type: device.value.type,
+      );
 
-    await _updateDeviceData();
+      toastification.show(
+        type: ToastificationType.success,
+        style: ToastificationStyle.minimal,
+        autoCloseDuration: const Duration(seconds: 2),
+        title: const Text("Dispositivo restaurado"),
+      );
+
+      await _updateDeviceData();
+    });
   }
 
   Future<void> onSetMaxVolume(ZoneWrapperModel wrapper) async {
