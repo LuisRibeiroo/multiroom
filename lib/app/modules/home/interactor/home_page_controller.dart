@@ -42,11 +42,6 @@ class HomePageController extends BaseController with SocketMixin {
           Routefly.pushNavigate(routePaths.modules.configs.pages.configs);
         }
       }),
-      effect(() {
-        if (state.value is SuccessState) {
-          restartSocket(ip: currentDevice.value.ip);
-        }
-      }),
       currentDevice.subscribe((value) async {
         if (value.isEmpty) {
           return;
@@ -119,11 +114,12 @@ class HomePageController extends BaseController with SocketMixin {
     }
 
     _settings.lastProjectId = proj.id;
-    _updateSignals(
+    state.value = const SuccessState(data: null);
+
+    await _updateSignals(
       project: proj,
       readAllZones: true,
     );
-    state.value = InitialState();
   }
 
   Future<void> setZoneActive(bool active, {ZoneModel? zone}) async {
@@ -316,7 +312,7 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  void _updateProject({required ZoneModel zone}) {
+  Future<void> _updateProject({required ZoneModel zone}) async {
     ZoneGroupModel? group;
 
     if (zone.isGroup) {
@@ -358,7 +354,7 @@ class HomePageController extends BaseController with SocketMixin {
       devices: updatedDevices,
     );
 
-    _updateDevicesState();
+    await _updateDevicesState();
   }
 
   void _setOfflineDeviceState() {
@@ -374,29 +370,32 @@ class HomePageController extends BaseController with SocketMixin {
     bool readAllZones = false,
   }) async {
     currentProject.value = project ?? _getLastProject();
-    currentDevice.value = currentProject.value.devices.first;
-    final zone = currentDevice.value.zones.first;
 
-    if (currentDevice.value.isZoneInGroup(zone)) {
-      currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.containsZone(zone)).asZone;
-    } else {
-      currentZone.value = zone;
+    // Update device and zone infos only if project changed
+    if (project != null) {
+      currentDevice.value = currentProject.value.devices.first;
+      final zone = currentDevice.value.zones.first;
+
+      if (currentDevice.value.isZoneInGroup(zone)) {
+        currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.containsZone(zone)).asZone;
+      } else {
+        currentZone.value = zone;
+      }
+
+      channels.value = currentZone.value.channels;
+
+      currentZone.value = currentZone.value.copyWith(
+        channel: channels.firstWhere(
+          (c) => c.id == currentZone.value.channel.id,
+          orElse: () => channels.first,
+        ),
+      );
     }
-
-    channels.value = currentZone.value.channels;
-
-    currentZone.value = currentZone.value.copyWith(
-      channel: channels.firstWhere(
-        (c) => c.id == currentZone.value.channel.id,
-        orElse: () => channels.first,
-      ),
-    );
 
     await run(() async {
       try {
         await restartSocket(ip: currentDevice.value.ip);
         await _updateDevicesState();
-        await _updateAllDeviceData(currentZone.value);
 
         if (readAllZones) {
           for (final device in currentProject.value.devices) {
@@ -404,12 +403,14 @@ class HomePageController extends BaseController with SocketMixin {
               await _updateAllDeviceData(zone, updateCurrentZone: false);
             }
           }
+        } else {
+          await _updateAllDeviceData(currentZone.value);
         }
       } catch (exception) {
-        logger.e(exception);
+        logger.e("Erro ao iniciar comunicação com o Multiroom --> $exception");
 
         _setOfflineDeviceState();
-        setError(Exception("Erro iniciar comunicação com o Multiroom"));
+        setError(Exception("Erro ao iniciar comunicação com o Multiroom"));
       }
     });
   }
@@ -536,7 +537,7 @@ class HomePageController extends BaseController with SocketMixin {
       currentZone.value = updatedZone;
     }
 
-    _updateProject(zone: updatedZone);
+    await _updateProject(zone: updatedZone);
   }
 
   @override

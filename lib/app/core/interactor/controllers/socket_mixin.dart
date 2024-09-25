@@ -11,11 +11,14 @@ mixin SocketMixin {
   StreamIterator? _streamIterator;
   bool _lastCmdError = false;
   String? _ip;
+  String? _lastIp;
 
   bool get socketInit => _socket != null;
 
   Future<void> initSocket({required String ip}) async {
     _ip = ip;
+    _lastIp = _ip;
+
     _socket = await Socket.connect(
       ip,
       4998,
@@ -26,8 +29,6 @@ mixin SocketMixin {
   }
 
   Future<void> restartSocket({required String ip}) async {
-    _ip = ip;
-
     if (_socket != null) {
       _socket!.close();
     }
@@ -43,10 +44,15 @@ mixin SocketMixin {
     // )).d("MOCK CMD --> [$cmd]");
     // return "mr_cmd=OK";
 
+    if (_lastIp != _ip) {
+      _lastCmdError = false;
+    }
+
     if (_lastCmdError && _ip.isNotNullOrEmpty) {
       await restartSocket(ip: _ip!);
     }
 
+    _lastIp = _ip;
     _lastCmdError = true;
 
     if (_socket == null || _streamIterator == null) {
