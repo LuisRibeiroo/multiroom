@@ -49,6 +49,8 @@ class HiveSettings implements SettingsContract {
 
     updatedProj = updatedProj.copyWith(devices: updatedDevices);
 
+    lastProjectId = "";
+
     // _logger.d("REMOVE DEVICE --> PARAM: [$deviceId] | LENGHT: [${updatedDevices.length}] NEW VALUE: $updatedDevices");
 
     saveProject(updatedProj);
