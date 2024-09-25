@@ -36,8 +36,9 @@ class _ScannerPageState extends State<ScannerPage> {
         (_) => NetworkDevicesBottomSheet(
           hasAvailableSlots: _controller.hasAvailableSlots.value == false,
           networkDevices: _controller.networkDevices.value,
-          onTapDevice: () {
+          onTapDevice: (device) {
             Routefly.pop(context);
+            _controller.setSelectedDevice(device);
 
             _showDeviceTypeSelectorBottomSheet();
           },
@@ -50,7 +51,7 @@ class _ScannerPageState extends State<ScannerPage> {
     context.showCustomModalBottomSheet(
       child: Watch(
         (_) => TypeSelectionBottomSheet(
-          netDevice: _controller.networkDevices.first,
+          netDevice: _controller.selectedDevice.value,
           deviceType: _controller.deviceType.value,
           onChangeType: _controller.deviceType.set,
           onTapConfirm: _controller.onConfirmAddDevice,

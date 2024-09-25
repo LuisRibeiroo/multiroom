@@ -41,6 +41,7 @@ class ScannerPageController extends BaseController with SocketMixin {
   final slave1Available = true.toSignal(debugLabel: "slave1Available");
   final slave2Available = true.toSignal(debugLabel: "slave2Available");
   final hasAvailableSlots = false.toSignal(debugLabel: "hasAvailableSlots");
+  final selectedDevice = NetworkDeviceModel.empty().toSignal(debugLabel: "selectedDevice");
 
   final _localDevices = listSignal(
     <DeviceModel>[],
@@ -86,6 +87,8 @@ class ScannerPageController extends BaseController with SocketMixin {
       ],
     );
   }
+
+  void setSelectedDevice(NetworkDeviceModel device) => selectedDevice.value = device;
 
   Future<void> startUdpServer() async {
     await Permission.nearbyWifiDevices.request();

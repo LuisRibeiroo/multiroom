@@ -14,7 +14,7 @@ class NetworkDevicesBottomSheet extends StatelessWidget {
 
   final bool hasAvailableSlots;
   final List<NetworkDeviceModel> networkDevices;
-  final Function() onTapDevice;
+  final Function(NetworkDeviceModel) onTapDevice;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,7 @@ class NetworkDevicesBottomSheet extends StatelessWidget {
                             "${netDevice.serialNumber} - Ver ${netDevice.firmware}",
                           ),
                           trailing: const Icon(Icons.add_circle_rounded),
-                          onTap: onTapDevice,
+                          onTap: () => onTapDevice(netDevice),
                         );
                       },
                     ),
