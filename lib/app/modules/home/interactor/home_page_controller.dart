@@ -248,8 +248,13 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> syncLocalData({
     bool readAllZones = false,
+    bool reloadSocket = false,
   }) async {
     await run(() async {
+      if (reloadSocket) {
+        await restartSocket(ip: currentDevice.value.ip);
+      }
+
       projects.value = _settings.projects;
 
       // untracked(() {
