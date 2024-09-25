@@ -377,10 +377,8 @@ class HomePageController extends BaseController with SocketMixin {
     bool readAllZones = false,
   }) async {
     // Update device and zone infos only if project changed
-    if (project != null) {
-      currentProject.value = project;
-      currentDevice.value = currentProject.value.devices.first;
-    }
+    currentProject.value = project ?? _getLastProject();
+    currentDevice.value = currentProject.value.devices.first;
 
     if (currentZone.value.isEmpty) {
       final zone = currentDevice.value.zones.first;
