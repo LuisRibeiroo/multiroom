@@ -90,10 +90,6 @@ class DeviceListTile extends StatelessWidget {
                   ],
                 ),
               ),
-              8.asSpace,
-              const Icon(
-                Icons.tune_rounded,
-              ),
             ],
           ),
         ),

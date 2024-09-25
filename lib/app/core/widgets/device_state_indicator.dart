@@ -30,9 +30,10 @@ class DeviceStateIndicator extends StatelessWidget {
           color: value ? context.colorScheme.primary : context.theme.disabledColor,
           size: 20,
         ),
+        fittingMode: FittingMode.preventHorizontalOverlapping,
         textBuilder: (value) => Text(
-          value ? "ON" : "OFF",
-          style: context.textTheme.bodyMedium,
+          value ? "ONLINE" : "OFFLINE",
+          style: context.textTheme.labelSmall,
         ),
       ),
     );

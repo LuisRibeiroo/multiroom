@@ -220,6 +220,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
             actions: [
               IconButton(
+                onPressed: () => _controller.syncLocalData(readAllZones: true),
+                icon: const Icon(Icons.sync_rounded),
+              ),
+              IconButton(
                 onPressed: () => OptionsMenu.showOptionsBottomSheet(
                   context,
                   state: _controller.state,

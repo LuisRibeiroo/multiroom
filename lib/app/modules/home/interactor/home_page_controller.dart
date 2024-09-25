@@ -245,21 +245,23 @@ class HomePageController extends BaseController with SocketMixin {
   Future<void> syncLocalData({
     bool readAllZones = false,
   }) async {
-    await run(() {
+    await run(() async {
       projects.value = _settings.projects;
 
-      disposables.addAll(
-        [
-          untracked(() {
-            if (projects.isEmpty) {
-              return;
-            }
+      // untracked(() {
+      //   if (projects.isEmpty) {
+      //     return;
+      //   }
 
-            _updateSignals(readAllZones: readAllZones);
-            return null;
-          }),
-        ],
-      );
+      //   _updateSignals(readAllZones: readAllZones);
+      //   return null;
+      // });
+
+      if (projects.isEmpty) {
+        return;
+      }
+
+      await _updateSignals(readAllZones: readAllZones);
     });
   }
 
