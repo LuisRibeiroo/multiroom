@@ -5,7 +5,7 @@ abstract class DatagramDataParser {
     String serialNumber = String.fromCharCodes(data.sublist(29, 45));
     final firmware = ((data.sublist(45, 46).toList().first + (data.sublist(46, 47).toList().first * 256)) / 1000);
     final numbersOnly = firmware.toString().replaceAll(".", "");
-    final formatted = "${numbersOnly.substring(0, 2)}.${numbersOnly.substring(2)}";
+    final formatted = "${numbersOnly.substring(0, 2)}.${numbersOnly.substring(2).padLeft(2, "0")}";
 
     return (serialNumber, formatted);
   }
