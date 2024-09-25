@@ -85,6 +85,7 @@ class HomePageController extends BaseController with SocketMixin {
   final expandedViewMode = false.toSignal(debugLabel: "expandedViewMode");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
+  final _updatingData = false.toSignal(debugLabel: "updatingData");
 
   Future<void> setCurrentDeviceAndZone(DeviceModel device, ZoneModel zone) async {
     try {
@@ -246,13 +247,8 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> syncLocalData({
     bool readAllZones = false,
-    bool reloadSocket = false,
   }) async {
     await run(() async {
-      if (reloadSocket) {
-        await restartSocket(ip: currentDevice.value.ip);
-      }
-
       projects.value = _settings.projects;
 
       // untracked(() {
@@ -407,7 +403,11 @@ class HomePageController extends BaseController with SocketMixin {
 
     await run(() async {
       try {
-        await restartSocket(ip: currentDevice.value.ip);
+        if (_updatingData.value == false) {
+          await restartSocket(ip: currentDevice.value.ip);
+        }
+
+        _updatingData.value = true;
         await _updateDevicesState();
 
         if (readAllZones) {
@@ -419,11 +419,15 @@ class HomePageController extends BaseController with SocketMixin {
         } else {
           await _updateAllDeviceData(currentZone.value);
         }
+
+        _updatingData.value = false;
       } catch (exception) {
         logger.e("Erro ao iniciar comunicação com o Multiroom --> $exception");
 
         _setOfflineDeviceState();
         setError(Exception("Erro ao iniciar comunicação com o Multiroom"));
+
+        _updatingData.value = false;
       }
     });
   }
