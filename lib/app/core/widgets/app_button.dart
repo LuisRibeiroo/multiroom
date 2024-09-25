@@ -166,12 +166,14 @@ class _AppButtonState extends State<AppButton> {
           Flexible(
             child: AnimatedSwitcher(
               duration: _defaultDuration,
-              child: Text(
-                key: ValueKey(widget.text),
-                widget.text,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
+              child: FittedBox(
+                child: Text(
+                  key: ValueKey(widget.text),
+                  widget.text,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
               ),
             ),
           ),
