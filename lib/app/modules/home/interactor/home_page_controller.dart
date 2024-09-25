@@ -190,11 +190,13 @@ class HomePageController extends BaseController with SocketMixin {
       ),
     );
 
-    if (zone != null) {
-      _updateProject(zone: zone.copyWith(volume: volume));
-    } else {
-      _updateProject(zone: currentZone.value);
-    }
+    _writeDebouncer(() {
+      if (zone != null) {
+        _updateProject(zone: zone.copyWith(volume: volume));
+      } else {
+        _updateProject(zone: currentZone.value);
+      }
+    });
   }
 
   Future<void> setEqualizer(EqualizerModel equalizer) async {
@@ -218,6 +220,8 @@ class HomePageController extends BaseController with SocketMixin {
       // Delay to avoid sending commands too fast
       await Future.delayed(Durations.short2);
     }
+
+    _updateProject(zone: currentZone.value);
   }
 
   void setFrequency(Frequency frequency) {
@@ -236,6 +240,10 @@ class HomePageController extends BaseController with SocketMixin {
         gain: frequency.value,
       ),
     );
+
+    _writeDebouncer(() {
+      _updateProject(zone: currentZone.value);
+    });
   }
 
   Future<void> syncLocalData({
@@ -369,11 +377,13 @@ class HomePageController extends BaseController with SocketMixin {
     ProjectModel? project,
     bool readAllZones = false,
   }) async {
-    currentProject.value = project ?? _getLastProject();
-
     // Update device and zone infos only if project changed
     if (project != null) {
+      currentProject.value = project;
       currentDevice.value = currentProject.value.devices.first;
+    }
+
+    if (currentZone.value.isEmpty) {
       final zone = currentDevice.value.zones.first;
 
       if (currentDevice.value.isZoneInGroup(zone)) {
