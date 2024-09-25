@@ -24,11 +24,13 @@ class IconTextTile extends StatelessWidget {
         ),
         8.asSpace,
         Flexible(
-          child: Text(
-            text,
-            style: style,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          child: FittedBox(
+            child: Text(
+              text,
+              style: style,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ],

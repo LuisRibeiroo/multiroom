@@ -59,7 +59,7 @@ class DeviceListTile extends StatelessWidget {
                   ],
                 ),
               ),
-              Flexible(
+              Expanded(
                 child: Column(
                   children: [
                     Visibility(

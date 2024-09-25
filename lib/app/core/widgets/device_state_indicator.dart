@@ -31,9 +31,11 @@ class DeviceStateIndicator extends StatelessWidget {
           size: 20,
         ),
         fittingMode: FittingMode.preventHorizontalOverlapping,
-        textBuilder: (value) => Text(
-          value ? "ONLINE" : "OFFLINE",
-          style: context.textTheme.labelSmall,
+        textBuilder: (value) => FittedBox(
+          child: Text(
+            value ? "ONLINE" : "OFFLINE",
+            style: context.textTheme.labelSmall,
+          ),
         ),
       ),
     );
