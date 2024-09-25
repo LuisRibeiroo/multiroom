@@ -190,13 +190,11 @@ class HomePageController extends BaseController with SocketMixin {
       ),
     );
 
-    _writeDebouncer(() {
-      if (zone != null) {
-        _updateProject(zone: zone.copyWith(volume: volume));
-      } else {
-        _updateProject(zone: currentZone.value);
-      }
-    });
+    if (zone != null) {
+      _updateProject(zone: zone.copyWith(volume: volume));
+    } else {
+      _updateProject(zone: currentZone.value);
+    }
   }
 
   Future<void> setEqualizer(EqualizerModel equalizer) async {

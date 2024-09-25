@@ -28,7 +28,11 @@ class HiveSettings implements SettingsContract {
   void saveDevice({required DeviceModel device}) {
     // _logger.d("SAVE DEVICE --> PARAM: [$device]}");
 
-    ProjectModel updatedProj = projects.firstWhere((p) => p.id == device.projectId);
+    ProjectModel updatedProj = projects.firstWhere(
+      (p) => p.id == device.projectId,
+      orElse: () => projects.first,
+    );
+
     final updatedDevices = updatedProj.devices;
     updatedDevices.replaceWhere((d) => d.serialNumber == device.serialNumber, device);
 
