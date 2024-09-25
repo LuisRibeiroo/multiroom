@@ -118,7 +118,7 @@ class HomePageController extends BaseController with SocketMixin {
       return;
     }
 
-    _settings.lastProjectId == proj.id;
+    _settings.lastProjectId = proj.id;
     _updateSignals(
       project: proj,
       readAllZones: true,
