@@ -169,7 +169,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.initState();
 
     AppLifecycleListener(
-      onResume: () async => await _controller.syncLocalData(reloadSocket: true),
+      onResume: () => _controller.syncLocalData(
+        reloadSocket: true,
+        readAllZones: true,
+      ),
     );
 
     _tabControler = TabController(
