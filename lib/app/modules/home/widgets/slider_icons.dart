@@ -39,12 +39,12 @@ class SliderIcons extends StatelessWidget {
               const Icon(Icons.volume_down_rounded),
               Expanded(
                 child: Slider(
-                  value: value.toDouble(),
+                  value: value.clamp(min, max).toDouble(),
                   onChanged: (v) => onChanged(v.toInt()),
                   min: min.toDouble(),
                   max: max.toDouble(),
                   divisions: divisions,
-                  label: value.toString(),
+                  label: value.clamp(min, max).toString(),
                 ),
               ),
               const Icon(Icons.volume_up_rounded),
