@@ -240,8 +240,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       setError: true,
       () async {
         try {
-          // await restartSocket(ip: device.value.ip);
           await socketSender(MrCmdBuilder.setDefaultConfigs);
+          await socketSender(MrCmdBuilder.setDefaultParams);
 
           device.value = DeviceModel.builder(
             projectName: device.value.projectName,
