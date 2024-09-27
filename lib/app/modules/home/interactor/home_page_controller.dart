@@ -192,6 +192,8 @@ class HomePageController extends BaseController with SocketMixin {
         balance: balance,
       ),
     );
+
+    _updateProject(zone: currentZone.value);
   }
 
   void setVolume(int volume, {ZoneModel? zone}) {
