@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/interactor/controllers/device_monitor_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:routefly/routefly.dart';
 
@@ -32,6 +33,12 @@ class _StartupPageState extends State<StartupPage> {
       }
 
       final settings = injector.get<SettingsContract>();
+
+      settings.saveDevice(device: settings.devices.first.copyWith(ip: "192.1.1.1"));
+
+      final monitorController = injector.get<DeviceMonitorController>();
+
+      await monitorController.scanDevices();
 
       // final testZones = List.generate(
       //   8,
@@ -78,15 +85,13 @@ class _StartupPageState extends State<StartupPage> {
 
       // settings.saveDevices([]);
 
-      await Future.delayed(const Duration(seconds: 1), () {
-        if (settings.projects.isEmpty) {
-          Routefly.replace(routePaths.modules.configs.pages.configs);
-          Routefly.pushNavigate(routePaths.modules.configs.pages.configs);
-        } else {
-          Routefly.replace(routePaths.modules.home.pages.home);
-          Routefly.pushNavigate(routePaths.modules.home.pages.home);
-        }
-      });
+      if (settings.projects.isEmpty) {
+        Routefly.replace(routePaths.modules.configs.pages.configs);
+        Routefly.pushNavigate(routePaths.modules.configs.pages.configs);
+      } else {
+        Routefly.replace(routePaths.modules.home.pages.home);
+        Routefly.pushNavigate(routePaths.modules.home.pages.home);
+      }
     });
   }
 

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/interactor/controllers/device_monitor_controller.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -243,6 +244,16 @@ class HomePageController extends BaseController with SocketMixin {
     _writeDebouncer(() {
       _updateProject(zone: currentZone.value);
     });
+  }
+
+  Future<void> test() async {
+    final monitor = injector.get<DeviceMonitorController>();
+
+    if (monitor.isUdpListening.value) {
+      monitor.stopUdpServer();
+    } else {
+      monitor.startUdpServer();
+    }
   }
 
   Future<void> syncLocalData({

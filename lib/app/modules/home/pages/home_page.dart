@@ -224,6 +224,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
             actions: [
               IconButton(
+                onPressed: () => _controller.test(),
+                icon: const Icon(Icons.wifi),
+              ),
+              IconButton(
                 onPressed: () => _controller.syncLocalData(readAllZones: true),
                 icon: const Icon(Icons.sync_rounded),
               ),

@@ -102,4 +102,12 @@ class HiveSettings implements SettingsContract {
 
   @override
   set lastProjectId(String value) => _box.put("lastProjectId", value);
+
+  @override
+  List<DeviceModel> get devices {
+    final data = _box.get("projects", defaultValue: <ProjectModel>[]);
+
+
+    return List.castFrom<dynamic, ProjectModel>(data).fold([], (pv, v) => pv..addAll(v.devices));
+  }
 }

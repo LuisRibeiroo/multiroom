@@ -9,6 +9,7 @@ abstract class SettingsContract {
   set expandedViewMode(bool value);
   String get lastProjectId;
   set lastProjectId(String value);
+  List<DeviceModel> get devices;
 
   void updateReference(dynamic newRef);
   void saveProject(ProjectModel project);
