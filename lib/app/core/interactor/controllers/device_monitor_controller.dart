@@ -17,6 +17,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
   final _settings = injector.get<SettingsContract>();
 
   final _serialSet = <String>{};
+  bool isRunning = false;
 
   bool hasStateChanges = false;
   CancelableOperation? _cancelableOperation;
@@ -30,7 +31,6 @@ class DeviceMonitorController extends BaseController with UdpMixin {
   }) async {
     final server = await startServer();
     _serialSet.clear();
-    hasStateChanges = false;
 
     server.asStream(timeout: duration).listen(
       (datagram) {
@@ -45,7 +45,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
             return;
           }
 
-          logger.i("$serialNumber -> ${datagram.address.address}");
+          logger.i("MONITOR --> $serialNumber -> ${datagram.address.address}");
           _serialSet.add(serialNumber);
 
           if (updateIp) {
@@ -71,20 +71,28 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     }
   }
 
-  Future<void> startDeviceMonitor({Function()? cycleCallback}) async {
+  Future<void> startDeviceMonitor({
+    Function()? cycleCallback,
+    bool checkForIpUpdates = false,
+  }) async {
     final interval = defaultScanDuration * 2;
     logger.i("MONITOR --> START [${interval.inSeconds}s]");
+    isRunning = true;
 
     Timer.periodic(interval, (timer) async {
       _cancelableOperation = CancelableOperation.fromFuture(
-        onCancel: timer.cancel,
+        onCancel: () {
+          timer.cancel();
+          isRunning = false;
+        },
         scanDevices(
           updateActives: true,
+          updateIp: true,
           onFinishCallback: cycleCallback,
         ),
       );
 
-      _cancelableOperation?.valueOrCancellation();
+      await _cancelableOperation?.valueOrCancellation();
     });
   }
 
@@ -92,6 +100,12 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     _cancelableOperation?.cancel();
 
     logger.i("MONITOR --> STOP");
+    isRunning = false;
+  }
+
+  void ingestStateChanges() {
+    hasStateChanges = false;
+    logger.i("MONITOR --> Changes ingested");
   }
 
   void _updateDeviceIp({
@@ -102,10 +116,8 @@ class DeviceMonitorController extends BaseController with UdpMixin {
 
     if (device != null && ip != device.ip) {
       _settings.saveDevice(device: device.copyWith(ip: ip));
-      logger.i("--> Updated device [${device.serialNumber}] to IP [$ip]");
+      logger.i("MONITOR --> Updated device [${device.serialNumber}] to IP [$ip]");
       hasStateChanges = true;
-    } else {
-      logger.i("--> New device or same SN and IP");
     }
   }
 
@@ -119,11 +131,13 @@ class DeviceMonitorController extends BaseController with UdpMixin {
 
       hasStateChanges = true;
       _settings.saveDevice(device: device.copyWith(active: active));
-      logger.i("--> [${device.serialNumber}] set ${active ? "ONLINE" : "OFFLINE"}");
+      logger.i("MONITOR --> [${device.serialNumber}] set ${active ? "ONLINE" : "OFFLINE"}");
     }
 
     if (hasStateChanges == false) {
-      logger.i("--> No device changes");
+      logger.i("MONITOR --> No device state change");
+    } else {
+      logger.i("MONITOR --> Changes waiting to be ingest");
     }
   }
 

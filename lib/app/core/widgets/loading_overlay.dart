@@ -54,7 +54,6 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
           );
 
           if (_controller.errorCounter.peek() > 1) {
-            _controller.startPulling();
 
             _controller.checkDeviceAvailability(
               pageState: widget.state,
@@ -65,7 +64,6 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
           if (_controller.pageState.value is SuccessState) {
             untracked(() {
               _controller.resetErrorCounter();
-              _controller.stopPulling();
             });
           }
         }

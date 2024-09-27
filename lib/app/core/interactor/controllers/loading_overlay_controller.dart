@@ -1,16 +1,21 @@
+import 'package:collection/collection.dart';
 import 'package:signals/signals_flutter.dart';
 
+import '../../../../injector.dart';
 import '../../enums/page_state.dart';
 import '../../utils/constants.dart';
+import '../repositories/settings_contract.dart';
 import 'base_controller.dart';
-import 'socket_mixin.dart';
+import 'device_monitor_controller.dart';
 
-class LoadingOverlayController extends BaseController with SocketMixin {
+class LoadingOverlayController extends BaseController {
   LoadingOverlayController() : super(InitialState());
 
+  final _settings = injector.get<SettingsContract>();
   final pageState = Signal<PageState>(InitialState(), debugLabel: "overlayPageState");
   final errorCounter = 0.toSignal(debugLabel: "errorCounter");
-  bool _needPulling = false;
+
+  final _monitorController = injector.get<DeviceMonitorController>();
 
   void incrementErrorCounter() {
     errorCounter.value++;
@@ -20,9 +25,6 @@ class LoadingOverlayController extends BaseController with SocketMixin {
     errorCounter.value = errorCounter.initialValue;
   }
 
-  void startPulling() => _needPulling = true;
-  void stopPulling() => _needPulling = false;
-
   Future<void> checkDeviceAvailability({
     required Signal<PageState> pageState,
     required String currentIp,
@@ -30,20 +32,30 @@ class LoadingOverlayController extends BaseController with SocketMixin {
     pageState.value = LoadingState();
     this.pageState.value = pageState.value;
 
-    try {
-      await restartSocket(ip: currentIp);
+    if (_monitorController.isRunning == false) {
+      await _monitorController.startDeviceMonitor();
+    }
 
-      pageState.value = const SuccessState(data: null);
-      this.pageState.value = pageState.value;
-    } catch (exception) {
-      await Future.delayed(defaultScanDuration);
+    await _checkIpStateOnMonitor(pageState: pageState, ip: currentIp);
+  }
 
-      if (_needPulling) {
-        logger.i("[DBG] Tentativa de comunicação com o ip: $currentIp");
+  Future<void> _checkIpStateOnMonitor({
+    required Signal<PageState> pageState,
+    required String ip,
+  }) async {
+    if (_monitorController.hasStateChanges) {
+      final device = _settings.devices.firstWhereOrNull((d) => d.ip == ip);
+
+      if (device != null && device.active) {
+        pageState.value = const SuccessState(data: null);
+        this.pageState.value = pageState.value;
+      } else {
+        logger.i("LOADER --> Waiting [$ip] online on MONITOR");
+        await Future.delayed(defaultScanDuration);
 
         await checkDeviceAvailability(
           pageState: pageState,
-          currentIp: currentIp,
+          currentIp: ip,
         );
       }
     }
@@ -52,7 +64,6 @@ class LoadingOverlayController extends BaseController with SocketMixin {
   @override
   void dispose() {
     super.dispose();
-    mixinDispose();
 
     errorCounter.value = errorCounter.initialValue;
     pageState.value = pageState.initialValue;

@@ -6,12 +6,12 @@ import 'package:udp/udp.dart';
 mixin UdpMixin {
   UDP? _udpServer;
 
-  bool running = false;
+  bool get running => _udpServer != null && !_udpServer!.closed;
 
   Future<UDP> startServer() async {
     await Permission.nearbyWifiDevices.request();
 
-    if (running) {
+    if (_udpServer != null) {
       return _udpServer!;
     }
 
@@ -22,8 +22,6 @@ mixin UdpMixin {
       ),
     );
 
-    running = true;
-
     return _udpServer!;
   }
 
@@ -32,7 +30,7 @@ mixin UdpMixin {
       _udpServer?.close();
     }
 
-    running = false;
+    _udpServer = null;
   }
 
   void mixinDispose() {

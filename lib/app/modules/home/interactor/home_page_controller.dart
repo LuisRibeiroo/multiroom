@@ -94,6 +94,8 @@ class HomePageController extends BaseController with SocketMixin {
               awaitUpdate: false,
               readAllZones: true,
             );
+
+            _monitorController.ingestStateChanges();
           }
         },
       );
@@ -264,16 +266,6 @@ class HomePageController extends BaseController with SocketMixin {
     });
   }
 
-  Future<void> test() async {
-    final monitor = injector.get<DeviceMonitorController>();
-
-    if (monitor.running) {
-      monitor.stopServer();
-    } else {
-      monitor.startServer();
-    }
-  }
-
   Future<void> syncLocalData({
     bool awaitUpdate = true,
     bool readAllZones = false,
@@ -368,8 +360,6 @@ class HomePageController extends BaseController with SocketMixin {
     currentProject.value = currentProject.value.copyWith(
       devices: updatedDevices,
     );
-
-    // await _updateDevicesState();
   }
 
   void _setOfflineDeviceState() {
@@ -409,36 +399,49 @@ class HomePageController extends BaseController with SocketMixin {
         );
       }
 
-      await run(() async {
-        try {
-          if (_updatingData.value == false) {
-            await restartSocket(ip: currentDevice.value.ip);
-          }
-
-          _updatingData.value = true;
-          // await _updateDevicesState();
-
-          if (readAllZones) {
-            for (final device in currentProject.value.devices) {
-              for (final zone in device.groupedZones) {
-                await _updateAllDeviceData(zone, updateCurrentZone: false);
-              }
-            }
-          } else {
-            await _updateAllDeviceData(currentZone.value);
-          }
-
-          _updatingData.value = false;
-        } catch (exception) {
-          logger.e("Erro ao tentar comunicação com o Multiroom --> $exception");
-
-          _setOfflineDeviceState();
-          setError(Exception("Erro ao tentar comunicação com o Multiroom"));
-
-          _updatingData.value = false;
-        }
-      });
+      await _runUpdateData(readAllZones: readAllZones);
     }
+  }
+
+  Future<void> _runUpdateData({required bool readAllZones}) async {
+    await run(() async {
+      try {
+        if (_updatingData.value == false) {
+          await restartSocket(ip: currentDevice.value.ip);
+        }
+
+        _updatingData.value = true;
+        // await _updateDevicesState();
+
+        if (readAllZones) {
+          for (final device in currentProject.value.devices) {
+            for (final zone in device.groupedZones) {
+              await _updateAllDeviceData(zone, updateCurrentZone: false);
+            }
+          }
+        } else {
+          await _updateAllDeviceData(currentZone.value);
+        }
+
+        _updatingData.value = false;
+      } catch (exception) {
+        if (exception is StateError && exception.toString().contains("StreamSink")) {
+          try {
+            await restartSocket(ip: currentDevice.value.ip);
+
+            await _runUpdateData(readAllZones: readAllZones);
+            return;
+          } catch (_) {}
+        }
+
+        logger.e("Erro ao tentar comunicação com o Multiroom --> $exception");
+
+        _setOfflineDeviceState();
+        setError(Exception("Erro ao tentar comunicação com o Multiroom"));
+
+        _updatingData.value = false;
+      }
+    });
   }
 
   Future<void> _debounceSendCommand(String cmd) async {

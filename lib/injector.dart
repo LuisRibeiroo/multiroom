@@ -13,7 +13,7 @@ import 'app/modules/shared/controllers/options_bottom_sheet_controller.dart';
 
 final injector = AutoInjector(
   on: (i) {
-    i.addLazySingleton(DeviceMonitorController.new);
+    i.addSingleton(DeviceMonitorController.new);
     i.add(OptionsBottomSheetController.new);
     i.add(ImportDataPageController.new);
     i.addLazySingleton(HomePageController.new);
