@@ -8,14 +8,13 @@ import 'package:udp/udp.dart';
 
 import '../../../../injector.dart';
 import '../../enums/page_state.dart';
+import '../../utils/constants.dart';
 import '../../utils/datagram_data_parser.dart';
 import '../repositories/settings_contract.dart';
 import 'base_controller.dart';
 
 class DeviceMonitorController extends BaseController {
   DeviceMonitorController() : super(InitialState());
-
-  static const _scanDuration = Duration(seconds: 5);
 
   UDP? _udpServer;
 
@@ -53,10 +52,13 @@ class DeviceMonitorController extends BaseController {
     isUdpListening.value = false;
   }
 
-  Future<void> scanDevices() async {
+  Future<void> scanDevices({
+    Duration duration = defaultScanDuration,
+    bool awaitFinish = false,
+  }) async {
     await startUdpServer();
 
-    _udpServer?.asStream(timeout: _scanDuration).listen(
+    _udpServer?.asStream(timeout: duration).listen(
       (datagram) {
         if (datagram == null) {
           return;
@@ -76,7 +78,9 @@ class DeviceMonitorController extends BaseController {
       },
     );
 
-    await Future.delayed(_scanDuration);
+    if (awaitFinish) {
+      await Future.delayed(duration);
+    }
   }
 
   void _updateDeviceIp({
