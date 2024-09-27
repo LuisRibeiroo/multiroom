@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:signals/signals.dart';
-import 'package:udp/udp.dart';
 
 import '../../../../injector.dart';
 import '../../enums/page_state.dart';
@@ -12,53 +9,26 @@ import '../../utils/constants.dart';
 import '../../utils/datagram_data_parser.dart';
 import '../repositories/settings_contract.dart';
 import 'base_controller.dart';
+import 'udp_mixin.dart';
 
-class DeviceMonitorController extends BaseController {
+class DeviceMonitorController extends BaseController with UdpMixin {
   DeviceMonitorController() : super(InitialState());
-
-  UDP? _udpServer;
 
   final _settings = injector.get<SettingsContract>();
 
-  final isUdpListening = false.toSignal(debugLabel: "isUdpListening");
-
-  Future<void> startUdpServer() async {
-    await Permission.nearbyWifiDevices.request();
-
-    if (isUdpListening.value) {
-      return;
-    }
-
-    try {
-      _udpServer = await UDP.bind(
-        Endpoint.unicast(
-          InternetAddress.anyIPv4,
-          port: const Port(4055),
-        ),
-      );
-
-      isUdpListening.value = true;
-    } catch (exception) {
-      logger.e(exception);
-      setError(exception as Exception);
-    }
-  }
-
-  void stopUdpServer() {
-    if (_udpServer?.closed == false) {
-      _udpServer?.close();
-    }
-
-    isUdpListening.value = false;
-  }
+  final _serialSet = setSignal(<String>{}, debugLabel: "_serialSet");
 
   Future<void> scanDevices({
     Duration duration = defaultScanDuration,
+    bool updateIp = false,
+    bool updateActives = false,
     bool awaitFinish = false,
+    Function()? onFinishCallback,
   }) async {
-    await startUdpServer();
+    final server = await startServer();
+    _serialSet.clear();
 
-    _udpServer?.asStream(timeout: duration).listen(
+    server.asStream(timeout: duration).listen(
       (datagram) {
         if (datagram == null) {
           return;
@@ -66,15 +36,29 @@ class DeviceMonitorController extends BaseController {
 
         try {
           final (serialNumber, _) = DatagramDataParser.getSerialAndFirmware(datagram.data);
-          logger.i("$serialNumber -> ${datagram.address.address}");
 
-          _updateDeviceIp(serial: serialNumber, ip: datagram.address.address);
+          if (_serialSet.contains(serialNumber)) {
+            return;
+          }
+
+          logger.i("$serialNumber -> ${datagram.address.address}");
+          _serialSet.add(serialNumber);
+
+          if (updateIp) {
+            _updateDeviceIp(serial: serialNumber, ip: datagram.address.address);
+          }
         } catch (exception) {
           logger.e("Datagram parse error [${datagram.address.address}]-> $exception");
         }
       },
       onDone: () {
-        isUdpListening.value = false;
+        stopServer();
+
+        if (updateActives) {
+          _updateActives();
+        }
+
+        onFinishCallback?.call();
       },
     );
 
@@ -94,6 +78,15 @@ class DeviceMonitorController extends BaseController {
       logger.i("--> Updated device [${device.serialNumber}] to IP [$ip]");
     } else {
       logger.i("--> New device or same SN and IP");
+    }
+  }
+
+  void _updateActives() {
+    for (final device in _settings.devices) {
+      bool active = _serialSet.contains(device.serialNumber);
+
+      _settings.saveDevice(device: device.copyWith(active: active));
+      logger.i("--> [${device.serialNumber}] set ${active ? "ONLINE" : "OFFLINE"}");
     }
   }
 }

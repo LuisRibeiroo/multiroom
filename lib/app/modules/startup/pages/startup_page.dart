@@ -38,7 +38,10 @@ class _StartupPageState extends State<StartupPage> {
 
       final monitorController = injector.get<DeviceMonitorController>();
 
-      await monitorController.scanDevices(awaitFinish: true);
+      await monitorController.scanDevices(
+        updateIp: true,
+        awaitFinish: true,
+      );
 
       // final testZones = List.generate(
       //   8,

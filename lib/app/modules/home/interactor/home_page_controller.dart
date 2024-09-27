@@ -249,10 +249,10 @@ class HomePageController extends BaseController with SocketMixin {
   Future<void> test() async {
     final monitor = injector.get<DeviceMonitorController>();
 
-    if (monitor.isUdpListening.value) {
-      monitor.stopUdpServer();
+    if (monitor.running) {
+      monitor.stopServer();
     } else {
-      monitor.startUdpServer();
+      monitor.startServer();
     }
   }
 
