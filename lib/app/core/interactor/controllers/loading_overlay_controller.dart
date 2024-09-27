@@ -1,6 +1,7 @@
 import 'package:signals/signals_flutter.dart';
 
 import '../../enums/page_state.dart';
+import '../../utils/constants.dart';
 import 'base_controller.dart';
 import 'socket_mixin.dart';
 
@@ -9,7 +10,7 @@ class LoadingOverlayController extends BaseController with SocketMixin {
 
   final pageState = Signal<PageState>(InitialState(), debugLabel: "overlayPageState");
   final errorCounter = 0.toSignal(debugLabel: "errorCounter");
-  final _needPulling = false.toSignal(debugLabel: "needPulling");
+  bool _needPulling = false;
 
   void incrementErrorCounter() {
     errorCounter.value++;
@@ -19,8 +20,8 @@ class LoadingOverlayController extends BaseController with SocketMixin {
     errorCounter.value = errorCounter.initialValue;
   }
 
-  void startPulling() => _needPulling.value = true;
-  void stopPulling() => _needPulling.value = false;
+  void startPulling() => _needPulling = true;
+  void stopPulling() => _needPulling = false;
 
   Future<void> checkDeviceAvailability({
     required Signal<PageState> pageState,
@@ -35,9 +36,9 @@ class LoadingOverlayController extends BaseController with SocketMixin {
       pageState.value = const SuccessState(data: null);
       this.pageState.value = pageState.value;
     } catch (exception) {
-      await Future.delayed(const Duration(seconds: 3));
+      await Future.delayed(defaultScanDuration);
 
-      if (_needPulling.value) {
+      if (_needPulling) {
         logger.i("[DBG] Tentativa de comunicação com o ip: $currentIp");
 
         await checkDeviceAvailability(
