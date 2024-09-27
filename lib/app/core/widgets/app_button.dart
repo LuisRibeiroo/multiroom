@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../extensions/build_context_extensions.dart';
 import '../extensions/number_extensions.dart';
+import '../extensions/string_extensions.dart';
 
 enum ButtonType {
   primary,
@@ -167,9 +168,9 @@ class _AppButtonState extends State<AppButton> {
             child: AnimatedSwitcher(
               duration: _defaultDuration,
               child: FittedBox(
+                key: ValueKey("Fitted_${widget.text}"),
                 child: Text(
-                  key: ValueKey(widget.text),
-                  widget.text,
+                  widget.text.or("..."),
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
