@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:collection/collection.dart';
-import 'package:signals/signals.dart';
 
 import '../../../../injector.dart';
 import '../../enums/page_state.dart';
@@ -16,7 +16,10 @@ class DeviceMonitorController extends BaseController with UdpMixin {
 
   final _settings = injector.get<SettingsContract>();
 
-  final _serialSet = setSignal(<String>{}, debugLabel: "_serialSet");
+  final _serialSet = <String>{};
+
+  bool hasStateChanges = false;
+  CancelableOperation? _cancelableOperation;
 
   Future<void> scanDevices({
     Duration duration = defaultScanDuration,
@@ -27,6 +30,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
   }) async {
     final server = await startServer();
     _serialSet.clear();
+    hasStateChanges = false;
 
     server.asStream(timeout: duration).listen(
       (datagram) {
@@ -67,6 +71,29 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     }
   }
 
+  Future<void> startDeviceMonitor({Function()? cycleCallback}) async {
+    final interval = defaultScanDuration * 2;
+    logger.i("MONITOR --> START [${interval.inSeconds}s]");
+
+    Timer.periodic(interval, (timer) async {
+      _cancelableOperation = CancelableOperation.fromFuture(
+        onCancel: timer.cancel,
+        scanDevices(
+          updateActives: true,
+          onFinishCallback: cycleCallback,
+        ),
+      );
+
+      _cancelableOperation?.valueOrCancellation();
+    });
+  }
+
+  void stopDeviceMonitor() {
+    _cancelableOperation?.cancel();
+
+    logger.i("MONITOR --> STOP");
+  }
+
   void _updateDeviceIp({
     required String serial,
     required String ip,
@@ -76,6 +103,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     if (device != null && ip != device.ip) {
       _settings.saveDevice(device: device.copyWith(ip: ip));
       logger.i("--> Updated device [${device.serialNumber}] to IP [$ip]");
+      hasStateChanges = true;
     } else {
       logger.i("--> New device or same SN and IP");
     }
@@ -85,8 +113,24 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     for (final device in _settings.devices) {
       bool active = _serialSet.contains(device.serialNumber);
 
+      if (active == device.active) {
+        continue;
+      }
+
+      hasStateChanges = true;
       _settings.saveDevice(device: device.copyWith(active: active));
       logger.i("--> [${device.serialNumber}] set ${active ? "ONLINE" : "OFFLINE"}");
     }
+
+    if (hasStateChanges == false) {
+      logger.i("--> No device changes");
+    }
+  }
+
+  @override
+  void dispose() {
+    stopDeviceMonitor();
+
+    super.dispose();
   }
 }

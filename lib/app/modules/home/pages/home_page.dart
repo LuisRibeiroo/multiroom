@@ -197,6 +197,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         onVisibilityChanged: (info) async {
           if (info.visibleFraction == 1) {
             await _controller.syncLocalData(readAllZones: true);
+
+            _controller.startDeviceMonitor();
+          } else {
+            _controller.stopDeviceMonitor();
           }
         },
         child: Scaffold(

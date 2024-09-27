@@ -34,7 +34,10 @@ class _StartupPageState extends State<StartupPage> {
 
       final settings = injector.get<SettingsContract>();
 
-      settings.saveDevice(device: settings.devices.first.copyWith(ip: "192.1.1.1"));
+      // TODO: REMOVE TEST DATA
+      if (settings.devices.isNotEmpty) {
+        settings.saveDevice(device: settings.devices.first.copyWith(ip: "192.1.1.1"));
+      }
 
       final monitorController = injector.get<DeviceMonitorController>();
 

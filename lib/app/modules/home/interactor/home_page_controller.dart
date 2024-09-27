@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/interactor/controllers/device_monitor_controller.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -12,6 +10,7 @@ import '../../../../routes.g.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/extensions/list_extensions.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
+import '../../../core/interactor/controllers/device_monitor_controller.dart';
 import '../../../core/interactor/controllers/socket_mixin.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
 import '../../../core/models/channel_model.dart';
@@ -57,11 +56,11 @@ class HomePageController extends BaseController with SocketMixin {
       effect(() {
         projectZones.value = currentProject.value.devices.fold(<ZoneModel>[], (pv, d) => pv..addAll(d.groupedZones));
       }),
-      effect(() {})
     ]);
   }
 
   final _settings = injector.get<SettingsContract>();
+  final _monitorController = injector.get<DeviceMonitorController>();
 
   final projectZones = listSignal<ZoneModel>([], debugLabel: "projectZones");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
@@ -87,6 +86,19 @@ class HomePageController extends BaseController with SocketMixin {
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
   final _updatingData = false.toSignal(debugLabel: "updatingData");
+
+  Future<void> startDeviceMonitor() => _monitorController.startDeviceMonitor(
+        cycleCallback: () {
+          if (_monitorController.hasStateChanges) {
+            syncLocalData(
+              awaitUpdate: false,
+              readAllZones: true,
+            );
+          }
+        },
+      );
+
+  void stopDeviceMonitor() => _monitorController.stopDeviceMonitor();
 
   Future<void> setCurrentDeviceAndZone(DeviceModel device, ZoneModel zone) async {
     try {
@@ -200,6 +212,10 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> setEqualizer(EqualizerModel equalizer) async {
+    if (currentDevice.value.active == false) {
+      setError(Exception("Dispositivo offline"));
+    }
+
     if (equalizer == currentEqualizer.value) {
       logger.i("SET EQUALIZER [SAME EQUALIZER] --> $equalizer");
       return;
@@ -257,25 +273,21 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> syncLocalData({
+    bool awaitUpdate = true,
     bool readAllZones = false,
   }) async {
     await run(() async {
       projects.value = _settings.projects;
 
-      // untracked(() {
-      //   if (projects.isEmpty) {
-      //     return;
-      //   }
-
-      //   _updateSignals(readAllZones: readAllZones);
-      //   return null;
-      // });
-
       if (projects.isEmpty) {
         return;
       }
 
-      await _updateSignals(readAllZones: readAllZones);
+      if (awaitUpdate) {
+        await _updateSignals(readAllZones: readAllZones);
+      } else {
+        _updateSignals(readAllZones: readAllZones);
+      }
     });
   }
 
@@ -297,28 +309,11 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  Future<void> _updateDevicesState() async {
-    for (final testDevice in currentProject.value.devices) {
-      DeviceModel newDevice;
-
-      try {
-        await Socket.connect(
-          testDevice.ip,
-          4998,
-          timeout: const Duration(seconds: 1),
-        ).then((s) => s.close());
-
-        newDevice = testDevice.copyWith(active: true);
-      } catch (exception) {
-        newDevice = testDevice.copyWith(active: false);
-      }
-
-      if (currentDevice.value.serialNumber == newDevice.serialNumber) {
-        currentDevice.value = newDevice;
-      }
-
-      _updateDeviceProject(device: newDevice);
-    }
+  DeviceModel _getLastDevice() {
+    return currentProject.value.devices.firstWhere(
+      (d) => d.serialNumber == currentDevice.value.serialNumber,
+      orElse: () => currentProject.value.devices.first,
+    );
   }
 
   void _updateDeviceProject({required DeviceModel device}) {
@@ -372,12 +367,13 @@ class HomePageController extends BaseController with SocketMixin {
       devices: updatedDevices,
     );
 
-    await _updateDevicesState();
+    // await _updateDevicesState();
   }
 
   void _setOfflineDeviceState() {
     if (currentDevice.value.active) {
       currentDevice.value = currentDevice.value.copyWith(active: false);
+      _settings.saveDevice(device: currentDevice.value);
 
       _updateDeviceProject(device: currentDevice.value);
     }
@@ -389,60 +385,68 @@ class HomePageController extends BaseController with SocketMixin {
   }) async {
     // Update device and zone infos only if project changed
     currentProject.value = project ?? _getLastProject();
-    currentDevice.value = currentProject.value.devices.first;
+    currentDevice.value = _getLastDevice();
 
-    if (currentZone.value.isEmpty) {
-      final zone = currentDevice.value.zones.first;
+    if (currentProject.value.devices.any((d) => d.active)) {
+      if (currentZone.value.isEmpty) {
+        final zone = currentDevice.value.zones.first;
 
-      if (currentDevice.value.isZoneInGroup(zone)) {
-        currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.containsZone(zone)).asZone;
-      } else {
-        currentZone.value = zone;
-      }
-
-      channels.value = currentZone.value.channels;
-
-      currentZone.value = currentZone.value.copyWith(
-        channel: channels.firstWhere(
-          (c) => c.id == currentZone.value.channel.id,
-          orElse: () => channels.first,
-        ),
-      );
-    }
-
-    await run(() async {
-      try {
-        if (_updatingData.value == false) {
-          await restartSocket(ip: currentDevice.value.ip);
-        }
-
-        _updatingData.value = true;
-        await _updateDevicesState();
-
-        if (readAllZones) {
-          for (final device in currentProject.value.devices) {
-            for (final zone in device.groupedZones) {
-              await _updateAllDeviceData(zone, updateCurrentZone: false);
-            }
-          }
+        if (currentDevice.value.isZoneInGroup(zone)) {
+          currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.containsZone(zone)).asZone;
         } else {
-          await _updateAllDeviceData(currentZone.value);
+          currentZone.value = zone;
         }
 
-        _updatingData.value = false;
-      } catch (exception) {
-        logger.e("Erro ao iniciar comunicação com o Multiroom --> $exception");
+        channels.value = currentZone.value.channels;
 
-        _setOfflineDeviceState();
-        setError(Exception("Erro ao iniciar comunicação com o Multiroom"));
-
-        _updatingData.value = false;
+        currentZone.value = currentZone.value.copyWith(
+          channel: channels.firstWhere(
+            (c) => c.id == currentZone.value.channel.id,
+            orElse: () => channels.first,
+          ),
+        );
       }
-    });
+
+      await run(() async {
+        try {
+          if (_updatingData.value == false) {
+            await restartSocket(ip: currentDevice.value.ip);
+          }
+
+          _updatingData.value = true;
+          // await _updateDevicesState();
+
+          if (readAllZones) {
+            for (final device in currentProject.value.devices) {
+              for (final zone in device.groupedZones) {
+                await _updateAllDeviceData(zone, updateCurrentZone: false);
+              }
+            }
+          } else {
+            await _updateAllDeviceData(currentZone.value);
+          }
+
+          _updatingData.value = false;
+        } catch (exception) {
+          logger.e("Erro ao tentar comunicação com o Multiroom --> $exception");
+
+          _setOfflineDeviceState();
+          setError(Exception("Erro ao tentar comunicação com o Multiroom"));
+
+          _updatingData.value = false;
+        }
+      });
+    }
   }
 
   Future<void> _debounceSendCommand(String cmd) async {
     _writeDebouncer(() async {
+      if (currentDevice.value.active == false) {
+        setError(Exception("Dispositivo offline"));
+
+        return;
+      }
+
       try {
         await socketSender(cmd);
         currentDevice.value = currentDevice.value.copyWith(active: true);
