@@ -34,4 +34,9 @@ mixin UdpMixin {
 
     running = false;
   }
+
+  void mixinDispose() {
+    _udpServer?.close();
+    _udpServer = null;
+  }
 }

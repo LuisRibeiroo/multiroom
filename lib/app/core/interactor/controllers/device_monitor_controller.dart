@@ -129,6 +129,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
 
   @override
   void dispose() {
+    mixinDispose();
     stopDeviceMonitor();
 
     super.dispose();
