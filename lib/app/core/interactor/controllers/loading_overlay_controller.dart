@@ -33,7 +33,7 @@ class LoadingOverlayController extends BaseController {
     this.pageState.value = pageState.value;
 
     if (_monitorController.isRunning == false) {
-      await _monitorController.startDeviceMonitor();
+      await _monitorController.startDeviceMonitor(callerName: "LoadingOverlayController");
     }
 
     await _checkIpStateOnMonitor(pageState: pageState, ip: currentIp);
@@ -47,6 +47,8 @@ class LoadingOverlayController extends BaseController {
       final device = _settings.devices.firstWhereOrNull((d) => d.ip == ip);
 
       if (device != null && device.active) {
+        _monitorController.stopDeviceMonitor();
+
         pageState.value = const SuccessState(data: null);
         this.pageState.value = pageState.value;
       } else {
@@ -67,5 +69,6 @@ class LoadingOverlayController extends BaseController {
 
     errorCounter.value = errorCounter.initialValue;
     pageState.value = pageState.initialValue;
+    _monitorController.stopDeviceMonitor();
   }
 }

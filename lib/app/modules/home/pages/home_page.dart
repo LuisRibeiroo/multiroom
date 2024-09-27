@@ -198,7 +198,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           if (info.visibleFraction == 1) {
             await _controller.syncLocalData(readAllZones: true);
 
-            _controller.startDeviceMonitor();
+            if (_controller.isMonitorRunning == false) {
+              _controller.startDeviceMonitor();
+            }
           } else {
             _controller.stopDeviceMonitor();
           }

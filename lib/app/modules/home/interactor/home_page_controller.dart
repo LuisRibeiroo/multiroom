@@ -87,7 +87,10 @@ class HomePageController extends BaseController with SocketMixin {
   final _writeDebouncer = Debouncer(delay: Durations.short4);
   final _updatingData = false.toSignal(debugLabel: "updatingData");
 
+  bool get isMonitorRunning => _monitorController.isRunning;
+
   Future<void> startDeviceMonitor() => _monitorController.startDeviceMonitor(
+        callerName: "HomePageController",
         cycleCallback: () {
           if (_monitorController.hasStateChanges) {
             syncLocalData(
@@ -579,6 +582,7 @@ class HomePageController extends BaseController with SocketMixin {
   void dispose() {
     super.dispose();
     mixinDispose();
+    stopDeviceMonitor();
 
     projects.value = <ProjectModel>[];
 
