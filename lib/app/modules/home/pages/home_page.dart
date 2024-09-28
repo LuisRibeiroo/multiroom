@@ -198,7 +198,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           if (info.visibleFraction == 1) {
             _controller.startDeviceMonitor();
 
-            _controller.syncMonitor(isCurrentRoute: true);
             _controller.setPageVisible(true);
           } else {
             _controller.setPageVisible(false);

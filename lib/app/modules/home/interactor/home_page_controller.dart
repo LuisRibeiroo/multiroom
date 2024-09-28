@@ -57,7 +57,7 @@ class HomePageController extends BaseController with SocketMixin {
         projectZones.value = currentProject.value.devices.fold(<ZoneModel>[], (pv, d) => pv..addAll(d.groupedZones));
       }),
       effect(() async {
-        if (isPageVisible.value && _monitorController.hasStateChanges.value) {
+        if (_isPageVisible.value && _monitorController.hasStateChanges.value) {
           untracked(() async {
             await syncLocalData(
               awaitUpdate: true,
@@ -99,24 +99,11 @@ class HomePageController extends BaseController with SocketMixin {
   final _writeDebouncer = Debouncer(delay: Durations.short4);
   final _updatingData = false.toSignal(debugLabel: "updatingData");
 
-  final isPageVisible = false.toSignal(debugLabel: "isPageVisible");
+  final _isPageVisible = false.toSignal(debugLabel: "isPageVisible");
 
-  void setPageVisible(bool visible) => isPageVisible.value = visible;
+  void setPageVisible(bool visible) => _isPageVisible.value = visible;
 
   void startDeviceMonitor() => _monitorController.startDeviceMonitor(callerName: "HomePageController");
-
-  Future<void> syncMonitor({required bool isCurrentRoute}) async {
-    if (isCurrentRoute && _monitorController.hasStateChanges.value) {
-      untracked(() async {
-        await syncLocalData(
-          awaitUpdate: true,
-          readAllZones: true,
-        );
-
-        _monitorController.ingestStateChanges();
-      });
-    }
-  }
 
   Future<void> setCurrentDeviceAndZone(DeviceModel device, ZoneModel zone) async {
     try {
