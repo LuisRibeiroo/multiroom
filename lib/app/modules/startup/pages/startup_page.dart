@@ -42,7 +42,6 @@ class _StartupPageState extends State<StartupPage> {
       final monitorController = injector.get<DeviceMonitorController>();
 
       await monitorController.scanDevices(
-        callerName: "StartupPage",
         updateIp: true,
         awaitFinish: true,
       );

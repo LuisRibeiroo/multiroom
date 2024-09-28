@@ -56,14 +56,16 @@ class HomePageController extends BaseController with SocketMixin {
       effect(() {
         projectZones.value = currentProject.value.devices.fold(<ZoneModel>[], (pv, d) => pv..addAll(d.groupedZones));
       }),
-      effect(() {
+      effect(() async {
         if (_monitorController.hasStateChanges.value) {
-          syncLocalData(
-            awaitUpdate: true,
-            readAllZones: true,
-          );
+          untracked(() async {
+            await syncLocalData(
+              awaitUpdate: true,
+              readAllZones: true,
+            );
 
-          _monitorController.ingestStateChanges();
+            _monitorController.ingestStateChanges();
+          });
         }
       })
     ]);
@@ -101,14 +103,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> startDeviceMonitor() => _monitorController.startDeviceMonitor(
         callerName: "HomePageController",
-        cycleCallback: () {
-          // if (_monitorController.hasStateChanges) {
-          //   _monitorController.ingestStateChanges();
-          // }
-        },
       );
-
-  void stopDeviceMonitor() => _monitorController.stopDeviceMonitor();
 
   Future<void> setCurrentDeviceAndZone(DeviceModel device, ZoneModel zone) async {
     try {
@@ -278,9 +273,9 @@ class HomePageController extends BaseController with SocketMixin {
     bool awaitUpdate = true,
     bool readAllZones = false,
   }) async {
-    if (state.value is LoadingState) {
-      return;
-    }
+    // if (state.value is LoadingState) {
+    //   return;
+    // }
 
     await run(() async {
       projects.value = _settings.projects;
@@ -591,7 +586,7 @@ class HomePageController extends BaseController with SocketMixin {
   void dispose() {
     super.dispose();
     mixinDispose();
-    stopDeviceMonitor();
+    _monitorController.stopDeviceMonitor();
 
     projects.value = <ProjectModel>[];
 

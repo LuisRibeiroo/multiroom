@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/enums/page_state.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:toastification/toastification.dart';
@@ -188,16 +187,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
       setState(() {});
     });
-
-    _controller.disposables.add(
-      effect(() {
-        if (_controller.state is SuccessState) {
-          if (_controller.isMonitorRunning == false) {
-            _controller.startDeviceMonitor();
-          }
-        }
-      }),
-    );
   }
 
   @override
@@ -209,11 +198,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           if (info.visibleFraction == 1) {
             await _controller.syncLocalData(readAllZones: true);
 
-            if (_controller.isMonitorRunning == false) {
-              _controller.startDeviceMonitor();
-            }
-          } else {
-            _controller.stopDeviceMonitor();
+            _controller.startDeviceMonitor();
           }
         },
         child: Scaffold(

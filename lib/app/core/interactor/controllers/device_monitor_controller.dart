@@ -19,23 +19,25 @@ class DeviceMonitorController extends BaseController with UdpMixin {
 
   final _serialSet = <String>{};
   bool isRunning = false;
+
+  String _callerName = "";
+
   Timer? _timer;
 
   final hasStateChanges = false.toSignal(debugLabel: "monitorHasStateChanges");
   CancelableOperation? _cancelableOperation;
 
   Future<void> scanDevices({
-    required String callerName,
     Duration duration = defaultScanDuration,
     bool updateIp = false,
     bool updateActives = false,
     bool awaitFinish = false,
     Function()? onFinishCallback,
   }) async {
-    final server = await startServer();
+    final udp = await startServer();
     _serialSet.clear();
 
-    server.asStream(timeout: duration).listen(
+    udp.asStream(timeout: duration).listen(
       (datagram) {
         if (datagram == null) {
           return;
@@ -48,11 +50,10 @@ class DeviceMonitorController extends BaseController with UdpMixin {
             _updateDeviceIp(serial: serialNumber, ip: datagram.address.address);
           }
 
-          if (_serialSet.contains(serialNumber)) {
-            return;
-          }
-
-          // logger.i("MONITOR [$callerName] --> $serialNumber -> ${datagram.address.address}");
+          logger.d("MONITOR [$_callerName] --> $serialNumber -> ${datagram.address.address}");
+          // if (_serialSet.contains(serialNumber)) {
+          //   return;
+          // }
 
           _serialSet.add(serialNumber);
         } catch (exception) {
@@ -63,8 +64,10 @@ class DeviceMonitorController extends BaseController with UdpMixin {
         stopServer();
 
         if (updateActives) {
-          _updateActives(callerName: callerName);
+          _updateActives();
         }
+
+        _serialSet.clear();
 
         onFinishCallback?.call();
       },
@@ -78,11 +81,25 @@ class DeviceMonitorController extends BaseController with UdpMixin {
   Future<void> startDeviceMonitor({
     required String callerName,
     Function()? cycleCallback,
+    Duration? cycleDuration,
   }) async {
-    isRunning = true;
+    if (isRunning && _callerName == callerName) {
+      return;
+    }
 
-    final interval = defaultScanDuration * 1.5;
-    logger.i("MONITOR [$callerName] --> START [${interval.inSeconds}s]");
+    if (isRunning && _callerName != callerName) {
+      logger.i("MONITOR [$_callerName] --> Updating caller from [$_callerName] to [$callerName]");
+
+      hasStateChanges.overrideWith(false);
+      stopDeviceMonitor();
+      stopServer();
+    }
+
+    isRunning = true;
+    _callerName = callerName;
+
+    final interval = cycleDuration ?? defaultScanDuration * 1.5;
+    logger.i("MONITOR [$_callerName] --> START [${interval.inSeconds}s]");
 
     _timer = Timer.periodic(interval, (timer) async {
       _cancelableOperation = CancelableOperation.fromFuture(
@@ -92,7 +109,6 @@ class DeviceMonitorController extends BaseController with UdpMixin {
           stopServer();
         },
         scanDevices(
-          callerName: callerName,
           updateActives: true,
           updateIp: true,
           onFinishCallback: cycleCallback,
@@ -107,7 +123,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     _cancelableOperation?.cancel();
     _timer?.cancel();
 
-    logger.i("MONITOR --> STOP");
+    logger.i("MONITOR [$_callerName] --> STOP");
     isRunning = false;
   }
 
@@ -131,7 +147,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     }
   }
 
-  void _updateActives({required String callerName}) {
+  void _updateActives() {
     for (final device in _settings.devices) {
       bool active = _serialSet.contains(device.serialNumber);
 
@@ -140,16 +156,18 @@ class DeviceMonitorController extends BaseController with UdpMixin {
       }
 
       _settings.saveDevice(device: device.copyWith(active: active));
-      logger.i("MONITOR [$callerName] --> [${device.serialNumber}] set ${active ? "ONLINE" : "OFFLINE"}");
-      _serialSet.clear();
+      logger.i("MONITOR [$_callerName] --> [${device.serialNumber}] set ${active ? "ONLINE" : "OFFLINE"}");
 
       hasStateChanges.value = true;
     }
 
-    if (isRunning && hasStateChanges.value == false) {
-      logger.i("MONITOR [$callerName] --> No device state change");
-    } else {
-      logger.i("MONITOR [$callerName] --> Changes waiting to be ingest");
+    // _serialSet.clear();
+    if (isRunning) {
+      if (hasStateChanges.value == false) {
+        logger.i("MONITOR [$_callerName] --> No device state change");
+      } else {
+        logger.i("MONITOR [$_callerName] --> Changes waiting ingestion");
+      }
     }
   }
 
