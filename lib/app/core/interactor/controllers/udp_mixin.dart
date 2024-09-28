@@ -12,7 +12,8 @@ mixin UdpMixin {
     await Permission.nearbyWifiDevices.request();
 
     if (_udpServer != null) {
-      return _udpServer!;
+      _udpServer!.close();
+      _udpServer = null;
     }
 
     _udpServer = await UDP.bind(

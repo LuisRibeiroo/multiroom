@@ -88,7 +88,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     }
 
     if (isRunning && _callerName != callerName) {
-      logger.i("MONITOR [$_callerName] --> Updating caller from [$_callerName] to [$callerName]");
+      logger.i("MONITOR --> Updating caller from [$_callerName] to [$callerName]");
 
       hasStateChanges.overrideWith(false);
       stopDeviceMonitor();
@@ -101,6 +101,12 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     final interval = cycleDuration ?? defaultScanDuration * 1.5;
     logger.i("MONITOR [$_callerName] --> START [${interval.inSeconds}s]");
 
+    scanDevices(
+      updateActives: true,
+      updateIp: true,
+      onFinishCallback: cycleCallback,
+    );
+
     _timer = Timer.periodic(interval, (timer) async {
       _cancelableOperation = CancelableOperation.fromFuture(
         onCancel: () {
@@ -109,6 +115,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
           stopServer();
         },
         scanDevices(
+          awaitFinish: true,
           updateActives: true,
           updateIp: true,
           onFinishCallback: cycleCallback,
@@ -122,13 +129,14 @@ class DeviceMonitorController extends BaseController with UdpMixin {
   void stopDeviceMonitor() {
     _cancelableOperation?.cancel();
     _timer?.cancel();
+    _timer = null;
 
     logger.i("MONITOR [$_callerName] --> STOP");
     isRunning = false;
   }
 
   void ingestStateChanges() {
-    logger.i("MONITOR --> Changes ingested");
+    logger.i("MONITOR [$_callerName] --> Changes ingested");
 
     hasStateChanges.value = false;
   }

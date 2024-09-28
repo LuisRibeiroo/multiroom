@@ -33,7 +33,7 @@ class LoadingOverlayController {
     this.pageState.value = pageState.value;
 
     if (_monitorController.isRunning == false) {
-      await _monitorController.startDeviceMonitor(callerName: "LoadingOverlayController");
+      _monitorController.startDeviceMonitor(callerName: "LoadingOverlayController");
       _monitorStartedLocally = true;
     }
 
@@ -57,7 +57,7 @@ class LoadingOverlayController {
       pageState.value = const SuccessState(data: null);
       this.pageState.value = pageState.value;
     } else {
-      Logger(printer: SimplePrinter(printTime: false, colors: false)).i("LOADER --> Waiting [$ip] online on MONITOR");
+      Logger(printer: SimplePrinter(printTime: true, colors: false)).i("LOADER --> Waiting [$ip] online on MONITOR");
       await Future.delayed(defaultScanDuration);
 
       await _checkIpStateOnMonitor(pageState: pageState, ip: ip);
