@@ -38,7 +38,7 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
     super.initState();
 
     scheduleMicrotask(() {
-      _controller.disposables.add(effect(() async {
+      effect(() async {
         _controller.pageState.value = widget.state.value;
 
         if (_controller.pageState.value is ErrorState) {
@@ -54,7 +54,6 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
           );
 
           if (_controller.errorCounter.peek() > 1) {
-
             _controller.checkDeviceAvailability(
               pageState: widget.state,
               currentIp: widget.currentIp,
@@ -67,7 +66,7 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
             });
           }
         }
-      }));
+      });
     });
   }
 

@@ -56,6 +56,16 @@ class HomePageController extends BaseController with SocketMixin {
       effect(() {
         projectZones.value = currentProject.value.devices.fold(<ZoneModel>[], (pv, d) => pv..addAll(d.groupedZones));
       }),
+      effect(() {
+        if (_monitorController.hasStateChanges.value) {
+          syncLocalData(
+            awaitUpdate: true,
+            readAllZones: true,
+          );
+
+          _monitorController.ingestStateChanges();
+        }
+      })
     ]);
   }
 
@@ -92,14 +102,9 @@ class HomePageController extends BaseController with SocketMixin {
   Future<void> startDeviceMonitor() => _monitorController.startDeviceMonitor(
         callerName: "HomePageController",
         cycleCallback: () {
-          if (_monitorController.hasStateChanges) {
-            syncLocalData(
-              awaitUpdate: false,
-              readAllZones: true,
-            );
-
-            _monitorController.ingestStateChanges();
-          }
+          // if (_monitorController.hasStateChanges) {
+          //   _monitorController.ingestStateChanges();
+          // }
         },
       );
 
@@ -273,6 +278,10 @@ class HomePageController extends BaseController with SocketMixin {
     bool awaitUpdate = true,
     bool readAllZones = false,
   }) async {
+    if (state.value is LoadingState) {
+      return;
+    }
+
     await run(() async {
       projects.value = _settings.projects;
 

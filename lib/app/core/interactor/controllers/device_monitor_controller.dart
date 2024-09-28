@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
+import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
 import '../../enums/page_state.dart';
@@ -20,7 +21,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
   bool isRunning = false;
   Timer? _timer;
 
-  bool hasStateChanges = false;
+  final hasStateChanges = false.toSignal(debugLabel: "monitorHasStateChanges");
   CancelableOperation? _cancelableOperation;
 
   Future<void> scanDevices({
@@ -43,20 +44,17 @@ class DeviceMonitorController extends BaseController with UdpMixin {
         try {
           final (serialNumber, _) = DatagramDataParser.getSerialAndFirmware(datagram.data);
 
-          if (_serialSet.contains(serialNumber)) {
-            return;
-          }
-
-          logger.i("MONITOR [$callerName] --> $serialNumber -> ${datagram.address.address}");
-          _serialSet.add(serialNumber);
-
           if (updateIp) {
             _updateDeviceIp(serial: serialNumber, ip: datagram.address.address);
           }
 
-          if (updateActives) {
-            _updateActives(callerName: callerName);
+          if (_serialSet.contains(serialNumber)) {
+            return;
           }
+
+          // logger.i("MONITOR [$callerName] --> $serialNumber -> ${datagram.address.address}");
+
+          _serialSet.add(serialNumber);
         } catch (exception) {
           logger.e("Datagram parse error [${datagram.address.address}]-> $exception");
         }
@@ -81,15 +79,16 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     required String callerName,
     Function()? cycleCallback,
   }) async {
-    final interval = defaultScanDuration * 2;
-    logger.i("MONITOR [$callerName] --> START [${interval.inSeconds}s]");
     isRunning = true;
+
+    final interval = defaultScanDuration * 1.5;
+    logger.i("MONITOR [$callerName] --> START [${interval.inSeconds}s]");
 
     _timer = Timer.periodic(interval, (timer) async {
       _cancelableOperation = CancelableOperation.fromFuture(
         onCancel: () {
           timer.cancel();
-          isRunning = false;
+          stopDeviceMonitor();
           stopServer();
         },
         scanDevices(
@@ -113,8 +112,9 @@ class DeviceMonitorController extends BaseController with UdpMixin {
   }
 
   void ingestStateChanges() {
-    hasStateChanges = false;
     logger.i("MONITOR --> Changes ingested");
+
+    hasStateChanges.value = false;
   }
 
   void _updateDeviceIp({
@@ -126,7 +126,8 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     if (device != null && ip != device.ip) {
       _settings.saveDevice(device: device.copyWith(ip: ip));
       logger.i("MONITOR --> Updated device [${device.serialNumber}] to IP [$ip]");
-      hasStateChanges = true;
+
+      hasStateChanges.value = true;
     }
   }
 
@@ -138,12 +139,14 @@ class DeviceMonitorController extends BaseController with UdpMixin {
         continue;
       }
 
-      hasStateChanges = true;
       _settings.saveDevice(device: device.copyWith(active: active));
       logger.i("MONITOR [$callerName] --> [${device.serialNumber}] set ${active ? "ONLINE" : "OFFLINE"}");
+      _serialSet.clear();
+
+      hasStateChanges.value = true;
     }
 
-    if (hasStateChanges == false) {
+    if (isRunning && hasStateChanges.value == false) {
       logger.i("MONITOR [$callerName] --> No device state change");
     } else {
       logger.i("MONITOR [$callerName] --> Changes waiting to be ingest");

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/enums/page_state.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:toastification/toastification.dart';
@@ -187,6 +188,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
       setState(() {});
     });
+
+    _controller.disposables.add(
+      effect(() {
+        if (_controller.state is SuccessState) {
+          if (_controller.isMonitorRunning == false) {
+            _controller.startDeviceMonitor();
+          }
+        }
+      }),
+    );
   }
 
   @override
@@ -246,13 +257,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             key: const ValueKey("HomePage_Key"),
             state: _controller.state,
             currentIp: _controller.currentDevice.value.ip,
-            onTap: () => toastification.show(
-              title:
-                  const Text("O dispositivo está offline. Os controles serão liberados quando houver nova comunicação"),
-              autoCloseDuration: const Duration(seconds: 3),
-              style: ToastificationStyle.minimal,
-              type: ToastificationType.info,
-            ),
+            onTap: () {
+              toastification.show(
+                title: const Text(
+                    "O dispositivo está offline. Os controles serão liberados quando houver nova comunicação"),
+                autoCloseDuration: const Duration(seconds: 3),
+                style: ToastificationStyle.minimal,
+                type: ToastificationType.info,
+              );
+
+              // _controller.state.value = LoadingState();
+            },
             child: SafeArea(
               child: Watch(
                 (_) => TabBarView(
