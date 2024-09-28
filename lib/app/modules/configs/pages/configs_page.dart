@@ -40,7 +40,7 @@ class _ConfigsPageState extends State<ConfigsPage> {
               title: const Text("Configurações"),
               actions: [
                 IconButton(
-                  onPressed: () => OptionsMenu.showOptionsBottomSheet(context),
+                  onPressed: () => Options.showOptionsBottomSheet(context),
                   icon: const Icon(Icons.more_vert_rounded),
                 ),
               ],
@@ -56,7 +56,7 @@ class _ConfigsPageState extends State<ConfigsPage> {
                     project: _controller.projects[index],
                     deviceAvailabilityMap: const {},
                     showAvailability: false,
-                    onTapConfigDevice: (d) => OptionsMenu.showTechBottomSheet(context, device: d),
+                    onTapConfigDevice: (d) => Options.showTechBottomSheet(context, device: d),
                     onTapRemoveProject: _controller.removeProject,
                   ),
                 ),
@@ -67,7 +67,7 @@ class _ConfigsPageState extends State<ConfigsPage> {
                 ? FloatingActionButton.extended(
                     icon: const Icon(Icons.settings_input_antenna_rounded),
                     label: const Text("Iniciar configuração"),
-                    onPressed: () => OptionsMenu.showTechBottomSheet(context),
+                    onPressed: () => Options.showTechBottomSheet(context),
                   )
                 : FloatingActionButton.extended(
                     icon: const Icon(Icons.check_rounded),

@@ -54,7 +54,7 @@ class _AboutBottomSheetState extends State<AboutBottomSheet> {
                 padding: const EdgeInsets.only(right: 24.0),
                 child: IconButton(
                   icon: const Icon(Icons.settings_rounded),
-                  onPressed: () => OptionsMenu.showTechBottomSheet(context),
+                  onPressed: () => Options.showTechBottomSheet(context),
                 ),
               ),
             )

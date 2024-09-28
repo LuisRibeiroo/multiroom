@@ -197,6 +197,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         onVisibilityChanged: (info) async {
           if (info.visibleFraction == 1) {
             _controller.startDeviceMonitor();
+            _controller.syncLocalData();
 
             _controller.setPageVisible(true);
           } else {
@@ -206,7 +207,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         child: Scaffold(
           appBar: AppBar(
             centerTitle: false,
-            // leading: Image.asset("assets/logo.png"),
             title: Row(
               children: [
                 InkWell(
@@ -226,15 +226,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
               ],
             ),
-            // actions: [
-            //   IconButton(
-            //     onPressed: () => OptionsMenu.showOptionsBottomSheet(
-            //       context,
-            //       state: _controller.state,
-            //     ),
-            //     icon: const Icon(Icons.more_vert_rounded),
-            //   ),
-            // ],
           ),
           drawer: OptionsMenu(
             pageState: _controller.state,
@@ -251,8 +242,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 style: ToastificationStyle.minimal,
                 type: ToastificationType.info,
               );
-
-              // _controller.state.value = LoadingState();
             },
             child: SafeArea(
               child: Watch(
