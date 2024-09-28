@@ -260,6 +260,7 @@ class ScannerPageController extends BaseController with SocketMixin {
   }
 
   Future<void> _updateDevicesAvailabilityAndFirmware() async {
+    // TODO: Improve this to use UDP data to update info
     for (final proj in projects.value) {
       for (final d in proj.devices) {
         try {
