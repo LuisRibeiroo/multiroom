@@ -206,7 +206,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         child: Scaffold(
           appBar: AppBar(
             centerTitle: false,
-            leading: Image.asset("assets/logo.png"),
+            // leading: Image.asset("assets/logo.png"),
             title: Row(
               children: [
                 InkWell(
@@ -226,19 +226,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
               ],
             ),
-            actions: [
-              IconButton(
-                onPressed: () => _controller.syncLocalData(readAllZones: true),
-                icon: const Icon(Icons.sync_rounded),
-              ),
-              IconButton(
-                onPressed: () => OptionsMenu.showOptionsBottomSheet(
-                  context,
-                  state: _controller.state,
-                ),
-                icon: const Icon(Icons.more_vert_rounded),
-              ),
-            ],
+            // actions: [
+            //   IconButton(
+            //     onPressed: () => OptionsMenu.showOptionsBottomSheet(
+            //       context,
+            //       state: _controller.state,
+            //     ),
+            //     icon: const Icon(Icons.more_vert_rounded),
+            //   ),
+            // ],
+          ),
+          drawer: OptionsMenu(
+            pageState: _controller.state,
           ),
           body: LoadingOverlay(
             key: const ValueKey("HomePage_Key"),

@@ -15,7 +15,96 @@ import '../controllers/options_bottom_sheet_controller.dart';
 import '../widgets/share_dialog.dart';
 import 'tech_access_bottom_sheet.dart';
 
-class OptionsMenu {
+class OptionsMenu extends StatelessWidget {
+  OptionsMenu({
+    super.key,
+    required this.pageState,
+  });
+
+  final Signal<PageState> pageState;
+  final controller = injector.get<OptionsBottomSheetController>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: Watch(
+        (_) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Image.asset("assets/logo_completo.png"),
+              ),
+            ),
+            const Divider(
+              indent: 12,
+              endIndent: 12,
+            ),
+            Visibility(
+              visible: controller.showTechAccessOption.value,
+              child: ListTile(
+                leading: const Icon(Icons.settings_rounded),
+                title: const Text("Acesso Técnico"),
+                onTap: () async {
+                  Routefly.pop(context);
+
+                  return await showTechBottomSheet(context);
+                },
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.qr_code_scanner_rounded),
+              title: const Text("Importar projeto"),
+              onTap: () async {
+                Routefly.pop(context);
+
+                if (Platform.isAndroid || Platform.isIOS) {
+                  if (await Permission.camera.request().isGranted) {
+                    Routefly.pushNavigate(routePaths.modules.shared.pages.importData);
+                  }
+                } else {
+                  Routefly.pushNavigate(routePaths.modules.shared.pages.importData);
+                }
+              },
+            ),
+            Visibility(
+              visible: controller.showShareOption.value,
+              child: ListTile(
+                leading: const Icon(Icons.qr_code_rounded),
+                title: const Text("Compartilhar"),
+                onTap: () async {
+                  final projectAddress = await controller.onShareProject(pageState: pageState);
+
+                  if (context.mounted) {
+                    Routefly.pop(context);
+
+                    showDialog(
+                      context: context,
+                      builder: (_) => ShareDialog(projectAddress: projectAddress),
+                    );
+                  }
+                },
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline_rounded),
+              title: const Text("Sobre"),
+              onTap: () {
+                Routefly.pop(context);
+
+                context.showCustomModalBottomSheet(
+                  child: const AboutBottomSheet(),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @Deprecated("Remove this if we don't need it")
   static Future<T?> showOptionsBottomSheet<T>(
     BuildContext context, {
     Signal<PageState>? state,
