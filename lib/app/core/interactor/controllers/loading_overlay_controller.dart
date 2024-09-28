@@ -15,7 +15,7 @@ class LoadingOverlayController {
 
   final _monitorController = injector.get<DeviceMonitorController>();
 
-  bool get monitorRunning => _monitorController.isRunning;
+  bool _monitorStartedLocally = false;
 
   void incrementErrorCounter() {
     errorCounter.value++;
@@ -33,8 +33,8 @@ class LoadingOverlayController {
     this.pageState.value = pageState.value;
 
     if (_monitorController.isRunning == false) {
-      // _monitorController.stopDeviceMonitor();
       await _monitorController.startDeviceMonitor(callerName: "LoadingOverlayController");
+      _monitorStartedLocally = true;
     }
 
     await _checkIpStateOnMonitor(pageState: pageState, ip: currentIp);
@@ -47,7 +47,11 @@ class LoadingOverlayController {
     final device = _settings.devices.firstWhereOrNull((d) => d.ip == ip);
 
     if (device != null && device.active) {
-      // _monitorController.stopDeviceMonitor();
+      if (_monitorStartedLocally && _monitorController.isRunning) {
+        _monitorStartedLocally = false;
+        _monitorController.stopDeviceMonitor();
+      }
+
       resetErrorCounter();
 
       pageState.value = const SuccessState(data: null);
@@ -65,6 +69,10 @@ class LoadingOverlayController {
 
     errorCounter.value = errorCounter.initialValue;
     pageState.value = pageState.initialValue;
-    // _monitorController.stopDeviceMonitor();
+
+    if (_monitorStartedLocally && _monitorController.isRunning) {
+      _monitorStartedLocally = false;
+      _monitorController.stopDeviceMonitor();
+    }
   }
 }
