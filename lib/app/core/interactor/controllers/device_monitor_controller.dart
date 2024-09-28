@@ -28,7 +28,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
   CancelableOperation? _cancelableOperation;
 
   Future<void> scanDevices({
-    Duration duration = defaultScanDuration,
+    Duration duration = const Duration(seconds: defaultScanDuration),
     bool updateIp = false,
     bool updateActives = false,
     bool awaitFinish = false,
@@ -81,7 +81,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
   Future<void> startDeviceMonitor({
     required String callerName,
     Function()? cycleCallback,
-    Duration? cycleDuration,
+    int? cycleDuration,
   }) async {
     if (isRunning && _callerName == callerName) {
       return;
@@ -98,8 +98,9 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     isRunning = true;
     _callerName = callerName;
 
-    final interval = cycleDuration ?? defaultScanDuration * 1.5;
-    logger.i("MONITOR [$_callerName] --> START [${interval.inSeconds}s]");
+    final interval = Duration(
+        milliseconds: ((cycleDuration ?? defaultScanDuration * 1.5).clamp(defaultScanDuration, 20) * 1000).toInt());
+    logger.i("MONITOR [$_callerName] --> START [${interval.inMilliseconds}ms]");
 
     scanDevices(
       updateActives: true,
@@ -115,6 +116,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
           stopServer();
         },
         scanDevices(
+          duration: interval,
           awaitFinish: true,
           updateActives: true,
           updateIp: true,

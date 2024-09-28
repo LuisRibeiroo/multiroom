@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../../injector.dart';
 import '../../../core/extensions/build_context_extensions.dart';
@@ -130,71 +131,83 @@ class _ScannerPageState extends State<ScannerPage> {
   @override
   Widget build(BuildContext context) {
     return Watch(
-      (_) => LoadingOverlay(
-        state: _controller.state,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text("Acesso Técnico"),
-            actions: [
-              Visibility(
-                visible: _controller.isUdpListening.value,
-                child: IconButton(
-                  icon: const Icon(Icons.cancel_rounded),
-                  onPressed: _controller.stopUdpServer,
+      (_) => VisibilityDetector(
+        key: const ValueKey(ScannerPage),
+        onVisibilityChanged: (info) async {
+          if (info.visibleFraction == 1) {
+            _controller.startDeviceMonitor();
+
+            _controller.setPageVisible(true);
+          } else {
+            _controller.setPageVisible(false);
+          }
+        },
+        child: LoadingOverlay(
+          state: _controller.state,
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text("Acesso Técnico"),
+              actions: [
+                Visibility(
+                  visible: _controller.isUdpListening.value,
+                  child: IconButton(
+                    icon: const Icon(Icons.cancel_rounded),
+                    onPressed: _controller.stopUdpServer,
+                  ),
                 ),
-              ),
-              Visibility(
-                visible: _controller.isUdpListening.value,
-                child: const SizedBox.square(
-                  dimension: 20,
-                  child: CircularProgressIndicator(),
+                Visibility(
+                  visible: _controller.isUdpListening.value,
+                  child: const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(),
+                  ),
                 ),
-              ),
-              24.asSpace,
-            ],
-          ),
-          body: Watch(
-            (_) => Visibility(
-              visible: _controller.projects.isEmpty,
-              replacement: ListView.separated(
-                padding: const EdgeInsets.all(12),
-                itemCount: _controller.projects.length,
-                separatorBuilder: (_, __) => 18.asSpace,
-                itemBuilder: (_, index) => Watch(
-                  (_) => ProjectListCard(
-                    project: _controller.projects[index],
-                    showAvailability: true,
-                    deviceAvailabilityMap: _controller.devicesAvailability.value,
-                    onTapConfigDevice: _controller.onTapConfigDevice,
-                    onTapRemoveProject: (proj) => _showProjectDeletionBottomSheet(
-                      proj,
-                      () => _controller.removeProject(proj),
+                24.asSpace,
+              ],
+            ),
+            body: Watch(
+              (_) => Visibility(
+                visible: _controller.projects.isEmpty,
+                replacement: ListView.separated(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: _controller.projects.length,
+                  separatorBuilder: (_, __) => 18.asSpace,
+                  itemBuilder: (_, index) => Watch(
+                    (_) => ProjectListCard(
+                      project: _controller.projects[index],
+                      showAvailability: true,
+                      deviceAvailabilityMap: _controller.devicesAvailability.value,
+                      onTapConfigDevice: _controller.onTapConfigDevice,
+                      onTapRemoveProject: (proj) => _showProjectDeletionBottomSheet(
+                        proj,
+                        () => _controller.removeProject(proj),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              child: Center(
-                key: const ValueKey("empty"),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.settings_input_antenna_rounded,
-                      size: 80,
-                    ),
-                    Text(
-                      'Nenhum dispositivo configurado',
-                      style: context.textTheme.titleLarge,
-                    ),
-                  ],
+                child: Center(
+                  key: const ValueKey("empty"),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.settings_input_antenna_rounded,
+                        size: 80,
+                      ),
+                      Text(
+                        'Nenhum dispositivo configurado',
+                        style: context.textTheme.titleLarge,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          floatingActionButton: FloatingActionButton(
-            // onPressed: _showNetworkDevicesBottomSheet,
-            onPressed: _showProjectListBottomSheet,
-            child: const Icon(Icons.add_rounded),
+            floatingActionButton: FloatingActionButton(
+              // onPressed: _showNetworkDevicesBottomSheet,
+              onPressed: _showProjectListBottomSheet,
+              child: const Icon(Icons.add_rounded),
+            ),
           ),
         ),
       ),

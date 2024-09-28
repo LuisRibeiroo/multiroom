@@ -99,7 +99,7 @@ class HomePageController extends BaseController with SocketMixin {
   final _writeDebouncer = Debouncer(delay: Durations.short4);
   final _updatingData = false.toSignal(debugLabel: "updatingData");
 
-  final _isPageVisible = false.toSignal(debugLabel: "isPageVisible");
+  final _isPageVisible = false.toSignal(debugLabel: "homePageVisible");
 
   void setPageVisible(bool visible) => _isPageVisible.value = visible;
 

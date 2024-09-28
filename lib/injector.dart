@@ -16,12 +16,12 @@ final injector = AutoInjector(
     i.addSingleton(DeviceMonitorController.new);
     i.add(OptionsBottomSheetController.new);
     i.add(ImportDataPageController.new);
-    i.addLazySingleton(HomePageController.new);
     i.add(EditChannelsPageController.new);
     i.add(EditZonesPageController.new);
     i.add(LoadingOverlayController.new);
-    i.addLazySingleton(ConfigsPageController.new);
-    i.addLazySingleton(ScannerPageController.new);
+    i.add(ScannerPageController.new);
+    i.add(ConfigsPageController.new);
+    i.addLazySingleton(HomePageController.new);
     i.addLazySingleton(DeviceConfigurationPageController.new);
   },
 );

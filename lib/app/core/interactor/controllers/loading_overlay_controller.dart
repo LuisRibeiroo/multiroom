@@ -58,7 +58,7 @@ class LoadingOverlayController {
       this.pageState.value = pageState.value;
     } else {
       Logger(printer: SimplePrinter(printTime: true, colors: false)).i("LOADER --> Waiting [$ip] online on MONITOR");
-      await Future.delayed(defaultScanDuration);
+      await Future.delayed(const Duration(seconds: defaultScanDuration));
 
       await _checkIpStateOnMonitor(pageState: pageState, ip: ip);
     }

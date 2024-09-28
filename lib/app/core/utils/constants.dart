@@ -1,1 +1,1 @@
-const defaultScanDuration = Duration(seconds: 3);
+const defaultScanDuration = 3;

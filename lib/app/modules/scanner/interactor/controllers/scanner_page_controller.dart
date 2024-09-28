@@ -14,20 +14,37 @@ import '../../../../core/enums/page_state.dart';
 import '../../../../core/extensions/list_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/interactor/controllers/base_controller.dart';
+import '../../../../core/interactor/controllers/device_monitor_controller.dart';
 import '../../../../core/interactor/controllers/socket_mixin.dart';
 import '../../../../core/interactor/repositories/settings_contract.dart';
 import '../../../../core/models/device_model.dart';
 import '../../../../core/models/project_model.dart';
+import '../../../../core/utils/constants.dart';
 import '../../../../core/utils/datagram_data_parser.dart';
 import '../../../../core/utils/mr_cmd_builder.dart';
 import '../models/network_device_model.dart';
 
 class ScannerPageController extends BaseController with SocketMixin {
-  ScannerPageController() : super(InitialState());
+  ScannerPageController() : super(InitialState()) {
+    disposables.addAll(
+      [
+        effect(() async {
+          if (_isPageVisible.value && _monitor.hasStateChanges.value) {
+            untracked(() async {
+              await _updateDevicesAvailabilityAndFirmware();
+
+              _monitor.ingestStateChanges();
+            });
+          }
+        }),
+      ],
+    );
+  }
 
   UDP? _udpServer;
 
   final settings = injector.get<SettingsContract>();
+  final _monitor = injector.get<DeviceMonitorController>();
 
   final isUdpListening = false.toSignal(debugLabel: "isUdpListening");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
@@ -49,6 +66,14 @@ class ScannerPageController extends BaseController with SocketMixin {
   );
 
   final devicesAvailability = mapSignal(<String, bool>{}, debugLabel: "devicesAvailability");
+
+  final _isPageVisible = false.toSignal(debugLabel: "scannerPageVisible");
+
+  void setPageVisible(bool visible) => _isPageVisible.value = visible;
+  void startDeviceMonitor() => _monitor.startDeviceMonitor(
+        callerName: runtimeType.toString(),
+        cycleDuration: defaultScanDuration,
+      );
 
   Future<void> init() async {
     projects.value = settings.projects;
@@ -311,6 +336,7 @@ class ScannerPageController extends BaseController with SocketMixin {
 
     _clearEmptyProjects();
     stopUdpServer();
+
     isUdpListening.value = isUdpListening.initialValue;
     deviceType.value = deviceType.initialValue;
     projectName.value = projectName.initialValue;
