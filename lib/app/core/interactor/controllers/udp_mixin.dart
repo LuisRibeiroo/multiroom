@@ -9,7 +9,9 @@ mixin UdpMixin {
   bool get running => _udpServer != null && !_udpServer!.closed;
 
   Future<UDP> startServer() async {
-    await Permission.nearbyWifiDevices.request();
+    if (Platform.isAndroid || Platform.isIOS) {
+      await Permission.nearbyWifiDevices.request();
+    }
 
     if (_udpServer != null) {
       _udpServer!.close();
