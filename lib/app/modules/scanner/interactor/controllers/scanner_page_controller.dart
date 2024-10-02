@@ -116,11 +116,15 @@ class ScannerPageController extends BaseController with SocketMixin {
   void setSelectedDevice(NetworkDeviceModel device) => selectedDevice.value = device;
 
   Future<void> startUdpServer() async {
-    await Permission.nearbyWifiDevices.request();
+    if (Platform.isAndroid || Platform.isIOS) {
+      await Permission.nearbyWifiDevices.request();
+    }
 
     if (isUdpListening.value) {
       return;
     }
+
+    _monitor.stopDeviceMonitor();
 
     try {
       _udpServer = await UDP.bind(
@@ -162,27 +166,6 @@ class ScannerPageController extends BaseController with SocketMixin {
           }
         },
       );
-
-      // for (int i = 0; i < 5; i++) {
-      //   networkDevices.add(
-      //     NetworkDeviceModel(
-      //       ip: "192.168.0.${i + 1}",
-      //       serialNumber: "MR-123456-00$i",
-      //       firmware: "1.0",
-      //     ),
-      //   );
-      // }
-
-      // await Future.delayed(
-      //   const Duration(seconds: 2),
-      //   () => networkDevices.add(
-      //     const NetworkDeviceModel(
-      //       ip: "192.188.0.1",
-      //       serialNumber: "123456",
-      //       firmware: "1.0",
-      //     ),
-      //   ),
-      // );
     } catch (exception) {
       logger.e(exception);
       setError(exception as Exception);
@@ -195,6 +178,7 @@ class ScannerPageController extends BaseController with SocketMixin {
     }
 
     isUdpListening.value = false;
+    startDeviceMonitor();
   }
 
   Computed<bool> get isProjectNameValid => computed(() => projectName.value.isNotNullOrEmpty);
