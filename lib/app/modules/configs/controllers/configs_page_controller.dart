@@ -16,6 +16,10 @@ class ConfigsPageController extends BaseController {
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
 
   void syncDevices() {
+    if (projects.isEmpty || projects.value.every((element) => element.devices.isEmpty)) {
+      settings.saveProjects([]);
+    }
+
     projects.value = settings.projects;
   }
 
