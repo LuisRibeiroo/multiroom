@@ -32,7 +32,7 @@ class SummaryZoneControls extends StatelessWidget {
       child: InkWell(
         onTap: () => onTapCard(zone),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           child: Column(
             children: [
               Align(

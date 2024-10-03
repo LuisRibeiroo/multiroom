@@ -37,86 +37,81 @@ class ZoneControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card.filled(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: Column(
-          children: [
-            AnimatedSwitcher(
-              duration: Durations.short4,
-              child: SliderCard(
-                key: ValueKey(currentZone.name),
-                title: "Volume",
-                caption: "${min(currentZone.volume, 100)}%",
-                value: min(currentZone.volume, 100),
-                onChanged: onChangeVolume,
-              ),
-            ),
-            AnimatedSize(
-              duration: Durations.medium1,
-              child: Visibility(
-                visible: currentZone.side == MonoSide.undefined,
-                child: Card.outlined(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
+    return Column(
+      children: [
+        AnimatedSwitcher(
+          duration: Durations.short4,
+          child: SliderCard(
+            key: ValueKey(currentZone.name),
+            title: "Volume",
+            caption: "${min(currentZone.volume, 100)}%",
+            value: min(currentZone.volume, 100),
+            onChanged: onChangeVolume,
+          ),
+        ),
+        AnimatedSize(
+          duration: Durations.medium1,
+          child: Visibility(
+            visible: currentZone.side == MonoSide.undefined,
+            child: Card.outlined(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    Text(
+                      "Balanço",
+                      style: context.textTheme.titleMedium,
+                    ),
+                    Row(
                       children: [
-                        Text(
-                          "Balanço",
-                          style: context.textTheme.titleMedium,
+                        AnimatedOpacity(
+                          duration: Durations.short2,
+                          opacity: 1 - _normalizedValue(currentZone.balance.toDouble()),
+                          child: Text(
+                            "L",
+                            style: context.textTheme.headlineSmall!.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: context.colorScheme.primary,
+                            ),
+                          ),
                         ),
-                        Row(
-                          children: [
-                            AnimatedOpacity(
-                              duration: Durations.short2,
-                              opacity: 1 - _normalizedValue(currentZone.balance.toDouble()),
-                              child: Text(
-                                "L",
-                                style: context.textTheme.headlineSmall!.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  color: context.colorScheme.primary,
-                                ),
-                              ),
+                        Expanded(
+                          child: Slider(
+                            value: currentZone.balance.toDouble(),
+                            onChanged: (v) => onChangeBalance(v.toInt()),
+                            min: _minBalance,
+                            max: _maxBalance,
+                            divisions: _maxBalance ~/ 5,
+                            label: "${100 - currentZone.balance} | ${(currentZone.balance)}",
+                            inactiveColor: context.colorScheme.primary,
+                          ),
+                        ),
+                        AnimatedOpacity(
+                          duration: Durations.short2,
+                          opacity: _normalizedValue(currentZone.balance.toDouble()),
+                          child: Text(
+                            "R",
+                            style: context.textTheme.headlineSmall!.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: context.colorScheme.primary,
                             ),
-                            Expanded(
-                              child: Slider(
-                                value: currentZone.balance.toDouble(),
-                                onChanged: (v) => onChangeBalance(v.toInt()),
-                                min: _minBalance,
-                                max: _maxBalance,
-                                divisions: _maxBalance ~/ 5,
-                                label: "${100 - currentZone.balance} | ${(currentZone.balance)}",
-                                inactiveColor: context.colorScheme.primary,
-                              ),
-                            ),
-                            AnimatedOpacity(
-                              duration: Durations.short2,
-                              opacity: _normalizedValue(currentZone.balance.toDouble()),
-                              child: Text(
-                                "R",
-                                style: context.textTheme.headlineSmall!.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  color: context.colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
-            EqualizerCard(
-              equalizers: equalizers,
-              currentEqualizer: currentEqualizer,
-              onChangeEqualizer: onChangeEqualizer,
-              onUpdateFrequency: onUpdateFrequency,
-            ),
-          ],
+          ),
         ),
-      ),
+        EqualizerCard(
+          equalizers: equalizers,
+          currentEqualizer: currentEqualizer,
+          onChangeEqualizer: onChangeEqualizer,
+          onUpdateFrequency: onUpdateFrequency,
+        ),
+      ],
     );
   }
 }

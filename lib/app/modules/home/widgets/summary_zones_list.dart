@@ -33,45 +33,40 @@ class SummaryZonesList extends StatefulWidget {
 class _SummaryZonesListState extends State<SummaryZonesList> {
   @override
   Widget build(BuildContext context) {
-    return Card.filled(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: IconTextTile(
-                icon: Icons.home_filled,
-                text: "Zonas",
-                style: context.textTheme.titleLarge,
-              ),
-            ),
-            12.asSpace,
-            Flexible(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: widget.zones.length,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
-                  final zone = widget.zones[index];
-
-                  return SummaryZoneControls(
-                    isDeviceActive: widget.devices
-                            .firstWhereOrNull((element) => element.serialNumber == zone.deviceSerial)
-                            ?.active ??
-                        false,
-                    zone: zone,
-                    onTapCard: widget.onTapZone,
-                    onChangeActive: (value) => widget.onChangeActive(value, zone: zone),
-                    onChangeChannel: () => widget.onChangeChannel(zone: zone),
-                    onChangeVolume: (value) => widget.onChangeVolume(value, zone: zone),
-                  );
-                },
-              ),
-            ),
-          ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: IconTextTile(
+            icon: Icons.home_filled,
+            text: "Zonas",
+            style: context.textTheme.titleLarge,
+          ),
         ),
-      ),
+        12.asSpace,
+        Flexible(
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: widget.zones.length,
+            physics: const NeverScrollableScrollPhysics(),
+            separatorBuilder: (context, index) => 8.asSpace,
+            itemBuilder: (context, index) {
+              final zone = widget.zones[index];
+
+              return SummaryZoneControls(
+                isDeviceActive:
+                    widget.devices.firstWhereOrNull((element) => element.serialNumber == zone.deviceSerial)?.active ??
+                        false,
+                zone: zone,
+                onTapCard: widget.onTapZone,
+                onChangeActive: (value) => widget.onChangeActive(value, zone: zone),
+                onChangeChannel: () => widget.onChangeChannel(zone: zone),
+                onChangeVolume: (value) => widget.onChangeVolume(value, zone: zone),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

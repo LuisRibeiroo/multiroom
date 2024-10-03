@@ -245,12 +245,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             },
             child: SafeArea(
               child: Watch(
-                (_) => TabBarView(
-                  controller: _tabControler,
-                  children: [
-                    SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 18),
+                (_) => Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: TabBarView(
+                    controller: _tabControler,
+                    children: [
+                      SingleChildScrollView(
                         child: SummaryZonesList(
                           devices: _controller.currentProject.value.devices,
                           zones: _controller.projectZones.value,
@@ -267,10 +267,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           },
                         ),
                       ),
-                    ),
-                    SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 18),
+                      SingleChildScrollView(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -298,8 +295,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
