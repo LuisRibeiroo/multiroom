@@ -22,6 +22,7 @@ import '../../../../core/models/project_model.dart';
 import '../../../../core/utils/constants.dart';
 import '../../../../core/utils/datagram_data_parser.dart';
 import '../../../../core/utils/mr_cmd_builder.dart';
+import '../../../../core/utils/platform_checker.dart';
 import '../models/network_device_model.dart';
 
 class ScannerPageController extends BaseController with SocketMixin {
@@ -116,7 +117,7 @@ class ScannerPageController extends BaseController with SocketMixin {
   void setSelectedDevice(NetworkDeviceModel device) => selectedDevice.value = device;
 
   Future<void> startUdpServer() async {
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (PlatformChecker.isMobile) {
       await Permission.nearbyWifiDevices.request();
     }
 

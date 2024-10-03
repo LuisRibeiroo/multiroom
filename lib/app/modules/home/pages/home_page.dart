@@ -10,6 +10,7 @@ import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/channel_model.dart';
 import '../../../core/models/zone_model.dart';
+import '../../../core/utils/platform_checker.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../../core/widgets/selectable_list_view.dart';
 import '../../shared/pages/options_bottom_sheet.dart';
@@ -169,7 +170,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.initState();
 
     AppLifecycleListener(
-      onResume: () => _controller.syncLocalData(readAllZones: true),
+      onResume: () {
+        if (PlatformChecker.isMobile) {
+          _controller.syncLocalData(readAllZones: true);
+        }
+      },
     );
 
     _tabControler = TabController(

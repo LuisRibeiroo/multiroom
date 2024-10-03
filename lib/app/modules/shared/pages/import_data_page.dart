@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:signals/signals_flutter.dart';
@@ -10,6 +8,7 @@ import '../../../core/enums/page_state.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/extensions/text_input_formatter_extensions.dart';
+import '../../../core/utils/platform_checker.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../controllers/import_data_page_controller.dart';
@@ -129,7 +128,7 @@ class _ImportDataPageState extends State<ImportDataPage> with WidgetsBindingObse
                     ),
                   ),
                   Visibility(
-                    visible: Platform.isIOS || Platform.isAndroid,
+                    visible: PlatformChecker.isMobile,
                     child: Padding(
                       padding: const EdgeInsets.only(top: 24),
                       child: CameraScan(

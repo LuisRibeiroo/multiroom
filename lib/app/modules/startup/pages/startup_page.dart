@@ -1,15 +1,15 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/interactor/controllers/device_monitor_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:routefly/routefly.dart';
 
 import '../../../../injector.dart';
 import '../../../../routes.g.dart';
 import '../../../core/extensions/number_extensions.dart';
+import '../../../core/interactor/controllers/device_monitor_controller.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
+import '../../../core/utils/platform_checker.dart';
 
 class StartupPage extends StatefulWidget {
   const StartupPage({super.key});
@@ -24,7 +24,7 @@ class _StartupPageState extends State<StartupPage> {
     super.initState();
 
     scheduleMicrotask(() async {
-      if (Platform.isAndroid || Platform.isIOS) {
+      if (PlatformChecker.isMobile) {
         await [
           Permission.location,
           Permission.nearbyWifiDevices,

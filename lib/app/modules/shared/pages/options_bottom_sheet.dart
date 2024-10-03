@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:routefly/routefly.dart';
@@ -10,6 +8,7 @@ import '../../../../routes.g.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/models/device_model.dart';
+import '../../../core/utils/platform_checker.dart';
 import '../../widgets/about_bottom_sheet.dart';
 import '../controllers/options_bottom_sheet_controller.dart';
 import '../widgets/share_dialog.dart';
@@ -62,7 +61,7 @@ class _OptionsMenuState extends State<OptionsMenu> {
                 onTap: () async {
                   Routefly.pop(context);
 
-                  if (Platform.isAndroid || Platform.isIOS) {
+                  if (PlatformChecker.isMobile) {
                     if (await Permission.camera.request().isGranted) {
                       Routefly.pushNavigate(routePaths.modules.shared.pages.importData);
                     }
@@ -138,7 +137,7 @@ class Options {
               onTap: () async {
                 Routefly.pop(context);
 
-                if (Platform.isAndroid || Platform.isIOS) {
+                if (PlatformChecker.isMobile) {
                   if (await Permission.camera.request().isGranted) {
                     Routefly.pushNavigate(routePaths.modules.shared.pages.importData);
                   }

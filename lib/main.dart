@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,13 +9,14 @@ import 'app/core/interactor/repositories/hive_settings.dart';
 import 'app/core/interactor/repositories/settings_contract.dart';
 import 'app/core/interactor/utils/hive_utils.dart';
 import 'app/core/theme/theme.dart';
+import 'app/core/utils/platform_checker.dart';
 import 'injector.dart';
 import 'routes.g.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (Platform.isAndroid == false && Platform.isIOS == false) {
+  if (PlatformChecker.isMobile == false) {
     await windowManager.ensureInitialized();
 
     const size = Size(650, 730);
