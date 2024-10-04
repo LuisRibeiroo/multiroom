@@ -15,7 +15,7 @@ mixin SocketMixin {
 
   bool get socketInit => _socket != null;
 
-  Future<void> initSocket({required String ip}) async {
+  Future<Stream> initSocket({required String ip}) async {
     _ip = ip;
     _lastIp = _ip;
 
@@ -26,14 +26,16 @@ mixin SocketMixin {
     );
 
     _streamIterator = StreamIterator(_socket!);
+
+    return _socket!;
   }
 
-  Future<void> restartSocket({required String ip}) async {
+  Future<Stream> restartSocket({required String ip}) async {
     if (_socket != null) {
       _socket!.close();
     }
 
-    await initSocket(ip: ip);
+    return initSocket(ip: ip);
   }
 
   Future<String> socketSender(String cmd, {bool longRet = false}) async {

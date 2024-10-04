@@ -41,7 +41,6 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     deviceName.value = dev.name;
 
     try {
-      await initSocket(ip: dev.ip);
       await run(
         setError: true,
         () async {
