@@ -118,11 +118,11 @@ class _ZoneControlsState extends State<ZoneControls> {
                                   padding: const EdgeInsets.all(4),
                                   decoration: BoxDecoration(
                                     color: context.colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(4),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
                                     "${(100 - _value).toInt()} | ${(_value.toInt())}",
-                                    style: context.textTheme.bodyMedium!.copyWith(
+                                    style: context.textTheme.labelLarge!.copyWith(
                                       color: context.colorScheme.onPrimary,
                                     ),
                                   ),
