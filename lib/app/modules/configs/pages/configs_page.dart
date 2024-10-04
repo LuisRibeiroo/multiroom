@@ -45,23 +45,25 @@ class _ConfigsPageState extends State<ConfigsPage> {
                 ),
               ],
             ),
-            body: Visibility(
-              visible: _controller.projects.isEmpty,
-              replacement: ListView.separated(
-                padding: const EdgeInsets.all(12),
-                itemCount: _controller.projects.length,
-                separatorBuilder: (_, __) => 18.asSpace,
-                itemBuilder: (_, index) => Watch(
-                  (_) => ProjectListCard(
-                    project: _controller.projects[index],
-                    deviceAvailabilityMap: const {},
-                    showAvailability: false,
-                    onTapConfigDevice: (d) => Options.showTechBottomSheet(context, device: d),
-                    onTapRemoveProject: _controller.removeProject,
+            body: Watch(
+              (_) => Visibility(
+                visible: _controller.projects.isEmpty,
+                replacement: ListView.separated(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: _controller.projects.length,
+                  separatorBuilder: (_, __) => 18.asSpace,
+                  itemBuilder: (_, index) => Watch(
+                    (_) => ProjectListCard(
+                      project: _controller.projects[index],
+                      deviceAvailabilityMap: const {},
+                      showAvailability: false,
+                      onTapConfigDevice: (d) => Options.showTechBottomSheet(context, device: d),
+                      onTapRemoveProject: _controller.removeProject,
+                    ),
                   ),
                 ),
+                child: const NoDevicesWidget(),
               ),
-              child: const NoDevicesWidget(),
             ),
             floatingActionButton: _controller.projects.isEmpty
                 ? FloatingActionButton.extended(

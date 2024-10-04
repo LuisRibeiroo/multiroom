@@ -148,18 +148,22 @@ class _ScannerPageState extends State<ScannerPage> {
             appBar: AppBar(
               title: const Text("Acesso Técnico"),
               actions: [
-                Visibility(
-                  visible: _controller.isUdpListening.value,
-                  child: IconButton(
-                    icon: const Icon(Icons.cancel_rounded),
-                    onPressed: _controller.stopUdpServer,
+                Watch(
+                  (_) => Visibility(
+                    visible: _controller.isUdpListening.value,
+                    child: IconButton(
+                      icon: const Icon(Icons.cancel_rounded),
+                      onPressed: _controller.stopUdpServer,
+                    ),
                   ),
                 ),
-                Visibility(
-                  visible: _controller.isUdpListening.value,
-                  child: const SizedBox.square(
-                    dimension: 20,
-                    child: CircularProgressIndicator(),
+                Watch(
+                  (_) => Visibility(
+                    visible: _controller.isUdpListening.value,
+                    child: const SizedBox.square(
+                      dimension: 20,
+                      child: CircularProgressIndicator(),
+                    ),
                   ),
                 ),
                 24.asSpace,
@@ -170,7 +174,7 @@ class _ScannerPageState extends State<ScannerPage> {
                 visible: _controller.projects.isEmpty,
                 replacement: ListView.separated(
                   padding: const EdgeInsets.all(12),
-                  itemCount: _controller.projects.length,
+                  itemCount: _controller.projects.value.length,
                   separatorBuilder: (_, __) => 18.asSpace,
                   itemBuilder: (_, index) => Watch(
                     (_) => ProjectListCard(
