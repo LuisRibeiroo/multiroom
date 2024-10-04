@@ -45,9 +45,9 @@ class DeleteConfirmationBottomSheet extends StatelessWidget {
                 child: AppButton(
                   text: "Sim",
                   onPressed: () {
-                    onConfirm();
-
                     Routefly.pop(context);
+
+                    onConfirm();
                   },
                 ),
               ),
