@@ -125,7 +125,7 @@ class ScannerPageController extends BaseController with SocketMixin {
       return;
     }
 
-    _monitor.stopDeviceMonitor();
+    _monitor.stopDeviceMonitor(stopServer: true);
 
     try {
       _udpServer = await UDP.bind(
@@ -168,8 +168,12 @@ class ScannerPageController extends BaseController with SocketMixin {
         },
       );
     } catch (exception) {
-      logger.e(exception);
-      setError(exception as Exception);
+      if (exception.toString().contains("Failed to create datagram socket")) {
+        await startUdpServer();
+      } else {
+        logger.e(exception);
+        setError(exception as Exception);
+      }
     }
   }
 

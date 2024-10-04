@@ -128,7 +128,11 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     });
   }
 
-  void stopDeviceMonitor() {
+  void stopDeviceMonitor({bool stopServer = false}) {
+    if (stopServer) {
+      this.stopServer();
+    }
+
     _cancelableOperation?.cancel();
     _timer?.cancel();
     _timer = null;
