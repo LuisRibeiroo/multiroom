@@ -50,14 +50,14 @@ class DeviceMonitorController extends BaseController with UdpMixin {
             _updateDeviceIp(serial: serialNumber, ip: datagram.address.address);
           }
 
-          logger.d("MONITOR [$_callerName] --> $serialNumber -> ${datagram.address.address}");
+          // logger.d("MONITOR [$_callerName] --> $serialNumber -> ${datagram.address.address}");
           // if (_serialSet.contains(serialNumber)) {
           //   return;
           // }
 
           _serialSet.add(serialNumber);
         } catch (exception) {
-          logger.e("Datagram parse error [${datagram.address.address}]-> $exception");
+          // logger.e("Datagram parse error [${datagram.address.address}]-> $exception");
         }
       },
       onDone: () {
@@ -88,7 +88,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     }
 
     if (isRunning && _callerName != callerName) {
-      logger.i("MONITOR --> Updating caller from [$_callerName] to [$callerName]");
+      // logger.i("MONITOR --> Updating caller from [$_callerName] to [$callerName]");
 
       hasStateChanges.overrideWith(false);
       stopDeviceMonitor();
@@ -100,7 +100,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
 
     final interval = Duration(
         milliseconds: ((cycleDuration ?? defaultScanDuration * 1.5).clamp(defaultScanDuration, 20) * 1000).toInt());
-    logger.i("MONITOR [$_callerName] --> START [${interval.inMilliseconds}ms]");
+    // logger.i("MONITOR [$_callerName] --> START [${interval.inMilliseconds}ms]");
 
     scanDevices(
       updateActives: true,
@@ -133,12 +133,12 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     _timer?.cancel();
     _timer = null;
 
-    logger.i("MONITOR [$_callerName] --> STOP");
+    // logger.i("MONITOR [$_callerName] --> STOP");
     isRunning = false;
   }
 
   void ingestStateChanges() {
-    logger.i("MONITOR [$_callerName] --> Changes ingested");
+    // logger.i("MONITOR [$_callerName] --> Changes ingested");
 
     hasStateChanges.value = false;
   }
@@ -151,7 +151,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
 
     if (device != null && ip != device.ip) {
       _settings.saveDevice(device: device.copyWith(ip: ip));
-      logger.i("MONITOR --> Updated device [${device.serialNumber}] to IP [$ip]");
+      // logger.i("MONITOR --> Updated device [${device.serialNumber}] to IP [$ip]");
 
       hasStateChanges.value = true;
     }
@@ -166,7 +166,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
       }
 
       _settings.saveDevice(device: device.copyWith(active: active));
-      logger.i("MONITOR [$_callerName] --> [${device.serialNumber}] set ${active ? "ONLINE" : "OFFLINE"}");
+      // logger.i("MONITOR [$_callerName] --> [${device.serialNumber}] set ${active ? "ONLINE" : "OFFLINE"}");
 
       hasStateChanges.value = true;
     }
@@ -174,9 +174,9 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     // _serialSet.clear();
     if (isRunning) {
       if (hasStateChanges.value == false) {
-        logger.i("MONITOR [$_callerName] --> No device state change");
+        // logger.i("MONITOR [$_callerName] --> No device state change");
       } else {
-        logger.i("MONITOR [$_callerName] --> Changes waiting ingestion");
+        // logger.i("MONITOR [$_callerName] --> Changes waiting ingestion");
       }
     }
   }

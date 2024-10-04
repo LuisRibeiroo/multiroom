@@ -1,5 +1,10 @@
 import 'dart:math';
 
+import 'package:another_xlider/another_xlider.dart';
+import 'package:another_xlider/models/handler.dart';
+import 'package:another_xlider/models/slider_step.dart';
+import 'package:another_xlider/models/tooltip/tooltip.dart';
+import 'package:another_xlider/models/trackbar.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/enums/mono_side.dart';
@@ -10,7 +15,7 @@ import '../../../core/models/zone_model.dart';
 import '../../widgets/equalizer_card.dart';
 import '../../widgets/slider_card.dart';
 
-class ZoneControls extends StatelessWidget {
+class ZoneControls extends StatefulWidget {
   const ZoneControls({
     super.key,
     required this.equalizers,
@@ -30,10 +35,12 @@ class ZoneControls extends StatelessWidget {
   final Function(Frequency) onUpdateFrequency;
   final Function() onChangeEqualizer;
 
-  final _minBalance = 0.0;
-  final _maxBalance = 100.0;
+  @override
+  State<ZoneControls> createState() => _ZoneControlsState();
+}
 
-  double _normalizedValue(double current) => (current - _minBalance) / (_maxBalance - _minBalance);
+class _ZoneControlsState extends State<ZoneControls> {
+  double _value = 50.0;
 
   @override
   Widget build(BuildContext context) {
@@ -42,17 +49,17 @@ class ZoneControls extends StatelessWidget {
         AnimatedSwitcher(
           duration: Durations.short4,
           child: SliderCard(
-            key: ValueKey(currentZone.name),
+            key: ValueKey(widget.currentZone.name),
             title: "Volume",
-            caption: "${min(currentZone.volume, 100)}%",
-            value: min(currentZone.volume, 100),
-            onChanged: onChangeVolume,
+            caption: "${min(widget.currentZone.volume, 100)}%",
+            value: min(widget.currentZone.volume, 100),
+            onChanged: widget.onChangeVolume,
           ),
         ),
         AnimatedSize(
           duration: Durations.medium1,
           child: Visibility(
-            visible: currentZone.side == MonoSide.undefined,
+            visible: widget.currentZone.side == MonoSide.undefined,
             child: Card.outlined(
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
@@ -63,10 +70,11 @@ class ZoneControls extends StatelessWidget {
                       style: context.textTheme.titleMedium,
                     ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         AnimatedOpacity(
                           duration: Durations.short2,
-                          opacity: 1 - _normalizedValue(currentZone.balance.toDouble()),
+                          opacity: 1 - (widget.currentZone.balance.toDouble().abs() / 100),
                           child: Text(
                             "L",
                             style: context.textTheme.headlineSmall!.copyWith(
@@ -76,19 +84,56 @@ class ZoneControls extends StatelessWidget {
                           ),
                         ),
                         Expanded(
-                          child: Slider(
-                            value: currentZone.balance.toDouble(),
-                            onChanged: (v) => onChangeBalance(v.toInt()),
-                            min: _minBalance,
-                            max: _maxBalance,
-                            divisions: _maxBalance ~/ 5,
-                            label: "${100 - currentZone.balance} | ${(currentZone.balance)}",
-                            inactiveColor: context.colorScheme.primary,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: FlutterSlider(
+                              values: [_value],
+                              min: 0,
+                              max: 100,
+                              centeredOrigin: true,
+                              step: const FlutterSliderStep(step: 5),
+                              trackBar: FlutterSliderTrackBar(
+                                activeTrackBarHeight: 5,
+                                inactiveTrackBarHeight: 4,
+                                activeTrackBar: BoxDecoration(color: context.colorScheme.primary),
+                                inactiveTrackBar: BoxDecoration(color: context.colorScheme.primary.withOpacity(.24)),
+                              ),
+                              onDragging: (handlerIndex, lowerValue, upperValue) {
+                                widget.onChangeBalance(lowerValue.toInt());
+                                setState(() {
+                                  _value = lowerValue;
+                                });
+                              },
+                              handlerHeight: 20,
+                              handlerWidth: 20,
+                              handler: FlutterSliderHandler(
+                                decoration: BoxDecoration(
+                                  color: context.colorScheme.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Container(),
+                              ),
+                              tooltip: FlutterSliderTooltip(
+                                custom: (value) => Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: context.colorScheme.primary,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    "${(100 - _value).toInt()} | ${(_value.toInt())}",
+                                    style: context.textTheme.bodyMedium!.copyWith(
+                                      color: context.colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                         AnimatedOpacity(
                           duration: Durations.short2,
-                          opacity: _normalizedValue(currentZone.balance.toDouble()),
+                          opacity: widget.currentZone.balance.toDouble().abs() / 100,
                           child: Text(
                             "R",
                             style: context.textTheme.headlineSmall!.copyWith(
@@ -106,10 +151,10 @@ class ZoneControls extends StatelessWidget {
           ),
         ),
         EqualizerCard(
-          equalizers: equalizers,
-          currentEqualizer: currentEqualizer,
-          onChangeEqualizer: onChangeEqualizer,
-          onUpdateFrequency: onUpdateFrequency,
+          equalizers: widget.equalizers,
+          currentEqualizer: widget.currentEqualizer,
+          onChangeEqualizer: widget.onChangeEqualizer,
+          onUpdateFrequency: widget.onUpdateFrequency,
         ),
       ],
     );
