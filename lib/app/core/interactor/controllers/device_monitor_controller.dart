@@ -24,7 +24,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
 
   Timer? _timer;
 
-  final hasStateChanges = false.toSignal(debugLabel: "monitorHasStateChanges");
+  final hasStateChanges = false.asSignal(debugLabel: "monitorHasStateChanges");
   CancelableOperation? _cancelableOperation;
 
   Future<void> scanDevices({

@@ -15,11 +15,11 @@ class EditZonesPageController extends BaseController {
 
   final _settings = injector.get<SettingsContract>();
 
-  final project = ProjectModel.empty().toSignal(debugLabel: "project");
-  final isEditing = false.toSignal(debugLabel: "isEditing");
-  final editingDeviceSerial = "".toSignal(debugLabel: "editingDeviceSerial");
-  final editingZoneId = "".toSignal(debugLabel: "editingZoneId");
-  final editingZoneName = "".toSignal(debugLabel: "editingZoneName");
+  final project = ProjectModel.empty().asSignal(debugLabel: "project");
+  final isEditing = false.asSignal(debugLabel: "isEditing");
+  final editingDeviceSerial = "".asSignal(debugLabel: "editingDeviceSerial");
+  final editingZoneId = "".asSignal(debugLabel: "editingZoneId");
+  final editingZoneName = "".asSignal(debugLabel: "editingZoneName");
 
   void init({required ProjectModel project}) {
     this.project.value = project;

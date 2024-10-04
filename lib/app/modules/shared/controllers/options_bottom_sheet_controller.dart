@@ -29,12 +29,12 @@ class OptionsBottomSheetController extends BaseController {
   }
 
   final settings = injector.get<SettingsContract>();
-  final password = "".toSignal(debugLabel: "password");
-  final errorMessage = "".toSignal(debugLabel: "errorMessage");
-  final isPasswordVisible = false.toSignal(debugLabel: "isPasswordVisible");
+  final password = "".asSignal(debugLabel: "password");
+  final errorMessage = "".asSignal(debugLabel: "errorMessage");
+  final isPasswordVisible = false.asSignal(debugLabel: "isPasswordVisible");
 
-  final showShareOption = false.toSignal(debugLabel: "showShareOption");
-  final showTechAccessOption = false.toSignal(debugLabel: "showTechAccessOption");
+  final showShareOption = false.asSignal(debugLabel: "showShareOption");
+  final showTechAccessOption = false.asSignal(debugLabel: "showTechAccessOption");
 
   bool onTapAccess() {
     /// !Control@061

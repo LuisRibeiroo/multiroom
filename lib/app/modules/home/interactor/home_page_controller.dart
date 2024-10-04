@@ -90,16 +90,16 @@ class HomePageController extends BaseController with SocketMixin {
     debugLabel: "equalizers",
   );
 
-  final currentProject = ProjectModel.empty().toSignal(debugLabel: "currentProject");
-  final currentDevice = DeviceModel.empty().toSignal(debugLabel: "currentDevice");
-  final currentZone = ZoneModel.empty().toSignal(debugLabel: "currentZone");
-  final currentEqualizer = EqualizerModel.empty().toSignal(debugLabel: "currentEqualizer");
-  final expandedViewMode = false.toSignal(debugLabel: "expandedViewMode");
+  final currentProject = ProjectModel.empty().asSignal(debugLabel: "currentProject");
+  final currentDevice = DeviceModel.empty().asSignal(debugLabel: "currentDevice");
+  final currentZone = ZoneModel.empty().asSignal(debugLabel: "currentZone");
+  final currentEqualizer = EqualizerModel.empty().asSignal(debugLabel: "currentEqualizer");
+  final expandedViewMode = false.asSignal(debugLabel: "expandedViewMode");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
-  final _updatingData = false.toSignal(debugLabel: "updatingData");
+  final _updatingData = false.asSignal(debugLabel: "updatingData");
 
-  final _isPageVisible = false.toSignal(debugLabel: "homePageVisible");
+  final _isPageVisible = false.asSignal(debugLabel: "homePageVisible");
 
   void setPageVisible(bool visible) => _isPageVisible.value = visible;
 

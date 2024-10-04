@@ -16,11 +16,11 @@ class EditChannelsPageController extends BaseController {
 
   final _settings = injector.get<SettingsContract>();
 
-  final device = DeviceModel.empty().toSignal(debugLabel: "device");
-  final zone = ZoneModel.empty().toSignal(debugLabel: "zone");
-  final isEditing = false.toSignal(debugLabel: "isEditingChannel");
-  final editingChannelId = "".toSignal(debugLabel: "editingChannelId");
-  final editingChannelName = "".toSignal(debugLabel: "editingChannelName");
+  final device = DeviceModel.empty().asSignal(debugLabel: "device");
+  final zone = ZoneModel.empty().asSignal(debugLabel: "zone");
+  final isEditing = false.asSignal(debugLabel: "isEditingChannel");
+  final editingChannelId = "".asSignal(debugLabel: "editingChannelId");
+  final editingChannelName = "".asSignal(debugLabel: "editingChannelName");
 
   void init({required DeviceModel device, required ZoneModel zone}) {
     this.device.value = device;

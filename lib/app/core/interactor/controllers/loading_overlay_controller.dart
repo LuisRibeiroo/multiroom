@@ -11,7 +11,7 @@ import 'device_monitor_controller.dart';
 class LoadingOverlayController {
   final _settings = injector.get<SettingsContract>();
   final pageState = Signal<PageState>(InitialState(), debugLabel: "overlayPageState");
-  final errorCounter = 0.toSignal(debugLabel: "errorCounter");
+  final errorCounter = 0.asSignal(debugLabel: "errorCounter");
 
   final _monitorController = injector.get<DeviceMonitorController>();
 

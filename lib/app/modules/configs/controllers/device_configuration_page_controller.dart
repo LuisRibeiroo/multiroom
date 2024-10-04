@@ -24,17 +24,17 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   final settings = injector.get<SettingsContract>();
 
-  final deviceName = "".toSignal(debugLabel: "deviceName");
-  final device = DeviceModel.empty().toSignal(debugLabel: "device");
-  final editingWrapper = ZoneWrapperModel.empty().toSignal(debugLabel: "editingWrapper");
-  final editingGroup = ZoneGroupModel.empty().toSignal(debugLabel: "editingGroup");
-  final editingZone = ZoneModel.empty().toSignal(debugLabel: "editingZone");
-  final isEditingDevice = false.toSignal(debugLabel: "isEditingDevice");
-  final isEditingZone = false.toSignal(debugLabel: "isEditingZone");
-  final isEditingGroup = false.toSignal(debugLabel: "isEditingGroup");
+  final deviceName = "".asSignal(debugLabel: "deviceName");
+  final device = DeviceModel.empty().asSignal(debugLabel: "device");
+  final editingWrapper = ZoneWrapperModel.empty().asSignal(debugLabel: "editingWrapper");
+  final editingGroup = ZoneGroupModel.empty().asSignal(debugLabel: "editingGroup");
+  final editingZone = ZoneModel.empty().asSignal(debugLabel: "editingZone");
+  final isEditingDevice = false.asSignal(debugLabel: "isEditingDevice");
+  final isEditingZone = false.asSignal(debugLabel: "isEditingZone");
+  final isEditingGroup = false.asSignal(debugLabel: "isEditingGroup");
   final availableZones = listSignal([], debugLabel: "availableZones");
-  final maxVolumeL = 100.toSignal(debugLabel: "maxVolumeL");
-  final maxVolumeR = 100.toSignal(debugLabel: "maxVolumeR");
+  final maxVolumeL = 100.asSignal(debugLabel: "maxVolumeL");
+  final maxVolumeR = 100.asSignal(debugLabel: "maxVolumeR");
 
   Future<void> init({required DeviceModel dev}) async {
     device.value = dev;

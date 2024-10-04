@@ -47,19 +47,19 @@ class ScannerPageController extends BaseController with SocketMixin {
   final settings = injector.get<SettingsContract>();
   final _monitor = injector.get<DeviceMonitorController>();
 
-  final isUdpListening = false.toSignal(debugLabel: "isUdpListening");
+  final isUdpListening = false.asSignal(debugLabel: "isUdpListening");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
   final networkDevices = listSignal<NetworkDeviceModel>([], debugLabel: "networkDevices");
-  final deviceType = NetworkDeviceType.undefined.toSignal(debugLabel: "deviceType");
-  final projectName = "".toSignal(debugLabel: "projectName");
-  final currentProject = ProjectModel.empty().toSignal(debugLabel: "currentProject");
-  final hasDevices = false.toSignal(debugLabel: "hasDevices");
+  final deviceType = NetworkDeviceType.undefined.asSignal(debugLabel: "deviceType");
+  final projectName = "".asSignal(debugLabel: "projectName");
+  final currentProject = ProjectModel.empty().asSignal(debugLabel: "currentProject");
+  final hasDevices = false.asSignal(debugLabel: "hasDevices");
 
-  final isMasterAvailable = true.toSignal(debugLabel: "isMasterAvailable");
-  final slave1Available = true.toSignal(debugLabel: "slave1Available");
-  final slave2Available = true.toSignal(debugLabel: "slave2Available");
-  final hasAvailableSlots = false.toSignal(debugLabel: "hasAvailableSlots");
-  final selectedDevice = NetworkDeviceModel.empty().toSignal(debugLabel: "selectedDevice");
+  final isMasterAvailable = true.asSignal(debugLabel: "isMasterAvailable");
+  final slave1Available = true.asSignal(debugLabel: "slave1Available");
+  final slave2Available = true.asSignal(debugLabel: "slave2Available");
+  final hasAvailableSlots = false.asSignal(debugLabel: "hasAvailableSlots");
+  final selectedDevice = NetworkDeviceModel.empty().asSignal(debugLabel: "selectedDevice");
 
   final _localDevices = listSignal(
     <DeviceModel>[],
@@ -68,7 +68,7 @@ class ScannerPageController extends BaseController with SocketMixin {
 
   final devicesAvailability = mapSignal(<String, bool>{}, debugLabel: "devicesAvailability");
 
-  final _isPageVisible = false.toSignal(debugLabel: "scannerPageVisible");
+  final _isPageVisible = false.asSignal(debugLabel: "scannerPageVisible");
 
   void setPageVisible(bool visible) => _isPageVisible.value = visible;
   void startDeviceMonitor() => _monitor.startDeviceMonitor(
