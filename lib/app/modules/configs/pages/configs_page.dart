@@ -65,20 +65,22 @@ class _ConfigsPageState extends State<ConfigsPage> {
                 child: const NoDevicesWidget(),
               ),
             ),
-            floatingActionButton: _controller.projects.isEmpty
-                ? FloatingActionButton.extended(
-                    icon: const Icon(Icons.settings_input_antenna_rounded),
-                    label: const Text("Iniciar configuração"),
-                    onPressed: () => Options.showTechBottomSheet(context),
-                  )
-                : FloatingActionButton.extended(
-                    icon: const Icon(Icons.check_rounded),
-                    label: const Text("Finalizar configurações"),
-                    onPressed: () {
-                      Routefly.replace(routePaths.modules.home.pages.home);
-                      Routefly.pushNavigate(routePaths.modules.home.pages.home);
-                    },
-                  ),
+            floatingActionButton: Watch(
+              (_) => _controller.projects.isEmpty
+                  ? FloatingActionButton.extended(
+                      icon: const Icon(Icons.settings_input_antenna_rounded),
+                      label: const Text("Iniciar configuração"),
+                      onPressed: () => Options.showTechBottomSheet(context),
+                    )
+                  : FloatingActionButton.extended(
+                      icon: const Icon(Icons.check_rounded),
+                      label: const Text("Finalizar configurações"),
+                      onPressed: () {
+                        Routefly.replace(routePaths.modules.home.pages.home);
+                        Routefly.pushNavigate(routePaths.modules.home.pages.home);
+                      },
+                    ),
+            ),
           ),
         ),
       ),
