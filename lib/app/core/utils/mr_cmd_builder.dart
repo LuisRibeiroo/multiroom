@@ -12,6 +12,13 @@ import '../models/zone_wrapper_model.dart';
 abstract final class MrCmdBuilder {
   static String parseResponse(String response) => response.split("=").lastOrNull?.removeSpecialChars ?? response;
 
+  static ({MultiroomCommands cmd, String value}) parseCompleteResponse(String response) {
+    return (
+      cmd: MultiroomCommands.mrParShow,
+      value: response.split("=").lastOrNull?.removeSpecialChars ?? response,
+    );
+  }
+
   static Map<String, String> parseConfigs(String response) {
     final configs = <String, String>{};
 
