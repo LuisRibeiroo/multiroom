@@ -254,7 +254,9 @@ class ScannerPageController extends BaseController with SocketMixin {
       for (final d in proj.devices) {
         try {
           await restartSocket(ip: d.ip);
-          final fw = MrCmdBuilder.parseResponse(await socketSender(MrCmdBuilder.firmwareVersion));
+          await socketSender(MrCmdBuilder.firmwareVersion);
+
+          final fw = MrCmdBuilder.parseResponse('');
           final formatted = "${fw.substring(0, 2)}.${fw.substring(2).padLeft(2, "0")}";
 
           final newDevices = proj.devices.withReplacement(
@@ -288,19 +290,16 @@ class ScannerPageController extends BaseController with SocketMixin {
     try {
       await restartSocket(ip: ip);
 
-      final response = MrCmdBuilder.parseResponse(
-        await socketSender(
-          MrCmdBuilder.setExpansionMode(type: type),
-        ),
-      );
+      await socketSender(MrCmdBuilder.setExpansionMode(type: type));
+
+      final response = MrCmdBuilder.parseResponse("");
 
       if (response.contains("OK") == false) {
         throw Exception("Erro ao configurar dispositivo, tente novamente.");
       }
 
-      final deviceMode = MrCmdBuilder.parseResponse(
-        await socketSender(MrCmdBuilder.expansionMode),
-      );
+      await socketSender(MrCmdBuilder.expansionMode);
+      final deviceMode = MrCmdBuilder.parseResponse("");
 
       return deviceMode;
     } catch (exception) {

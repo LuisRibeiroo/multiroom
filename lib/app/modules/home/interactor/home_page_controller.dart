@@ -483,66 +483,68 @@ class HomePageController extends BaseController with SocketMixin {
       await Future.delayed(Durations.short3);
     }
 
-    final active = MrCmdBuilder.parseResponse(await socketSender(
-      MrCmdBuilder.getPower(zone: zone),
-    ));
+    await socketSender(MrCmdBuilder.getPower(zone: zone));
+    final active = MrCmdBuilder.parseResponse("");
 
-    final channelStr = MrCmdBuilder.parseResponse(await socketSender(
-      MrCmdBuilder.getChannel(zone: zone),
-    ));
+    await socketSender(MrCmdBuilder.getChannel(zone: zone));
+    final channelStr = MrCmdBuilder.parseResponse("");
 
-    final volume = MrCmdBuilder.parseResponse(await socketSender(
-      MrCmdBuilder.getVolume(zone: zone),
-    ));
+    await socketSender(MrCmdBuilder.getVolume(zone: zone));
+    final volume = MrCmdBuilder.parseResponse("");
 
     String balance = "0";
     if (zone.isStereo) {
-      balance = MrCmdBuilder.parseResponse(await socketSender(
-        MrCmdBuilder.getBalance(zone: zone),
-      ));
+      await socketSender(MrCmdBuilder.getBalance(zone: zone));
+      balance = MrCmdBuilder.parseResponse("");
     }
 
-    final f60 = MrCmdBuilder.parseResponse(await socketSender(
+    await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: zone,
         frequency: zone.equalizer.frequencies[0],
       ),
-    ));
+    );
+    final f60 = MrCmdBuilder.parseResponse("");
 
-    final f250 = MrCmdBuilder.parseResponse(await socketSender(
+    await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: zone,
         frequency: zone.equalizer.frequencies[1],
       ),
-    ));
+    );
+    final f250 = MrCmdBuilder.parseResponse("");
 
-    final f1k = MrCmdBuilder.parseResponse(await socketSender(
+    await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: zone,
         frequency: zone.equalizer.frequencies[2],
       ),
-    ));
+    );
+    final f1k = MrCmdBuilder.parseResponse("");
 
-    final f3k = MrCmdBuilder.parseResponse(await socketSender(
+    await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: zone,
         frequency: zone.equalizer.frequencies[3],
       ),
-    ));
+    );
+    final f3k = MrCmdBuilder.parseResponse("");
 
-    final f6k = MrCmdBuilder.parseResponse(await socketSender(
+    await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: zone,
         frequency: zone.equalizer.frequencies[4],
       ),
-    ));
+    );
+    final f6k = MrCmdBuilder.parseResponse("");
 
-    final f16k = MrCmdBuilder.parseResponse(await socketSender(
+    await socketSender(
       MrCmdBuilder.getEqualizer(
         zone: zone,
         frequency: zone.equalizer.frequencies[5],
       ),
-    ));
+    );
+    final f16k = MrCmdBuilder.parseResponse("");
 
     final equalizer = zone.equalizer;
     final newEqualizer = EqualizerModel.custom(
