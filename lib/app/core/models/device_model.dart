@@ -60,6 +60,7 @@ class DeviceModel extends HiveObject {
           index: idx + 1,
           name: "Zona ${idx + 1}",
           deviceSerial: serialNumber,
+          macAddress: macAddress,
         ),
       ),
       groups: List.generate(

@@ -34,13 +34,14 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
       maxVolumeLeft: fields[13] == null ? 100 : fields[13] as int,
       maxVolumeRight: fields[14] == null ? 100 : fields[14] as int,
       deviceSerial: fields[15] == null ? '' : fields[15] as String,
+      macAddress: fields[16] == null ? '' : fields[16] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, ZoneModel obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -70,7 +71,9 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
       ..writeByte(14)
       ..write(obj.maxVolumeRight)
       ..writeByte(15)
-      ..write(obj.deviceSerial);
+      ..write(obj.deviceSerial)
+      ..writeByte(16)
+      ..write(obj.macAddress);
   }
 
   @override

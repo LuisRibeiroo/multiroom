@@ -18,6 +18,7 @@ class DeviceModelAdapter extends TypeAdapter<DeviceModel> {
     };
     return DeviceModel(
       serialNumber: fields[0] as String,
+      macAddress: fields[10] as String,
       name: fields[1] as String,
       ip: fields[2] as String,
       zoneWrappers: (fields[3] as List).cast<ZoneWrapperModel>(),
@@ -27,14 +28,13 @@ class DeviceModelAdapter extends TypeAdapter<DeviceModel> {
       active: fields[8] as bool,
       projectName: fields[7] as String,
       projectId: fields[9] as String,
-      macAddress: fields[10] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, DeviceModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.serialNumber)
       ..writeByte(1)
@@ -54,7 +54,9 @@ class DeviceModelAdapter extends TypeAdapter<DeviceModel> {
       ..writeByte(8)
       ..write(obj.active)
       ..writeByte(9)
-      ..write(obj.projectId);
+      ..write(obj.projectId)
+      ..writeByte(10)
+      ..write(obj.macAddress);
   }
 
   @override

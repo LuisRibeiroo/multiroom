@@ -21,6 +21,7 @@ class ZoneWrapperModel extends Equatable {
     required int index,
     required String name,
     required String deviceSerial,
+    required String macAddress,
     ZoneMode mode = ZoneMode.stereo,
   }) {
     return ZoneWrapperModel(
@@ -31,12 +32,14 @@ class ZoneWrapperModel extends Equatable {
         wrapperId: "ZW$index",
         name: name,
         deviceSerial: deviceSerial,
+        macAddress: macAddress,
       ),
       monoZones: MonoZones.builder(
         id: "$index",
         wrapperId: "ZW$index",
         name: name,
         deviceSerial: deviceSerial,
+        macAddress: macAddress,
       ),
     );
   }

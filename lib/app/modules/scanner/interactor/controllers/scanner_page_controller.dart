@@ -148,7 +148,7 @@ class ScannerPageController extends BaseController with SocketMixin {
             logger.i("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
 
             final (serialNumber, firmware, macAddress) = DatagramDataParser.getSerialMacAndFirmware(datagram.data);
-             logger.i("MAC ADDRESS DATA --> $macAddress");
+            logger.i("MAC ADDRESS DATA --> $macAddress");
 
             // Ignore already added devices
             if (_localDevices.value.any((d) => d.serialNumber == serialNumber) ||
@@ -158,11 +158,7 @@ class ScannerPageController extends BaseController with SocketMixin {
 
             networkDevices.add(
               NetworkDeviceModel(
-                ip: datagram.address.address,
-                serialNumber: serialNumber,
-                firmware: firmware,
-                macAddress: macAddress
-              ),
+                  ip: datagram.address.address, serialNumber: serialNumber, firmware: firmware, macAddress: macAddress),
             );
           } catch (exception) {
             logger.e("Datagram parse error [${datagram.address.address}]-> $exception");
@@ -258,7 +254,8 @@ class ScannerPageController extends BaseController with SocketMixin {
       for (final d in proj.devices) {
         try {
           await restartSocket(ip: d.ip);
-          final fw = MrCmdBuilder.parseResponse(await socketSender(MrCmdBuilder.firmwareVersion));
+          final fw =
+              MrCmdBuilder.parseResponse(await socketSender(MrCmdBuilder.firmwareVersion(macAddress: d.macAddress)));
           final formatted = "${fw.substring(0, 2)}.${fw.substring(2).padLeft(2, "0")}";
 
           final newDevices = proj.devices.withReplacement(
@@ -303,7 +300,7 @@ class ScannerPageController extends BaseController with SocketMixin {
       }
 
       final deviceMode = MrCmdBuilder.parseResponse(
-        await socketSender(MrCmdBuilder.expansionMode+','+macAddress),
+        await socketSender(MrCmdBuilder.expansionMode(macAddress: macAddress)),
       );
 
       return deviceMode;
