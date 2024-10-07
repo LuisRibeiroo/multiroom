@@ -247,6 +247,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
             projectName: device.value.projectName,
             projectId: device.value.projectId,
             serialNumber: device.value.serialNumber,
+            macAddress: device.value.macAddress,
             name: device.value.name,
             ip: device.value.ip,
             version: device.value.version,

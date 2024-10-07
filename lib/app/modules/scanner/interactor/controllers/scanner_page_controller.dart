@@ -147,7 +147,8 @@ class ScannerPageController extends BaseController with SocketMixin {
             final data = datagram.data;
             logger.i("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
 
-            final (serialNumber, firmware) = DatagramDataParser.getSerialAndFirmware(datagram.data);
+            final (serialNumber, firmware, macAddress) = DatagramDataParser.getSerialMacAndFirmware(datagram.data);
+             logger.i("MAC ADDRESS DATA --> $macAddress");
 
             // Ignore already added devices
             if (_localDevices.value.any((d) => d.serialNumber == serialNumber) ||
@@ -160,6 +161,7 @@ class ScannerPageController extends BaseController with SocketMixin {
                 ip: datagram.address.address,
                 serialNumber: serialNumber,
                 firmware: firmware,
+                macAddress: macAddress
               ),
             );
           } catch (exception) {
@@ -204,6 +206,7 @@ class ScannerPageController extends BaseController with SocketMixin {
   Future<void> onConfirmAddDevice(NetworkDeviceModel netDevice) async {
     final type = await _setDeviceType(
       netDevice.ip,
+      netDevice.macAddress,
       DeviceType.fromString(deviceType.value.name.lettersOnly),
     );
 
@@ -212,6 +215,7 @@ class ScannerPageController extends BaseController with SocketMixin {
       projectName: currentProject.value.name,
       ip: netDevice.ip,
       serialNumber: netDevice.serialNumber,
+      macAddress: netDevice.macAddress,
       version: netDevice.firmware,
       name: deviceType.value.readable,
       type: DeviceType.fromString(type),
@@ -284,22 +288,22 @@ class ScannerPageController extends BaseController with SocketMixin {
     projects.value = newProjects;
   }
 
-  Future<String> _setDeviceType(String ip, DeviceType type) async {
+  Future<String> _setDeviceType(String ip, String macAddress, DeviceType type) async {
     try {
       await restartSocket(ip: ip);
 
       final response = MrCmdBuilder.parseResponse(
         await socketSender(
-          MrCmdBuilder.setExpansionMode(type: type),
+          MrCmdBuilder.setExpansionMode(macAddress: macAddress, type: type),
         ),
       );
 
-      if (response.contains("OK") == false) {
+      if (response.contains(macAddress.toUpperCase()) == false) {
         throw Exception("Erro ao configurar dispositivo, tente novamente.");
       }
 
       final deviceMode = MrCmdBuilder.parseResponse(
-        await socketSender(MrCmdBuilder.expansionMode),
+        await socketSender(MrCmdBuilder.expansionMode+','+macAddress),
       );
 
       return deviceMode;

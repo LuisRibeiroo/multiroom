@@ -27,6 +27,7 @@ class DeviceModelAdapter extends TypeAdapter<DeviceModel> {
       active: fields[8] as bool,
       projectName: fields[7] as String,
       projectId: fields[9] as String,
+      macAddress: fields[10] as String,
     );
   }
 

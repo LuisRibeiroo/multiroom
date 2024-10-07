@@ -41,9 +41,10 @@ abstract final class MrCmdBuilder {
   static String get setDefaultParams => MultiroomCommands.mrParDefaultSet.value;
 
   static String setExpansionMode({
+    required String macAddress,
     required DeviceType type,
   }) =>
-      "${MultiroomCommands.mrExpModeSet.value},${type.name}";
+      "${MultiroomCommands.mrExpModeSet.value},$macAddress,${type.name}";
 
   static String getZoneMode({
     required ZoneModel zone,

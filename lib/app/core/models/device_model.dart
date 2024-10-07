@@ -11,6 +11,7 @@ part 'device_model.g.dart';
 class DeviceModel extends HiveObject {
   DeviceModel({
     required this.serialNumber,
+    required this.macAddress,
     required this.name,
     required this.ip,
     required this.zoneWrappers,
@@ -25,6 +26,7 @@ class DeviceModel extends HiveObject {
   factory DeviceModel.empty() {
     return DeviceModel(
       serialNumber: "",
+      macAddress: "",
       name: "",
       ip: "",
       zoneWrappers: [],
@@ -40,6 +42,7 @@ class DeviceModel extends HiveObject {
     required String projectName,
     required String projectId,
     required String serialNumber,
+    required String macAddress,
     required String name,
     required String ip,
     String? version,
@@ -49,6 +52,7 @@ class DeviceModel extends HiveObject {
       projectId: projectId,
       projectName: projectName,
       serialNumber: serialNumber,
+      macAddress: macAddress,
       name: name,
       zoneWrappers: List.generate(
         8,
@@ -73,6 +77,7 @@ class DeviceModel extends HiveObject {
       projectId: map['projectId'],
       projectName: map['projectName'],
       serialNumber: map['serialNumber'],
+      macAddress: map['macAddress'],
       name: map['name'],
       ip: map['ip'],
       zoneWrappers: List.from(map['zones']?.map((x) => ZoneWrapperModel.fromMap(x))),
@@ -88,6 +93,7 @@ class DeviceModel extends HiveObject {
       'projectId': projectId,
       'projectName': projectName,
       'serialNumber': serialNumber,
+      'macAddress': macAddress,
       'name': name,
       'ip': ip,
       'zones': zoneWrappers.map((x) => x.toMap()).toList(),
@@ -118,6 +124,8 @@ class DeviceModel extends HiveObject {
   final bool active;
   @HiveField(9)
   final String projectId;
+  @HiveField(10)
+  final String macAddress;
 
   bool get isEmpty =>
       serialNumber == DeviceModel.empty().serialNumber &&
@@ -146,6 +154,7 @@ class DeviceModel extends HiveObject {
 
   DeviceModel copyWith({
     String? serialNumber,
+    String? macAddress,
     String? name,
     String? ip,
     List<ZoneWrapperModel>? zoneWrappers,
@@ -158,6 +167,7 @@ class DeviceModel extends HiveObject {
   }) {
     return DeviceModel(
       serialNumber: serialNumber ?? this.serialNumber,
+      macAddress: macAddress ?? this.macAddress,
       name: name ?? this.name,
       ip: ip ?? this.ip,
       zoneWrappers: zoneWrappers ?? this.zoneWrappers,
@@ -172,6 +182,6 @@ class DeviceModel extends HiveObject {
 
   @override
   String toString() {
-    return 'DeviceModel(serialNumber: $serialNumber, name: $name, ip: $ip, projectId: $projectId, projectName: $projectName, zoneWrappers: $zoneWrappers, groups: $groups, version: $version, type: $type, projectId: $projectId, active: $active)';
+    return 'DeviceModel(serialNumber: $serialNumber, name: $name, ip: $ip, projectId: $projectId, projectName: $projectName, zoneWrappers: $zoneWrappers, groups: $groups, version: $version, type: $type, projectId: $projectId, active: $active, macAddress: $macAddress)';
   }
 }
