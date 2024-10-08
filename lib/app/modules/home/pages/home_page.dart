@@ -184,136 +184,134 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
 
     _tabControler.addListener(() {
-      if (_tabControler.index == 0) {
-        _controller.setViewMode(expanded: false);
-      } else {
-        _controller.setViewMode(expanded: true);
-      }
-
-      setState(() {});
+      setState(() {
+        if (_tabControler.index == 0) {
+          _controller.setViewMode(expanded: false);
+        } else {
+          _controller.setViewMode(expanded: true);
+        }
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Watch(
-      (_) => VisibilityDetector(
-        key: const ValueKey(HomePage),
-        onVisibilityChanged: (info) async {
-          if (info.visibleFraction == 1) {
-            _controller.startDeviceMonitor();
-            _controller.syncLocalData();
+    return VisibilityDetector(
+      key: const ValueKey(HomePage),
+      onVisibilityChanged: (info) async {
+        if (info.visibleFraction == 1) {
+          _controller.startDeviceMonitor();
+          _controller.syncLocalData();
 
-            _controller.setPageVisible(true);
-          } else {
-            _controller.setPageVisible(false);
-          }
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            centerTitle: false,
-            title: Row(
-              children: [
-                InkWell(
-                  onTap: _showProjectsBottomSheet,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          _controller.currentProject.value.name,
-                        ),
+          _controller.setPageVisible(true);
+        } else {
+          _controller.setPageVisible(false);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          title: Row(
+            children: [
+              InkWell(
+                onTap: _showProjectsBottomSheet,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        _controller.currentProject.value.name,
                       ),
-                      8.asSpace,
-                      const Icon(Icons.arrow_drop_down_rounded),
-                    ],
-                  ),
+                    ),
+                    8.asSpace,
+                    const Icon(Icons.arrow_drop_down_rounded),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          drawer: OptionsMenu(
-            pageState: _controller.state,
-          ),
-          body: LoadingOverlay(
-            key: const ValueKey("HomePage_Key"),
-            state: _controller.state,
-            currentIp: _controller.currentDevice.value.ip,
-            onTap: () {
-              toastification.show(
-                title: const Text(
-                    "O dispositivo está offline. Os controles serão liberados quando houver nova comunicação"),
-                autoCloseDuration: const Duration(seconds: 3),
-                style: ToastificationStyle.minimal,
-                type: ToastificationType.info,
-              );
-            },
-            child: SafeArea(
-              child: Watch(
-                (_) => Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: TabBarView(
-                    controller: _tabControler,
-                    children: [
-                      SingleChildScrollView(
-                        child: SummaryZonesList(
-                          devices: _controller.currentProject.value.devices,
-                          zones: _controller.projectZones.value,
-                          onChangeActive: _controller.setZoneActive,
-                          onChangeChannel: ({ZoneModel? zone}) {
-                            _controller.setCurrentZone(zone: zone!);
-                            _showChannelsBottomSheet(zone: zone);
-                          },
-                          onChangeVolume: _controller.setVolume,
-                          onTapZone: (zone) {
-                            _tabControler.animateTo(1);
-                            _controller.setCurrentZone(zone: zone);
-                            setState(() {});
-                          },
-                        ),
+        ),
+        drawer: OptionsMenu(
+          pageState: _controller.state,
+        ),
+        body: LoadingOverlay(
+          key: const ValueKey("HomePage_Key"),
+          state: _controller.state,
+          currentIp: _controller.currentDevice.value.ip,
+          onTap: () {
+            toastification.show(
+              title:
+                  const Text("O dispositivo está offline. Os controles serão liberados quando houver nova comunicação"),
+              autoCloseDuration: const Duration(seconds: 3),
+              style: ToastificationStyle.minimal,
+              type: ToastificationType.info,
+            );
+          },
+          child: SafeArea(
+            child: Watch(
+              (_) => Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: TabBarView(
+                  controller: _tabControler,
+                  children: [
+                    SingleChildScrollView(
+                      child: SummaryZonesList(
+                        devices: _controller.currentProject.value.devices,
+                        zones: _controller.projectZones.value,
+                        onChangeActive: _controller.setZoneActive,
+                        onChangeChannel: ({ZoneModel? zone}) {
+                          _controller.setCurrentZone(zone: zone!);
+                          _showChannelsBottomSheet(zone: zone);
+                        },
+                        onChangeVolume: _controller.setVolume,
+                        onTapZone: (zone) {
+                          _tabControler.animateTo(1);
+                          _controller.setCurrentZone(zone: zone);
+                          setState(() {});
+                        },
                       ),
-                      SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            DeviceInfoHeader(
-                              isDeviceActive: _controller.currentDevice.value.active,
-                              project: _controller.currentProject.value,
-                              deviceName: _controller.currentDevice.value.name,
-                              currentZone: _controller.currentZone.value,
-                              currentChannel: _controller.currentZone.value.channel,
-                              onChangeActive: _controller.setZoneActive,
-                              onChangeDevice: _showDevicesBottomSheet,
-                              onChangeChannel: _showChannelsBottomSheet,
-                              onChangeProject: _showProjectsBottomSheet,
-                            ),
-                            12.asSpace,
-                            ZoneControls(
-                              currentZone: _controller.currentZone.value,
-                              currentEqualizer: _controller.currentEqualizer.value,
-                              equalizers: _controller.equalizers.value,
-                              onChangeBalance: _controller.setBalance,
-                              onChangeVolume: _controller.setVolume,
-                              onUpdateFrequency: _controller.setFrequency,
-                              onChangeEqualizer: _showEqualizersBottomSheet,
-                            ),
-                          ],
-                        ),
+                    ),
+                    SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DeviceInfoHeader(
+                            isDeviceActive: _controller.currentDevice.value.active,
+                            project: _controller.currentProject.value,
+                            deviceName: _controller.currentDevice.value.name,
+                            currentZone: _controller.currentZone.value,
+                            currentChannel: _controller.currentZone.value.channel,
+                            onChangeActive: _controller.setZoneActive,
+                            onChangeDevice: _showDevicesBottomSheet,
+                            onChangeChannel: _showChannelsBottomSheet,
+                            onChangeProject: _showProjectsBottomSheet,
+                          ),
+                          12.asSpace,
+                          ZoneControls(
+                            currentZone: _controller.currentZone.value,
+                            currentEqualizer: _controller.currentEqualizer.value,
+                            equalizers: _controller.equalizers.value,
+                            onChangeBalance: _controller.setBalance,
+                            onChangeVolume: _controller.setVolume,
+                            onUpdateFrequency: _controller.setFrequency,
+                            onChangeEqualizer: _showEqualizersBottomSheet,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
-          floatingActionButton: _tabControler.index == 1
-              ? FloatingActionButton.small(
-                  child: const Icon(Icons.arrow_back_rounded),
-                  onPressed: () => _tabControler.animateTo(0),
-                )
-              : null,
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
+        floatingActionButton: _controller.expandedViewMode.watch(context)
+            ? FloatingActionButton.small(
+                child: const Icon(Icons.arrow_back_rounded),
+                onPressed: () => _tabControler.animateTo(0),
+              )
+            : null,
       ),
     );
   }

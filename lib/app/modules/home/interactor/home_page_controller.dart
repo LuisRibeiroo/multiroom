@@ -262,17 +262,17 @@ class HomePageController extends BaseController with SocketMixin {
     currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
     _debounceSendCommand(
+      // socketSender(
       MrCmdBuilder.setEqualizer(
         macAddress: currentZone.value.macAddress,
         zone: currentZone.value,
         frequency: frequency,
         gain: frequency.value,
+        // )
       ),
     );
 
-    _writeDebouncer(() {
-      _updateProject(zone: currentZone.value);
-    });
+    _updateProject(zone: currentZone.value);
   }
 
   Future<void> syncLocalData({
@@ -457,7 +457,7 @@ class HomePageController extends BaseController with SocketMixin {
     });
   }
 
-  Future<void> _debounceSendCommand(String cmd) async {
+  void _debounceSendCommand(String cmd) {
     _writeDebouncer(() async {
       if (currentDevice.value.active == false) {
         setError(Exception("Dispositivo offline"));

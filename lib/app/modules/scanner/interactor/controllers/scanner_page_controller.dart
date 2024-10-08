@@ -289,13 +289,13 @@ class ScannerPageController extends BaseController with SocketMixin {
     try {
       await restartSocket(ip: ip);
 
-      final response = MrCmdBuilder.parseResponse(
+      final ret = MrCmdBuilder.parseCompleteResponse(
         await socketSender(
           MrCmdBuilder.setExpansionMode(macAddress: macAddress, type: type),
         ),
       );
 
-      if (response.contains(macAddress.toUpperCase()) == false) {
+      if (ret.macAddress.toUpperCase() != macAddress.toUpperCase()) {
         throw Exception("Erro ao configurar dispositivo, tente novamente.");
       }
 
