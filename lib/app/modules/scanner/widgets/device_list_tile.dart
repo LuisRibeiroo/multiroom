@@ -65,7 +65,7 @@ class DeviceListTile extends StatelessWidget {
                     Visibility(
                       visible: showAvailability,
                       child: DeviceStateIndicator(
-                        value: isAvailable,
+                        value: device.active, //isAvailable
                       ),
                     ),
                     Container(
