@@ -8,8 +8,22 @@ import '../models/zone_group_model.dart';
 import '../models/zone_model.dart';
 import '../models/zone_wrapper_model.dart';
 
+typedef MrResponse = ({String cmd, String macAddress, String params, String response});
+
 abstract final class MrCmdBuilder {
-  static String parseResponse(String response) => response.split("=").lastOrNull?.removeSpecialChars ?? response;
+  // TODO: Remove old return
+  static String parseResponse(String response) => MrCmdBuilder.parseCompleteResponse(response).response;
+
+  static MrResponse parseCompleteResponse(String response) {
+    final ret = response.split(",");
+
+    return (
+      cmd: ret.first.removeSpecialChars,
+      macAddress: ret[1].removeSpecialChars,
+      params: ret[2].removeSpecialChars,
+      response: ret.last.removeSpecialChars,
+    );
+  }
 
   static int fromDbToPercent(String value) =>
       (4.25 * ((double.tryParse(value.numbersOnly) ?? -400.00) / 100) + 117).toInt();
