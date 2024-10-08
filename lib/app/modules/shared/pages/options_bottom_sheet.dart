@@ -98,6 +98,14 @@ class _OptionsMenuState extends State<OptionsMenu> {
                   );
                 },
               ),
+              Center(
+                child: AnimatedSize(
+                  duration: Durations.short1,
+                  child: widget.pageState.value is LoadingState
+                      ? const CircularProgressIndicator()
+                      : const SizedBox.shrink(),
+                ),
+              ),
             ],
           ),
         ),
