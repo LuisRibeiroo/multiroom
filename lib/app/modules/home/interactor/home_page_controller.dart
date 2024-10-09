@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/enums/multiroom_commands.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -553,47 +554,59 @@ class HomePageController extends BaseController with SocketMixin {
     }
 
     // TESTE DE ENVIO EM MASSA
-    final fullCommand = await socketSender(commands.join('\r\n'));
+    final fullReturns = MrCmdBuilder.parseCompleteFullResponse(
+      await socketSender(
+        commands.join('\r\n'),
+      ),
+    );
 
-    final retornoParsed = MrCmdBuilder.parseCompleteFullResponse(fullCommand);
+    for (final command in fullReturns) {
+      final mrCommand = MultiroomCommands.fromString(command.cmd);
 
-    for (int x = 0; x < retornoParsed.length; x++) {
-      switch (retornoParsed[x].cmd) {
-        case 'mr_power_set':
-          active = retornoParsed[x].response;
+      switch (mrCommand) {
+        case MultiroomCommands.mrPwrSet:
+          active = command.response;
           break;
-        case 'mr_zone_channel_set':
-          channelStr = retornoParsed[x].response;
+
+        case MultiroomCommands.mrZoneChannelSet:
+          channelStr = command.response;
           break;
-        case 'mr_vol_set':
-          volume = retornoParsed[x].response;
+
+        case MultiroomCommands.mrVolSet:
+          volume = command.response;
           break;
-        case 'mr_bal_set':
-          balance = retornoParsed[x].response;
+
+        case MultiroomCommands.mrBalSet:
+          balance = command.response;
           break;
-        case 'mr_eq_set':
-          switch (retornoParsed[x].frequency) {
+
+        case MultiroomCommands.mrEqSet:
+          switch (command.frequency) {
             case 'B1':
-              f60 = retornoParsed[x].response;
+              f60 = command.response;
               break;
             case 'B2':
-              f250 = retornoParsed[x].response;
+              f250 = command.response;
               break;
             case 'B3':
-              f1k = retornoParsed[x].response;
+              f1k = command.response;
               break;
             case 'B4':
-              f3k = retornoParsed[x].response;
+              f3k = command.response;
               break;
             case 'B5':
-              f6k = retornoParsed[x].response;
+              f6k = command.response;
               break;
             case 'B6':
-              f16k = retornoParsed[x].response;
+              f16k = command.response;
               break;
           }
+
+        default:
+          break;
       }
     }
+    fullReturns.forEachIndexed((x, element) {});
 
     final equalizer = zone.equalizer;
     final newEqualizer = EqualizerModel.custom(

@@ -8,17 +8,13 @@ import '../models/zone_group_model.dart';
 import '../models/zone_model.dart';
 import '../models/zone_wrapper_model.dart';
 
-typedef MrResponse = ({String cmd, String macAddress, String params, String response});
-
-class CommandObj {
-  CommandObj({required this.cmd, required this.macAddress, required this.params, required this.response, this.frequency});
-  //modal class for command object
-  String cmd;
-  String macAddress;
-  String params;
-  String response;
-  String? frequency;
-}
+typedef MrResponse = ({
+  String cmd,
+  String macAddress,
+  String params,
+  String response,
+  String? frequency,
+});
 
 abstract final class MrCmdBuilder {
   // TODO: Remove old return
@@ -34,26 +30,31 @@ abstract final class MrCmdBuilder {
       macAddress: ret[1].removeSpecialChars,
       params: ret[2].removeSpecialChars,
       response: ret.last.removeSpecialChars,
+      frequency: null,
     );
   }
 
-  static List parseCompleteFullResponse(String response) {
-    final complete = response.split('\r\n');
+  static List<MrResponse> parseCompleteFullResponse(String response) {
+    final retList = <MrResponse>[];
+    final cmdResponses = response.split('\r\n');
 
-    List list = [];
-    for (int x = 0; x < complete.length-1; x++) {
-      final ret = complete[x].split(",");
+    for (final response in cmdResponses) {
+      if (response.isEmpty) {
+        continue;
+      }
 
-      list.add(CommandObj(
-        cmd: ret.first.removeSpecialChars,
-        macAddress: ret[1].removeSpecialChars,
-        params: ret[2].removeSpecialChars,
-        response: ret.last.removeSpecialChars,
-        frequency: ret[3].removeSpecialChars,
+      final cmdResponse = response.split(",");
+
+      retList.add((
+        cmd: cmdResponse.first.removeSpecialChars,
+        macAddress: cmdResponse[1].removeSpecialChars,
+        params: cmdResponse[2].removeSpecialChars,
+        response: cmdResponse.last.removeSpecialChars,
+        frequency: cmdResponse[3].removeSpecialChars,
       ));
     }
 
-    return list;
+    return retList;
   }
 
   static int fromDbToPercent(String value) =>

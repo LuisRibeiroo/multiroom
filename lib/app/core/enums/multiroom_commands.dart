@@ -28,4 +28,14 @@ enum MultiroomCommands {
   const MultiroomCommands({required this.value});
 
   final String value;
+
+  static MultiroomCommands? fromString(String value) {
+    for (final v in MultiroomCommands.values) {
+      if (v.value == value) {
+        return v;
+      }
+    }
+
+    return null;
+  }
 }
