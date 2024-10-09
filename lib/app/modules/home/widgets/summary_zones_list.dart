@@ -5,6 +5,7 @@ import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/device_model.dart';
 import '../../../core/models/zone_model.dart';
+import '../../../core/widgets/device_state_indicator.dart';
 import '../../widgets/icon_text_tile.dart';
 import 'summary_zone_controls.dart';
 
@@ -36,12 +37,21 @@ class _SummaryZonesListState extends State<SummaryZonesList> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Flexible(
-          child: IconTextTile(
-            icon: Icons.home_filled,
-            text: "Zonas",
-            style: context.textTheme.titleLarge,
-          ),
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Expanded(
+              child: IconTextTile(
+                icon: Icons.home_filled,
+                text: "Zonas",
+                style: context.textTheme.titleLarge,
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: DeviceStateIndicator(value: widget.devices.first.active),
+            ),
+          ],
         ),
         12.asSpace,
         Flexible(

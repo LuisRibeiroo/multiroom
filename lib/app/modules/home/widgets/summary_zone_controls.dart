@@ -5,7 +5,6 @@ import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_switch.dart';
-import '../../../core/widgets/device_state_indicator.dart';
 import 'slider_icons.dart';
 
 class SummaryZoneControls extends StatelessWidget {
@@ -35,11 +34,11 @@ class SummaryZoneControls extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: DeviceStateIndicator(value: isDeviceActive),
-              ),
-              18.asSpace,
+              // Align(
+              //   alignment: Alignment.centerRight,
+              //   child: DeviceStateIndicator(value: isDeviceActive),
+              // ),
+              // 18.asSpace,
               Row(
                 children: [
                   const Icon(Icons.home_filled),
