@@ -1,1 +1,1 @@
-const defaultScanDuration = 5;
+const defaultScanDuration = 6;
