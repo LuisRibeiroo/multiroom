@@ -56,7 +56,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           arguments: {
                             "project": _controller.currentProject.value,
                           },
-                        ).then((_) => _controller.syncLocalData());
+                        );
                       },
                       icon: const Icon(
                         Icons.edit_rounded,
@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 "device": _controller.currentDevice.value,
                 "zone": _controller.currentZone.value,
               },
-            ).then((_) => _controller.syncLocalData());
+            );
           },
         ),
       ),
@@ -201,7 +201,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       onVisibilityChanged: (info) async {
         if (info.visibleFraction == 1) {
           _controller.startDeviceMonitor();
-          _controller.syncLocalData();
+          _controller.syncLocalData(readAllZones: true);
 
           _controller.setPageVisible(true);
         } else {
@@ -241,10 +241,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           state: _controller.state,
           currentIp: _controller.currentDevice.value.ip,
           onTap: () {
+            toastification.dismissAll(delayForAnimation: false);
             toastification.show(
               title:
                   const Text("O dispositivo está offline. Os controles serão liberados quando houver nova comunicação"),
-              autoCloseDuration: const Duration(seconds: 3),
+              autoCloseDuration: const Duration(seconds: 2),
               style: ToastificationStyle.minimal,
               type: ToastificationType.info,
             );

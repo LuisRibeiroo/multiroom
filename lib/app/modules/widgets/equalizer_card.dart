@@ -80,7 +80,7 @@ class _EqualizerCardState extends State<EqualizerCard> {
                                     min: -12,
                                     max: 12,
                                     divisions: 24 ~/ 3,
-                                    value: current.value.toDouble(),
+                                    value: current.value.toDouble().clamp(-12, 12),
                                     onChanged: (v) {
                                       widget.onUpdateFrequency(
                                         current.copyWith(value: v.floor()),

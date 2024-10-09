@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../enums/device_type.dart';
 import '../enums/multiroom_commands.dart';
 import '../enums/zone_mode.dart';
@@ -37,6 +39,7 @@ abstract final class MrCmdBuilder {
   static List<MrResponse> parseCompleteFullResponse(String response) {
     final retList = <MrResponse>[];
     final cmdResponses = response.split('\r\n');
+    debugPrint("[DBG] --> CMD RESPONSES: ${cmdResponses.length}");
 
     for (final response in cmdResponses) {
       if (response.isEmpty) {

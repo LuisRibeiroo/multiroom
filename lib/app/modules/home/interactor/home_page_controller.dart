@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/enums/multiroom_commands.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -490,123 +489,202 @@ class HomePageController extends BaseController with SocketMixin {
       await Future.delayed(Durations.short3);
     }
 
-    String balance = "0";
-    String active = "";
-    String channelStr = "";
-    String volume = "";
-    String f60 = "0";
-    String f250 = "0";
-    String f1k = "0";
-    String f3k = "0";
-    String f6k = "0";
-    String f16k = "0";
+    // String balance = "0";
+    // String active = "";
+    // String channelStr = "";
+    // String volume = "";
+    // String f60 = "0";
+    // String f250 = "0";
+    // String f1k = "0";
+    // String f3k = "0";
+    // String f6k = "0";
+    // String f16k = "0";
 
-    final commands = [
+    // final commands = [
+    //   MrCmdBuilder.getPower(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //   ),
+    //   MrCmdBuilder.getVolume(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //   ),
+    //   MrCmdBuilder.getChannel(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //   ),
+    //   MrCmdBuilder.getEqualizer(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //     frequency: zone.equalizer.frequencies[0],
+    //   ),
+    //   MrCmdBuilder.getEqualizer(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //     frequency: zone.equalizer.frequencies[1],
+    //   ),
+    //   MrCmdBuilder.getEqualizer(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //     frequency: zone.equalizer.frequencies[2],
+    //   ),
+    //   MrCmdBuilder.getEqualizer(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //     frequency: zone.equalizer.frequencies[3],
+    //   ),
+    //   MrCmdBuilder.getEqualizer(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //     frequency: zone.equalizer.frequencies[4],
+    //   ),
+    //   MrCmdBuilder.getEqualizer(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //     frequency: zone.equalizer.frequencies[5],
+    //   ),
+    // ];
+
+    // if (zone.isStereo) {
+    //   commands.add(MrCmdBuilder.getBalance(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //   ));
+    // }
+
+    // // TESTE DE ENVIO EM MASSA
+    // final fullReturns = MrCmdBuilder.parseCompleteFullResponse(
+    //   await socketSender(
+    //     commands.join('\r\n'),
+    //     longRet: true,
+    //   ),
+    // );
+
+    // for (final command in fullReturns) {
+    //   final mrCommand = MultiroomCommands.fromString(command.cmd);
+
+    //   switch (mrCommand) {
+    //     case MultiroomCommands.mrPwrSet:
+    //       active = command.response;
+    //       break;
+
+    //     case MultiroomCommands.mrZoneChannelSet:
+    //       channelStr = command.response;
+    //       break;
+
+    //     case MultiroomCommands.mrVolSet:
+    //       volume = command.response;
+    //       break;
+
+    //     case MultiroomCommands.mrBalSet:
+    //       balance = command.response;
+    //       break;
+
+    //     case MultiroomCommands.mrEqSet:
+    //       switch (command.frequency) {
+    //         case 'B1':
+    //           f60 = command.response;
+    //           break;
+    //         case 'B2':
+    //           f250 = command.response;
+    //           break;
+    //         case 'B3':
+    //           f1k = command.response;
+    //           break;
+    //         case 'B4':
+    //           f3k = command.response;
+    //           break;
+    //         case 'B5':
+    //           f6k = command.response;
+    //           break;
+    //         case 'B6':
+    //           f16k = command.response;
+    //           break;
+    //       }
+
+    //     default:
+    //       break;
+    //   }
+    // }
+
+    final active = MrCmdBuilder.parseResponse(await socketSender(
+      MrCmdBuilder.getPower(
+        macAddress: zone.macAddress,
+        zone: zone,
+      ),
+    ));
+
+    final channelStr = MrCmdBuilder.parseResponse(await socketSender(
+      MrCmdBuilder.getChannel(
+        macAddress: zone.macAddress,
+        zone: zone,
+      ),
+    ));
+
+    final volume = MrCmdBuilder.parseResponse(await socketSender(
+      MrCmdBuilder.getVolume(
+        macAddress: zone.macAddress,
+        zone: zone,
+      ),
+    ));
+
+    String balance = "0";
+    if (zone.isStereo) {
+      balance = MrCmdBuilder.parseResponse(await socketSender(
+        MrCmdBuilder.getBalance(
+          macAddress: zone.macAddress,
+          zone: zone,
+        ),
+      ));
+    }
+
+    final f60 = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[0],
       ),
+    ));
+
+    final f250 = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[1],
       ),
+    ));
+
+    final f1k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[2],
       ),
+    ));
+
+    final f3k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[3],
       ),
+    ));
+
+    final f6k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[4],
       ),
+    ));
+
+    final f16k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[5],
       ),
-      MrCmdBuilder.getVolume(
-        macAddress: zone.macAddress,
-        zone: zone,
-      ),
-      MrCmdBuilder.getChannel(
-        macAddress: zone.macAddress,
-        zone: zone,
-      ),
-      MrCmdBuilder.getPower(
-        macAddress: zone.macAddress,
-        zone: zone,
-      )
-    ];
-
-    if (zone.isStereo) {
-      commands.add(MrCmdBuilder.getBalance(
-        macAddress: zone.macAddress,
-        zone: zone,
-      ));
-    }
-
-    // TESTE DE ENVIO EM MASSA
-    final fullReturns = MrCmdBuilder.parseCompleteFullResponse(
-      await socketSender(
-        commands.join('\r\n'),
-      ),
-    );
-
-    for (final command in fullReturns) {
-      final mrCommand = MultiroomCommands.fromString(command.cmd);
-
-      switch (mrCommand) {
-        case MultiroomCommands.mrPwrSet:
-          active = command.response;
-          break;
-
-        case MultiroomCommands.mrZoneChannelSet:
-          channelStr = command.response;
-          break;
-
-        case MultiroomCommands.mrVolSet:
-          volume = command.response;
-          break;
-
-        case MultiroomCommands.mrBalSet:
-          balance = command.response;
-          break;
-
-        case MultiroomCommands.mrEqSet:
-          switch (command.frequency) {
-            case 'B1':
-              f60 = command.response;
-              break;
-            case 'B2':
-              f250 = command.response;
-              break;
-            case 'B3':
-              f1k = command.response;
-              break;
-            case 'B4':
-              f3k = command.response;
-              break;
-            case 'B5':
-              f6k = command.response;
-              break;
-            case 'B6':
-              f16k = command.response;
-              break;
-          }
-
-        default:
-          break;
-      }
-    }
-    fullReturns.forEachIndexed((x, element) {});
+    ));
 
     final equalizer = zone.equalizer;
     final newEqualizer = EqualizerModel.custom(
@@ -629,7 +707,7 @@ class HomePageController extends BaseController with SocketMixin {
     }
 
     final updatedZone = zone.copyWith(
-      active: active == "on" ? true : false,
+      active: active.toLowerCase() == "on" ? true : false,
       volume: int.tryParse(volume) ?? zone.volume,
       balance: int.tryParse(balance) ?? zone.balance,
       equalizer: newEqualizer,
