@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:signals/signals_flutter.dart';
 
 import '../../core/extensions/build_context_extensions.dart';
 import '../../core/extensions/number_extensions.dart';
@@ -74,21 +73,19 @@ class _EqualizerCardState extends State<EqualizerCard> {
                                 current.name,
                                 style: context.textTheme.bodyMedium,
                               ),
-                              Watch(
-                                (_) => Expanded(
-                                  child: RotatedBox(
-                                    quarterTurns: 3,
-                                    child: Slider(
-                                      min: -12,
-                                      max: 12,
-                                      divisions: 24 ~/ 3,
-                                      value: current.value.toDouble(),
-                                      onChanged: (v) {
-                                        widget.onUpdateFrequency(
-                                          current.copyWith(value: v.floor()),
-                                        );
-                                      },
-                                    ),
+                              Expanded(
+                                child: RotatedBox(
+                                  quarterTurns: 3,
+                                  child: Slider(
+                                    min: -12,
+                                    max: 12,
+                                    divisions: 24 ~/ 3,
+                                    value: current.value.toDouble(),
+                                    onChanged: (v) {
+                                      widget.onUpdateFrequency(
+                                        current.copyWith(value: v.floor()),
+                                      );
+                                    },
                                   ),
                                 ),
                               ),

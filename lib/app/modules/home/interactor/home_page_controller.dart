@@ -146,6 +146,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     _debounceSendCommand(
       MrCmdBuilder.setPower(
+        macAddress: zone?.macAddress ?? currentZone.value.macAddress,
         zone: zone ?? currentZone.value,
         active: active,
       ),
@@ -176,6 +177,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     _debounceSendCommand(
       MrCmdBuilder.setChannel(
+        macAddress: zone?.macAddress ?? currentZone.value.macAddress,
         zone: zone ?? currentZone.value,
         channel: channel,
       ),
@@ -193,6 +195,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     _debounceSendCommand(
       MrCmdBuilder.setBalance(
+        macAddress: currentZone.value.macAddress,
         zone: currentZone.value,
         balance: balance,
       ),
@@ -206,6 +209,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     _debounceSendCommand(
       MrCmdBuilder.setVolume(
+        macAddress: zone?.macAddress ?? currentZone.value.macAddress,
         zone: zone ?? currentZone.value,
         volume: volume,
       ),
@@ -234,6 +238,7 @@ class HomePageController extends BaseController with SocketMixin {
     for (final freq in currentZone.value.equalizer.frequencies) {
       await socketSender(
         MrCmdBuilder.setEqualizer(
+          macAddress: currentZone.value.macAddress,
           zone: currentZone.value,
           frequency: freq,
           gain: freq.value,
@@ -257,16 +262,17 @@ class HomePageController extends BaseController with SocketMixin {
     currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
     _debounceSendCommand(
+      // socketSender(
       MrCmdBuilder.setEqualizer(
+        macAddress: currentZone.value.macAddress,
         zone: currentZone.value,
         frequency: frequency,
         gain: frequency.value,
+        // )
       ),
     );
 
-    _writeDebouncer(() {
-      _updateProject(zone: currentZone.value);
-    });
+    _updateProject(zone: currentZone.value);
   }
 
   Future<void> syncLocalData({
@@ -451,7 +457,7 @@ class HomePageController extends BaseController with SocketMixin {
     });
   }
 
-  Future<void> _debounceSendCommand(String cmd) async {
+  void _debounceSendCommand(String cmd) {
     _writeDebouncer(() async {
       if (currentDevice.value.active == false) {
         setError(Exception("Dispositivo offline"));
@@ -483,23 +489,24 @@ class HomePageController extends BaseController with SocketMixin {
       await Future.delayed(Durations.short3);
     }
 
-    await socketSender(MrCmdBuilder.getPower(zone: zone));
+    await socketSender(MrCmdBuilder.getPower(macAddress: zone.macAddress, zone: zone));
     final active = MrCmdBuilder.parseResponse("");
 
-    await socketSender(MrCmdBuilder.getChannel(zone: zone));
+    await socketSender(MrCmdBuilder.getChannel(macAddress: zone.macAddress, zone: zone));
     final channelStr = MrCmdBuilder.parseResponse("");
 
-    await socketSender(MrCmdBuilder.getVolume(zone: zone));
+    await socketSender(MrCmdBuilder.getVolume(macAddress: zone.macAddress, zone: zone));
     final volume = MrCmdBuilder.parseResponse("");
 
     String balance = "0";
     if (zone.isStereo) {
-      await socketSender(MrCmdBuilder.getBalance(zone: zone));
+      await socketSender(MrCmdBuilder.getBalance(macAddress: zone.macAddress, zone: zone));
       balance = MrCmdBuilder.parseResponse("");
     }
 
     await socketSender(
       MrCmdBuilder.getEqualizer(
+        macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[0],
       ),
@@ -508,6 +515,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     await socketSender(
       MrCmdBuilder.getEqualizer(
+        macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[1],
       ),
@@ -516,6 +524,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     await socketSender(
       MrCmdBuilder.getEqualizer(
+        macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[2],
       ),
@@ -524,6 +533,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     await socketSender(
       MrCmdBuilder.getEqualizer(
+        macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[3],
       ),
@@ -532,6 +542,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     await socketSender(
       MrCmdBuilder.getEqualizer(
+        macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[4],
       ),
@@ -540,6 +551,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     await socketSender(
       MrCmdBuilder.getEqualizer(
+        macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[5],
       ),

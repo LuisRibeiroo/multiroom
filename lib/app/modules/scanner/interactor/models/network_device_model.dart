@@ -5,35 +5,41 @@ class NetworkDeviceModel extends Equatable {
     required this.ip,
     required this.firmware,
     required this.serialNumber,
+    required this.macAddress
   });
 
   factory NetworkDeviceModel.empty() => const NetworkDeviceModel(
         ip: "",
         firmware: "",
         serialNumber: "",
+        macAddress: ""
       );
 
   NetworkDeviceModel copyWith({
     String? ip,
     String? firmware,
     String? serialNumber,
+    String? macAddress
   }) {
     return NetworkDeviceModel(
       ip: ip ?? this.ip,
       firmware: firmware ?? this.firmware,
       serialNumber: serialNumber ?? this.serialNumber,
+      macAddress: macAddress ?? this.macAddress
     );
   }
 
   final String ip;
   final String firmware;
   final String serialNumber;
+  final String macAddress;
 
   @override
   List<Object?> get props => [
         ip,
         firmware,
         serialNumber,
+        macAddress,
       ];
 }
 

@@ -184,37 +184,37 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
 
     _tabControler.addListener(() {
-      if (_tabControler.index == 0) {
-        _controller.setViewMode(expanded: false);
-      } else {
-        _controller.setViewMode(expanded: true);
-      }
-
-      setState(() {});
+      setState(() {
+        if (_tabControler.index == 0) {
+          _controller.setViewMode(expanded: false);
+        } else {
+          _controller.setViewMode(expanded: true);
+        }
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Watch(
-      (_) => VisibilityDetector(
-        key: const ValueKey(HomePage),
-        onVisibilityChanged: (info) async {
-          if (info.visibleFraction == 1) {
-            _controller.startDeviceMonitor();
-            _controller.syncLocalData();
+    return VisibilityDetector(
+      key: const ValueKey(HomePage),
+      onVisibilityChanged: (info) async {
+        if (info.visibleFraction == 1) {
+          _controller.startDeviceMonitor();
+          _controller.syncLocalData();
 
-            _controller.setPageVisible(true);
-          } else {
-            _controller.setPageVisible(false);
-          }
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            centerTitle: false,
-            title: Row(
-              children: [
-                InkWell(
+          _controller.setPageVisible(true);
+        } else {
+          _controller.setPageVisible(false);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          title: Row(
+            children: [
+              Watch(
+                (_) => InkWell(
                   onTap: _showProjectsBottomSheet,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -229,33 +229,36 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          drawer: OptionsMenu(
-            pageState: _controller.state,
-          ),
-          body: LoadingOverlay(
-            key: const ValueKey("HomePage_Key"),
-            state: _controller.state,
-            currentIp: _controller.currentDevice.value.ip,
-            onTap: () {
-              toastification.show(
-                title: const Text(
-                    "O dispositivo está offline. Os controles serão liberados quando houver nova comunicação"),
-                autoCloseDuration: const Duration(seconds: 3),
-                style: ToastificationStyle.minimal,
-                type: ToastificationType.info,
-              );
-            },
-            child: SafeArea(
-              child: Watch(
-                (_) => Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: TabBarView(
-                    controller: _tabControler,
-                    children: [
-                      SingleChildScrollView(
+        ),
+        drawer: OptionsMenu(
+          pageState: _controller.state,
+        ),
+        body: LoadingOverlay(
+          key: const ValueKey("HomePage_Key"),
+          state: _controller.state,
+          currentIp: _controller.currentDevice.value.ip,
+          onTap: () {
+            toastification.show(
+              title:
+                  const Text("O dispositivo está offline. Os controles serão liberados quando houver nova comunicação"),
+              autoCloseDuration: const Duration(seconds: 3),
+              style: ToastificationStyle.minimal,
+              type: ToastificationType.info,
+            );
+          },
+          child: SafeArea(
+            child: Watch(
+              (_) => Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: TabBarView(
+                  controller: _tabControler,
+                  children: [
+                    RefreshIndicator(
+                      onRefresh: () => _controller.syncLocalData(readAllZones: true),
+                      child: SingleChildScrollView(
                         child: SummaryZonesList(
                           devices: _controller.currentProject.value.devices,
                           zones: _controller.projectZones.value,
@@ -272,7 +275,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           },
                         ),
                       ),
-                      SingleChildScrollView(
+                    ),
+                    RefreshIndicator(
+                      onRefresh: () => _controller.syncLocalData(readAllZones: true),
+                      child: SingleChildScrollView(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -300,20 +306,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
-          floatingActionButton: _tabControler.index == 1
-              ? FloatingActionButton.small(
-                  child: const Icon(Icons.arrow_back_rounded),
-                  onPressed: () => _tabControler.animateTo(0),
-                )
-              : null,
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
+        floatingActionButton: _controller.expandedViewMode.watch(context)
+            ? FloatingActionButton.small(
+                child: const Icon(Icons.arrow_back_rounded),
+                onPressed: () => _tabControler.animateTo(0),
+              )
+            : null,
       ),
     );
   }

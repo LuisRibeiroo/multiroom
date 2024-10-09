@@ -27,6 +27,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     this.maxVolumeLeft = 100,
     this.maxVolumeRight = 100,
     this.deviceSerial = "",
+    this.macAddress = "",
   });
 
   factory ZoneModel.builder({
@@ -34,6 +35,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     required String name,
     required String wrapperId,
     required String deviceSerial,
+    required String macAddress,
     MonoSide side = MonoSide.undefined,
   }) {
     return ZoneModel(
@@ -52,6 +54,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       isGroup: false,
       channel: ChannelModel.builder(index: 1, name: "Input 1"),
       deviceSerial: deviceSerial,
+      macAddress: macAddress,
     );
   }
 
@@ -86,6 +89,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       maxVolumeLeft: map['maxVolumeLeft'],
       maxVolumeRight: map['maxVolumeRight'],
       deviceSerial: map["deviceSerial"],
+      macAddress: map["macAddress"],
     );
   }
 
@@ -106,6 +110,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       'maxVolumeLeft': maxVolumeLeft,
       'maxVolumeRight': maxVolumeRight,
       'deviceSerial': deviceSerial,
+      'macAddress': macAddress,
     };
   }
 
@@ -139,6 +144,8 @@ class ZoneModel extends Equatable implements SelectableModel {
   final int maxVolumeRight;
   @HiveField(15, defaultValue: "")
   final String deviceSerial;
+  @HiveField(16, defaultValue: "")
+  final String macAddress;
 
   bool get isEmpty => id == ZoneModel.empty().id;
   bool get isStereo => side == MonoSide.undefined;
@@ -161,6 +168,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     int? maxVolumeLeft,
     int? maxVolumeRight,
     String? deviceSerial,
+    String? macAddress,
   }) {
     return ZoneModel(
       id: id,
@@ -178,6 +186,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       maxVolumeLeft: maxVolumeLeft ?? this.maxVolumeLeft,
       maxVolumeRight: maxVolumeRight ?? this.maxVolumeRight,
       deviceSerial: deviceSerial ?? this.deviceSerial,
+      macAddress: macAddress ?? this.macAddress,
     );
   }
 
@@ -198,6 +207,7 @@ class ZoneModel extends Equatable implements SelectableModel {
         maxVolumeLeft,
         maxVolumeRight,
         deviceSerial,
+        macAddress,
       ];
 }
 

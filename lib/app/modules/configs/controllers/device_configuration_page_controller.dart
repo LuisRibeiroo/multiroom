@@ -82,11 +82,12 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       setError: true,
       () async {
         try {
-          final List<ZoneGroupModel> groups = List.from(device.peek().groups);
+          final List<ZoneGroupModel> groups = List.from(device.value.groups);
           final updatedZones = [...group.zones, zone];
 
           await socketSender(
             MrCmdBuilder.setGroup(
+              macAddress: device.value.macAddress,
               group: group,
               zones: updatedZones,
             ),
@@ -116,12 +117,13 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
           return;
         }
 
-        final List<ZoneGroupModel> groups = List.from(device.peek().groups);
+        final List<ZoneGroupModel> groups = List.from(device.value.groups);
         final List<ZoneModel> tempZones = List.from(group.zones);
         final idx = groups.indexOf(group);
 
         await socketSender(
           MrCmdBuilder.setGroup(
+            macAddress: device.value.macAddress,
             group: groups[idx],
             zones: groups[idx].zones,
           ),
@@ -143,6 +145,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
           await socketSender(
             MrCmdBuilder.setZoneMode(
+              macAddress: device.value.macAddress,
               zone: wrapper,
               mode: isStereo ? ZoneMode.stereo : ZoneMode.mono,
             ),
@@ -239,13 +242,14 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       setError: true,
       () async {
         try {
-          await socketSender(MrCmdBuilder.setDefaultConfigs);
-          await socketSender(MrCmdBuilder.setDefaultParams);
+          await socketSender(MrCmdBuilder.setDefaultConfigs(macAddress: device.value.macAddress));
+          await socketSender(MrCmdBuilder.setDefaultParams(macAddress: device.value.macAddress));
 
           device.value = DeviceModel.builder(
             projectName: device.value.projectName,
             projectId: device.value.projectId,
             serialNumber: device.value.serialNumber,
+            macAddress: device.value.macAddress,
             name: device.value.name,
             ip: device.value.ip,
             version: device.value.version,
@@ -287,20 +291,22 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
                 ),
         );
 
-        device.value = device.peek().copyWith(
-              zoneWrappers: device.peek().zoneWrappers.withReplacement(
-                    (w) => w.id == wrapper.id,
-                    editingWrapper.value,
-                  ),
-            );
+        device.value = device.value.copyWith(
+          zoneWrappers: device.value.zoneWrappers.withReplacement(
+            (w) => w.id == wrapper.id,
+            editingWrapper.value,
+          ),
+        );
 
         try {
           await socketSender(MrCmdBuilder.setMaxVolume(
+            macAddress: device.value.macAddress,
             zone: wrapper.monoZones.left,
             volumePercent: maxVolumeL.value,
           ));
 
           await socketSender(MrCmdBuilder.setMaxVolume(
+            macAddress: device.value.macAddress,
             zone: wrapper.monoZones.right,
             volumePercent: maxVolumeR.value,
           ));
@@ -411,7 +417,10 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       for (final grp in zonesMap.keys) {
         await socketSender(
           longRet: true,
-          MrCmdBuilder.getGroup(groupId: grp),
+          MrCmdBuilder.getGroup(
+            macAddress: device.value.macAddress,
+            groupId: grp,
+          ),
         );
         final zones = MrCmdBuilder.parseResponse("");
 
@@ -452,7 +461,12 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   Future<int> _getZoneMaxVol(ZoneModel zone) async {
     try {
-      await socketSender(MrCmdBuilder.getMaxVolume(zone: zone));
+      await socketSender(
+        MrCmdBuilder.getMaxVolume(
+          macAddress: device.value.macAddress,
+          zone: zone,
+        ),
+      );
       final response = MrCmdBuilder.parseResponse("");
 
       return int.parse(response);
@@ -481,13 +495,19 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   Future<bool> _getActive(ZoneModel zone) async {
-    await socketSender(MrCmdBuilder.getPower(zone: zone));
+    await socketSender(MrCmdBuilder.getPower(
+      macAddress: device.value.macAddress,
+      zone: zone,
+    ));
     return MrCmdBuilder.parseResponse("").toUpperCase() == "ON";
   }
 
   Future<ZoneMode> _getZoneMode(ZoneWrapperModel wrapper) async {
     try {
-      await socketSender(MrCmdBuilder.getZoneMode(zone: wrapper.stereoZone));
+      await socketSender(MrCmdBuilder.getZoneMode(
+        macAddress: device.value.macAddress,
+        zone: wrapper.stereoZone,
+      ));
       return MrCmdBuilder.parseResponse("").toUpperCase() == "STEREO" ? ZoneMode.stereo : ZoneMode.mono;
     } catch (exception) {
       logger.e("Erro ao recuperar tipo da Zona [${wrapper.stereoZone.id}] -> $exception");

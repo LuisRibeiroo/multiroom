@@ -44,7 +44,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
         }
 
         try {
-          final (serialNumber, _) = DatagramDataParser.getSerialAndFirmware(datagram.data);
+          final (serialNumber, _, _) = DatagramDataParser.getSerialMacAndFirmware(datagram.data);
 
           if (updateIp) {
             _updateDeviceIp(serial: serialNumber, ip: datagram.address.address);

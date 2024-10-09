@@ -46,8 +46,8 @@ class ScannerPageController extends BaseController with SocketMixin {
 
   final settings = injector.get<SettingsContract>();
   final _monitor = injector.get<DeviceMonitorController>();
+  final _isUdpListening = false.asSignal(debugLabel: "isUdpListening");
 
-  final isUdpListening = false.asSignal(debugLabel: "isUdpListening");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
   final networkDevices = listSignal<NetworkDeviceModel>([], debugLabel: "networkDevices");
   final deviceType = NetworkDeviceType.undefined.asSignal(debugLabel: "deviceType");
@@ -100,7 +100,7 @@ class ScannerPageController extends BaseController with SocketMixin {
           _localDevices.value = projects.value.expand((p) => p.devices).toList();
         }),
         effect(() {
-          if (isUdpListening.value) {
+          if (_isUdpListening.value) {
             logger.i("UDP LISTENING ON --> ${_udpServer?.local.address?.address}:${_udpServer?.local.port?.value} ");
           } else {
             logger.i("UDP SERVER CLOSED");
@@ -121,7 +121,7 @@ class ScannerPageController extends BaseController with SocketMixin {
       await Permission.nearbyWifiDevices.request();
     }
 
-    if (isUdpListening.value) {
+    if (_isUdpListening.value) {
       return;
     }
 
@@ -135,7 +135,7 @@ class ScannerPageController extends BaseController with SocketMixin {
         ),
       );
 
-      isUdpListening.value = true;
+      _isUdpListening.value = true;
 
       _udpServer?.asStream().listen(
         (datagram) {
@@ -147,7 +147,8 @@ class ScannerPageController extends BaseController with SocketMixin {
             final data = datagram.data;
             logger.i("UDP DATA --> $data | FROM ${datagram.address.address}:${datagram.port}");
 
-            final (serialNumber, firmware) = DatagramDataParser.getSerialAndFirmware(datagram.data);
+            final (serialNumber, firmware, macAddress) = DatagramDataParser.getSerialMacAndFirmware(datagram.data);
+            logger.i("MAC ADDRESS DATA --> $macAddress");
 
             // Ignore already added devices
             if (_localDevices.value.any((d) => d.serialNumber == serialNumber) ||
@@ -160,6 +161,7 @@ class ScannerPageController extends BaseController with SocketMixin {
                 ip: datagram.address.address,
                 serialNumber: serialNumber,
                 firmware: firmware,
+                macAddress: macAddress,
               ),
             );
           } catch (exception) {
@@ -182,7 +184,7 @@ class ScannerPageController extends BaseController with SocketMixin {
       _udpServer?.close();
     }
 
-    isUdpListening.value = false;
+    _isUdpListening.value = false;
     startDeviceMonitor();
   }
 
@@ -204,6 +206,7 @@ class ScannerPageController extends BaseController with SocketMixin {
   Future<void> onConfirmAddDevice(NetworkDeviceModel netDevice) async {
     final type = await _setDeviceType(
       netDevice.ip,
+      netDevice.macAddress,
       DeviceType.fromString(deviceType.value.name.lettersOnly),
     );
 
@@ -212,6 +215,7 @@ class ScannerPageController extends BaseController with SocketMixin {
       projectName: currentProject.value.name,
       ip: netDevice.ip,
       serialNumber: netDevice.serialNumber,
+      macAddress: netDevice.macAddress,
       version: netDevice.firmware,
       name: deviceType.value.readable,
       type: DeviceType.fromString(type),
@@ -254,7 +258,7 @@ class ScannerPageController extends BaseController with SocketMixin {
       for (final d in proj.devices) {
         try {
           await restartSocket(ip: d.ip);
-          await socketSender(MrCmdBuilder.firmwareVersion);
+          await socketSender(MrCmdBuilder.firmwareVersion(macAddress: d.macAddress));
 
           final fw = MrCmdBuilder.parseResponse('');
           final formatted = "${fw.substring(0, 2)}.${fw.substring(2).padLeft(2, "0")}";
@@ -286,19 +290,17 @@ class ScannerPageController extends BaseController with SocketMixin {
     projects.value = newProjects;
   }
 
-  Future<String> _setDeviceType(String ip, DeviceType type) async {
+  Future<String> _setDeviceType(String ip, String macAddress, DeviceType type) async {
     try {
       await restartSocket(ip: ip);
 
-      await socketSender(MrCmdBuilder.setExpansionMode(type: type));
+      await socketSender(
+        MrCmdBuilder.setExpansionMode(macAddress: macAddress, type: type),
+      );
 
       final response = MrCmdBuilder.parseResponse("");
 
-      if (response.contains("OK") == false) {
-        throw Exception("Erro ao configurar dispositivo, tente novamente.");
-      }
-
-      await socketSender(MrCmdBuilder.expansionMode);
+      await socketSender(MrCmdBuilder.expansionMode(macAddress: macAddress));
       final deviceMode = MrCmdBuilder.parseResponse("");
 
       return deviceMode;
@@ -326,7 +328,7 @@ class ScannerPageController extends BaseController with SocketMixin {
     _clearEmptyProjects();
     stopUdpServer();
 
-    isUdpListening.value = isUdpListening.initialValue;
+    _isUdpListening.value = _isUdpListening.initialValue;
     deviceType.value = deviceType.initialValue;
     projectName.value = projectName.initialValue;
     currentProject.value = currentProject.initialValue;
