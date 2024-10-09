@@ -250,34 +250,6 @@ class ScannerPageController extends BaseController with SocketMixin {
     projects.value = settings.projects;
   }
 
-  // Future<void> _updateDevicesAvailabilityAndFirmware() async {
-  //   // TODO: Improve this to use UDP data to update info
-  //   for (final proj in projects.value) {
-  //     for (final d in proj.devices) {
-  //       try {
-  //         await restartSocket(ip: d.ip);
-  //         final fw =
-  //             MrCmdBuilder.parseResponse(await socketSender(MrCmdBuilder.firmwareVersion(macAddress: d.macAddress)));
-  //         final formatted = "${fw.substring(0, 2)}.${fw.substring(2).padLeft(2, "0")}";
-
-  //         final newDevices = proj.devices.withReplacement(
-  //           (device) => device.serialNumber == d.serialNumber,
-  //           d.copyWith(version: formatted.numbersOnly.isNotNullOrEmpty ? formatted : d.version),
-  //         );
-
-  //         projects.value.replaceWhere(
-  //           (p) => p.id == proj.id,
-  //           proj.copyWith(devices: newDevices),
-  //         );
-
-  //         devicesAvailability[d.serialNumber] = true;
-  //       } catch (exception) {
-  //         devicesAvailability[d.serialNumber] = false;
-  //       }
-  //     }
-  //   }
-  // }
-
   void _updateProject(DeviceModel newDevice) {
     currentProject.value = currentProject.peek().copyWith(devices: [...currentProject.peek().devices, newDevice]);
 

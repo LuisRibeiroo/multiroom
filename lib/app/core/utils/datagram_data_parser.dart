@@ -15,7 +15,7 @@ abstract class DatagramDataParser {
     String macAddress = asciiToHex(String.fromCharCodes(data.sublist(23, 26)));
     final firmware = ((data.sublist(45, 46).toList().first + (data.sublist(46, 47).toList().first * 256)));
     final numbersOnly = firmware.toString().replaceAll(".", "");
-    final formatted = "${numbersOnly.substring(0, 2)}.${numbersOnly.substring(2).padLeft(2, "0")}";
+    final formatted = "${numbersOnly.substring(0, 1)}.${numbersOnly.substring(1)}";
 
     return (serialNumber, formatted, macAddress);
   }
