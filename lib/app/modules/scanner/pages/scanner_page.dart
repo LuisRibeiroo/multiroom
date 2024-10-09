@@ -32,20 +32,22 @@ class _ScannerPageState extends State<ScannerPage> {
   void _showNetworkDevicesBottomSheet(BuildContext context) {
     _controller.startUdpServer();
 
-    context.showCustomModalBottomSheet(
-      child: Watch(
-        (_) => NetworkDevicesBottomSheet(
-          hasAvailableSlots: _controller.hasAvailableSlots.value == false,
-          networkDevices: _controller.networkDevices.value,
-          onTapDevice: (device) {
-            Routefly.pop(context);
-            _controller.setSelectedDevice(device);
+    context
+        .showCustomModalBottomSheet(
+          child: Watch(
+            (_) => NetworkDevicesBottomSheet(
+              hasAvailableSlots: _controller.hasAvailableSlots.value == false,
+              networkDevices: _controller.networkDevices.value,
+              onTapDevice: (device) {
+                Routefly.pop(context);
+                _controller.setSelectedDevice(device);
 
-            _showDeviceTypeSelectorBottomSheet();
-          },
-        ),
-      ),
-    );
+                _showDeviceTypeSelectorBottomSheet();
+              },
+            ),
+          ),
+        )
+        .then((_) => _controller.stopUdpServer());
   }
 
   void _showDeviceTypeSelectorBottomSheet() {
@@ -140,6 +142,7 @@ class _ScannerPageState extends State<ScannerPage> {
             _controller.setPageVisible(true);
           } else {
             _controller.setPageVisible(false);
+            _controller.stopUdpServer();
           }
         },
         child: LoadingOverlay(
@@ -147,27 +150,6 @@ class _ScannerPageState extends State<ScannerPage> {
           child: Scaffold(
             appBar: AppBar(
               title: const Text("Acesso Técnico"),
-              actions: [
-                Watch(
-                  (_) => Visibility(
-                    visible: _controller.isUdpListening.value,
-                    child: IconButton(
-                      icon: const Icon(Icons.cancel_rounded),
-                      onPressed: _controller.stopUdpServer,
-                    ),
-                  ),
-                ),
-                Watch(
-                  (_) => Visibility(
-                    visible: _controller.isUdpListening.value,
-                    child: const SizedBox.square(
-                      dimension: 20,
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                ),
-                24.asSpace,
-              ],
             ),
             body: Watch(
               (_) => Visibility(
