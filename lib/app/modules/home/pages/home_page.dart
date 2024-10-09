@@ -213,19 +213,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           centerTitle: false,
           title: Row(
             children: [
-              InkWell(
-                onTap: _showProjectsBottomSheet,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        _controller.currentProject.value.name,
+              Watch(
+                (_) => InkWell(
+                  onTap: _showProjectsBottomSheet,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          _controller.currentProject.value.name,
+                        ),
                       ),
-                    ),
-                    8.asSpace,
-                    const Icon(Icons.arrow_drop_down_rounded),
-                  ],
+                      8.asSpace,
+                      const Icon(Icons.arrow_drop_down_rounded),
+                    ],
+                  ),
                 ),
               ),
             ],
