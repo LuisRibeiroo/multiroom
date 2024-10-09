@@ -13,6 +13,7 @@ class SummaryZoneControls extends StatelessWidget {
     super.key,
     required this.isDeviceActive,
     required this.zone,
+    required this.deviceName,
     required this.onChangeActive,
     required this.onChangeChannel,
     required this.onChangeVolume,
@@ -21,6 +22,7 @@ class SummaryZoneControls extends StatelessWidget {
 
   final bool isDeviceActive;
   final ZoneModel zone;
+  final String deviceName;
   final Function(bool) onChangeActive;
   final Function() onChangeChannel;
   final Function(int) onChangeVolume;
@@ -46,7 +48,7 @@ class SummaryZoneControls extends StatelessWidget {
                   12.asSpace,
                   Expanded(
                     child: Text(
-                      zone.name,
+                      "$deviceName - ${zone.name}",
                       textAlign: TextAlign.left,
                       style: context.textTheme.bodyLarge,
                     ),

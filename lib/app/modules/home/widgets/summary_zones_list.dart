@@ -52,11 +52,11 @@ class _SummaryZonesListState extends State<SummaryZonesList> {
             separatorBuilder: (context, index) => 8.asSpace,
             itemBuilder: (context, index) {
               final zone = widget.zones[index];
+              final device = widget.devices.firstWhereOrNull((element) => element.serialNumber == zone.deviceSerial);
 
               return SummaryZoneControls(
-                isDeviceActive:
-                    widget.devices.firstWhereOrNull((element) => element.serialNumber == zone.deviceSerial)?.active ??
-                        false,
+                isDeviceActive: device?.active ?? false,
+                deviceName: device?.name ?? "",
                 zone: zone,
                 onTapCard: widget.onTapZone,
                 onChangeActive: (value) => widget.onChangeActive(value, zone: zone),
