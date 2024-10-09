@@ -147,27 +147,6 @@ class _ScannerPageState extends State<ScannerPage> {
           child: Scaffold(
             appBar: AppBar(
               title: const Text("Acesso Técnico"),
-              actions: [
-                Watch(
-                  (_) => Visibility(
-                    visible: _controller.isUdpListening.value,
-                    child: IconButton(
-                      icon: const Icon(Icons.cancel_rounded),
-                      onPressed: _controller.stopUdpServer,
-                    ),
-                  ),
-                ),
-                Watch(
-                  (_) => Visibility(
-                    visible: _controller.isUdpListening.value,
-                    child: const SizedBox.square(
-                      dimension: 20,
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                ),
-                24.asSpace,
-              ],
             ),
             body: Watch(
               (_) => Visibility(

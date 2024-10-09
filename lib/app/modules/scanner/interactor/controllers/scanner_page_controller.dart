@@ -46,8 +46,8 @@ class ScannerPageController extends BaseController with SocketMixin {
 
   final settings = injector.get<SettingsContract>();
   final _monitor = injector.get<DeviceMonitorController>();
+  final _isUdpListening = false.asSignal(debugLabel: "isUdpListening");
 
-  final isUdpListening = false.asSignal(debugLabel: "isUdpListening");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
   final networkDevices = listSignal<NetworkDeviceModel>([], debugLabel: "networkDevices");
   final deviceType = NetworkDeviceType.undefined.asSignal(debugLabel: "deviceType");
@@ -100,7 +100,7 @@ class ScannerPageController extends BaseController with SocketMixin {
           _localDevices.value = projects.value.expand((p) => p.devices).toList();
         }),
         effect(() {
-          if (isUdpListening.value) {
+          if (_isUdpListening.value) {
             logger.i("UDP LISTENING ON --> ${_udpServer?.local.address?.address}:${_udpServer?.local.port?.value} ");
           } else {
             logger.i("UDP SERVER CLOSED");
@@ -121,7 +121,7 @@ class ScannerPageController extends BaseController with SocketMixin {
       await Permission.nearbyWifiDevices.request();
     }
 
-    if (isUdpListening.value) {
+    if (_isUdpListening.value) {
       return;
     }
 
@@ -135,7 +135,7 @@ class ScannerPageController extends BaseController with SocketMixin {
         ),
       );
 
-      isUdpListening.value = true;
+      _isUdpListening.value = true;
 
       _udpServer?.asStream().listen(
         (datagram) {
@@ -180,7 +180,7 @@ class ScannerPageController extends BaseController with SocketMixin {
       _udpServer?.close();
     }
 
-    isUdpListening.value = false;
+    _isUdpListening.value = false;
     startDeviceMonitor();
   }
 
@@ -328,7 +328,7 @@ class ScannerPageController extends BaseController with SocketMixin {
     _clearEmptyProjects();
     stopUdpServer();
 
-    isUdpListening.value = isUdpListening.initialValue;
+    _isUdpListening.value = _isUdpListening.initialValue;
     deviceType.value = deviceType.initialValue;
     projectName.value = projectName.initialValue;
     currentProject.value = currentProject.initialValue;
