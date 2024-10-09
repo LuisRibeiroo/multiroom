@@ -132,68 +132,65 @@ class _ScannerPageState extends State<ScannerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Watch(
-      (_) => VisibilityDetector(
-        key: const ValueKey(ScannerPage),
-        onVisibilityChanged: (info) async {
-          if (info.visibleFraction == 1) {
-            _controller.startDeviceMonitor();
+    return VisibilityDetector(
+      key: const ValueKey(ScannerPage),
+      onVisibilityChanged: (info) async {
+        if (info.visibleFraction == 1) {
+          _controller.startDeviceMonitor();
 
-            _controller.setPageVisible(true);
-          } else {
-            _controller.setPageVisible(false);
-            _controller.stopUdpServer();
-          }
-        },
-        child: LoadingOverlay(
-          state: _controller.state,
-          child: Scaffold(
-            appBar: AppBar(
-              title: const Text("Acesso Técnico"),
-            ),
-            body: Watch(
-              (_) => Visibility(
-                visible: _controller.projects.isEmpty,
-                replacement: ListView.separated(
-                  padding: const EdgeInsets.all(12),
-                  itemCount: _controller.projects.value.length,
-                  separatorBuilder: (_, __) => 18.asSpace,
-                  itemBuilder: (_, index) => Watch(
-                    (_) => ProjectListCard(
-                      project: _controller.projects[index],
-                      showAvailability: true,
-                      deviceAvailabilityMap: _controller.devicesAvailability.value,
-                      onTapConfigDevice: _controller.onTapConfigDevice,
-                      onTapRemoveProject: (proj) => _showProjectDeletionBottomSheet(
-                        proj,
-                        () => _controller.removeProject(proj),
-                      ),
+          _controller.setPageVisible(true);
+        } else {
+          _controller.setPageVisible(false);
+          _controller.stopUdpServer();
+        }
+      },
+      child: LoadingOverlay(
+        state: _controller.state,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text("Acesso Técnico"),
+          ),
+          body: Watch(
+            (_) => Visibility(
+              visible: _controller.projects.isEmpty,
+              replacement: ListView.separated(
+                padding: const EdgeInsets.all(12),
+                itemCount: _controller.projects.value.length,
+                separatorBuilder: (_, __) => 18.asSpace,
+                itemBuilder: (_, index) => Watch(
+                  (_) => ProjectListCard(
+                    project: _controller.projects.value[index],
+                    showAvailability: true,
+                    onTapConfigDevice: _controller.onTapConfigDevice,
+                    onTapRemoveProject: (proj) => _showProjectDeletionBottomSheet(
+                      proj,
+                      () => _controller.removeProject(proj),
                     ),
                   ),
                 ),
-                child: Center(
-                  key: const ValueKey("empty"),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.settings_input_antenna_rounded,
-                        size: 80,
-                      ),
-                      Text(
-                        'Nenhum dispositivo configurado',
-                        style: context.textTheme.titleLarge,
-                      ),
-                    ],
-                  ),
+              ),
+              child: Center(
+                key: const ValueKey("empty"),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.settings_input_antenna_rounded,
+                      size: 80,
+                    ),
+                    Text(
+                      'Nenhum dispositivo configurado',
+                      style: context.textTheme.titleLarge,
+                    ),
+                  ],
                 ),
               ),
             ),
-            floatingActionButton: FloatingActionButton(
-              // onPressed: _showNetworkDevicesBottomSheet,
-              onPressed: _showProjectListBottomSheet,
-              child: const Icon(Icons.add_rounded),
-            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            // onPressed: _showNetworkDevicesBottomSheet,
+            onPressed: _showProjectListBottomSheet,
+            child: const Icon(Icons.add_rounded),
           ),
         ),
       ),

@@ -32,7 +32,7 @@ class ScannerPageController extends BaseController with SocketMixin {
         effect(() async {
           if (_isPageVisible.value && _monitor.hasStateChanges.value) {
             untracked(() async {
-              await _updateDevicesAvailabilityAndFirmware();
+              projects.value = settings.projects;
 
               _monitor.ingestStateChanges();
             });
@@ -66,8 +66,6 @@ class ScannerPageController extends BaseController with SocketMixin {
     debugLabel: "localDevices",
   );
 
-  final devicesAvailability = mapSignal(<String, bool>{}, debugLabel: "devicesAvailability");
-
   final _isPageVisible = false.asSignal(debugLabel: "scannerPageVisible");
 
   void setPageVisible(bool visible) => _isPageVisible.value = visible;
@@ -96,7 +94,7 @@ class ScannerPageController extends BaseController with SocketMixin {
           }
         }),
         effect(() async {
-          await _updateDevicesAvailabilityAndFirmware();
+          // await _updateDevicesAvailabilityAndFirmware();
           _localDevices.value = projects.value.expand((p) => p.devices).toList();
         }),
         effect(() {
@@ -252,33 +250,33 @@ class ScannerPageController extends BaseController with SocketMixin {
     projects.value = settings.projects;
   }
 
-  Future<void> _updateDevicesAvailabilityAndFirmware() async {
-    // TODO: Improve this to use UDP data to update info
-    for (final proj in projects.value) {
-      for (final d in proj.devices) {
-        try {
-          await restartSocket(ip: d.ip);
-          final fw =
-              MrCmdBuilder.parseResponse(await socketSender(MrCmdBuilder.firmwareVersion(macAddress: d.macAddress)));
-          final formatted = "${fw.substring(0, 2)}.${fw.substring(2).padLeft(2, "0")}";
+  // Future<void> _updateDevicesAvailabilityAndFirmware() async {
+  //   // TODO: Improve this to use UDP data to update info
+  //   for (final proj in projects.value) {
+  //     for (final d in proj.devices) {
+  //       try {
+  //         await restartSocket(ip: d.ip);
+  //         final fw =
+  //             MrCmdBuilder.parseResponse(await socketSender(MrCmdBuilder.firmwareVersion(macAddress: d.macAddress)));
+  //         final formatted = "${fw.substring(0, 2)}.${fw.substring(2).padLeft(2, "0")}";
 
-          final newDevices = proj.devices.withReplacement(
-            (device) => device.serialNumber == d.serialNumber,
-            d.copyWith(version: formatted.numbersOnly.isNotNullOrEmpty ? formatted : d.version),
-          );
+  //         final newDevices = proj.devices.withReplacement(
+  //           (device) => device.serialNumber == d.serialNumber,
+  //           d.copyWith(version: formatted.numbersOnly.isNotNullOrEmpty ? formatted : d.version),
+  //         );
 
-          projects.value.replaceWhere(
-            (p) => p.id == proj.id,
-            proj.copyWith(devices: newDevices),
-          );
+  //         projects.value.replaceWhere(
+  //           (p) => p.id == proj.id,
+  //           proj.copyWith(devices: newDevices),
+  //         );
 
-          devicesAvailability[d.serialNumber] = true;
-        } catch (exception) {
-          devicesAvailability[d.serialNumber] = false;
-        }
-      }
-    }
-  }
+  //         devicesAvailability[d.serialNumber] = true;
+  //       } catch (exception) {
+  //         devicesAvailability[d.serialNumber] = false;
+  //       }
+  //     }
+  //   }
+  // }
 
   void _updateProject(DeviceModel newDevice) {
     currentProject.value = currentProject.peek().copyWith(devices: [...currentProject.peek().devices, newDevice]);
@@ -342,7 +340,6 @@ class ScannerPageController extends BaseController with SocketMixin {
     slave2Available.value = slave2Available.initialValue;
     hasAvailableSlots.value = hasAvailableSlots.initialValue;
 
-    devicesAvailability.value = <String, bool>{};
     projects.value = <ProjectModel>[];
     networkDevices.value = <NetworkDeviceModel>[];
   }

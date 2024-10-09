@@ -13,13 +13,11 @@ class DeviceListTile extends StatelessWidget {
     super.key,
     required this.device,
     required this.onTapConfigDevice,
-    required this.isAvailable,
     required this.showAvailability,
   });
 
   final DeviceModel device;
   final Function(DeviceModel) onTapConfigDevice;
-  final bool isAvailable;
   final bool showAvailability;
 
   @override
@@ -64,9 +62,7 @@ class DeviceListTile extends StatelessWidget {
                   children: [
                     Visibility(
                       visible: showAvailability,
-                      child: DeviceStateIndicator(
-                        value: device.active, //isAvailable
-                      ),
+                      child: DeviceStateIndicator(value: device.active),
                     ),
                     Container(
                       margin: const EdgeInsets.only(top: 12),

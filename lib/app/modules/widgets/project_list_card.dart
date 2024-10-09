@@ -13,13 +13,11 @@ class ProjectListCard extends StatelessWidget {
     required this.showAvailability,
     required this.onTapConfigDevice,
     required this.onTapRemoveProject,
-    required this.deviceAvailabilityMap,
   });
 
   final ProjectModel project;
   final Function(DeviceModel) onTapConfigDevice;
   final Function(ProjectModel)? onTapRemoveProject;
-  final Map<String, bool> deviceAvailabilityMap;
   final bool showAvailability;
 
   @override
@@ -56,7 +54,6 @@ class ProjectListCard extends StatelessWidget {
               (idx) => DeviceListTile(
                 device: project.devices[idx],
                 showAvailability: showAvailability,
-                isAvailable: deviceAvailabilityMap[project.devices[idx].serialNumber] ?? false,
                 onTapConfigDevice: onTapConfigDevice,
               ),
             )
