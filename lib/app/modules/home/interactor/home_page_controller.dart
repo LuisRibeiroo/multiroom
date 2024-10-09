@@ -554,9 +554,7 @@ class HomePageController extends BaseController with SocketMixin {
     }
 
     // TESTE DE ENVIO EM MASSA
-    await socketSender(
-      commands.join('\r\n'),
-    );
+    await socketSender(commands.join('\r\n'));
 
     final fullReturns = MrCmdBuilder.parseCompleteFullResponse("");
 
