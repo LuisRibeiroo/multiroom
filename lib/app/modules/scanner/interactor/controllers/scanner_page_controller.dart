@@ -158,7 +158,11 @@ class ScannerPageController extends BaseController with SocketMixin {
 
             networkDevices.add(
               NetworkDeviceModel(
-                  ip: datagram.address.address, serialNumber: serialNumber, firmware: firmware, macAddress: macAddress),
+                ip: datagram.address.address,
+                serialNumber: serialNumber,
+                firmware: firmware,
+                macAddress: macAddress,
+              ),
             );
           } catch (exception) {
             logger.e("Datagram parse error [${datagram.address.address}]-> $exception");
