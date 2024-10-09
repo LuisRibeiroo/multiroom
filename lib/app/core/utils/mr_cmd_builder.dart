@@ -8,11 +8,19 @@ import '../models/zone_group_model.dart';
 import '../models/zone_model.dart';
 import '../models/zone_wrapper_model.dart';
 
-typedef MrResponse = ({String cmd, String macAddress, String params, String response});
+typedef MrResponse = ({
+  String cmd,
+  String macAddress,
+  String params,
+  String response,
+  String? frequency,
+});
 
 abstract final class MrCmdBuilder {
   // TODO: Remove old return
   static String parseResponse(String response) => MrCmdBuilder.parseCompleteResponse(response).response;
+
+  static parseFullResponse(String response) => MrCmdBuilder.parseCompleteFullResponse(response);
 
   static MrResponse parseCompleteResponse(String response) {
     final ret = response.split(",");
@@ -22,7 +30,31 @@ abstract final class MrCmdBuilder {
       macAddress: ret[1].removeSpecialChars,
       params: ret[2].removeSpecialChars,
       response: ret.last.removeSpecialChars,
+      frequency: null,
     );
+  }
+
+  static List<MrResponse> parseCompleteFullResponse(String response) {
+    final retList = <MrResponse>[];
+    final cmdResponses = response.split('\r\n');
+
+    for (final response in cmdResponses) {
+      if (response.isEmpty) {
+        continue;
+      }
+
+      final cmdResponse = response.split(",");
+
+      retList.add((
+        cmd: cmdResponse.first.removeSpecialChars,
+        macAddress: cmdResponse[1].removeSpecialChars,
+        params: cmdResponse[2].removeSpecialChars,
+        response: cmdResponse.last.removeSpecialChars,
+        frequency: cmdResponse[3].removeSpecialChars,
+      ));
+    }
+
+    return retList;
   }
 
   static int fromDbToPercent(String value) =>

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/enums/multiroom_commands.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -489,74 +490,123 @@ class HomePageController extends BaseController with SocketMixin {
       await Future.delayed(Durations.short3);
     }
 
-    await socketSender(MrCmdBuilder.getPower(macAddress: zone.macAddress, zone: zone));
-    final active = MrCmdBuilder.parseResponse("");
-
-    await socketSender(MrCmdBuilder.getChannel(macAddress: zone.macAddress, zone: zone));
-    final channelStr = MrCmdBuilder.parseResponse("");
-
-    await socketSender(MrCmdBuilder.getVolume(macAddress: zone.macAddress, zone: zone));
-    final volume = MrCmdBuilder.parseResponse("");
-
     String balance = "0";
-    if (zone.isStereo) {
-      await socketSender(MrCmdBuilder.getBalance(macAddress: zone.macAddress, zone: zone));
-      balance = MrCmdBuilder.parseResponse("");
-    }
+    String active = "";
+    String channelStr = "";
+    String volume = "";
+    String f60 = "0";
+    String f250 = "0";
+    String f1k = "0";
+    String f3k = "0";
+    String f6k = "0";
+    String f16k = "0";
 
-    await socketSender(
+    final commands = [
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[0],
       ),
-    );
-    final f60 = MrCmdBuilder.parseResponse("");
-
-    await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[1],
       ),
-    );
-    final f250 = MrCmdBuilder.parseResponse("");
-
-    await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[2],
       ),
-    );
-    final f1k = MrCmdBuilder.parseResponse("");
-
-    await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[3],
       ),
-    );
-    final f3k = MrCmdBuilder.parseResponse("");
-
-    await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[4],
       ),
-    );
-    final f6k = MrCmdBuilder.parseResponse("");
-
-    await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[5],
       ),
+      MrCmdBuilder.getVolume(
+        macAddress: zone.macAddress,
+        zone: zone,
+      ),
+      MrCmdBuilder.getChannel(
+        macAddress: zone.macAddress,
+        zone: zone,
+      ),
+      MrCmdBuilder.getPower(
+        macAddress: zone.macAddress,
+        zone: zone,
+      )
+    ];
+
+    if (zone.isStereo) {
+      commands.add(MrCmdBuilder.getBalance(
+        macAddress: zone.macAddress,
+        zone: zone,
+      ));
+    }
+
+    // TESTE DE ENVIO EM MASSA
+    await socketSender(
+      commands.join('\r\n'),
     );
-    final f16k = MrCmdBuilder.parseResponse("");
+
+    final fullReturns = MrCmdBuilder.parseCompleteFullResponse("");
+
+    for (final command in fullReturns) {
+      final mrCommand = MultiroomCommands.fromString(command.cmd);
+
+      switch (mrCommand) {
+        case MultiroomCommands.mrPwrSet:
+          active = command.response;
+          break;
+
+        case MultiroomCommands.mrZoneChannelSet:
+          channelStr = command.response;
+          break;
+
+        case MultiroomCommands.mrVolSet:
+          volume = command.response;
+          break;
+
+        case MultiroomCommands.mrBalSet:
+          balance = command.response;
+          break;
+
+        case MultiroomCommands.mrEqSet:
+          switch (command.frequency) {
+            case 'B1':
+              f60 = command.response;
+              break;
+            case 'B2':
+              f250 = command.response;
+              break;
+            case 'B3':
+              f1k = command.response;
+              break;
+            case 'B4':
+              f3k = command.response;
+              break;
+            case 'B5':
+              f6k = command.response;
+              break;
+            case 'B6':
+              f16k = command.response;
+              break;
+          }
+
+        default:
+          break;
+      }
+    }
+    fullReturns.forEachIndexed((x, element) {});
 
     final equalizer = zone.equalizer;
     final newEqualizer = EqualizerModel.custom(
