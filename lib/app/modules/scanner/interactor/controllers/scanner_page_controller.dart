@@ -186,6 +186,8 @@ class ScannerPageController extends BaseController with SocketMixin {
     startDeviceMonitor();
   }
 
+  void clearNetworkDevices() => networkDevices.clear();
+
   Computed<bool> get isProjectNameValid => computed(() => projectName.value.isNotNullOrEmpty);
 
   void onTapConfigDevice(DeviceModel device) {

@@ -34,20 +34,23 @@ class _ScannerPageState extends State<ScannerPage> {
 
     context
         .showCustomModalBottomSheet(
-          child: Watch(
-            (_) => NetworkDevicesBottomSheet(
-              hasAvailableSlots: _controller.hasAvailableSlots.value == false,
-              networkDevices: _controller.networkDevices.value,
-              onTapDevice: (device) {
-                Routefly.pop(context);
-                _controller.setSelectedDevice(device);
+      child: Watch(
+        (_) => NetworkDevicesBottomSheet(
+          hasAvailableSlots: _controller.hasAvailableSlots.value == false,
+          networkDevices: _controller.networkDevices.value,
+          onTapDevice: (device) {
+            Routefly.pop(context);
+            _controller.setSelectedDevice(device);
 
-                _showDeviceTypeSelectorBottomSheet();
-              },
-            ),
-          ),
-        )
-        .then((_) => _controller.stopUdpServer());
+            _showDeviceTypeSelectorBottomSheet();
+          },
+        ),
+      ),
+    )
+        .then((_) {
+      _controller.stopUdpServer();
+      _controller.clearNetworkDevices();
+    });
   }
 
   void _showDeviceTypeSelectorBottomSheet() {
