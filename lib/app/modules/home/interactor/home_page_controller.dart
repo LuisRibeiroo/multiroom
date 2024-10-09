@@ -489,84 +489,111 @@ class HomePageController extends BaseController with SocketMixin {
       await Future.delayed(Durations.short3);
     }
 
-    final active = MrCmdBuilder.parseResponse(await socketSender(
-      MrCmdBuilder.getPower(
-        macAddress: zone.macAddress,
-        zone: zone,
-      ),
-    ));
-
-    final channelStr = MrCmdBuilder.parseResponse(await socketSender(
-      MrCmdBuilder.getChannel(
-        macAddress: zone.macAddress,
-        zone: zone,
-      ),
-    ));
-
-    final volume = MrCmdBuilder.parseResponse(await socketSender(
-      MrCmdBuilder.getVolume(
-        macAddress: zone.macAddress,
-        zone: zone,
-      ),
-    ));
-
     String balance = "0";
-    if (zone.isStereo) {
-      balance = MrCmdBuilder.parseResponse(await socketSender(
-        MrCmdBuilder.getBalance(
-          macAddress: zone.macAddress,
-          zone: zone,
-        ),
-      ));
-    }
+    String active = "";
+    String channelStr = "";
+    String volume = "";
+    String f60 = "0";
+    String f250 = "0";
+    String f1k = "0";
+    String f3k = "0";
+    String f6k = "0";
+    String f16k = "0";
 
-    final f60 = MrCmdBuilder.parseResponse(await socketSender(
+    final commands = [
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[0],
       ),
-    ));
-
-    final f250 = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[1],
       ),
-    ));
-
-    final f1k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[2],
       ),
-    ));
-
-    final f3k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[3],
       ),
-    ));
-
-    final f6k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[4],
       ),
-    ));
-
-    final f16k = MrCmdBuilder.parseResponse(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
         frequency: zone.equalizer.frequencies[5],
       ),
-    ));
+      MrCmdBuilder.getVolume(
+        macAddress: zone.macAddress,
+        zone: zone,
+      ),
+      MrCmdBuilder.getChannel(
+        macAddress: zone.macAddress,
+        zone: zone,
+      ),
+      MrCmdBuilder.getPower(
+        macAddress: zone.macAddress,
+        zone: zone,
+      )
+    ];
+
+    if (zone.isStereo) {
+      commands.add(MrCmdBuilder.getBalance(
+        macAddress: zone.macAddress,
+        zone: zone,
+      ));
+    }
+
+    // TESTE DE ENVIO EM MASSA
+    final fullCommand = await socketSender(commands.join('\r\n'));
+
+    final retornoParsed = MrCmdBuilder.parseCompleteFullResponse(fullCommand);
+
+    for (int x = 0; x < retornoParsed.length; x++) {
+      switch (retornoParsed[x].cmd) {
+        case 'mr_power_set':
+          active = retornoParsed[x].response;
+          break;
+        case 'mr_zone_channel_set':
+          channelStr = retornoParsed[x].response;
+          break;
+        case 'mr_vol_set':
+          volume = retornoParsed[x].response;
+          break;
+        case 'mr_bal_set':
+          balance = retornoParsed[x].response;
+          break;
+        case 'mr_eq_set':
+          switch (retornoParsed[x].frequency) {
+            case 'B1':
+              f60 = retornoParsed[x].response;
+              break;
+            case 'B2':
+              f250 = retornoParsed[x].response;
+              break;
+            case 'B3':
+              f1k = retornoParsed[x].response;
+              break;
+            case 'B4':
+              f3k = retornoParsed[x].response;
+              break;
+            case 'B5':
+              f6k = retornoParsed[x].response;
+              break;
+            case 'B6':
+              f16k = retornoParsed[x].response;
+              break;
+          }
+      }
+    }
 
     final equalizer = zone.equalizer;
     final newEqualizer = EqualizerModel.custom(

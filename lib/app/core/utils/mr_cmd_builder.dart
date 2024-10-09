@@ -10,9 +10,21 @@ import '../models/zone_wrapper_model.dart';
 
 typedef MrResponse = ({String cmd, String macAddress, String params, String response});
 
+class CommandObj {
+  CommandObj({required this.cmd, required this.macAddress, required this.params, required this.response, this.frequency});
+  //modal class for command object
+  String cmd;
+  String macAddress;
+  String params;
+  String response;
+  String? frequency;
+}
+
 abstract final class MrCmdBuilder {
   // TODO: Remove old return
   static String parseResponse(String response) => MrCmdBuilder.parseCompleteResponse(response).response;
+
+  static parseFullResponse(String response) => MrCmdBuilder.parseCompleteFullResponse(response);
 
   static MrResponse parseCompleteResponse(String response) {
     final ret = response.split(",");
@@ -23,6 +35,25 @@ abstract final class MrCmdBuilder {
       params: ret[2].removeSpecialChars,
       response: ret.last.removeSpecialChars,
     );
+  }
+
+  static List parseCompleteFullResponse(String response) {
+    final complete = response.split('\r\n');
+
+    List list = [];
+    for (int x = 0; x < complete.length-1; x++) {
+      final ret = complete[x].split(",");
+
+      list.add(CommandObj(
+        cmd: ret.first.removeSpecialChars,
+        macAddress: ret[1].removeSpecialChars,
+        params: ret[2].removeSpecialChars,
+        response: ret.last.removeSpecialChars,
+        frequency: ret[3].removeSpecialChars,
+      ));
+    }
+
+    return list;
   }
 
   static int fromDbToPercent(String value) =>
