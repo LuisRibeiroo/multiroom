@@ -256,49 +256,55 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 child: TabBarView(
                   controller: _tabControler,
                   children: [
-                    SingleChildScrollView(
-                      child: SummaryZonesList(
-                        devices: _controller.currentProject.value.devices,
-                        zones: _controller.projectZones.value,
-                        onChangeActive: _controller.setZoneActive,
-                        onChangeChannel: ({ZoneModel? zone}) {
-                          _controller.setCurrentZone(zone: zone!);
-                          _showChannelsBottomSheet(zone: zone);
-                        },
-                        onChangeVolume: _controller.setVolume,
-                        onTapZone: (zone) {
-                          _tabControler.animateTo(1);
-                          _controller.setCurrentZone(zone: zone);
-                          setState(() {});
-                        },
+                    RefreshIndicator(
+                      onRefresh: () => _controller.syncLocalData(readAllZones: true),
+                      child: SingleChildScrollView(
+                        child: SummaryZonesList(
+                          devices: _controller.currentProject.value.devices,
+                          zones: _controller.projectZones.value,
+                          onChangeActive: _controller.setZoneActive,
+                          onChangeChannel: ({ZoneModel? zone}) {
+                            _controller.setCurrentZone(zone: zone!);
+                            _showChannelsBottomSheet(zone: zone);
+                          },
+                          onChangeVolume: _controller.setVolume,
+                          onTapZone: (zone) {
+                            _tabControler.animateTo(1);
+                            _controller.setCurrentZone(zone: zone);
+                            setState(() {});
+                          },
+                        ),
                       ),
                     ),
-                    SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          DeviceInfoHeader(
-                            isDeviceActive: _controller.currentDevice.value.active,
-                            project: _controller.currentProject.value,
-                            deviceName: _controller.currentDevice.value.name,
-                            currentZone: _controller.currentZone.value,
-                            currentChannel: _controller.currentZone.value.channel,
-                            onChangeActive: _controller.setZoneActive,
-                            onChangeDevice: _showDevicesBottomSheet,
-                            onChangeChannel: _showChannelsBottomSheet,
-                            onChangeProject: _showProjectsBottomSheet,
-                          ),
-                          12.asSpace,
-                          ZoneControls(
-                            currentZone: _controller.currentZone.value,
-                            currentEqualizer: _controller.currentEqualizer.value,
-                            equalizers: _controller.equalizers.value,
-                            onChangeBalance: _controller.setBalance,
-                            onChangeVolume: _controller.setVolume,
-                            onUpdateFrequency: _controller.setFrequency,
-                            onChangeEqualizer: _showEqualizersBottomSheet,
-                          ),
-                        ],
+                    RefreshIndicator(
+                      onRefresh: () => _controller.syncLocalData(readAllZones: true),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            DeviceInfoHeader(
+                              isDeviceActive: _controller.currentDevice.value.active,
+                              project: _controller.currentProject.value,
+                              deviceName: _controller.currentDevice.value.name,
+                              currentZone: _controller.currentZone.value,
+                              currentChannel: _controller.currentZone.value.channel,
+                              onChangeActive: _controller.setZoneActive,
+                              onChangeDevice: _showDevicesBottomSheet,
+                              onChangeChannel: _showChannelsBottomSheet,
+                              onChangeProject: _showProjectsBottomSheet,
+                            ),
+                            12.asSpace,
+                            ZoneControls(
+                              currentZone: _controller.currentZone.value,
+                              currentEqualizer: _controller.currentEqualizer.value,
+                              equalizers: _controller.equalizers.value,
+                              onChangeBalance: _controller.setBalance,
+                              onChangeVolume: _controller.setVolume,
+                              onUpdateFrequency: _controller.setFrequency,
+                              onChangeEqualizer: _showEqualizersBottomSheet,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
