@@ -47,72 +47,72 @@ class _ImportDataPageState extends State<ImportDataPage> with WidgetsBindingObse
 
   @override
   Widget build(BuildContext context) {
-    return Watch(
-      (_) => LoadingOverlay(
-        state: _controller.state,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text("Importar projeto"),
-          ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.link_rounded,
-                          size: 36,
+    return LoadingOverlay(
+      state: _controller.state,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Importar projeto"),
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.link_rounded,
+                        size: 36,
+                      ),
+                      8.asSpace,
+                      Flexible(
+                        child: Text(
+                          "Insira o código MR",
+                          style: context.textTheme.titleLarge,
+                          textAlign: TextAlign.center,
                         ),
-                        8.asSpace,
-                        Flexible(
-                          child: Text(
-                            "Insira o código MR",
-                            style: context.textTheme.titleLarge,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: TextFormField(
-                      onChanged: _controller.onChangeCode,
-                      inputFormatters: TextInputFormatterExt.upperCase()
-                        ..addAll(
-                          [
-                            FilteringTextInputFormatter.deny(
-                              RegExp("MR-"),
-                            ),
-                            LengthLimitingTextInputFormatter(8),
-                          ],
-                        ),
-                      keyboardType: TextInputType.text,
-                      maxLength: 8,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        prefixIcon: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Text(
-                            "MR-",
-                            style: context.textTheme.titleLarge!.copyWith(
-                              fontWeight: FontWeight.w900,
-                            ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: TextFormField(
+                    onChanged: _controller.onChangeCode,
+                    inputFormatters: TextInputFormatterExt.upperCase()
+                      ..addAll(
+                        [
+                          FilteringTextInputFormatter.deny(
+                            RegExp("MR-"),
+                          ),
+                          LengthLimitingTextInputFormatter(8),
+                        ],
+                      ),
+                    keyboardType: TextInputType.text,
+                    maxLength: 8,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          "MR-",
+                          style: context.textTheme.titleLarge!.copyWith(
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
                       ),
                     ),
                   ),
-                  12.asSpace,
-                  SizedBox(
+                ),
+                12.asSpace,
+                Watch(
+                  (_) => SizedBox(
                     width: context.sizeOf.width / 1.5,
                     child: AppButton(
                       text: "Importar",
@@ -127,18 +127,18 @@ class _ImportDataPageState extends State<ImportDataPage> with WidgetsBindingObse
                           : null,
                     ),
                   ),
-                  Visibility(
-                    visible: PlatformChecker.isMobile,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 24),
-                      child: CameraScan(
-                        onDetectBarCode: _controller.handleBarCode,
-                      ),
+                ),
+                Visibility(
+                  visible: PlatformChecker.isMobile,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 24),
+                    child: CameraScan(
+                      onDetectBarCode: _controller.handleBarCode,
                     ),
                   ),
-                  24.asSpace,
-                ],
-              ),
+                ),
+                24.asSpace,
+              ],
             ),
           ),
         ),
