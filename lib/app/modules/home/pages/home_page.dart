@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/widgets/device_state_indicator.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:toastification/toastification.dart';
@@ -212,6 +213,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         appBar: AppBar(
           centerTitle: false,
           title: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Watch(
                 (_) => InkWell(
@@ -230,6 +233,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   ),
                 ),
               ),
+              Align(
+              alignment: Alignment.centerRight,
+              child: DeviceStateIndicator(value: _controller.currentProject.value.devices.every((device) => device.active)),
+            ),
             ],
           ),
         ),

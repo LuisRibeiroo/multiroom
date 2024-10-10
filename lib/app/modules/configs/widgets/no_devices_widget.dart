@@ -21,7 +21,7 @@ class NoDevicesWidget extends StatelessWidget {
           ),
           12.asSpace,
           Text(
-            'Voce ainda não possui dispositivos',
+            'Você ainda não possui dispositivos',
             style: context.textTheme.titleLarge,
           ),
           const Spacer(),
