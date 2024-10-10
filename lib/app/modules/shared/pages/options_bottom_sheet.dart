@@ -205,6 +205,7 @@ class Options {
               final valid = controller.onTapAccess();
 
               if (valid) {
+                Scaffold.of(context).closeDrawer();
                 controller.errorMessage.value = "";
 
                 Routefly.pop(context);
