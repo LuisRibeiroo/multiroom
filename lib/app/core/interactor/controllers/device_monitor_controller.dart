@@ -103,8 +103,8 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     isRunning = true;
     _callerName = callerName;
 
-    final interval = Duration(
-        milliseconds: ((cycleDuration ?? defaultScanDuration * 1.5).clamp(defaultScanDuration, 20) * 1000).toInt());
+    final interval =
+        Duration(milliseconds: ((cycleDuration ?? defaultScanDuration).clamp(defaultScanDuration, 20) * 1000).toInt());
     logger.i("MONITOR [$_callerName] --> START [${interval.inMilliseconds}ms]");
 
     scanDevices(

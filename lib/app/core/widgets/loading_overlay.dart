@@ -93,6 +93,9 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: widget.onTap,
+                    onDoubleTap: () {
+                      widget.state.value = InitialState();
+                    },
                     child: const Center(
                       child: CircularProgressIndicator(),
                     ),
