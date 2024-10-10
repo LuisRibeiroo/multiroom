@@ -47,6 +47,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         () async {
           try {
             await _updateDeviceData();
+
+            settings.saveDevice(device: device.value);
           } catch (exception) {
             setError(Exception("Erro ao ler informações do dispositivo"));
           }
