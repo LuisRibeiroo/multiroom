@@ -40,12 +40,10 @@ class _SummaryZonesListState extends State<SummaryZonesList> {
         Stack(
           alignment: Alignment.center,
           children: [
-            Expanded(
-              child: IconTextTile(
-                icon: Icons.home_filled,
-                text: "Zonas",
-                style: context.textTheme.titleLarge,
-              ),
+            IconTextTile(
+              icon: Icons.home_filled,
+              text: "Zonas",
+              style: context.textTheme.titleLarge,
             ),
             Align(
               alignment: Alignment.centerRight,
