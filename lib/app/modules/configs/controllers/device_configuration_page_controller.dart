@@ -322,6 +322,18 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   Future<void> _updateDeviceData() async {
+    if (device.value.active == false) {
+      toastification.dismissAll(delayForAnimation: false);
+      toastification.show(
+        title: const Text("O dispositivo está offline, não é possível efetuar as configurações"),
+        autoCloseDuration: const Duration(seconds: 2),
+        style: ToastificationStyle.minimal,
+        type: ToastificationType.error,
+      );
+
+      return;
+    }
+
     device.value = device.peek().copyWith(
           zoneWrappers: await _getZones(),
           groups: await _getGroups(),

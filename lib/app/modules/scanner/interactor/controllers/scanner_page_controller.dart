@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:toastification/toastification.dart';
 import 'package:udp/udp.dart';
 
 import '../../../../../injector.dart';
@@ -192,6 +193,18 @@ class ScannerPageController extends BaseController with SocketMixin {
 
   void onTapConfigDevice(DeviceModel device) {
     stopUdpServer();
+
+    if (device.active == false) {
+      toastification.dismissAll(delayForAnimation: false);
+      toastification.show(
+        title: const Text("O dispositivo está offline, não é possível acessar as configurações"),
+        autoCloseDuration: const Duration(seconds: 2),
+        style: ToastificationStyle.minimal,
+        type: ToastificationType.info,
+      ); 
+
+      return;
+    }
 
     Routefly.push(routePaths.modules.configs.pages.deviceConfiguration, arguments: device).then(
       (_) async {
