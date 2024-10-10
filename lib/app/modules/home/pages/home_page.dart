@@ -260,7 +260,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           child: SafeArea(
             child: Watch(
               (_) => Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(1.0),
                 child: TabBarView(
                   controller: _tabControler,
                   children: [

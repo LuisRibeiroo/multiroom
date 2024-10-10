@@ -41,8 +41,8 @@ class SummaryZoneControls extends StatelessWidget {
               // 18.asSpace,
               Row(
                 children: [
-                  const Icon(Icons.home_filled),
-                  12.asSpace,
+                  const Icon(Icons.settings),
+                  6.asSpace,
                   Expanded(
                     child: Text(
                       zone.name,
@@ -56,21 +56,30 @@ class SummaryZoneControls extends StatelessWidget {
                   ),
                 ],
               ),
-              18.asSpace,
+              1.asSpace,
               SizedBox(
                 width: context.sizeOf.width / 2,
                 child: AnimatedSwitcher(
-                  duration: Durations.short4,
-                  child: AppButton(
-                    key: ValueKey("${zone.name}_${zone.channel.name}"),
-                    type: ButtonType.secondary,
-                    leading: const Icon(Icons.input_rounded),
-                    text: zone.channel.name,
-                    onPressed: onChangeChannel,
-                  ),
-                ),
+                    duration: Durations.short4,
+                    child: ElevatedButton.icon(
+                        style: ButtonStyle(
+                            foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
+                            // backgroundColor: WidgetStateProperty.all<Color>(Colors.red),
+                            shape: WidgetStateProperty.all<RoundedRectangleBorder>(const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero, side: BorderSide(color: Colors.white30)))),
+                        onPressed: onChangeChannel,
+                        icon: const Icon(Icons.music_note),
+                        label: Text(zone.channel.name, style: const TextStyle(fontSize: 14)))
+                    // AppButton(
+                    //   key: ValueKey("${zone.name}_${zone.channel.name}"),
+                    //   type: ButtonType.secondary,
+                    //   leading: const Icon(Icons.music_note),
+                    //   text: zone.channel.name,
+                    //   onPressed: onChangeChannel,
+                    // ),
+                    ),
               ),
-              8.asSpace,
+              1.asSpace,
               SliderIcons(
                 value: zone.volume,
                 onChanged: onChangeVolume,

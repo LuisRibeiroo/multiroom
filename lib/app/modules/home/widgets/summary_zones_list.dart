@@ -36,13 +36,13 @@ class _SummaryZonesListState extends State<SummaryZonesList> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        12.asSpace,
+        // 1.asSpace,
         Flexible(
           child: ListView.separated(
             shrinkWrap: true,
             itemCount: widget.zones.length,
             physics: const NeverScrollableScrollPhysics(),
-            separatorBuilder: (context, index) => 8.asSpace,
+            separatorBuilder: (context, index) => 0.asSpace,
             itemBuilder: (context, index) {
               final zone = widget.zones[index];
 
