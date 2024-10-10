@@ -36,16 +36,6 @@ class _SummaryZonesListState extends State<SummaryZonesList> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            IconTextTile(
-              icon: Icons.home_filled,
-              text: "Zonas",
-              style: context.textTheme.titleLarge,
-            ),
-          ],
-        ),
         12.asSpace,
         Flexible(
           child: ListView.separated(
