@@ -85,7 +85,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       child: Watch(
         (_) => SelectableListView(
           title: "Canais",
-          icon: Icons.input_rounded,
+          icon: Icons.music_note,
           options: _controller.channels,
           onSelect: zone != null
               ? (ChannelModel c) => _controller.setCurrentChannel(c, zone: zone)

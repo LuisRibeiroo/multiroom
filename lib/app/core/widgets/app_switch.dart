@@ -33,9 +33,13 @@ class AppSwitch extends StatelessWidget {
     //   ),
     // );
 
-    return Switch(
-      value: value,
-      onChanged: onChangeActive,
+    return Transform.scale(
+      scaleX: 0.8,
+      scaleY: 0.8,
+      child: Switch(
+        value: value,
+        onChanged: onChangeActive,
+      ),
     );
   }
 }

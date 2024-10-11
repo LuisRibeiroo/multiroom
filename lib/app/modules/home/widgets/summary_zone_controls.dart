@@ -28,10 +28,16 @@ class SummaryZoneControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card.outlined(
+      margin: const EdgeInsets.all(1.0),
+      shape: const RoundedRectangleBorder(
+        side: BorderSide.none
+        // side: const BorderSide(color: Colors.white70, width: 1),
+        // borderRadius: BorderRadius.circular(1),
+      ),
       child: InkWell(
         onTap: () => onTapCard(zone),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
           child: Column(
             children: [
               // Align(
@@ -63,10 +69,12 @@ class SummaryZoneControls extends StatelessWidget {
                     duration: Durations.short4,
                     child: ElevatedButton.icon(
                         style: ButtonStyle(
+                            minimumSize: WidgetStateProperty.all(Size(context.sizeOf.width / 2, 45)),
                             foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
-                            // backgroundColor: WidgetStateProperty.all<Color>(Colors.red),
+                            backgroundColor: WidgetStateProperty.all<Color>(Colors.white12),
                             shape: WidgetStateProperty.all<RoundedRectangleBorder>(const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.zero, side: BorderSide(color: Colors.white30)))),
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                side: BorderSide(color: Colors.white12)))),
                         onPressed: onChangeChannel,
                         icon: const Icon(Icons.music_note),
                         label: Text(zone.channel.name, style: const TextStyle(fontSize: 14)))
@@ -79,7 +87,7 @@ class SummaryZoneControls extends StatelessWidget {
                     // ),
                     ),
               ),
-              1.asSpace,
+              // 1.asSpace,
               SliderIcons(
                 value: zone.volume,
                 onChanged: onChangeVolume,

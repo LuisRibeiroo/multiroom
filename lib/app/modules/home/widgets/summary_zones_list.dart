@@ -42,7 +42,7 @@ class _SummaryZonesListState extends State<SummaryZonesList> {
             shrinkWrap: true,
             itemCount: widget.zones.length,
             physics: const NeverScrollableScrollPhysics(),
-            separatorBuilder: (context, index) => 0.asSpace,
+            separatorBuilder: (context, index) => const Divider(color: Colors.white30),
             itemBuilder: (context, index) {
               final zone = widget.zones[index];
 
