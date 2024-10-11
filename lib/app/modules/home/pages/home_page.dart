@@ -234,9 +234,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
               ),
               Align(
-              alignment: Alignment.centerRight,
-              child: DeviceStateIndicator(value: _controller.currentProject.value.devices.every((device) => device.active)),
-            ),
+                alignment: Alignment.centerRight,
+                child: DeviceStateIndicator(
+                    value: _controller.currentProject.value.devices.every((device) => device.active)),
+              ),
             ],
           ),
         ),

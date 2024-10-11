@@ -6,7 +6,6 @@ import '../../../core/models/project_model.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_switch.dart';
-import '../../../core/widgets/device_state_indicator.dart';
 
 class DeviceInfoHeader extends StatelessWidget {
   const DeviceInfoHeader({
