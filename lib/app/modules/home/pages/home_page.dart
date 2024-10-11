@@ -264,7 +264,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 child: TabBarView(
                   controller: _tabControler,
                   children: [
-                    RefreshIndicator(
+                    RefreshIndicator.adaptive(
+                      key: const PageStorageKey('key'),
                       onRefresh: () => _controller.syncLocalData(readAllZones: true),
                       child: SingleChildScrollView(
                         child: SummaryZonesList(
@@ -285,13 +286,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       ),
                     ),
                     RefreshIndicator(
+                      key: const PageStorageKey('key2'),
                       onRefresh: () => _controller.syncLocalData(readAllZones: true),
                       child: SingleChildScrollView(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             DeviceInfoHeader(
-                              isDeviceActive: _controller.currentDevice.value.active,
                               project: _controller.currentProject.value,
                               deviceName: _controller.currentDevice.value.name,
                               currentZone: _controller.currentZone.value,

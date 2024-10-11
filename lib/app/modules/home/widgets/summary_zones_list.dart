@@ -1,11 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/extensions/build_context_extensions.dart';
-import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/device_model.dart';
 import '../../../core/models/zone_model.dart';
-import '../../widgets/icon_text_tile.dart';
 import 'summary_zone_controls.dart';
 
 class SummaryZonesList extends StatefulWidget {

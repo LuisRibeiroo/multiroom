@@ -110,14 +110,20 @@ class _OptionsMenuState extends State<OptionsMenu> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: ListTile(
-                        leading: const Icon(Icons.arrow_circle_left_outlined),
-                        title: const Text("Fechar"),
-                        onTap: () {
-                          Scaffold.of(context).closeDrawer();
-                        },
-                      )),
+                      alignment: Alignment.bottomLeft,
+                      child: FloatingActionButton.small(
+                        child: const Icon(Icons.arrow_back_rounded),
+                        onPressed: () => Scaffold.of(context).closeDrawer(),
+                      )
+
+                      // ListTile(
+                      //   leading: const Icon(Icons.arrow_circle_left_outlined),
+                      //   title: const Text("Fechar"),
+                      //   onTap: () {
+                      //     Scaffold.of(context).closeDrawer();
+                      //   },
+                      // )
+                      ),
                 ),
               ),
             ],

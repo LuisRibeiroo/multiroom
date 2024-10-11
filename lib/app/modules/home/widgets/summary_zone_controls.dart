@@ -40,11 +40,6 @@ class SummaryZoneControls extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
           child: Column(
             children: [
-              // Align(
-              //   alignment: Alignment.centerRight,
-              //   child: DeviceStateIndicator(value: isDeviceActive),
-              // ),
-              // 18.asSpace,
               Row(
                 children: [
                   const Icon(Icons.settings),

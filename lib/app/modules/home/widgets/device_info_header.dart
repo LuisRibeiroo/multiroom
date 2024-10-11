@@ -11,7 +11,6 @@ import '../../../core/widgets/device_state_indicator.dart';
 class DeviceInfoHeader extends StatelessWidget {
   const DeviceInfoHeader({
     super.key,
-    required this.isDeviceActive,
     required this.project,
     required this.deviceName,
     required this.currentZone,
@@ -22,7 +21,6 @@ class DeviceInfoHeader extends StatelessWidget {
     required this.onChangeProject,
   });
 
-  final bool isDeviceActive;
   final ProjectModel project;
   final String deviceName;
   final ZoneModel currentZone;
@@ -39,11 +37,6 @@ class DeviceInfoHeader extends StatelessWidget {
         padding: const EdgeInsets.only(left: 12, right: 12, bottom: 24, top: 12),
         child: Column(
           children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: DeviceStateIndicator(value: isDeviceActive),
-            ),
-            18.asSpace,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -67,7 +60,7 @@ class DeviceInfoHeader extends StatelessWidget {
               child: AppButton(
                 type: ButtonType.secondary,
                 key: ValueKey(currentChannel.name),
-                leading: const Icon(Icons.input_rounded),
+                leading: const Icon(Icons.music_note),
                 text: currentChannel.name,
                 onPressed: onChangeChannel,
               ),
