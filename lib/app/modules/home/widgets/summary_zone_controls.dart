@@ -29,11 +29,10 @@ class SummaryZoneControls extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card.outlined(
       margin: const EdgeInsets.all(1.0),
-      shape: const RoundedRectangleBorder(
-        side: BorderSide.none
-        // side: const BorderSide(color: Colors.white70, width: 1),
-        // borderRadius: BorderRadius.circular(1),
-      ),
+      shape: const RoundedRectangleBorder(side: BorderSide.none
+          // side: const BorderSide(color: Colors.white70, width: 1),
+          // borderRadius: BorderRadius.circular(1),
+          ),
       child: InkWell(
         onTap: () => onTapCard(zone),
         child: Padding(
@@ -61,26 +60,26 @@ class SummaryZoneControls extends StatelessWidget {
               SizedBox(
                 width: context.sizeOf.width / 2,
                 child: AnimatedSwitcher(
-                    duration: Durations.short4,
-                    child: ElevatedButton.icon(
-                        style: ButtonStyle(
-                            minimumSize: WidgetStateProperty.all(Size(context.sizeOf.width / 2, 45)),
-                            foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
-                            backgroundColor: WidgetStateProperty.all<Color>(Colors.white12),
-                            shape: WidgetStateProperty.all<RoundedRectangleBorder>(const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                side: BorderSide(color: Colors.white12)))),
-                        onPressed: onChangeChannel,
-                        icon: const Icon(Icons.music_note),
-                        label: Text(zone.channel.name, style: const TextStyle(fontSize: 14)))
-                    // AppButton(
-                    //   key: ValueKey("${zone.name}_${zone.channel.name}"),
-                    //   type: ButtonType.secondary,
-                    //   leading: const Icon(Icons.music_note),
-                    //   text: zone.channel.name,
-                    //   onPressed: onChangeChannel,
-                    // ),
-                    ),
+                  duration: Durations.short4,
+                  // child: ElevatedButton.icon(
+                  //     style: ButtonStyle(
+                  //         minimumSize: WidgetStateProperty.all(Size(context.sizeOf.width / 2, 45)),
+                  //         foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
+                  //         backgroundColor: WidgetStateProperty.all<Color>(Colors.white12),
+                  //         shape: WidgetStateProperty.all<RoundedRectangleBorder>(const RoundedRectangleBorder(
+                  //             borderRadius: BorderRadius.all(Radius.circular(10)),
+                  //             side: BorderSide(color: Colors.white12)))),
+                  //     onPressed: onChangeChannel,
+                  //     icon: const Icon(Icons.music_note),
+                  //     label: Text(zone.channel.name, style: const TextStyle(fontSize: 14)))
+                  child: AppButton(
+                    key: ValueKey("${zone.name}_${zone.channel.name}"),
+                    type: ButtonType.secondary,
+                    leading: const Icon(Icons.music_note),
+                    text: zone.channel.name,
+                    onPressed: onChangeChannel,
+                  ),
+                ),
               ),
               // 1.asSpace,
               SliderIcons(
