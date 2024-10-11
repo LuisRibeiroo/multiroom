@@ -35,7 +35,7 @@ class _OptionsMenuState extends State<OptionsMenu> {
       (_) => Drawer(
         child: SafeArea(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
             children: [
               Center(
                 child: Padding(
@@ -104,6 +104,20 @@ class _OptionsMenuState extends State<OptionsMenu> {
                   child: widget.pageState.value is LoadingState
                       ? const CircularProgressIndicator()
                       : const SizedBox.shrink(),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: ListTile(
+                        leading: const Icon(Icons.arrow_circle_left_outlined),
+                        title: const Text("Fechar"),
+                        onTap: () {
+                          Scaffold.of(context).closeDrawer();
+                        },
+                      )),
                 ),
               ),
             ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:toastification/toastification.dart';
 
@@ -39,6 +40,7 @@ class _ImportDataPageState extends State<ImportDataPage> with WidgetsBindingObse
               title: const Text("Sucesso!"),
               description: const Text("Todos os dados foram importados com sucesso"),
             );
+            Routefly.pop(context);
           }
         },
       ),
