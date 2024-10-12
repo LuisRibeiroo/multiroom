@@ -28,7 +28,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   final _controller = injector.get<HomePageController>();
   late TabController _tabControler;
 
@@ -167,13 +167,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
 
     AppLifecycleListener(
       onResume: () {
         if (PlatformChecker.isMobile) {
-          _controller.syncLocalData(readAllZones: true);
+          _controller.syncLocalData(allDevices: true);
         }
       },
     );
@@ -197,12 +200,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return VisibilityDetector(
       key: const ValueKey(HomePage),
       onVisibilityChanged: (info) async {
         if (info.visibleFraction == 1) {
           // _controller.startDeviceMonitor();
-          _controller.syncLocalData(readAllZones: true);
+          _controller.syncLocalData(allDevices: true);
 
           _controller.setPageVisible(true);
         } else {
@@ -213,8 +218,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         appBar: AppBar(
           centerTitle: false,
           title: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Watch(
                 (_) => InkWell(
@@ -233,8 +236,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   ),
                 ),
               ),
-              Align(
-                alignment: Alignment.centerRight,
+              const Spacer(),
+              IconButton(
+                onPressed: () => _controller.syncLocalData(allDevices: true),
+                icon: const Icon(Icons.sync_rounded),
+              ),
+              GestureDetector(
+                onDoubleTap: () => _controller.syncLocalData(allDevices: true),
                 child: DeviceStateIndicator(
                     value: _controller.currentProject.value.devices.every((device) => device.active)),
               ),
@@ -277,7 +285,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   children: [
                     RefreshIndicator.adaptive(
                       key: PageStorageKey("${SummaryZonesList}_$hashCode"),
-                      onRefresh: () => _controller.syncLocalData(readAllZones: true),
+                      onRefresh: () => _controller.syncLocalData(allDevices: true),
                       child: SingleChildScrollView(
                         child: Watch(
                           (_) => SummaryZonesList(
@@ -298,9 +306,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         ),
                       ),
                     ),
-                    RefreshIndicator(
+                    RefreshIndicator.adaptive(
                       key: PageStorageKey("${DeviceInfoHeader}_$hashCode"),
-                      onRefresh: () => _controller.syncLocalData(readAllZones: true),
+                      onRefresh: () => _controller.syncLocalData(allDevices: true),
                       child: SingleChildScrollView(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,

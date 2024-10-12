@@ -12,6 +12,8 @@ enum MultiroomCommands {
   mrEqSet(value: "mr_eq_set"),
   mrPwrSet(value: "mr_power_set"),
   mrPwrGet(value: "mr_power_get"),
+  mrEqGetAll(value: "mr_eq_get_all"),
+  mrEqSetAll(value: "mr_eq_set_all"),
 
   /// --> Technician commands
   mrCfgDefaultSet(value: "mr_cfg_default_set"),

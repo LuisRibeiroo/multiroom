@@ -116,8 +116,7 @@ class HomePageController extends BaseController with SocketMixin {
 
       if (currentDevice.previousValue!.serialNumber != currentDevice.value.serialNumber ||
           currentZone.value.id != zone.id) {
-        logger.i("UPDATE ALL DATA");
-        await _updateAllDeviceData(zone);
+        await _updateZoneData(zone);
       }
     } catch (exception) {
       logger.e(exception);
@@ -137,7 +136,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     await _updateSignals(
       project: proj,
-      readAllZones: true,
+      allDevices: true,
     );
   }
 
@@ -153,9 +152,9 @@ class HomePageController extends BaseController with SocketMixin {
     );
 
     if (zone != null) {
-      _updateProject(zone: zone.copyWith(active: active));
+      _updateZonesInProject(zones: [zone.copyWith(active: active)]);
     } else {
-      _updateProject(zone: currentZone.value);
+      _updateZonesInProject(zones: [currentZone.value]);
     }
   }
 
@@ -184,9 +183,9 @@ class HomePageController extends BaseController with SocketMixin {
     );
 
     if (zone != null) {
-      _updateProject(zone: zone.copyWith(channel: channel));
+      _updateZonesInProject(zones: [zone.copyWith(channel: channel)]);
     } else {
-      _updateProject(zone: currentZone.value);
+      _updateZonesInProject(zones: [currentZone.value]);
     }
   }
 
@@ -201,7 +200,7 @@ class HomePageController extends BaseController with SocketMixin {
       ),
     );
 
-    _updateProject(zone: currentZone.value);
+    _updateZonesInProject(zones: [currentZone.value]);
   }
 
   void setVolume(int volume, {ZoneModel? zone}) {
@@ -216,350 +215,33 @@ class HomePageController extends BaseController with SocketMixin {
     );
 
     if (zone != null) {
-      _updateProject(zone: zone.copyWith(volume: volume));
+      _updateZonesInProject(zones: [zone.copyWith(volume: volume)]);
     } else {
-      _updateProject(zone: currentZone.value);
+      _updateZonesInProject(zones: [currentZone.value]);
     }
   }
 
-  Future<void> setEqualizer(EqualizerModel equalizer) async {
+  Future<EqualizerModel> _updateEqualizer(ZoneModel zone) async {
     if (currentDevice.value.active == false) {
       setError(Exception("Dispositivo offline"));
     }
 
-    if (equalizer == currentEqualizer.value) {
-      logger.i("SET EQUALIZER [SAME EQUALIZER] --> $equalizer");
-      return;
-    }
+    // currentEqualizer.value = equalizers.firstWhere((e) => e.name == equalizer.name);
+    // currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
-    currentEqualizer.value = equalizers.firstWhere((e) => e.name == equalizer.name);
-    currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
+    // for (final freq in currentZone.value.equalizer.frequencies) {
+    //   await socketSender(
+    //     MrCmdBuilder.setEqualizer(
+    //       macAddress: currentZone.value.macAddress,
+    //       zone: currentZone.value,
+    //       frequency: freq,
+    //       gain: freq.value,
+    //     ),
+    //   );
 
-    for (final freq in currentZone.value.equalizer.frequencies) {
-      await socketSender(
-        MrCmdBuilder.setEqualizer(
-          macAddress: currentZone.value.macAddress,
-          zone: currentZone.value,
-          frequency: freq,
-          gain: freq.value,
-        ),
-      );
-
-      // Delay to avoid sending commands too fast
-      await Future.delayed(Durations.short2);
-    }
-
-    _updateProject(zone: currentZone.value);
-  }
-
-  void setFrequency(Frequency frequency) {
-    final freqIndex = currentEqualizer.value.frequencies.indexWhere((f) => f.id == frequency.id);
-    final tempList = List<Frequency>.from(currentEqualizer.value.frequencies);
-
-    tempList[freqIndex] = currentEqualizer.value.frequencies[freqIndex].copyWith(value: frequency.value.toInt());
-
-    currentEqualizer.value = EqualizerModel.custom(frequencies: tempList);
-    currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
-
-    _debounceSendCommand(
-      // socketSender(
-      MrCmdBuilder.setEqualizer(
-        macAddress: currentZone.value.macAddress,
-        zone: currentZone.value,
-        frequency: frequency,
-        gain: frequency.value,
-        // )
-      ),
-    );
-
-    _updateProject(zone: currentZone.value);
-  }
-
-  Future<void> syncLocalData({
-    bool awaitUpdate = true,
-    bool readAllZones = false,
-  }) async {
-    // if (state.value is LoadingState) {
-    //   return;
+    //   // Delay to avoid sending commands too fast
+    //   await Future.delayed(Durations.short2);
     // }
-
-    await run(() async {
-      projects.value = _settings.projects;
-
-      if (projects.isEmpty) {
-        return;
-      }
-
-      if (awaitUpdate) {
-        await _updateSignals(readAllZones: readAllZones);
-      } else {
-        _updateSignals(readAllZones: readAllZones);
-      }
-    });
-  }
-
-  void setCurrentZone({required ZoneModel zone}) {
-    currentZone.value = zone;
-    channels.value = currentZone.value.channels;
-    currentEqualizer.value = currentZone.value.equalizer;
-  }
-
-  void setViewMode({required bool expanded}) {
-    expandedViewMode.value = expanded;
-    _settings.expandedViewMode = expanded;
-  }
-
-  Future<void> onFactoryRestore() async {
-    await run(
-      setError: true,
-      () async {
-        try {
-          await _iterateOverDevices(function: (device) async {
-            await socketSender(MrCmdBuilder.setDefaultParams(macAddress: device.macAddress));
-          });
-
-          await _updateSignals(readAllZones: true);
-        } catch (exception) {
-          logger.e("Erro ao resetar dispositivo --> $exception");
-          setError(Exception("Erro ao enviar comando"));
-        }
-      },
-    );
-  }
-
-  ProjectModel _getLastProject() {
-    return projects.firstWhere(
-      (p) => p.id == _settings.lastProjectId,
-      orElse: () => projects.first,
-    );
-  }
-
-  Future<void> _iterateOverDevices({required Function(DeviceModel) function}) async {
-    for (final device in currentProject.value.devices) {
-      await function(device);
-    }
-  }
-
-  Future<void> _updateDevicesState() async {
-    _iterateOverDevices(function: (d) async {
-      DeviceModel newDevice;
-
-      try {
-        await Socket.connect(
-          d.ip,
-          4998,
-          timeout: const Duration(seconds: 1),
-        ).then((s) => s.close());
-
-        newDevice = d.copyWith(active: true);
-      } catch (exception) {
-        newDevice = d.copyWith(active: false);
-      }
-
-      if (currentDevice.value.serialNumber == newDevice.serialNumber) {
-        currentDevice.value = newDevice;
-      }
-
-      _updateDeviceProject(device: newDevice);
-    });
-  }
-
-  void _updateDeviceProject({required DeviceModel device}) {
-    currentProject.value = currentProject.value.copyWith(
-      devices: currentProject.value.devices.withReplacement(
-        (d) => d.serialNumber == device.serialNumber,
-        device,
-      ),
-    );
-  }
-
-  Future<void> _updateProject({required ZoneModel zone}) async {
-    ZoneGroupModel? group;
-
-    if (zone.isGroup) {
-      group = currentDevice.value.groups.firstWhereOrNull((g) => g.zones.containsZone(zone));
-    }
-
-    final updatedZone = zone.isGroup ? zone.copyWith(name: group?.getZone(zone.id).name) : zone;
-    final updatedGroup = group?.copyWith(
-      zones: group.zones.withReplacement(
-        (z) => z.id == zone.id,
-        updatedZone,
-      ),
-    );
-    final updatedGroups = group == null
-        ? null
-        : currentDevice.value.groups.withReplacement(
-            (g) => g.id == group!.id,
-            updatedGroup!,
-          );
-    final updatedWrapper =
-        currentDevice.value.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId).copyWith(zone: updatedZone);
-
-    final updatedWrappers = currentDevice.value.zoneWrappers.withReplacement(
-      (w) => w.id == updatedWrapper.id,
-      updatedWrapper,
-    );
-
-    currentDevice.value = currentDevice.value.copyWith(
-      zoneWrappers: updatedWrappers,
-      groups: updatedGroups,
-    );
-
-    final updatedDevices = currentProject.value.devices.withReplacement(
-      (d) => d.serialNumber == currentDevice.value.serialNumber,
-      currentDevice.value,
-    );
-
-    currentProject.value = currentProject.value.copyWith(
-      devices: updatedDevices,
-    );
-  }
-
-  void _setOfflineDeviceState() {
-    if (currentDevice.value.active) {
-      currentDevice.value = currentDevice.value.copyWith(active: false);
-      _settings.saveDevice(device: currentDevice.value);
-
-      _updateDeviceProject(device: currentDevice.value);
-    }
-  }
-
-  Future<void> _updateSignals({
-    ProjectModel? project,
-    bool readAllZones = false,
-  }) async {
-    // Update device and zone infos only if project changed
-    currentProject.value = project ?? _getLastProject();
-    currentDevice.value = currentProject.value.devices.first;
-
-    if (currentProject.value.devices.any((d) => d.active)) {
-      if (currentZone.value.isEmpty) {
-        final zone = currentDevice.value.zones.first;
-
-        if (currentDevice.value.isZoneInGroup(zone)) {
-          currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.containsZone(zone)).asZone;
-        } else {
-          currentZone.value = zone;
-        }
-
-        channels.value = currentZone.value.channels;
-
-        currentZone.value = currentZone.value.copyWith(
-          channel: channels.firstWhere(
-            (c) => c.id == currentZone.value.channel.id,
-            orElse: () => channels.first,
-          ),
-        );
-      }
-
-      await _runUpdateData(readAllZones: readAllZones);
-    }
-  }
-
-  Future<void> _runUpdateData({required bool readAllZones}) async {
-    await run(() async {
-      try {
-        if (_updatingData.value == false) {
-          await restartSocket(ip: currentDevice.value.ip);
-        }
-
-        _updatingData.value = true;
-        // await _updateDevicesState();
-
-        if (readAllZones) {
-          for (final device in currentProject.value.devices) {
-            for (final zone in device.groupedZones) {
-              await _updateAllDeviceData(zone, updateCurrentZone: false);
-            }
-          }
-        } else {
-          await _updateAllDeviceData(currentZone.value);
-        }
-
-        _updatingData.value = false;
-      } catch (exception) {
-        if (exception is StateError && exception.toString().contains("StreamSink")) {
-          try {
-            await restartSocket(ip: currentDevice.value.ip);
-
-            await _runUpdateData(readAllZones: readAllZones);
-            return;
-          } catch (_) {}
-        }
-
-        logger.e("Erro ao tentar comunicação com o Multiroom --> $exception");
-
-        _setOfflineDeviceState();
-        setError(Exception("Erro ao tentar comunicação com o Multiroom"));
-
-        _updatingData.value = false;
-      }
-    });
-  }
-
-  void _debounceSendCommand(String cmd) {
-    _writeDebouncer(() async {
-      if (currentDevice.value.active == false) {
-        setError(Exception("Dispositivo offline"));
-
-        return;
-      }
-
-      try {
-        await socketSender(cmd);
-        currentDevice.value = currentDevice.value.copyWith(active: true);
-      } catch (exception) {
-        logger.e("Erro no comando [$cmd] --> $exception");
-        // setError(Exception("Erro no comando [$cmd] --> $exception"));
-        _setOfflineDeviceState();
-        setError(Exception("Erro ao enviar comando"));
-
-        if (exception.toString().contains("Bad state")) {
-          await restartSocket(ip: currentDevice.value.ip);
-        }
-      }
-    });
-  }
-
-  Future<void> _updateAllDeviceData(
-    ZoneModel zone, {
-    bool updateCurrentZone = true,
-  }) async {
-    while (socketInit == false) {
-      await Future.delayed(Durations.short3);
-    }
-
-    final active = MrCmdBuilder.parseResponseSingle(await socketSender(
-      MrCmdBuilder.getPower(
-        macAddress: zone.macAddress,
-        zone: zone,
-      ),
-    ));
-
-    final channelStr = MrCmdBuilder.parseResponseSingle(await socketSender(
-      MrCmdBuilder.getChannel(
-        macAddress: zone.macAddress,
-        zone: zone,
-      ),
-    ));
-
-    final volume = MrCmdBuilder.parseResponseSingle(await socketSender(
-      MrCmdBuilder.getVolume(
-        macAddress: zone.macAddress,
-        zone: zone,
-      ),
-    ));
-
-    String balance = "0";
-    if (zone.isStereo) {
-      balance = MrCmdBuilder.parseResponseSingle(await socketSender(
-        MrCmdBuilder.getBalance(
-          macAddress: zone.macAddress,
-          zone: zone,
-        ),
-      ));
-    }
 
     final f60 = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getEqualizer(
@@ -629,22 +311,517 @@ class HomePageController extends BaseController with SocketMixin {
       currentEqualizer.value = equalizers[eqIndex];
     }
 
-    final updatedZone = zone.copyWith(
-      active: active.toLowerCase() == "on" ? true : false,
-      volume: int.tryParse(volume) ?? zone.volume,
-      balance: int.tryParse(balance) ?? zone.balance,
-      equalizer: newEqualizer,
-      channel: channels.value.firstWhere(
-        (c) => c.id.trim() == channelStr.trim(),
-        orElse: () => channels.first,
+    return currentEqualizer.value;
+  }
+
+  Future<void> setEqualizer(EqualizerModel equalizer) async {
+    if (currentDevice.value.active == false) {
+      setError(Exception("Dispositivo offline"));
+    }
+
+    if (equalizer == currentEqualizer.value) {
+      logger.i("SET EQUALIZER [SAME EQUALIZER] --> $equalizer");
+      return;
+    }
+
+    currentEqualizer.value = equalizers.firstWhere((e) => e.name == equalizer.name);
+    currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
+
+    for (final freq in currentZone.value.equalizer.frequencies) {
+      await socketSender(
+        MrCmdBuilder.setEqualizer(
+          macAddress: currentZone.value.macAddress,
+          zone: currentZone.value,
+          frequency: freq,
+          gain: freq.value,
+        ),
+      );
+
+      // Delay to avoid sending commands too fast
+      await Future.delayed(Durations.short2);
+    }
+
+    _updateZonesInProject(zones: [currentZone.value]);
+  }
+
+  void setFrequency(Frequency frequency) {
+    final freqIndex = currentEqualizer.value.frequencies.indexWhere((f) => f.id == frequency.id);
+    final tempList = List<Frequency>.from(currentEqualizer.value.frequencies);
+
+    tempList[freqIndex] = currentEqualizer.value.frequencies[freqIndex].copyWith(value: frequency.value.toInt());
+
+    currentEqualizer.value = EqualizerModel.custom(frequencies: tempList);
+    currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
+
+    _debounceSendCommand(
+      // socketSender(
+      MrCmdBuilder.setEqualizer(
+        macAddress: currentZone.value.macAddress,
+        zone: currentZone.value,
+        frequency: frequency,
+        gain: frequency.value,
+        // )
       ),
     );
+
+    _updateZonesInProject(zones: [currentZone.value]);
+  }
+
+  Future<void> syncLocalData({
+    bool awaitUpdate = true,
+    bool allDevices = false,
+  }) async {
+    // if (state.value is LoadingState) {
+    //   return;
+    // }
+
+    await run(() async {
+      projects.value = _settings.projects;
+
+      if (projects.isEmpty) {
+        return;
+      }
+
+      if (awaitUpdate) {
+        await _updateSignals(allDevices: allDevices);
+      } else {
+        _updateSignals(allDevices: allDevices);
+      }
+    });
+  }
+
+  Future<void> setCurrentZone({required ZoneModel zone}) async {
+    await _updateEqualizer(zone);
+
+    currentZone.value = zone.copyWith(equalizer: currentEqualizer.value);
+    channels.value = currentZone.value.channels;
+    currentEqualizer.value = currentZone.value.equalizer;
+  }
+
+  void setViewMode({required bool expanded}) {
+    expandedViewMode.value = expanded;
+    _settings.expandedViewMode = expanded;
+  }
+
+  Future<void> onFactoryRestore() async {
+    await run(
+      setError: true,
+      () async {
+        try {
+          await _iterateOverDevices(function: (device) async {
+            await socketSender(MrCmdBuilder.setDefaultParams(macAddress: device.macAddress));
+          });
+
+          await _updateSignals(allDevices: true);
+        } catch (exception) {
+          logger.e("Erro ao resetar dispositivo --> $exception");
+          setError(Exception("Erro ao enviar comando"));
+        }
+      },
+    );
+  }
+
+  ProjectModel _getLastProject() {
+    return projects.firstWhere(
+      (p) => p.id == _settings.lastProjectId,
+      orElse: () => projects.first,
+    );
+  }
+
+  Future<void> _iterateOverDevices({required Function(DeviceModel) function}) async {
+    for (final device in currentProject.value.devices) {
+      await function(device);
+    }
+  }
+
+  void _setOfflineDeviceState() {
+    if (currentDevice.value.active) {
+      currentDevice.value = currentDevice.value.copyWith(active: false);
+      _settings.saveDevice(device: currentDevice.value);
+
+      _updateDeviceInProject(device: currentDevice.value);
+    }
+  }
+
+  Future<void> _updateDevicesState() async {
+    await _iterateOverDevices(function: (d) async {
+      DeviceModel newDevice;
+
+      try {
+        await Socket.connect(
+          d.ip,
+          4998,
+          timeout: const Duration(seconds: 1),
+        ).then((s) => s.close());
+
+        newDevice = d.copyWith(active: true);
+      } catch (exception) {
+        newDevice = d.copyWith(active: false);
+      }
+
+      if (currentDevice.value.serialNumber == newDevice.serialNumber) {
+        currentDevice.value = newDevice;
+      }
+
+      _updateDeviceInProject(device: newDevice);
+    });
+  }
+
+  Future<void> _updateZonesInProject({required List<ZoneModel> zones}) async {
+    for (ZoneModel zone in zones) {
+      logger.i("UPDATE PROJECT --> ${zone.name}");
+
+      if (zone.id == currentZone.value.id) {
+        zone = zone.copyWith(equalizer: await _updateEqualizer(zone));
+      }
+
+      ZoneGroupModel? group;
+
+      if (zone.isGroup) {
+        group = currentDevice.value.groups.firstWhereOrNull((g) => g.zones.containsZone(zone));
+      }
+
+      final updatedZone = zone.isGroup ? zone.copyWith(name: group?.getZone(zone.id).name) : zone;
+      final updatedGroup = group?.copyWith(
+        zones: group.zones.withReplacement(
+          (z) => z.id == zone.id,
+          updatedZone,
+        ),
+      );
+      final updatedGroups = group == null
+          ? null
+          : currentDevice.value.groups.withReplacement(
+              (g) => g.id == group!.id,
+              updatedGroup!,
+            );
+      final updatedWrapper =
+          currentDevice.value.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId).copyWith(zone: updatedZone);
+
+      final updatedWrappers = currentDevice.value.zoneWrappers.withReplacement(
+        (w) => w.id == updatedWrapper.id,
+        updatedWrapper,
+      );
+
+      currentDevice.value = currentDevice.value.copyWith(
+        zoneWrappers: updatedWrappers,
+        groups: updatedGroups,
+      );
+
+      _updateDeviceInProject(device: currentDevice.value);
+    }
+  }
+
+  void _updateDeviceInProject({required DeviceModel device}) {
+    currentProject.value = currentProject.value.copyWith(
+      devices: currentProject.value.devices.withReplacement(
+        (d) => d.serialNumber == device.serialNumber,
+        device,
+      ),
+    );
+  }
+
+  Future<void> _updateSignals({
+    ProjectModel? project,
+    bool allDevices = false,
+  }) async {
+    currentProject.value = project ?? _getLastProject();
+    currentDevice.value = currentProject.value.devices.first;
+
+    if (currentProject.value.devices.any((d) => d.active)) {
+      if (currentZone.value.isEmpty) {
+        final zone = currentDevice.value.zones.first;
+
+        if (currentDevice.value.isZoneInGroup(zone)) {
+          currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.containsZone(zone)).asZone;
+        } else {
+          currentZone.value = zone;
+        }
+
+        channels.value = currentZone.value.channels;
+
+        currentZone.value = currentZone.value.copyWith(
+          channel: channels.firstWhere(
+            (c) => c.id == currentZone.value.channel.id,
+            orElse: () => channels.first,
+          ),
+        );
+      }
+
+      await _runUpdateData(allDevices: allDevices);
+    }
+  }
+
+  Future<void> _runUpdateData({required bool allDevices}) async {
+    await run(() async {
+      try {
+        if (_updatingData.value == false) {
+          await restartSocket(ip: currentDevice.value.ip);
+        }
+
+        _updatingData.value = true;
+
+        if (allDevices) {
+          await _iterateOverDevices(function: (d) => _updateDeviceData(d));
+        } else {
+          await _updateDeviceData(currentDevice.value);
+
+          // await _updateZoneData(currentZone.value);
+        }
+
+        _updatingData.value = false;
+      } catch (exception) {
+        if (exception is StateError && exception.toString().contains("StreamSink")) {
+          try {
+            await restartSocket(ip: currentDevice.value.ip);
+
+            await _runUpdateData(allDevices: allDevices);
+            return;
+          } catch (_) {}
+        }
+
+        logger.e("Erro ao tentar comunicação com o Multiroom --> $exception");
+
+        _setOfflineDeviceState();
+        setError(Exception("Erro ao tentar comunicação com o Multiroom"));
+
+        _updatingData.value = false;
+      }
+    });
+  }
+
+  void _debounceSendCommand(String cmd) {
+    _writeDebouncer(() async {
+      if (currentDevice.value.active == false) {
+        setError(Exception("Dispositivo offline"));
+
+        return;
+      }
+
+      try {
+        await socketSender(cmd);
+        currentDevice.value = currentDevice.value.copyWith(active: true);
+      } catch (exception) {
+        logger.e("Erro no comando [$cmd] --> $exception");
+        // setError(Exception("Erro no comando [$cmd] --> $exception"));
+        _setOfflineDeviceState();
+        setError(Exception("Erro ao enviar comando"));
+
+        if (exception.toString().contains("Bad state")) {
+          await restartSocket(ip: currentDevice.value.ip);
+        }
+      }
+    });
+  }
+
+  Future<void> _updateZoneData(
+    ZoneModel zone, {
+    bool updateCurrentZone = true,
+  }) async {
+    while (socketInit == false) {
+      await Future.delayed(Durations.short3);
+    }
+
+    // final active = MrCmdBuilder.parseResponseSingle(await socketSender(
+    //   MrCmdBuilder.getPower(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //   ),
+    // ));
+
+    // final channelStr = MrCmdBuilder.parseResponseSingle(await socketSender(
+    //   MrCmdBuilder.getChannel(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //   ),
+    // ));
+
+    // final volume = MrCmdBuilder.parseResponseSingle(await socketSender(
+    //   MrCmdBuilder.getVolume(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //   ),
+    // ));
+
+    // String balance = "0";
+    // if (zone.isStereo) {
+    //   balance = MrCmdBuilder.parseResponseSingle(await socketSender(
+    //     MrCmdBuilder.getBalance(
+    //       macAddress: zone.macAddress,
+    //       zone: zone,
+    //     ),
+    //   ));
+    // }
+
+    final f60 = MrCmdBuilder.parseResponseSingle(await socketSender(
+      MrCmdBuilder.getEqualizer(
+        macAddress: zone.macAddress,
+        zone: zone,
+        frequency: zone.equalizer.frequencies[0],
+      ),
+    ));
+
+    final f250 = MrCmdBuilder.parseResponseSingle(await socketSender(
+      MrCmdBuilder.getEqualizer(
+        macAddress: zone.macAddress,
+        zone: zone,
+        frequency: zone.equalizer.frequencies[1],
+      ),
+    ));
+
+    final f1k = MrCmdBuilder.parseResponseSingle(await socketSender(
+      MrCmdBuilder.getEqualizer(
+        macAddress: zone.macAddress,
+        zone: zone,
+        frequency: zone.equalizer.frequencies[2],
+      ),
+    ));
+
+    final f3k = MrCmdBuilder.parseResponseSingle(await socketSender(
+      MrCmdBuilder.getEqualizer(
+        macAddress: zone.macAddress,
+        zone: zone,
+        frequency: zone.equalizer.frequencies[3],
+      ),
+    ));
+
+    final f6k = MrCmdBuilder.parseResponseSingle(await socketSender(
+      MrCmdBuilder.getEqualizer(
+        macAddress: zone.macAddress,
+        zone: zone,
+        frequency: zone.equalizer.frequencies[4],
+      ),
+    ));
+
+    final f16k = MrCmdBuilder.parseResponseSingle(await socketSender(
+      MrCmdBuilder.getEqualizer(
+        macAddress: zone.macAddress,
+        zone: zone,
+        frequency: zone.equalizer.frequencies[5],
+      ),
+    ));
+
+    final equalizer = zone.equalizer;
+    final newEqualizer = EqualizerModel.custom(
+      frequencies: [
+        equalizer.frequencies[0].copyWith(value: (int.tryParse(f60) ?? equalizer.frequencies[0].value) ~/ 10),
+        equalizer.frequencies[1].copyWith(value: (int.tryParse(f250) ?? equalizer.frequencies[1].value) ~/ 10),
+        equalizer.frequencies[2].copyWith(value: (int.tryParse(f1k) ?? equalizer.frequencies[2].value) ~/ 10),
+        equalizer.frequencies[3].copyWith(value: (int.tryParse(f3k) ?? equalizer.frequencies[3].value) ~/ 10),
+        equalizer.frequencies[4].copyWith(value: (int.tryParse(f6k) ?? equalizer.frequencies[4].value) ~/ 10),
+        equalizer.frequencies[5].copyWith(value: (int.tryParse(f16k) ?? equalizer.frequencies[5].value) ~/ 10),
+      ],
+    );
+
+    final eqIndex = equalizers.indexWhere((e) => e.equalsFrequencies(newEqualizer));
+    if (eqIndex == -1) {
+      equalizers[equalizers.indexWhere((e) => e.name == "Custom")] = newEqualizer;
+      currentEqualizer.value = newEqualizer;
+    } else {
+      currentEqualizer.value = equalizers[eqIndex];
+    }
+
+    final updatedZone = zone.copyWith(equalizer: newEqualizer);
 
     if (updateCurrentZone) {
       currentZone.value = updatedZone;
     }
 
-    await _updateProject(zone: updatedZone);
+    await _updateZonesInProject(zones: [updatedZone]);
+  }
+
+  Future<void> _updateDeviceData(DeviceModel device) async {
+    await restartSocket(ip: device.ip);
+
+    final activeInfo = MrCmdBuilder.parseResponseAllZones(await socketSender(
+      MrCmdBuilder.getPowerAll(macAddress: device.macAddress),
+      longRet: true,
+    ));
+
+    final channelInfo = MrCmdBuilder.parseResponseAllZones(await socketSender(
+      MrCmdBuilder.getChannelAll(macAddress: device.macAddress),
+      longRet: true,
+    ));
+
+    final volumeInfo = MrCmdBuilder.parseResponseAllZones(await socketSender(
+      MrCmdBuilder.getVolumeAll(macAddress: device.macAddress),
+      longRet: true,
+    ));
+
+    final balanceInfo = MrCmdBuilder.parseResponseAllZones(await socketSender(
+      MrCmdBuilder.getBalanceAll(macAddress: device.macAddress),
+      longRet: true,
+    ));
+
+    final zonesData = ZoneData.buildAllZones(
+      powerResponse: activeInfo,
+      volumeResponse: volumeInfo,
+      channelResponse: channelInfo,
+      balanceResponse: balanceInfo,
+    );
+
+    // final frequencies = MrCmdBuilder.parseResponseMulti(await socketSender(
+    //   MrCmdBuilder.getEqualizerAll(macAddress: device.macAddress),
+    //   longRet: true,
+    // ));
+
+    // final equalizer = zone.equalizer;
+    // final newEqualizer = EqualizerModel.custom(
+    //   frequencies: [
+    //     equalizer.frequencies[0].copyWith(value: (int.tryParse(f60) ?? equalizer.frequencies[0].value) ~/ 10),
+    //     equalizer.frequencies[1].copyWith(value: (int.tryParse(f250) ?? equalizer.frequencies[1].value) ~/ 10),
+    //     equalizer.frequencies[2].copyWith(value: (int.tryParse(f1k) ?? equalizer.frequencies[2].value) ~/ 10),
+    //     equalizer.frequencies[3].copyWith(value: (int.tryParse(f3k) ?? equalizer.frequencies[3].value) ~/ 10),
+    //     equalizer.frequencies[4].copyWith(value: (int.tryParse(f6k) ?? equalizer.frequencies[4].value) ~/ 10),
+    //     equalizer.frequencies[5].copyWith(value: (int.tryParse(f16k) ?? equalizer.frequencies[5].value) ~/ 10),
+    //   ],
+    // );
+
+    // final eqIndex = equalizers.indexWhere((e) => e.equalsFrequencies(newEqualizer));
+    // if (eqIndex == -1) {
+    //   equalizers[equalizers.indexWhere((e) => e.name == "Custom")] = newEqualizer;
+    //   currentEqualizer.value = newEqualizer;
+    // } else {
+    //   currentEqualizer.value = equalizers[eqIndex];
+    // }
+
+    // final updatedZone = zone.copyWith(
+    //   active: active.toLowerCase() == "on" ? true : false,
+    //   volume: int.tryParse(volume) ?? zone.volume,
+    //   balance: int.tryParse(balance) ?? zone.balance,
+    //   equalizer: newEqualizer,
+    //   channel: channels.value.firstWhere(
+    //     (c) => c.id.trim() == channelStr.trim(),
+    //     orElse: () => channels.first,
+    //   ),
+    // );
+
+    // if (updateCurrentZone) {
+    //   currentZone.value = updatedZone;
+    // }
+
+    final zones = <ZoneModel>[];
+
+    for (final zoneData in zonesData) {
+      final zone = device.zones.firstWhereOrNull((z) => z.id == zoneData.zoneId);
+
+      if (zone == null) {
+        continue;
+      }
+
+      final channel = zone.channels.firstWhere(
+        (c) => c.id == zoneData.values.channel,
+        orElse: () => channels.first,
+      );
+
+      zones.add(zone.copyWith(
+        active: zoneData.values.power,
+        volume: zoneData.values.volume,
+        channel: channel,
+        balance: zoneData.values.balance,
+      ));
+    }
+
+    await _updateZonesInProject(zones: zones);
   }
 
   void dispose() {

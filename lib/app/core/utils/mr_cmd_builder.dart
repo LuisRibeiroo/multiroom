@@ -16,12 +16,94 @@ typedef MrResponse = ({
   String? frequency,
 });
 
+typedef AllZonesParsedResponse = ({
+  String zoneId,
+  String response,
+});
+
+typedef ZoneDataResponse = ({
+  bool power,
+  String channel,
+  int volume,
+  int balance,
+});
+
+final class ZoneData {
+  const ZoneData._({
+    required this.zoneId,
+    required this.values,
+  });
+
+  factory ZoneData._fromAllZonesInfo({
+    required AllZonesParsedResponse powerResponse,
+    required AllZonesParsedResponse channelResponse,
+    required AllZonesParsedResponse volumeResponse,
+    required AllZonesParsedResponse balanceResponse,
+  }) {
+    return ZoneData._(
+      zoneId: powerResponse.zoneId,
+      values: (
+        power: powerResponse.response.toLowerCase() == "on",
+        channel: channelResponse.response,
+        volume: int.tryParse(volumeResponse.response) ?? 0,
+        balance: int.tryParse(balanceResponse.response) ?? 0,
+      ),
+    );
+  }
+
+  final String zoneId;
+  final ZoneDataResponse values;
+
+  static List<ZoneData> buildAllZones({
+    required List<AllZonesParsedResponse> powerResponse,
+    required List<AllZonesParsedResponse> channelResponse,
+    required List<AllZonesParsedResponse> volumeResponse,
+    required List<AllZonesParsedResponse> balanceResponse,
+  }) {
+    if (powerResponse.length != channelResponse.length || powerResponse.length != volumeResponse.length) {
+      throw Exception("All responses need to be same lenght");
+    }
+
+    final ret = <ZoneData>[];
+
+    for (var i = 0; i < powerResponse.length; i++) {
+      ret.add(
+        ZoneData._fromAllZonesInfo(
+          powerResponse: powerResponse[i],
+          channelResponse: channelResponse[i],
+          volumeResponse: volumeResponse[i],
+          balanceResponse: balanceResponse[i],
+        ),
+      );
+    }
+
+    return ret;
+  }
+}
+
 abstract final class MrCmdBuilder {
-  // TODO: Remove old return
+  static const allZones = "ZALL";
+
   static String parseResponseSingle(String response) =>
       MrCmdBuilder.parseCompleteResponse(response, single: true).response;
+
   static String parseResponseMulti(String response) =>
       MrCmdBuilder.parseCompleteResponse(response, single: false).response;
+
+  static List<AllZonesParsedResponse> parseResponseAllZones(String response) {
+    final ret = <AllZonesParsedResponse>[];
+
+    for (final line in response.split("\n")) {
+      if (line.isNullOrEmpty) {
+        continue;
+      }
+
+      final parsed = MrCmdBuilder.parseCompleteResponse(line, single: true);
+      ret.add((zoneId: parsed.params, response: parsed.response));
+    }
+
+    return ret;
+  }
 
   static MrResponse parseCompleteResponse(String response, {required bool single}) {
     final ret = response.split(",");
@@ -79,6 +161,11 @@ abstract final class MrCmdBuilder {
   }) =>
       "${MultiroomCommands.mrZoneChannelGet.value},$macAddress,${zone.id}";
 
+  static String getChannelAll({
+    required String macAddress,
+  }) =>
+      "${MultiroomCommands.mrZoneChannelGet.value},$macAddress,$allZones";
+
   static String setChannel({
     required String macAddress,
     required ZoneModel zone,
@@ -91,6 +178,11 @@ abstract final class MrCmdBuilder {
     required ZoneModel zone,
   }) =>
       "${MultiroomCommands.mrPwrGet.value},$macAddress,${zone.id}";
+
+  static String getPowerAll({
+    required String macAddress,
+  }) =>
+      "${MultiroomCommands.mrPwrGet.value},$macAddress,$allZones";
 
   static String setPower({
     required String macAddress,
@@ -105,6 +197,11 @@ abstract final class MrCmdBuilder {
   }) =>
       "${MultiroomCommands.mrVolGet.value},$macAddress,${zone.id}";
 
+  static String getVolumeAll({
+    required String macAddress,
+  }) =>
+      "${MultiroomCommands.mrVolGet.value},$macAddress,$allZones";
+
   static String setVolume({
     required String macAddress,
     required ZoneModel zone,
@@ -117,6 +214,11 @@ abstract final class MrCmdBuilder {
     required ZoneModel zone,
   }) =>
       "${MultiroomCommands.mrBalGet.value},$macAddress,${zone.id}";
+
+  static String getBalanceAll({
+    required String macAddress,
+  }) =>
+      "${MultiroomCommands.mrBalGet.value},$macAddress,$allZones";
 
   static String setBalance({
     required String macAddress,
@@ -139,6 +241,12 @@ abstract final class MrCmdBuilder {
     required int gain,
   }) =>
       "${MultiroomCommands.mrEqSet.value},$macAddress,${zone.id},${frequency.id},${gain * 10}";
+
+  static String getEqualizerAll({
+    required String macAddress,
+    required ZoneModel zone,
+  }) =>
+      "${MultiroomCommands.mrEqGetAll.value},$macAddress,${zone.id}";
 
   static String getGroup({
     required String macAddress,
