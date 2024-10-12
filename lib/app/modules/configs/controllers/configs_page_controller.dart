@@ -30,9 +30,8 @@ class ConfigsPageController extends BaseController {
     projects.value = settings.projects;
   }
 
-  @override
   void dispose() {
-    super.dispose();
+    super.baseDispose(key: "$runtimeType");
 
     projects.value = <ProjectModel>[];
   }

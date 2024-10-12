@@ -29,7 +29,7 @@ class _ImportDataPageState extends State<ImportDataPage> with WidgetsBindingObse
   void initState() {
     super.initState();
 
-    _controller.disposables.add(
+    _controller.disposables["$runtimeType"] = [
       effect(
         () {
           if (_controller.state.value is SuccessState) {
@@ -43,8 +43,8 @@ class _ImportDataPageState extends State<ImportDataPage> with WidgetsBindingObse
             Routefly.pop(context);
           }
         },
-      ),
-    );
+      )
+    ];
   }
 
   @override

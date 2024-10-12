@@ -27,21 +27,7 @@ import '../../../../core/utils/platform_checker.dart';
 import '../models/network_device_model.dart';
 
 class ScannerPageController extends BaseController with SocketMixin {
-  ScannerPageController() : super(InitialState()) {
-    disposables.addAll(
-      [
-        effect(() async {
-          if (_isPageVisible.value && _monitor.hasStateChanges.value) {
-            untracked(() async {
-              projects.value = settings.projects;
-
-              _monitor.ingestStateChanges();
-            });
-          }
-        }),
-      ],
-    );
-  }
+  ScannerPageController() : super(InitialState());
 
   UDP? _udpServer;
 
@@ -79,38 +65,45 @@ class ScannerPageController extends BaseController with SocketMixin {
     projects.value = settings.projects;
     hasDevices.value = projects.value.expand((p) => p.devices).toList().isNotEmpty;
 
-    disposables.addAll(
-      [
-        effect(() {
-          hasAvailableSlots.value = currentProject.value.devices.length < 3;
-          isMasterAvailable.value = currentProject.value.devices.isEmpty ||
-              currentProject.value.devices.every((d) => d.type != DeviceType.master);
-          slave1Available.value = isMasterAvailable.peek() == false &&
-              currentProject.value.devices.where((d) => d.type == DeviceType.slave).isEmpty;
-          slave2Available.value = slave1Available.peek() == false &&
-              currentProject.value.devices.where((d) => d.type == DeviceType.slave).length == 1;
+    disposables["$runtimeType"] = [
+      effect(() {
+        hasAvailableSlots.value = currentProject.value.devices.length < 3;
+        isMasterAvailable.value = currentProject.value.devices.isEmpty ||
+            currentProject.value.devices.every((d) => d.type != DeviceType.master);
+        slave1Available.value = isMasterAvailable.peek() == false &&
+            currentProject.value.devices.where((d) => d.type == DeviceType.slave).isEmpty;
+        slave2Available.value = slave1Available.peek() == false &&
+            currentProject.value.devices.where((d) => d.type == DeviceType.slave).length == 1;
 
-          if (hasAvailableSlots.value == false) {
-            stopUdpServer();
-          }
-        }),
-        effect(() async {
-          // await _updateDevicesAvailabilityAndFirmware();
-          _localDevices.value = projects.value.expand((p) => p.devices).toList();
-        }),
-        effect(() {
-          if (_isUdpListening.value) {
-            logger.i("UDP LISTENING ON --> ${_udpServer?.local.address?.address}:${_udpServer?.local.port?.value} ");
-          } else {
-            logger.i("UDP SERVER CLOSED");
-          }
-        }),
-        effect(() {
-          settings.saveProjects(projects.value);
-          hasDevices.value = projects.value.expand((p) => p.devices).toList().isNotEmpty;
-        }),
-      ],
-    );
+        if (hasAvailableSlots.value == false) {
+          stopUdpServer();
+        }
+      }),
+      effect(() async {
+        // await _updateDevicesAvailabilityAndFirmware();
+        _localDevices.value = projects.value.expand((p) => p.devices).toList();
+      }),
+      effect(() {
+        if (_isUdpListening.value) {
+          logger.i("UDP LISTENING ON --> ${_udpServer?.local.address?.address}:${_udpServer?.local.port?.value} ");
+        } else {
+          logger.i("UDP SERVER CLOSED");
+        }
+      }),
+      effect(() {
+        settings.saveProjects(projects.value);
+        hasDevices.value = projects.value.expand((p) => p.devices).toList().isNotEmpty;
+      }),
+      effect(() async {
+        if (_isPageVisible.value && _monitor.hasStateChanges.value) {
+          untracked(() async {
+            projects.value = settings.projects;
+
+            _monitor.ingestStateChanges();
+          });
+        }
+      }),
+    ];
   }
 
   void setSelectedDevice(NetworkDeviceModel device) => selectedDevice.value = device;
@@ -201,7 +194,7 @@ class ScannerPageController extends BaseController with SocketMixin {
         autoCloseDuration: const Duration(seconds: 2),
         style: ToastificationStyle.minimal,
         type: ToastificationType.info,
-      ); 
+      );
 
       return;
     }
@@ -278,18 +271,10 @@ class ScannerPageController extends BaseController with SocketMixin {
     try {
       await restartSocket(ip: ip);
 
-      final ret = MrCmdBuilder.parseCompleteResponse(
+      final deviceMode = MrCmdBuilder.parseResponseSingle(
         await socketSender(
           MrCmdBuilder.setExpansionMode(macAddress: macAddress, type: type),
         ),
-      );
-
-      if (ret.macAddress.toUpperCase() != macAddress.toUpperCase()) {
-        throw Exception("Erro ao configurar dispositivo, tente novamente.");
-      }
-
-      final deviceMode = MrCmdBuilder.parseResponse(
-        await socketSender(MrCmdBuilder.expansionMode(macAddress: macAddress)),
       );
 
       return deviceMode;
@@ -309,9 +294,8 @@ class ScannerPageController extends BaseController with SocketMixin {
     }
   }
 
-  @override
   void dispose() {
-    super.dispose();
+    super.baseDispose(key: "$runtimeType");
     mixinDispose();
 
     _clearEmptyProjects();

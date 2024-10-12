@@ -75,9 +75,8 @@ class EditChannelsPageController extends BaseController {
     }
   }
 
-  @override
   void dispose() {
-    super.dispose();
+    super.baseDispose(key: "$runtimeType");
 
     device.value = device.initialValue;
     zone.value = zone.initialValue;

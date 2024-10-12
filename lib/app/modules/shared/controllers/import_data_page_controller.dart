@@ -12,9 +12,11 @@ import '../../../core/interactor/utils/hive_utils.dart';
 
 class ImportDataPageController extends BaseController {
   ImportDataPageController() : super(InitialState()) {
-    disposables.add(effect(() {
-      isValidProjectId.value = code.value.length == 8;
-    }));
+    disposables["$runtimeType"] = [
+      effect(() {
+        isValidProjectId.value = code.value.length == 8;
+      })
+    ];
   }
 
   final _settings = injector.get<SettingsContract>();
@@ -80,9 +82,8 @@ class ImportDataPageController extends BaseController {
     }
   }
 
-  @override
   void dispose() {
-    super.dispose();
+    super.baseDispose(key: "$runtimeType");
 
     code.value = code.initialValue;
     isValidProjectId.value = isValidProjectId.initialValue;

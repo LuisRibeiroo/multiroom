@@ -10,7 +10,6 @@ import '../../../../routes.g.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/extensions/list_extensions.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
-import '../../../core/interactor/controllers/device_monitor_controller.dart';
 import '../../../core/interactor/controllers/socket_mixin.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
 import '../../../core/models/channel_model.dart';
@@ -35,11 +34,14 @@ class HomePageController extends BaseController with SocketMixin {
 
     currentEqualizer.value = equalizers.last;
 
-    disposables.addAll([
+    disposables["$runtimeType"] = [
       effect(() {
         if (projects.isEmpty || currentProject.value.devices.isEmpty) {
           Routefly.replace(routePaths.modules.configs.pages.configs);
           Routefly.pushNavigate(routePaths.modules.configs.pages.configs);
+        } else {
+          projectZones.value = currentProject.value.devices.fold(<ZoneModel>[], (pv, d) => pv..addAll(d.groupedZones));
+          _settings.lastProjectId = currentProject.value.id;
         }
       }),
       currentDevice.subscribe((value) async {
@@ -53,26 +55,23 @@ class HomePageController extends BaseController with SocketMixin {
 
         _settings.saveDevice(device: currentDevice.value);
       }),
-      effect(() {
-        projectZones.value = currentProject.value.devices.fold(<ZoneModel>[], (pv, d) => pv..addAll(d.groupedZones));
-      }),
-      effect(() async {
-        if (_isPageVisible.value && _monitorController.hasStateChanges.value) {
-          untracked(() async {
-            await syncLocalData(
-              awaitUpdate: true,
-              readAllZones: true,
-            );
+      // effect(() async {
+      //   if (_isPageVisible.value && _monitorController.hasStateChanges.value) {
+      //     untracked(() async {
+      //       await syncLocalData(
+      //         awaitUpdate: true,
+      //         readAllZones: true,
+      //       );
 
-            _monitorController.ingestStateChanges();
-          });
-        }
-      })
-    ]);
+      //       _monitorController.ingestStateChanges();
+      //     });
+      //   }
+      // })
+    ];
   }
 
   final _settings = injector.get<SettingsContract>();
-  final _monitorController = injector.get<DeviceMonitorController>();
+  // final _monitorController = injector.get<DeviceMonitorController>();
 
   final projectZones = listSignal<ZoneModel>([], debugLabel: "projectZones");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
@@ -103,7 +102,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   void setPageVisible(bool visible) => _isPageVisible.value = visible;
 
-  void startDeviceMonitor() => _monitorController.startDeviceMonitor(callerName: "HomePageController");
+  // void startDeviceMonitor() => _monitorController.startDeviceMonitor(callerName: "HomePageController");
 
   Future<void> setCurrentDeviceAndZone(DeviceModel device, ZoneModel zone) async {
     try {
@@ -316,13 +315,6 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  DeviceModel _getLastDevice() {
-    return currentProject.value.devices.firstWhere(
-      (d) => d.serialNumber == currentDevice.value.serialNumber,
-      orElse: () => currentProject.value.devices.first,
-    );
-  }
-
   void _updateDeviceProject({required DeviceModel device}) {
     currentProject.value = currentProject.value.copyWith(
       devices: currentProject.value.devices.withReplacement(
@@ -390,7 +382,7 @@ class HomePageController extends BaseController with SocketMixin {
   }) async {
     // Update device and zone infos only if project changed
     currentProject.value = project ?? _getLastProject();
-    currentDevice.value = _getLastDevice();
+    currentDevice.value = currentProject.value.devices.first;
 
     if (currentProject.value.devices.any((d) => d.active)) {
       if (currentZone.value.isEmpty) {
@@ -607,21 +599,21 @@ class HomePageController extends BaseController with SocketMixin {
     //   }
     // }
 
-    final active = MrCmdBuilder.parseResponse(await socketSender(
+    final active = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getPower(
         macAddress: zone.macAddress,
         zone: zone,
       ),
     ));
 
-    final channelStr = MrCmdBuilder.parseResponse(await socketSender(
+    final channelStr = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getChannel(
         macAddress: zone.macAddress,
         zone: zone,
       ),
     ));
 
-    final volume = MrCmdBuilder.parseResponse(await socketSender(
+    final volume = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getVolume(
         macAddress: zone.macAddress,
         zone: zone,
@@ -630,7 +622,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     String balance = "0";
     if (zone.isStereo) {
-      balance = MrCmdBuilder.parseResponse(await socketSender(
+      balance = MrCmdBuilder.parseResponseSingle(await socketSender(
         MrCmdBuilder.getBalance(
           macAddress: zone.macAddress,
           zone: zone,
@@ -638,7 +630,7 @@ class HomePageController extends BaseController with SocketMixin {
       ));
     }
 
-    final f60 = MrCmdBuilder.parseResponse(await socketSender(
+    final f60 = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
@@ -646,7 +638,7 @@ class HomePageController extends BaseController with SocketMixin {
       ),
     ));
 
-    final f250 = MrCmdBuilder.parseResponse(await socketSender(
+    final f250 = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
@@ -654,7 +646,7 @@ class HomePageController extends BaseController with SocketMixin {
       ),
     ));
 
-    final f1k = MrCmdBuilder.parseResponse(await socketSender(
+    final f1k = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
@@ -662,7 +654,7 @@ class HomePageController extends BaseController with SocketMixin {
       ),
     ));
 
-    final f3k = MrCmdBuilder.parseResponse(await socketSender(
+    final f3k = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
@@ -670,7 +662,7 @@ class HomePageController extends BaseController with SocketMixin {
       ),
     ));
 
-    final f6k = MrCmdBuilder.parseResponse(await socketSender(
+    final f6k = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
@@ -678,7 +670,7 @@ class HomePageController extends BaseController with SocketMixin {
       ),
     ));
 
-    final f16k = MrCmdBuilder.parseResponse(await socketSender(
+    final f16k = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
         zone: zone,
@@ -724,11 +716,10 @@ class HomePageController extends BaseController with SocketMixin {
     await _updateProject(zone: updatedZone);
   }
 
-  @override
   void dispose() {
-    super.dispose();
+    super.baseDispose(key: "$runtimeType");
     mixinDispose();
-    _monitorController.stopDeviceMonitor();
+    // _monitorController.stopDeviceMonitor();
 
     projects.value = <ProjectModel>[];
 

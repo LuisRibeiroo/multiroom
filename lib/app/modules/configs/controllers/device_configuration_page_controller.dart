@@ -59,7 +59,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       setError(Exception("Erro ao ler informações do dispositivo"));
     }
 
-    disposables.addAll([
+    disposables["$runtimeType"] = [
       effect(() {
         final differenceZones =
             device.value.zones.toSet().difference(device.value.groups.expand((g) => g.zones).toSet());
@@ -69,7 +69,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       effect(() {
         settings.saveDevice(device: device.value);
       })
-    ]);
+    ];
   }
 
   void toggleEditingDevice() {
@@ -553,9 +553,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
   }
 
-  @override
   void dispose() {
-    super.dispose();
+    super.baseDispose(key: "$runtimeType");
     mixinDispose();
 
     deviceName.value = deviceName.initialValue;

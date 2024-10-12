@@ -73,9 +73,8 @@ class EditZonesPageController extends BaseController {
     }
   }
 
-  @override
   void dispose() {
-    super.dispose();
+    super.baseDispose(key: "$runtimeType");
 
     project.value = project.initialValue;
     isEditing.value = isEditing.initialValue;

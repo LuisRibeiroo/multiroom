@@ -23,7 +23,7 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
     ),
   );
 
-  final disposables = <Function?>[];
+  final disposables = <String, List<Function?>>{};
 
   late final SignalValueNotifier<PageState> _stateNotifier;
 
@@ -86,10 +86,10 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
   }
 
   @mustCallSuper
-  void dispose() {
+  void baseDispose({required String key}) {
     _update(InitialState());
 
-    for (final d in disposables) {
+    for (final d in disposables[key] ?? []) {
       d?.call();
     }
   }

@@ -49,8 +49,6 @@ class HiveSettings implements SettingsContract {
 
     updatedProj = updatedProj.copyWith(devices: updatedDevices);
 
-    lastProjectId = "";
-
     // _logger.d("REMOVE DEVICE --> PARAM: [$deviceId] | LENGHT: [${updatedDevices.length}] NEW VALUE: $updatedDevices");
 
     saveProject(updatedProj);
@@ -86,6 +84,10 @@ class HiveSettings implements SettingsContract {
     final List<ProjectModel> projs = List.from(projects);
     projs.removeWhere((d) => d.id == id);
 
+    if (lastProjectId == id) {
+      lastProjectId = "";
+    }
+
     // _logger.d("REMOVE PROJECT --> PARAM: [$id] | LENGHT: [${projs.length}] NEW VALUE: $projs");
 
     _box.put("projects", projs);
@@ -106,7 +108,6 @@ class HiveSettings implements SettingsContract {
   @override
   List<DeviceModel> get devices {
     final data = _box.get("projects", defaultValue: <ProjectModel>[]);
-
 
     return List.castFrom<dynamic, ProjectModel>(data).fold([], (pv, v) => pv..addAll(v.devices));
   }

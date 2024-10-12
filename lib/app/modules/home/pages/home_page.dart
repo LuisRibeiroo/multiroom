@@ -14,7 +14,7 @@ import '../../../core/models/zone_model.dart';
 import '../../../core/utils/platform_checker.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../../core/widgets/selectable_list_view.dart';
-import '../../shared/pages/options_bottom_sheet.dart';
+import '../../shared/pages/options_menu.dart';
 import '../../widgets/icon_title.dart';
 import '../interactor/home_page_controller.dart';
 import '../widgets/device_info_header.dart';
@@ -201,7 +201,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       key: const ValueKey(HomePage),
       onVisibilityChanged: (info) async {
         if (info.visibleFraction == 1) {
-          _controller.startDeviceMonitor();
+          // _controller.startDeviceMonitor();
           _controller.syncLocalData(readAllZones: true);
 
           _controller.setPageVisible(true);
@@ -266,28 +266,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   controller: _tabControler,
                   children: [
                     RefreshIndicator.adaptive(
-                      key: const PageStorageKey('key'),
+                      key: PageStorageKey("${SummaryZonesList}_$hashCode"),
                       onRefresh: () => _controller.syncLocalData(readAllZones: true),
                       child: SingleChildScrollView(
-                        child: SummaryZonesList(
-                          devices: _controller.currentProject.value.devices,
-                          zones: _controller.projectZones.value,
-                          onChangeActive: _controller.setZoneActive,
-                          onChangeChannel: ({ZoneModel? zone}) {
-                            _controller.setCurrentZone(zone: zone!);
-                            _showChannelsBottomSheet(zone: zone);
-                          },
-                          onChangeVolume: _controller.setVolume,
-                          onTapZone: (zone) {
-                            _tabControler.animateTo(1);
-                            _controller.setCurrentZone(zone: zone);
-                            setState(() {});
-                          },
+                        child: Watch(
+                          (_) => SummaryZonesList(
+                            devices: _controller.currentProject.value.devices,
+                            zones: _controller.projectZones.value,
+                            onChangeActive: _controller.setZoneActive,
+                            onChangeChannel: ({ZoneModel? zone}) {
+                              _controller.setCurrentZone(zone: zone!);
+                              _showChannelsBottomSheet(zone: zone);
+                            },
+                            onChangeVolume: _controller.setVolume,
+                            onTapZone: (zone) {
+                              _tabControler.animateTo(1);
+                              _controller.setCurrentZone(zone: zone);
+                              setState(() {});
+                            },
+                          ),
                         ),
                       ),
                     ),
                     RefreshIndicator(
-                      key: const PageStorageKey('key2'),
+                      key: PageStorageKey("${DeviceInfoHeader}_$hashCode"),
                       onRefresh: () => _controller.syncLocalData(readAllZones: true),
                       child: SingleChildScrollView(
                         child: Column(
@@ -332,12 +334,5 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             : null,
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-
-    super.dispose();
   }
 }

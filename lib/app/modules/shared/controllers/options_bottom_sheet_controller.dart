@@ -18,14 +18,14 @@ class OptionsBottomSheetController extends BaseController {
     showShareOption.value = settings.projects.isNotEmpty;
     showTechAccessOption.value = settings.projects.isNotEmpty;
 
-    disposables.addAll([
+    disposables["$runtimeType"] = [
       effect(
         () {
           password.value;
           errorMessage.value = errorMessage.initialValue;
         },
       ),
-    ]);
+    ];
   }
 
   final settings = injector.get<SettingsContract>();
@@ -98,9 +98,8 @@ class OptionsBottomSheetController extends BaseController {
     }
   }
 
-  @override
   void dispose() {
-    super.dispose();
+    super.baseDispose(key: "$runtimeType");
 
     password.value = password.initialValue;
     errorMessage.value = errorMessage.initialValue;
