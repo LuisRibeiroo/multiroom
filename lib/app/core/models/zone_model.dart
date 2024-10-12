@@ -21,7 +21,6 @@ class ZoneModel extends Equatable implements SelectableModel {
     required this.equalizer,
     required this.wrapperId,
     this.side = MonoSide.undefined,
-    this.isGroup = false,
     this.channel = const ChannelModel.empty(),
     this.groupId = "",
     this.maxVolumeLeft = 100,
@@ -51,7 +50,6 @@ class ZoneModel extends Equatable implements SelectableModel {
       balance: 50,
       equalizer: EqualizerModel.builder(name: "Custom"),
       side: side,
-      isGroup: false,
       channel: ChannelModel.builder(index: 1, name: "Input 1"),
       deviceSerial: deviceSerial,
       macAddress: macAddress,
@@ -83,7 +81,6 @@ class ZoneModel extends Equatable implements SelectableModel {
       balance: map['balance'],
       equalizer: EqualizerModel.fromMap(map['equalizer']),
       side: MonoSide.values[map['side']],
-      isGroup: map['isGroup'],
       channel: map['channel'] != null ? ChannelModel.fromMap(map['channel']) : const ChannelModel.empty(),
       groupId: map['groupId'],
       maxVolumeLeft: map['maxVolumeLeft'],
@@ -104,7 +101,6 @@ class ZoneModel extends Equatable implements SelectableModel {
       'balance': balance,
       'equalizer': equalizer.toMap(),
       'side': side.index,
-      'isGroup': isGroup,
       'channel': channel.toMap(),
       'groupId': groupId,
       'maxVolumeLeft': maxVolumeLeft,
@@ -132,8 +128,6 @@ class ZoneModel extends Equatable implements SelectableModel {
   final MonoSide side;
   @HiveField(9, defaultValue: "")
   final String wrapperId;
-  @HiveField(10, defaultValue: false)
-  final bool isGroup;
   @HiveField(11, defaultValue: ChannelModel.empty())
   final ChannelModel channel;
   @HiveField(12, defaultValue: "")
@@ -180,7 +174,6 @@ class ZoneModel extends Equatable implements SelectableModel {
       balance: balance ?? this.balance,
       equalizer: equalizer ?? this.equalizer,
       side: side ?? this.side,
-      isGroup: isGroup ?? this.isGroup,
       channel: channel ?? this.channel,
       groupId: groupId ?? this.groupId,
       maxVolumeLeft: maxVolumeLeft ?? this.maxVolumeLeft,
@@ -201,7 +194,6 @@ class ZoneModel extends Equatable implements SelectableModel {
         balance,
         equalizer,
         side,
-        isGroup,
         channel,
         groupId,
         maxVolumeLeft,

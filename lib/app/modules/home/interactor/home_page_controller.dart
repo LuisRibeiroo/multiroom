@@ -472,12 +472,13 @@ class HomePageController extends BaseController with SocketMixin {
       // }
 
       ZoneGroupModel? group;
+      final isZoneGrouped = currentDevice.value.isZoneInGroup(zone);
 
-      if (zone.isGroup) {
+      if (isZoneGrouped) {
         group = currentDevice.value.groups.firstWhereOrNull((g) => g.zones.containsZone(zone));
       }
 
-      final updatedZone = zone.isGroup ? zone.copyWith(name: group?.getZone(zone.id).name) : zone;
+      final updatedZone = isZoneGrouped ? zone.copyWith(name: group?.getZone(zone.id).name) : zone;
       final updatedGroup = group?.copyWith(
         zones: group.zones.withReplacement(
           (z) => z.id == zone.id,
@@ -524,24 +525,27 @@ class HomePageController extends BaseController with SocketMixin {
     currentDevice.value = currentProject.value.devices.first;
 
     if (currentProject.value.devices.any((d) => d.active)) {
-      if (currentZone.value.isEmpty) {
-        final zone = currentDevice.value.zones.first;
+      // if (currentZone.value.isEmpty) {
+      final zone = currentDevice.value.zones.firstWhere(
+        (z) => z.id == currentZone.value.id,
+        orElse: () => currentDevice.value.zones.first,
+      );
 
-        if (currentDevice.value.isZoneInGroup(zone)) {
-          currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.containsZone(zone)).asZone;
-        } else {
-          currentZone.value = zone;
-        }
-
-        channels.value = currentZone.value.channels;
-
-        currentZone.value = currentZone.value.copyWith(
-          channel: channels.firstWhere(
-            (c) => c.id == currentZone.value.channel.id,
-            orElse: () => channels.first,
-          ),
-        );
+      if (currentDevice.value.isZoneInGroup(zone)) {
+        currentZone.value = currentDevice.value.groups.firstWhere((g) => g.zones.containsZone(zone)).asZone;
+      } else {
+        currentZone.value = zone;
       }
+
+      channels.value = currentZone.value.channels;
+
+      currentZone.value = currentZone.value.copyWith(
+        channel: channels.firstWhere(
+          (c) => c.id == currentZone.value.channel.id,
+          orElse: () => channels.first,
+        ),
+      );
+      // }
 
       await _runUpdateData(allDevices: allDevices);
     }

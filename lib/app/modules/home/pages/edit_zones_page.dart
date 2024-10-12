@@ -43,51 +43,52 @@ class _EditZonesPageState extends State<EditZonesPage> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
             itemCount: _controller.project.value.devices.length,
             separatorBuilder: (_, __) => 18.asSpace,
-            itemBuilder: (_, index) {
-              final device = _controller.project.value.devices[index];
+            itemBuilder: (_, index) => Watch.builder(
+              builder: (_) {
+                final device = _controller.project.value.devices[index];
+                return Card.outlined(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 18),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        IconTitle(
+                          title: device.name,
+                          icon: Icons.surround_sound_rounded,
+                          // style: context.textTheme.titleMedium,
+                        ),
+                        24.asSpace,
+                        ListView.separated(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: device.groupedZones.length,
+                          separatorBuilder: (_, __) => 12.asSpace,
+                          itemBuilder: (_, idx) {
+                            final zone = device.groupedZones[idx];
 
-              return Card.outlined(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 18),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      IconTitle(
-                        title: device.name,
-                        icon: Icons.surround_sound_rounded,
-                        // style: context.textTheme.titleMedium,
-                      ),
-                      24.asSpace,
-                      ListView.separated(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: device.groupedZones.length,
-                        separatorBuilder: (_, __) => 12.asSpace,
-                        itemBuilder: (_, idx) {
-                          final zone = device.groupedZones[idx];
-
-                          return Watch(
-                            (_) => TextEditTile(
-                              itemId: zone.id,
-                              initialValue: zone.name,
-                              isEditing: _controller.isEditing.value &&
-                                  _controller.editingZoneId.value == zone.id &&
-                                  _controller.editingDeviceSerial.value == device.serialNumber,
-                              onChangeValue: _controller.onChangeZoneName,
-                              toggleEditing: (_) => _controller.toggleEditing(device, zone),
-                              hideEditButton: _controller.isEditing.value &&
-                                  (_controller.editingZoneId.value != zone.id ||
-                                      _controller.editingDeviceSerial.value != device.serialNumber),
-                            ),
-                          );
-                        },
-                      )
-                    ],
+                            return Watch(
+                              (_) => TextEditTile(
+                                itemId: zone.id,
+                                initialValue: zone.name,
+                                isEditing: _controller.isEditing.value &&
+                                    _controller.editingZoneId.value == zone.id &&
+                                    _controller.editingDeviceSerial.value == device.serialNumber,
+                                onChangeValue: _controller.onChangeZoneName,
+                                toggleEditing: (_) => _controller.toggleEditing(device, zone),
+                                hideEditButton: _controller.isEditing.value &&
+                                    (_controller.editingZoneId.value != zone.id ||
+                                        _controller.editingDeviceSerial.value != device.serialNumber),
+                              ),
+                            );
+                          },
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
