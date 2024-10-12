@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/utils/constants.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:routefly/routefly.dart';
 
@@ -39,6 +40,7 @@ class _StartupPageState extends State<StartupPage> {
       await monitorController.scanDevices(
         updateIp: true,
         awaitFinish: true,
+        duration: const Duration(seconds: defaultScanDuration ~/ 2),
       );
 
       if (settings.projects.isEmpty) {
