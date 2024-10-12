@@ -93,15 +93,6 @@ class _OptionsMenuState extends State<OptionsMenu> {
                   },
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.info_outline_rounded),
-                title: const Text("Sobre"),
-                onTap: () {
-                  context.showCustomModalBottomSheet(
-                    child: const AboutBottomSheet(),
-                  );
-                },
-              ),
               Visibility(
                 visible: widget.onFactoryRestore != null,
                 child: ListTile(
@@ -129,8 +120,17 @@ class _OptionsMenuState extends State<OptionsMenu> {
                 ),
               ),
               const Spacer(),
+              ListTile(
+                leading: const Icon(Icons.info_outline_rounded),
+                title: const Text("Sobre"),
+                onTap: () {
+                  context.showCustomModalBottomSheet(
+                    child: const AboutBottomSheet(),
+                  );
+                },
+              ),
               Padding(
-                padding: const EdgeInsets.only(left: 24, bottom: 24.0),
+                padding: const EdgeInsets.only(left: 24, bottom: 24.0, top: 12),
                 child: FloatingActionButton.small(
                   onPressed: Scaffold.of(context).closeDrawer,
                   child: const Icon(Icons.arrow_back_rounded),
