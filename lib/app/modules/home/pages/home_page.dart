@@ -241,10 +241,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
               ),
               const Spacer(),
-              IconButton(
-                onPressed: () => _controller.syncLocalData(allDevices: true),
-                icon: const Icon(Icons.sync_rounded),
-              ),
               Watch(
                 (_) => DeviceStateIndicator(
                   value: _controller.allDevicesOnline.value,
