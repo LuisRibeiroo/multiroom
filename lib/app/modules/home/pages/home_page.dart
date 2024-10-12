@@ -284,7 +284,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   controller: _tabControler,
                   children: [
                     RefreshIndicator.adaptive(
-                      key: PageStorageKey("${SummaryZonesList}_$hashCode"),
+                      key: PageStorageKey("$SummaryZonesList"),
                       onRefresh: () => _controller.syncLocalData(allDevices: true),
                       child: SingleChildScrollView(
                         child: Watch(
@@ -307,7 +307,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       ),
                     ),
                     RefreshIndicator.adaptive(
-                      key: PageStorageKey("${DeviceInfoHeader}_$hashCode"),
+                      key: PageStorageKey("$DeviceInfoHeader"),
                       onRefresh: () => _controller.syncLocalData(allDevices: true),
                       child: SingleChildScrollView(
                         child: Column(
