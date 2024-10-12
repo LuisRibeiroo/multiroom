@@ -7,7 +7,7 @@ import '../../../../injector.dart';
 import '../../../../routes.g.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/widgets/loading_overlay.dart';
-import '../../shared/pages/options_bottom_sheet.dart';
+import '../../shared/pages/options_menu.dart';
 import '../../widgets/project_list_card.dart';
 import '../controllers/configs_page_controller.dart';
 import '../widgets/no_devices_widget.dart';
@@ -65,11 +65,11 @@ class _ConfigsPageState extends State<ConfigsPage> {
               ),
             ),
             floatingActionButton: Watch(
-              (_) => _controller.projects.isEmpty
+              (ctx) => _controller.projects.isEmpty
                   ? FloatingActionButton.extended(
                       icon: const Icon(Icons.settings_input_antenna_rounded),
                       label: const Text("Iniciar configuração"),
-                      onPressed: () => Options.showTechBottomSheet(context),
+                      onPressed: () => Options.showTechBottomSheet(ctx),
                     )
                   : FloatingActionButton.extended(
                       icon: const Icon(Icons.check_rounded),

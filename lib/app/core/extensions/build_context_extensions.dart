@@ -22,43 +22,39 @@ extension ContextExt on BuildContext {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => Builder(
-        builder: (context) {
-          return SizedBox(
-            width: sizeOf.width,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 22),
-                  child: Container(
-                    height: 4,
-                    width: 32,
-                    decoration: BoxDecoration(
-                      color: theme.dividerColor,
-                      borderRadius: const BorderRadius.horizontal(
-                        left: Radius.circular(12),
-                        right: Radius.circular(12),
-                      ),
-                    ),
+      builder: (_) => SizedBox(
+        width: sizeOf.width,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 22),
+              child: Container(
+                height: 4,
+                width: 32,
+                decoration: BoxDecoration(
+                  color: theme.dividerColor,
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(12),
+                    right: Radius.circular(12),
                   ),
                 ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    // minHeight: size.height * .2,
-                    maxHeight: sizeOf.height * maxHeight - 8,
-                  ),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: mediaQuery.viewInsets,
-                      child: child,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          );
-        },
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                // minHeight: size.height * .2,
+                maxHeight: sizeOf.height * maxHeight - 8,
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: mediaQuery.viewInsets,
+                  child: child,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
