@@ -245,10 +245,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 onPressed: () => _controller.syncLocalData(allDevices: true),
                 icon: const Icon(Icons.sync_rounded),
               ),
-              GestureDetector(
-                onDoubleTap: () => _controller.syncLocalData(allDevices: true),
-                child: DeviceStateIndicator(
-                    value: _controller.currentProject.value.devices.every((device) => device.active)),
+              Watch(
+                (_) => DeviceStateIndicator(
+                  value: _controller.currentProject.value.devices.every((device) => device.active),
+                ),
               ),
             ],
           ),
