@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:routefly/routefly.dart';
+import 'package:signals/signals.dart';
 import 'package:toastification/toastification.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -15,6 +16,9 @@ import 'routes.g.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  SignalsObserver.instance = null;
+  // SignalsObserver.instance = LoggingSignalsObserver();
 
   if (PlatformChecker.isMobile == false) {
     await windowManager.ensureInitialized();
