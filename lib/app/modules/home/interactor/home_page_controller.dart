@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -308,11 +309,59 @@ class HomePageController extends BaseController with SocketMixin {
     _settings.expandedViewMode = expanded;
   }
 
+  Future<void> onFactoryRestore() async {
+    await run(
+      setError: true,
+      () async {
+        try {
+          await _iterateOverDevices(function: (device) async {
+            await socketSender(MrCmdBuilder.setDefaultParams(macAddress: device.macAddress));
+          });
+
+          await _updateSignals(readAllZones: true);
+        } catch (exception) {
+          logger.e("Erro ao resetar dispositivo --> $exception");
+          setError(Exception("Erro ao enviar comando"));
+        }
+      },
+    );
+  }
+
   ProjectModel _getLastProject() {
     return projects.firstWhere(
       (p) => p.id == _settings.lastProjectId,
       orElse: () => projects.first,
     );
+  }
+
+  Future<void> _iterateOverDevices({required Function(DeviceModel) function}) async {
+    for (final device in currentProject.value.devices) {
+      await function(device);
+    }
+  }
+
+  Future<void> _updateDevicesState() async {
+    _iterateOverDevices(function: (d) async {
+      DeviceModel newDevice;
+
+      try {
+        await Socket.connect(
+          d.ip,
+          4998,
+          timeout: const Duration(seconds: 1),
+        ).then((s) => s.close());
+
+        newDevice = d.copyWith(active: true);
+      } catch (exception) {
+        newDevice = d.copyWith(active: false);
+      }
+
+      if (currentDevice.value.serialNumber == newDevice.serialNumber) {
+        currentDevice.value = newDevice;
+      }
+
+      _updateDeviceProject(device: newDevice);
+    });
   }
 
   void _updateDeviceProject({required DeviceModel device}) {

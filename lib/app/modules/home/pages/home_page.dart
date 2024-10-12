@@ -243,6 +243,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         drawer: OptionsMenu(
           pageState: _controller.state,
+          onFactoryRestore: () {
+            _controller.onFactoryRestore();
+
+            toastification.show(
+              type: ToastificationType.success,
+              style: ToastificationStyle.minimal,
+              autoCloseDuration: const Duration(seconds: 2),
+              title: const Text("Dispositivo restaurado"),
+            );
+          },
         ),
         body: LoadingOverlay(
           key: const ValueKey("HomePage_Key"),

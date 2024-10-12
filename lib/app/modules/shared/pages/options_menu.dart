@@ -10,6 +10,7 @@ import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/models/device_model.dart';
 import '../../../core/utils/platform_checker.dart';
 import '../../widgets/about_bottom_sheet.dart';
+import '../../widgets/factory_restore_confirmation_bottom_sheet.dart';
 import '../controllers/options_bottom_sheet_controller.dart';
 import '../widgets/share_dialog.dart';
 import 'tech_access_bottom_sheet.dart';
@@ -18,9 +19,11 @@ class OptionsMenu extends StatefulWidget {
   const OptionsMenu({
     super.key,
     required this.pageState,
+    this.onFactoryRestore,
   });
 
   final Signal<PageState> pageState;
+  final Function()? onFactoryRestore;
 
   @override
   State<OptionsMenu> createState() => _OptionsMenuState();
@@ -98,6 +101,24 @@ class _OptionsMenuState extends State<OptionsMenu> {
                     child: const AboutBottomSheet(),
                   );
                 },
+              ),
+              Visibility(
+                visible: widget.onFactoryRestore != null,
+                child: ListTile(
+                  leading: const Icon(Icons.restore_rounded),
+                  title: const Text("Restaurar configurações de fábrica"),
+                  onTap: () {
+                    context.showCustomModalBottomSheet(
+                      isScrollControlled: false,
+                      child: FactoryRestoreConfirmationBottomSheet(
+                        onConfirm: () {
+                          widget.onFactoryRestore?.call();
+                          Scaffold.of(context).closeDrawer();
+                        },
+                      ),
+                    );
+                  },
+                ),
               ),
               Center(
                 child: AnimatedSize(
