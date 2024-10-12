@@ -17,6 +17,7 @@ class LoadingOverlay extends StatefulWidget {
     this.loadingWidget,
     this.currentIp = "",
     this.onTap,
+    this.onSuccessState,
   });
 
   final Signal<PageState> state;
@@ -25,6 +26,7 @@ class LoadingOverlay extends StatefulWidget {
   final Widget? loadingWidget;
   final String currentIp;
   final Function()? onTap;
+  final Function()? onSuccessState;
 
   @override
   State<LoadingOverlay> createState() => _LoadingOverlayState();
@@ -36,38 +38,6 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
   @override
   void initState() {
     super.initState();
-
-    // scheduleMicrotask(() {
-    //   effect(() async {
-    //     _controller.pageState.value = widget.state.value;
-
-    //     if (_controller.pageState.value is ErrorState) {
-    //       untracked(() {
-    //         _controller.incrementErrorCounter();
-    //       });
-
-    //       toastification.show(
-    //         title: Text((_controller.pageState.value as ErrorState).exception.toString().replaceAll("Exception: ", "")),
-    //         autoCloseDuration: const Duration(seconds: 4),
-    //         style: ToastificationStyle.minimal,
-    //         type: ToastificationType.error,
-    //       );
-
-    //       if (_controller.errorCounter.peek() > 1) {
-    //         _controller.checkDeviceAvailability(
-    //           pageState: widget.state,
-    //           currentIp: widget.currentIp,
-    //         );
-    //       }
-    //     } else {
-    //       if (_controller.pageState.value is SuccessState) {
-    //         untracked(() {
-    //           _controller.resetErrorCounter();
-    //         });
-    //       }
-    //     }
-    //   });
-    // });
 
     scheduleMicrotask(() {
       _controller.disposables["${_controller.runtimeType}"] = [
@@ -85,6 +55,7 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
               autoCloseDuration: const Duration(seconds: 4),
               style: ToastificationStyle.minimal,
               type: ToastificationType.error,
+              closeOnClick: true,
             );
 
             if (_controller.errorCounter.peek() > 1) {
@@ -101,6 +72,8 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
                 _controller.resetErrorCounter();
                 _controller.stopPulling();
               });
+
+              widget.onSuccessState?.call();
             }
           }
         })

@@ -259,6 +259,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               style: ToastificationStyle.minimal,
               autoCloseDuration: const Duration(seconds: 2),
               title: const Text("Dispositivo restaurado"),
+              closeOnClick: true,
             );
           },
         ),
@@ -269,76 +270,77 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           onTap: () {
             toastification.dismissAll(delayForAnimation: false);
             toastification.show(
-              title:
-                  const Text("O dispositivo está offline. Os controles serão liberados quando houver nova comunicação"),
+              title: const Text("Dispositivo offline"),
+              description: const Text("Os controles serão liberados quando houver nova comunicação"),
               autoCloseDuration: const Duration(seconds: 2),
               style: ToastificationStyle.minimal,
               type: ToastificationType.info,
+              closeOnClick: true,
             );
+          },
+          onSuccessState: () {
+            _controller.syncLocalData(allDevices: true);
           },
           child: SafeArea(
             child: Watch(
-              (_) => Padding(
-                padding: const EdgeInsets.all(1.0),
-                child: TabBarView(
-                  controller: _tabControler,
-                  children: [
-                    RefreshIndicator.adaptive(
-                      key: PageStorageKey("$SummaryZonesList"),
-                      onRefresh: () => _controller.syncLocalData(allDevices: true),
-                      child: SingleChildScrollView(
-                        child: Watch(
-                          (_) => SummaryZonesList(
-                            devices: _controller.currentProject.value.devices,
-                            zones: _controller.projectZones.value,
+              (_) => TabBarView(
+                controller: _tabControler,
+                children: [
+                  RefreshIndicator.adaptive(
+                    key: PageStorageKey("$SummaryZonesList"),
+                    onRefresh: () => _controller.syncLocalData(allDevices: true),
+                    child: SingleChildScrollView(
+                      child: Watch(
+                        (_) => SummaryZonesList(
+                          devices: _controller.currentProject.value.devices,
+                          zones: _controller.projectZones.value,
+                          onChangeActive: _controller.setZoneActive,
+                          onChangeChannel: ({ZoneModel? zone}) {
+                            _controller.setCurrentDeviceAndZone(zone: zone!);
+                            _showChannelsBottomSheet(zone: zone);
+                          },
+                          onChangeVolume: _controller.setVolume,
+                          onTapZone: (zone) {
+                            _controller.setCurrentDeviceAndZone(zone: zone);
+                            _tabControler.animateTo(1);
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  RefreshIndicator.adaptive(
+                    key: PageStorageKey("$DeviceInfoHeader"),
+                    onRefresh: () => _controller.syncLocalData(allDevices: true),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DeviceInfoHeader(
+                            project: _controller.currentProject.value,
+                            deviceName: _controller.currentDevice.value.name,
+                            currentZone: _controller.currentZone.value,
+                            currentChannel: _controller.currentZone.value.channel,
                             onChangeActive: _controller.setZoneActive,
-                            onChangeChannel: ({ZoneModel? zone}) {
-                              _controller.setCurrentDeviceAndZone(zone: zone!);
-                              _showChannelsBottomSheet(zone: zone);
-                            },
-                            onChangeVolume: _controller.setVolume,
-                            onTapZone: (zone) {
-                              _controller.setCurrentDeviceAndZone(zone: zone);
-                              _tabControler.animateTo(1);
-                              setState(() {});
-                            },
+                            onChangeDevice: _showDevicesBottomSheet,
+                            onChangeChannel: _showChannelsBottomSheet,
+                            onChangeProject: _showProjectsBottomSheet,
                           ),
-                        ),
+                          12.asSpace,
+                          ZoneControls(
+                            currentZone: _controller.currentZone.value,
+                            currentEqualizer: _controller.currentEqualizer.value,
+                            equalizers: _controller.equalizers.value,
+                            onChangeBalance: _controller.setBalance,
+                            onChangeVolume: _controller.setVolume,
+                            onUpdateFrequency: _controller.setFrequency,
+                            onChangeEqualizer: _showEqualizersBottomSheet,
+                          ),
+                        ],
                       ),
                     ),
-                    RefreshIndicator.adaptive(
-                      key: PageStorageKey("$DeviceInfoHeader"),
-                      onRefresh: () => _controller.syncLocalData(allDevices: true),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            DeviceInfoHeader(
-                              project: _controller.currentProject.value,
-                              deviceName: _controller.currentDevice.value.name,
-                              currentZone: _controller.currentZone.value,
-                              currentChannel: _controller.currentZone.value.channel,
-                              onChangeActive: _controller.setZoneActive,
-                              onChangeDevice: _showDevicesBottomSheet,
-                              onChangeChannel: _showChannelsBottomSheet,
-                              onChangeProject: _showProjectsBottomSheet,
-                            ),
-                            12.asSpace,
-                            ZoneControls(
-                              currentZone: _controller.currentZone.value,
-                              currentEqualizer: _controller.currentEqualizer.value,
-                              equalizers: _controller.equalizers.value,
-                              onChangeBalance: _controller.setBalance,
-                              onChangeVolume: _controller.setVolume,
-                              onUpdateFrequency: _controller.setFrequency,
-                              onChangeEqualizer: _showEqualizersBottomSheet,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
