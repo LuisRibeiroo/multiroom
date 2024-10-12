@@ -157,7 +157,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               child: const Icon(Icons.check_rounded),
             ),
             onTap: () {
-              _controller.setCurrentDeviceAndZone(device, zone);
+              _controller.setCurrentDeviceAndZone(device: device, zone: zone);
               Routefly.pop(context);
             },
           ),
@@ -247,7 +247,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
               Watch(
                 (_) => DeviceStateIndicator(
-                  value: _controller.currentProject.value.devices.every((device) => device.active),
+                  value: _controller.allDevicesOnline.value,
                 ),
               ),
             ],
@@ -297,12 +297,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             zones: _controller.projectZones.value,
                             onChangeActive: _controller.setZoneActive,
                             onChangeChannel: ({ZoneModel? zone}) {
-                              _controller.setCurrentZone(zone: zone!);
+                              _controller.setCurrentDeviceAndZone(zone: zone!);
                               _showChannelsBottomSheet(zone: zone);
                             },
                             onChangeVolume: _controller.setVolume,
                             onTapZone: (zone) {
-                              _controller.setCurrentZone(zone: zone);
+                              _controller.setCurrentDeviceAndZone(zone: zone);
                               _tabControler.animateTo(1);
                               setState(() {});
                             },

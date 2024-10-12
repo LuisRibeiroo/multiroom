@@ -66,7 +66,10 @@ class HomePageController extends BaseController with SocketMixin {
             }
           }
         }
-      })
+      }),
+      effect(() {
+        allDevicesOnline.value = currentProject.value.devices.every((device) => device.active);
+      }),
       // effect(() async {
       //   if (_isPageVisible.value && _monitorController.hasStateChanges.value) {
       //     untracked(() async {
@@ -106,6 +109,7 @@ class HomePageController extends BaseController with SocketMixin {
   final currentZone = ZoneModel.empty().asSignal(debugLabel: "currentZone");
   final currentEqualizer = EqualizerModel.empty().asSignal(debugLabel: "currentEqualizer");
   final expandedViewMode = false.asSignal(debugLabel: "expandedViewMode");
+  final allDevicesOnline = false.asSignal(debugLabel: "allDevicesOnline");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
   final _updatingData = false.asSignal(debugLabel: "updatingData");
@@ -116,22 +120,27 @@ class HomePageController extends BaseController with SocketMixin {
 
   // void startDeviceMonitor() => _monitorController.startDeviceMonitor(callerName: "HomePageController");
 
-  Future<void> setCurrentDeviceAndZone(DeviceModel device, ZoneModel zone) async {
+  Future<void> setCurrentDeviceAndZone({
+    required ZoneModel zone,
+    DeviceModel? device,
+  }) async {
     try {
       channels.set(zone.channels);
 
-      if (device.serialNumber != currentDevice.value.serialNumber) {
-        currentDevice.value = device;
-        await run(() => restartSocket(ip: device.ip));
+      if (device != null) {
+        if (device.serialNumber != currentDevice.value.serialNumber) {
+          currentDevice.value = device;
+          await run(() => restartSocket(ip: device.ip));
+        }
       }
 
       if (currentDevice.previousValue!.serialNumber != currentDevice.value.serialNumber ||
           currentZone.value.id != zone.id) {
         currentZone.value = zone;
-        currentDevice.value = device;
+        currentDevice.value = device ?? currentDevice.value;
       }
     } catch (exception) {
-      logger.e(exception);
+      logger.e("Error to set device and Zone --> $exception");
 
       _setOfflineDeviceState();
       setError(Exception("Erro ao enviar comando"));
@@ -155,7 +164,7 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> setZoneActive(bool active, {ZoneModel? zone}) async {
-    currentZone.value = currentZone.value.copyWith(active: active);
+    currentZone.value = (zone ?? currentZone.value).copyWith(active: active);
 
     _debounceSendCommand(
       MrCmdBuilder.setPower(
@@ -163,27 +172,22 @@ class HomePageController extends BaseController with SocketMixin {
         zone: zone ?? currentZone.value,
         active: active,
       ),
+      onError: () {
+        currentZone.value = currentZone.previousValue!;
+        _updateZonesInProject(zones: [currentZone.value]);
+      },
     );
 
-    if (zone != null) {
-      _updateZonesInProject(zones: [zone.copyWith(active: active)]);
-    } else {
-      _updateZonesInProject(zones: [currentZone.value]);
-    }
+    _updateZonesInProject(zones: [currentZone.value]);
   }
 
   void setCurrentChannel(ChannelModel channel, {ZoneModel? zone}) {
-    if (channel.id == (zone?.channel.id ?? currentZone.value.channel.id)) {
-      logger.i("SET CHANNEL [SAME CHANNEL] --> ${channel.id}");
-      return;
-    }
-
     final channelIndex = channels.indexWhere((c) => c.id == channel.id);
     final tempList = List<ChannelModel>.from(channels);
 
     tempList[channelIndex] = channel;
 
-    currentZone.value = currentZone.value.copyWith(
+    currentZone.value = (zone ?? currentZone.value).copyWith(
       channels: tempList,
       channel: channel,
     );
@@ -194,13 +198,13 @@ class HomePageController extends BaseController with SocketMixin {
         zone: zone ?? currentZone.value,
         channel: channel,
       ),
+      onError: () {
+        currentZone.value = currentZone.previousValue!;
+        _updateZonesInProject(zones: [currentZone.value]);
+      },
     );
 
-    if (zone != null) {
-      _updateZonesInProject(zones: [zone.copyWith(channel: channel)]);
-    } else {
-      _updateZonesInProject(zones: [currentZone.value]);
-    }
+    _updateZonesInProject(zones: [currentZone.value]);
   }
 
   void setBalance(int balance) {
@@ -212,13 +216,17 @@ class HomePageController extends BaseController with SocketMixin {
         zone: currentZone.value,
         balance: balance,
       ),
+      onError: () {
+        currentZone.value = currentZone.previousValue!;
+        _updateZonesInProject(zones: [currentZone.value]);
+      },
     );
 
     _updateZonesInProject(zones: [currentZone.value]);
   }
 
   void setVolume(int volume, {ZoneModel? zone}) {
-    currentZone.value = currentZone.value.copyWith(volume: volume);
+    currentZone.value = (zone ?? currentZone.value).copyWith(volume: volume);
 
     _debounceSendCommand(
       MrCmdBuilder.setVolume(
@@ -226,20 +234,16 @@ class HomePageController extends BaseController with SocketMixin {
         zone: zone ?? currentZone.value,
         volume: volume,
       ),
+      onError: () {
+        currentZone.value = currentZone.previousValue!;
+        _updateZonesInProject(zones: [currentZone.value]);
+      },
     );
 
-    if (zone != null) {
-      _updateZonesInProject(zones: [zone.copyWith(volume: volume)]);
-    } else {
-      _updateZonesInProject(zones: [currentZone.value]);
-    }
+    _updateZonesInProject(zones: [currentZone.value]);
   }
 
   Future<EqualizerModel> updateEqualizer({ZoneModel? newZone}) async {
-    if (currentDevice.value.active == false) {
-      setError(Exception("Dispositivo offline"));
-    }
-
     final zone = newZone ?? currentZone.value;
     final f60 = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getEqualizer(
@@ -309,26 +313,16 @@ class HomePageController extends BaseController with SocketMixin {
       currentEqualizer.value = equalizers[eqIndex];
     }
 
-    // currentZone.value = zone.copyWith(equalizer: newEqualizer);
-
     return currentEqualizer.value;
   }
 
   Future<void> setEqualizer(EqualizerModel equalizer) async {
-    if (currentDevice.value.active == false) {
-      setError(Exception("Dispositivo offline"));
-    }
-
-    if (equalizer == currentEqualizer.value) {
-      logger.i("SET EQUALIZER [SAME EQUALIZER] --> $equalizer");
-      return;
-    }
-
     currentEqualizer.value = equalizers.firstWhere((e) => e.name == equalizer.name);
     currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
     for (final freq in currentZone.value.equalizer.frequencies) {
       await socketSender(
+        // TODO: Update to use ALL cmd
         MrCmdBuilder.setEqualizer(
           macAddress: currentZone.value.macAddress,
           zone: currentZone.value,
@@ -354,14 +348,18 @@ class HomePageController extends BaseController with SocketMixin {
     currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
     _debounceSendCommand(
-      // socketSender(
       MrCmdBuilder.setEqualizer(
         macAddress: currentZone.value.macAddress,
         zone: currentZone.value,
         frequency: frequency,
         gain: frequency.value,
-        // )
       ),
+      onError: () {
+        currentEqualizer.value = currentEqualizer.previousValue!;
+        currentZone.value = currentZone.previousValue!;
+
+        _updateZonesInProject(zones: [currentZone.value]);
+      },
     );
 
     _updateZonesInProject(zones: [currentZone.value]);
@@ -394,11 +392,11 @@ class HomePageController extends BaseController with SocketMixin {
     });
   }
 
-  Future<void> setCurrentZone({required ZoneModel zone}) async {
-    currentZone.value = zone;
-    channels.value = currentZone.value.channels;
-    // currentEqualizer.value = currentZone.value.equalizer;
-  }
+  // Future<void> setCurrentZone({required ZoneModel zone}) async {
+  //   currentZone.value = zone;
+  //   channels.value = currentZone.value.channels;
+  //   // currentEqualizer.value = currentZone.value.equalizer;
+  // }
 
   void setViewMode({required bool expanded}) {
     expandedViewMode.value = expanded;
@@ -591,17 +589,16 @@ class HomePageController extends BaseController with SocketMixin {
     });
   }
 
-  void _debounceSendCommand(String cmd) {
+  void _debounceSendCommand(
+    String cmd, {
+    required Function() onError,
+  }) {
     _writeDebouncer(() async {
-      if (currentDevice.value.active == false) {
-        setError(Exception("Dispositivo offline"));
-
-        return;
-      }
-
       try {
         await socketSender(cmd);
+
         currentDevice.value = currentDevice.value.copyWith(active: true);
+        _updateDeviceInProject(device: currentDevice.value);
       } catch (exception) {
         logger.e("Erro no comando [$cmd] --> $exception");
         // setError(Exception("Erro no comando [$cmd] --> $exception"));
@@ -611,6 +608,8 @@ class HomePageController extends BaseController with SocketMixin {
         if (exception.toString().contains("Bad state")) {
           await restartSocket(ip: currentDevice.value.ip);
         }
+
+        onError();
       }
     });
   }
