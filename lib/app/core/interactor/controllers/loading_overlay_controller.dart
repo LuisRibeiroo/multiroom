@@ -32,14 +32,15 @@ class LoadingOverlayController extends BaseController with SocketMixin {
 
     try {
       await restartSocket(ip: currentIp);
+      logger.i("[DBG] Device [$currentIp] -> ONLINE");
 
       pageState.value = const SuccessState(data: null);
       this.pageState.value = pageState.value;
     } catch (exception) {
-      await Future.delayed(const Duration(seconds: defaultScanDuration));
+      await Future.delayed(const Duration(seconds: defaultScanDuration ~/ 2));
 
       if (_needPulling) {
-        logger.i("[DBG] Tentativa de comunicação com o ip: $currentIp");
+        logger.i("[DBG] Check availability at [$currentIp]");
 
         await checkDeviceAvailability(
           pageState: pageState,
