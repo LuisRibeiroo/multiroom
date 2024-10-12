@@ -146,6 +146,8 @@ class HomePageController extends BaseController with SocketMixin {
     _settings.lastProjectId = proj.id;
     state.value = const SuccessState(data: null);
 
+    await _updateDevicesState();
+
     await _updateSignals(
       project: proj,
       allDevices: true,
@@ -380,6 +382,10 @@ class HomePageController extends BaseController with SocketMixin {
         return;
       }
 
+      if (allDevices) {
+        await _updateDevicesState();
+      }
+
       if (awaitUpdate) {
         await _updateSignals(allDevices: allDevices);
       } else {
@@ -440,6 +446,8 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> _updateDevicesState() async {
+    currentProject.value = _getLastProject();
+
     await _iterateOverDevices(function: (d) async {
       DeviceModel newDevice;
 
@@ -465,12 +473,6 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> _updateZonesInProject({required List<ZoneModel> zones}) async {
     for (ZoneModel zone in zones) {
-      logger.i("[DBG] UPDATE PROJECT --> ${zone.name}");
-
-      // if (zone.id == currentZone.value.id && expandedViewMode.value) {
-      //   zone = zone.copyWith(equalizer: await updateEqualizer(newZone: zone));
-      // }
-
       ZoneGroupModel? group;
       final isZoneGrouped = currentDevice.value.isZoneInGroup(zone);
 
@@ -479,6 +481,8 @@ class HomePageController extends BaseController with SocketMixin {
       }
 
       final updatedZone = isZoneGrouped ? zone.copyWith(name: group?.getZone(zone.id).name) : zone;
+
+      logger.i("[DBG] UPDATE PROJECT --> ${isZoneGrouped ? group?.name : zone.name}");
       final updatedGroup = group?.copyWith(
         zones: group.zones.withReplacement(
           (z) => z.id == zone.id,
@@ -819,7 +823,7 @@ class HomePageController extends BaseController with SocketMixin {
       ));
     }
 
-    await _updateZonesInProject(zones: zones);
+    await _updateZonesInProject(zones: zones.grouped(device.groups));
   }
 
   void dispose() {

@@ -1,21 +1,16 @@
-import 'package:collection/collection.dart';
-import 'package:logger/logger.dart';
 import 'package:signals/signals_flutter.dart';
 
-import '../../../../injector.dart';
 import '../../enums/page_state.dart';
 import '../../utils/constants.dart';
-import '../repositories/settings_contract.dart';
-import 'device_monitor_controller.dart';
+import 'base_controller.dart';
+import 'socket_mixin.dart';
 
-class LoadingOverlayController {
-  final _settings = injector.get<SettingsContract>();
+class LoadingOverlayController extends BaseController with SocketMixin {
+  LoadingOverlayController() : super(InitialState());
+
   final pageState = Signal<PageState>(InitialState(), debugLabel: "overlayPageState");
   final errorCounter = 0.asSignal(debugLabel: "errorCounter");
-
-  final _monitorController = injector.get<DeviceMonitorController>();
-
-  bool _monitorStartedLocally = false;
+  bool _needPulling = false;
 
   void incrementErrorCounter() {
     errorCounter.value++;
@@ -25,6 +20,9 @@ class LoadingOverlayController {
     errorCounter.value = errorCounter.initialValue;
   }
 
+  void startPulling() => _needPulling = true;
+  void stopPulling() => _needPulling = false;
+
   Future<void> checkDeviceAvailability({
     required Signal<PageState> pageState,
     required String currentIp,
@@ -32,47 +30,29 @@ class LoadingOverlayController {
     pageState.value = LoadingState();
     this.pageState.value = pageState.value;
 
-    if (_monitorController.isRunning == false) {
-      _monitorController.startDeviceMonitor(callerName: "LoadingOverlayController");
-      _monitorStartedLocally = true;
-    }
-
-    await _checkIpStateOnMonitor(pageState: pageState, ip: currentIp);
-  }
-
-  Future<void> _checkIpStateOnMonitor({
-    required Signal<PageState> pageState,
-    required String ip,
-  }) async {
-    final device = _settings.devices.firstWhereOrNull((d) => d.ip == ip);
-
-    if (device != null && device.active) {
-      if (_monitorStartedLocally && _monitorController.isRunning) {
-        _monitorStartedLocally = false;
-        _monitorController.stopDeviceMonitor();
-      }
-
-      resetErrorCounter();
+    try {
+      await restartSocket(ip: currentIp);
 
       pageState.value = const SuccessState(data: null);
       this.pageState.value = pageState.value;
-    } else {
-      Logger(printer: SimplePrinter(printTime: true, colors: false)).i("LOADER --> Waiting [$ip] online on MONITOR");
+    } catch (exception) {
       await Future.delayed(const Duration(seconds: defaultScanDuration));
 
-      await _checkIpStateOnMonitor(pageState: pageState, ip: ip);
+      if (_needPulling) {
+        logger.i("[DBG] Tentativa de comunicação com o ip: $currentIp");
+
+        await checkDeviceAvailability(
+          pageState: pageState,
+          currentIp: currentIp,
+        );
+      }
     }
   }
 
   void dispose() {
-    // super.dispose();
+    super.baseDispose(key: "$runtimeType");
 
     errorCounter.value = errorCounter.initialValue;
     pageState.value = pageState.initialValue;
-
-    if (_monitorStartedLocally && _monitorController.isRunning) {
-      _monitorStartedLocally = false;
-      _monitorController.stopDeviceMonitor();
-    }
   }
 }

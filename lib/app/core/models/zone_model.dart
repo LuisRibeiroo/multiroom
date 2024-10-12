@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:multiroom/app/core/models/zone_group_model.dart';
 
 import '../enums/mono_side.dart';
 import 'channel_model.dart';
@@ -210,5 +211,19 @@ extension ZoneListExt on List<ZoneModel> {
 
   bool containsZone(ZoneModel zone) {
     return any((z) => z.id == zone.id);
+  }
+
+  List<ZoneModel> grouped(List<ZoneGroupModel> groups) {
+    final temp = where((zone) => groups.map((g) => g.zones.containsZone(zone)).every((v) => !v)).toList();
+
+    for (final g in groups) {
+      if (g.hasZones) {
+        if (temp.where((z) => z.id == g.asZone.id).isEmpty) {
+          temp.add(g.asZone);
+        }
+      }
+    }
+
+    return temp..sort((a, b) => a.id.compareTo(b.id));
   }
 }
