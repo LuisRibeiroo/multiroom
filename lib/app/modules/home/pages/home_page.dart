@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:multiroom/app/core/widgets/device_state_indicator.dart';
 import 'package:routefly/routefly.dart';
@@ -187,13 +189,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       initialIndex: _controller.expandedViewMode.value ? 1 : 0,
     );
 
-    _tabControler.addListener(() {
-      setState(() {
-        if (_tabControler.index == 0) {
-          _controller.setViewMode(expanded: false);
-        } else {
-          _controller.setViewMode(expanded: true);
-        }
+    scheduleMicrotask(() {
+      _tabControler.addListener(() {
+        setState(() {
+          if (_tabControler.index == 0) {
+            _controller.setViewMode(expanded: false);
+          } else {
+            _controller.setViewMode(expanded: true);
+          }
+        });
       });
     });
   }
@@ -298,8 +302,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             },
                             onChangeVolume: _controller.setVolume,
                             onTapZone: (zone) {
-                              _tabControler.animateTo(1);
                               _controller.setCurrentZone(zone: zone);
+                              _tabControler.animateTo(1);
                               setState(() {});
                             },
                           ),
