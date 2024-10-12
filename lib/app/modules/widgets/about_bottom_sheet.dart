@@ -8,7 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/extensions/build_context_extensions.dart';
 import '../../core/extensions/number_extensions.dart';
-import '../shared/pages/options_bottom_sheet.dart';
+import '../shared/pages/options_menu.dart';
 
 class AboutBottomSheet extends StatefulWidget {
   const AboutBottomSheet({super.key});

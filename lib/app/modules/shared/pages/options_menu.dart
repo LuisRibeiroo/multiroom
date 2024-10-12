@@ -36,6 +36,7 @@ class _OptionsMenuState extends State<OptionsMenu> {
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
                 child: Padding(
@@ -106,24 +107,12 @@ class _OptionsMenuState extends State<OptionsMenu> {
                       : const SizedBox.shrink(),
                 ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: FloatingActionButton.small(
-                        child: const Icon(Icons.arrow_back_rounded),
-                        onPressed: () => Scaffold.of(context).closeDrawer(),
-                      )
-
-                      // ListTile(
-                      //   leading: const Icon(Icons.arrow_circle_left_outlined),
-                      //   title: const Text("Fechar"),
-                      //   onTap: () {
-                      //     Scaffold.of(context).closeDrawer();
-                      //   },
-                      // )
-                      ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(left: 24, bottom: 24.0),
+                child: FloatingActionButton.small(
+                  onPressed: Scaffold.of(context).closeDrawer,
+                  child: const Icon(Icons.arrow_back_rounded),
                 ),
               ),
             ],
@@ -225,7 +214,10 @@ class Options {
               final valid = controller.onTapAccess();
 
               if (valid) {
-                Scaffold.of(context).closeDrawer();
+                if (Scaffold.of(context).isDrawerOpen) {
+                  Scaffold.of(context).closeDrawer();
+                }
+
                 controller.errorMessage.value = "";
 
                 Routefly.pop(context);
