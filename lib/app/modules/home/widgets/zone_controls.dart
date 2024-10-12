@@ -44,6 +44,8 @@ class _ZoneControlsState extends State<ZoneControls> {
 
   @override
   Widget build(BuildContext context) {
+    _value = widget.currentZone.balance.toDouble();
+
     return Column(
       children: [
         AnimatedSwitcher(
