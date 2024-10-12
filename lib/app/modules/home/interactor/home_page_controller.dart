@@ -391,11 +391,8 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> setCurrentZone({required ZoneModel zone}) async {
-    await _updateEqualizer(zone);
-
-    currentZone.value = zone.copyWith(equalizer: currentEqualizer.value);
+    currentZone.value = zone.copyWith(equalizer: await _updateEqualizer(zone));
     channels.value = currentZone.value.channels;
-    currentEqualizer.value = currentZone.value.equalizer;
   }
 
   void setViewMode({required bool expanded}) {
