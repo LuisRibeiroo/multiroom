@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import '../enums/device_type.dart';
 import '../enums/multiroom_commands.dart';
 import '../enums/zone_mode.dart';
@@ -20,44 +18,23 @@ typedef MrResponse = ({
 
 abstract final class MrCmdBuilder {
   // TODO: Remove old return
-  static String parseResponse(String response) => MrCmdBuilder.parseCompleteResponse(response).response;
+  static String parseResponseSingle(String response) =>
+      MrCmdBuilder.parseCompleteResponse(response, single: true).response;
+  static String parseResponseMulti(String response) =>
+      MrCmdBuilder.parseCompleteResponse(response, single: false).response;
 
-  static parseFullResponse(String response) => MrCmdBuilder.parseCompleteFullResponse(response);
-
-  static MrResponse parseCompleteResponse(String response) {
+  static MrResponse parseCompleteResponse(String response, {required bool single}) {
     final ret = response.split(",");
 
     return (
       cmd: ret.first.removeSpecialChars,
       macAddress: ret[1].removeSpecialChars,
       params: ret[2].removeSpecialChars,
-      response: ret.last.removeSpecialChars,
+      // response: ret.last.removeSpecialChars,
+      response:
+          single ? ret.last.removeSpecialChars : ret.getRange(3, ret.length).map((e) => e.removeSpecialChars).join(","),
       frequency: null,
     );
-  }
-
-  static List<MrResponse> parseCompleteFullResponse(String response) {
-    final retList = <MrResponse>[];
-    final cmdResponses = response.split('\r\n');
-    debugPrint("[DBG] --> CMD RESPONSES: ${cmdResponses.length}");
-
-    for (final response in cmdResponses) {
-      if (response.isEmpty) {
-        continue;
-      }
-
-      final cmdResponse = response.split(",");
-
-      retList.add((
-        cmd: cmdResponse.first.removeSpecialChars,
-        macAddress: cmdResponse[1].removeSpecialChars,
-        params: cmdResponse[2].removeSpecialChars,
-        response: cmdResponse.last.removeSpecialChars,
-        frequency: cmdResponse[3].removeSpecialChars,
-      ));
-    }
-
-    return retList;
   }
 
   static int fromDbToPercent(String value) =>

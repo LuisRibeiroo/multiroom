@@ -430,7 +430,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       final List<ZoneModel> zonesList = List.from(device.peek().zones);
 
       for (final grp in zonesMap.keys) {
-        final zones = MrCmdBuilder.parseResponse(
+        final zones = MrCmdBuilder.parseResponseMulti(
           await socketSender(
             longRet: true,
             MrCmdBuilder.getGroup(
@@ -477,7 +477,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   Future<int> _getZoneMaxVol(ZoneModel zone) async {
     try {
-      final response = MrCmdBuilder.parseResponse(
+      final response = MrCmdBuilder.parseResponseSingle(
         await socketSender(
           MrCmdBuilder.getMaxVolume(
             macAddress: device.value.macAddress,
@@ -512,7 +512,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
   }
 
   Future<bool> _getActive(ZoneModel zone) async {
-    return MrCmdBuilder.parseResponse(
+    return MrCmdBuilder.parseResponseSingle(
           await socketSender(MrCmdBuilder.getPower(
             macAddress: device.value.macAddress,
             zone: zone,
@@ -523,15 +523,14 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   Future<ZoneMode> _getZoneMode(ZoneWrapperModel wrapper) async {
     try {
-      return MrCmdBuilder.parseResponse(
-                await socketSender(MrCmdBuilder.getZoneMode(
-                  macAddress: device.value.macAddress,
-                  zone: wrapper.stereoZone,
-                )),
-              ).toUpperCase() ==
-              "STEREO"
-          ? ZoneMode.stereo
-          : ZoneMode.mono;
+      final mode = MrCmdBuilder.parseResponseSingle(
+        await socketSender(MrCmdBuilder.getZoneMode(
+          macAddress: device.value.macAddress,
+          zone: wrapper.stereoZone,
+        )),
+      );
+
+      return mode.toUpperCase() == "MONO" ? ZoneMode.mono : ZoneMode.stereo;
     } catch (exception) {
       logger.e("Erro ao recuperar tipo da Zona [${wrapper.stereoZone.id}] -> $exception");
 
