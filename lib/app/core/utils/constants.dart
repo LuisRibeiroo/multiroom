@@ -1,1 +1,2 @@
-const defaultScanDuration = 6;
+const defaultScanDuration = 10;
+const readTimeout = 1;

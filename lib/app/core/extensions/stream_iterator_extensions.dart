@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
+import '../utils/constants.dart';
+
 final _logger = Logger(
     printer: SimplePrinter(
   printTime: true,
@@ -16,7 +18,11 @@ extension StreamIteratorExt on StreamIterator {
         await Future.delayed(Durations.short2);
       }
 
-      while (await moveNext() == false) {
+      while (await moveNext().timeout(
+            const Duration(seconds: readTimeout),
+            onTimeout: () => throw TimeoutException("App timeout"),
+          ) ==
+          false) {
         await Future.delayed(Durations.short1);
       }
 
