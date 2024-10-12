@@ -272,6 +272,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
             style: ToastificationStyle.minimal,
             autoCloseDuration: const Duration(seconds: 2),
             title: const Text("Dispositivo restaurado"),
+            closeOnClick: true,
           );
 
           await _updateDeviceData();
@@ -333,10 +334,12 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     if (device.value.active == false) {
       toastification.dismissAll(delayForAnimation: false);
       toastification.show(
-        title: const Text("O dispositivo está offline, não é possível efetuar as configurações"),
+        title: const Text("Dispositivo offline"),
+        description: const Text("Não é possível efetuar as configurações"),
         autoCloseDuration: const Duration(seconds: 2),
         style: ToastificationStyle.minimal,
         type: ToastificationType.error,
+        closeOnClick: true,
       );
 
       return;
