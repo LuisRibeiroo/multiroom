@@ -154,7 +154,15 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
             ),
           );
 
-          editingWrapper.value = wrapper.copyWith(mode: isStereo ? ZoneMode.stereo : ZoneMode.mono);
+          editingWrapper.value = wrapper.copyWith(
+            mode: isStereo ? ZoneMode.stereo : ZoneMode.mono,
+            monoZones: isStereo
+                ? null
+                : wrapper.monoZones.copyWith(
+                    left: wrapper.monoZones.left.copyWith(name: "${wrapper.stereoZone.name} L"),
+                    right: wrapper.monoZones.right.copyWith(name: "${wrapper.stereoZone.name} R"),
+                  ),
+          );
 
           device.value = device.peek().copyWith(
                 zoneWrappers:
