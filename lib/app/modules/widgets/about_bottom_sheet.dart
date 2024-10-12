@@ -182,6 +182,7 @@ class _AboutBottomSheetState extends State<AboutBottomSheet> {
                 autoCloseDuration: const Duration(seconds: 5),
                 style: ToastificationStyle.minimal,
                 type: ToastificationType.error,
+                closeOnClick: true,
               );
             }
           },
@@ -200,6 +201,7 @@ class _AboutBottomSheetState extends State<AboutBottomSheet> {
                 autoCloseDuration: const Duration(seconds: 5),
                 style: ToastificationStyle.minimal,
                 type: ToastificationType.error,
+                closeOnClick: true,
               );
             }
           },

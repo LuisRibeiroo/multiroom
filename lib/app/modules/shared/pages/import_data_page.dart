@@ -39,7 +39,9 @@ class _ImportDataPageState extends State<ImportDataPage> with WidgetsBindingObse
               autoCloseDuration: const Duration(seconds: 5),
               title: const Text("Sucesso!"),
               description: const Text("Todos os dados foram importados com sucesso"),
+              closeOnClick: true,
             );
+
             Routefly.pop(context);
           }
         },

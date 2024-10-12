@@ -190,10 +190,12 @@ class ScannerPageController extends BaseController with SocketMixin {
     if (device.active == false) {
       toastification.dismissAll(delayForAnimation: false);
       toastification.show(
-        title: const Text("O dispositivo está offline, não é possível acessar as configurações"),
+        title: const Text("Dispositivo oflline"),
+        description: const Text("Não é possível acessar as configurações"),
         autoCloseDuration: const Duration(seconds: 2),
         style: ToastificationStyle.minimal,
         type: ToastificationType.info,
+        closeOnClick: true,
       );
 
       return;
