@@ -358,7 +358,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     }
   }
 
-  void _updateGroupZones(ZoneWrapperModel wrapper) {
+  Future<void> _updateGroupZones(ZoneWrapperModel wrapper) async {
     for (final group in device.value.groups) {
       final groupZones = group.zones.toSet();
       final wrapperZones = wrapper.isStereo ? {wrapper.monoZones.left, wrapper.monoZones.right} : {wrapper.stereoZone};
@@ -373,6 +373,13 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       final idx = groups.indexOf(group);
 
       groups[idx] = groups[idx].copyWith(zones: groupZones.difference(wrapperZones).toList());
+
+      await socketSender(MrCmdBuilder.setGroup(
+        macAddress: device.value.macAddress,
+        group: group,
+        zones: groups[idx].zones,
+      ));
+
       device.value = device.peek().copyWith(groups: groups);
 
       break;
