@@ -487,12 +487,14 @@ class HomePageController extends BaseController with SocketMixin {
         updatedWrapper,
       );
 
-      currentDevice.value = currentDevice.value.copyWith(
-        zoneWrappers: updatedWrappers,
-        groups: updatedGroups,
-      );
+      if (currentDevice.value.serialNumber == zones[0].deviceSerial) {
+        currentDevice.value = currentDevice.value.copyWith(
+          zoneWrappers: updatedWrappers,
+          groups: updatedGroups,
+        );
 
-      _updateDeviceInProject(device: currentDevice.value);
+        _updateDeviceInProject(device: currentDevice.value);
+      }
     }
   }
 
