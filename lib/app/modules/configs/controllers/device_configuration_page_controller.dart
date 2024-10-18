@@ -124,6 +124,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         final List<ZoneModel> tempZones = List.from(group.zones);
         final idx = groups.indexOf(group);
 
+        groups[idx] = groups[idx].copyWith(zones: tempZones..remove(zone));
+        
         await socketSender(
           MrCmdBuilder.setGroup(
             macAddress: device.value.macAddress,
@@ -132,7 +134,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
           ),
         );
 
-        groups[idx] = groups[idx].copyWith(zones: tempZones..remove(zone));
+       
         device.value = device.peek().copyWith(groups: groups);
       },
     );
