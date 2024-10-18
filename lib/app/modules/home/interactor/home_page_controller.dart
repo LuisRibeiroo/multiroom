@@ -389,7 +389,8 @@ class HomePageController extends BaseController with SocketMixin {
     _settings.expandedViewMode = expanded;
   }
 
-  Future<void> onFactoryRestore() async {
+  Future<bool> onFactoryRestore() async {
+    var result = false;
     await run(
       setError: true,
       () async {
@@ -399,12 +400,15 @@ class HomePageController extends BaseController with SocketMixin {
           });
 
           await _updateSignals(allDevices: true);
+          result = true;
         } catch (exception) {
           logger.e("Erro ao resetar dispositivo --> $exception");
           setError(Exception("Erro ao enviar comando"));
+          result = false;
         }
       },
     );
+    return result;
   }
 
   ProjectModel _getLastProject() {

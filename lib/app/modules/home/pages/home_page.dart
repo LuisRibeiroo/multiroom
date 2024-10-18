@@ -251,16 +251,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         drawer: OptionsMenu(
           pageState: _controller.state,
-          onFactoryRestore: () {
-            _controller.onFactoryRestore();
+          onFactoryRestore: () async {
+            final success = await _controller.onFactoryRestore();
 
-            toastification.show(
+            if(success){
+              toastification.show(
               type: ToastificationType.success,
               style: ToastificationStyle.minimal,
               autoCloseDuration: const Duration(seconds: 2),
               title: const Text("Dispositivo restaurado"),
               closeOnClick: true,
             );
+            }
           },
         ),
         body: LoadingOverlay(
