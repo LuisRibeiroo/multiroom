@@ -439,11 +439,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
 
   Future<List<ZoneGroupModel>> _getGroups() async {
     try {
-      final zonesMap = <int, List<ZoneModel>>{
-        1: [],
-        2: [],
-        3: [],
-      };
+      final zonesMap = <int, List<ZoneModel>>{1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []};
       final List<ZoneModel> zonesList = List.from(device.peek().zones);
 
       for (final grp in zonesMap.keys) {

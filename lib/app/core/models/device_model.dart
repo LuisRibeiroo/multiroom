@@ -64,7 +64,7 @@ class DeviceModel extends HiveObject {
         ),
       ),
       groups: List.generate(
-        3,
+        8,
         (idx) => ZoneGroupModel.builder(index: idx + 1),
       ),
       version: version ?? "",
