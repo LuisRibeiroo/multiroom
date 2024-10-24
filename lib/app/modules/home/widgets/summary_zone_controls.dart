@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/extensions/build_context_extensions.dart';
@@ -45,7 +46,7 @@ class SummaryZoneControls extends StatelessWidget {
                   6.asSpace,
                   Expanded(
                     child: Text(
-                      zone.name,
+                      "${zone.name}${kDebugMode ? " (${zone.deviceSerial})" : ""}",
                       textAlign: TextAlign.left,
                       style: context.textTheme.bodyLarge,
                     ),
