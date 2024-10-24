@@ -125,7 +125,7 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
         final idx = groups.indexOf(group);
 
         groups[idx] = groups[idx].copyWith(zones: tempZones..remove(zone));
-        
+
         await socketSender(
           MrCmdBuilder.setGroup(
             macAddress: device.value.macAddress,
@@ -134,7 +134,6 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
           ),
         );
 
-       
         device.value = device.peek().copyWith(groups: groups);
       },
     );
@@ -347,10 +346,8 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
       return;
     }
 
-    device.value = device.peek().copyWith(
-          zoneWrappers: await _getZones(),
-          groups: await _getGroups(),
-        );
+    device.value = device.peek().copyWith(zoneWrappers: await _getZones());
+    device.value = device.peek().copyWith(groups: await _getGroups());
   }
 
   void _updateGroupZoneNames(ZoneModel zone) {
