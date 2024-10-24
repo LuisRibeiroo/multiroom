@@ -56,10 +56,6 @@ class HomePageController extends BaseController with SocketMixin {
           return;
         }
 
-        if (value.serialNumber != currentDevice.previousValue!.serialNumber) {
-          channels.value = value.zones.first.channels;
-        }
-
         _settings.saveDevice(device: currentDevice.value);
       }),
       effect(() {
@@ -83,7 +79,6 @@ class HomePageController extends BaseController with SocketMixin {
 
   final projectZones = listSignal<ZoneModel>([], debugLabel: "projectZones");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
-  final channels = listSignal<ChannelModel>([], debugLabel: "channels");
   final equalizers = listSignal<EqualizerModel>(
     [
       EqualizerModel.builder(name: "Rock", v60: 2, v250: 0, v1k: 1, v3k: 2, v6k: 2, v16k: 1),
@@ -172,6 +167,8 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> setCurrentChannel(ChannelModel channel, {ZoneModel? zone}) async {
+    final channels = (zone ?? currentZone.value).channels;
+
     final channelIndex = channels.indexWhere((c) => c.id == channel.id);
     final tempList = List<ChannelModel>.from(channels);
 
@@ -386,7 +383,6 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> setCurrentZone({required ZoneModel zone}) async {
     currentZone.value = zone;
-    channels.value = currentZone.value.channels;
 
     await _setCurrentDeviceByMacAdress(mac: zone.macAddress);
   }
@@ -546,12 +542,10 @@ class HomePageController extends BaseController with SocketMixin {
         currentZone.value = zone;
       }
 
-      channels.value = currentZone.value.channels;
-
       currentZone.value = currentZone.value.copyWith(
-        channel: channels.firstWhere(
+        channel: currentZone.value.channels.firstWhere(
           (c) => c.id == currentZone.value.channel.id,
-          orElse: () => channels.first,
+          orElse: () => currentZone.value.channels.first,
         ),
       );
 
@@ -702,7 +696,7 @@ class HomePageController extends BaseController with SocketMixin {
 
       final channel = zone.channels.firstWhere(
         (c) => c.id == zoneData.values.channel,
-        orElse: () => channels.first,
+        orElse: () => zone.channels.first,
       );
 
       zones.add(zone.copyWith(

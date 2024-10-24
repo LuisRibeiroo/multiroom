@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/widgets/device_state_indicator.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:toastification/toastification.dart';
@@ -14,6 +13,7 @@ import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/channel_model.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/utils/platform_checker.dart';
+import '../../../core/widgets/device_state_indicator.dart';
 import '../../../core/widgets/loading_overlay.dart';
 import '../../../core/widgets/selectable_list_view.dart';
 import '../../shared/pages/options_menu.dart';
@@ -88,7 +88,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         (_) => SelectableListView(
           title: "Canais",
           icon: Icons.music_note,
-          options: _controller.channels,
+          options: (zone ?? _controller.currentZone.value).channels,
           onSelect: zone != null
               ? (ChannelModel c) => _controller.setCurrentChannel(c, zone: zone)
               : _controller.setCurrentChannel,
@@ -99,6 +99,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             Routefly.push(
               routePaths.modules.home.pages.editChannels,
               arguments: {
+                "project": _controller.currentProject.value,
                 "device": _controller.currentDevice.value,
                 "zone": _controller.currentZone.value,
               },
@@ -289,6 +290,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 controller: _tabControler,
                 children: [
                   RefreshIndicator.adaptive(
+                    triggerMode: RefreshIndicatorTriggerMode.anywhere,
                     key: PageStorageKey("$SummaryZonesList"),
                     onRefresh: () => _controller.syncLocalData(allDevices: true),
                     child: SingleChildScrollView(

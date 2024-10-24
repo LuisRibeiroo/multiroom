@@ -22,7 +22,10 @@ class EditChannelsPageController extends BaseController {
   final editingChannelId = "".asSignal(debugLabel: "editingChannelId");
   final editingChannelName = "".asSignal(debugLabel: "editingChannelName");
 
-  void init({required DeviceModel device, required ZoneModel zone}) {
+  void init({
+    required DeviceModel device,
+    required ZoneModel zone,
+  }) {
     this.device.value = device;
     this.zone.value = zone;
   }
@@ -48,26 +51,40 @@ class EditChannelsPageController extends BaseController {
     }
 
     if (isEditing.value == false) {
+      DeviceModel newDevice = DeviceModel.empty();
       final List<ChannelModel> newChannels = List.from(zone.peek().channels);
 
+      final newChannel = ChannelModel.builder(
+        index: int.parse(channelId.numbersOnly),
+        name: editingChannelName.value,
+      );
+
       final newZone = zone.value.copyWith(
+        channel: zone.value.channel.id == newChannel.id ? newChannel : zone.value.channel,
         channels: newChannels.withReplacement(
           (c) => c.id == channelId,
-          ChannelModel.builder(
-            index: int.parse(channelId.numbersOnly),
-            name: editingChannelName.value,
-          ),
+          newChannel,
         ),
       );
 
+      if (device.value.isZoneInGroup(newZone)) {
+        final currentGroup = device.value.groups.firstWhere((g) => g.zones.containsZone(newZone));
+        final newZones = currentGroup.zones.withReplacement((z) => z.id == newZone.id, newZone);
+        final newGroup = currentGroup.copyWith(zones: newZones);
+
+        final newGroups = device.value.groups.withReplacement((g) => g.id == newGroup.id, newGroup);
+        newDevice = device.value.copyWith(groups: newGroups);
+      } else {
+        ZoneWrapperModel wrapper = device.value.zoneWrappers.firstWhere((zw) => zw.id == newZone.wrapperId);
+        wrapper = wrapper.copyWith(zone: newZone);
+
+        final newWrappers = device.value.zoneWrappers.withReplacement((z) => z.id == wrapper.id, wrapper);
+        newDevice = device.value.copyWith(zoneWrappers: newWrappers);
+      }
+
       zone.value = newZone;
+      device.value = newDevice;
 
-      ZoneWrapperModel wrapper = device.value.zoneWrappers.firstWhere((zw) => zw.id == zone.value.wrapperId);
-      wrapper = wrapper.copyWith(zone: newZone);
-
-      final newWrappers = device.value.zoneWrappers.withReplacement((z) => z.id == wrapper.id, wrapper);
-
-      device.value = device.peek().copyWith(zoneWrappers: newWrappers);
       _settings.saveDevice(device: device.value);
 
       editingChannelId.value = editingChannelId.initialValue;

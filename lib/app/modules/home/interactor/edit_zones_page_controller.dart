@@ -44,7 +44,7 @@ class EditZonesPageController extends BaseController {
 
     if (isEditing.value == false) {
       DeviceModel newDevice = DeviceModel.empty();
-      // final List<ChannelModel> newChannels = List.from(zone.peek().channels);
+      
       if (device.isZoneInGroup(zone)) {
         final currentGroup = device.groups.firstWhere((g) => g.zones.containsZone(zone));
         final newGroup = currentGroup.copyWith(name: editingZoneName.value);
