@@ -157,7 +157,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               child: const Icon(Icons.check_rounded),
             ),
             onTap: () {
-              _controller.setCurrentDeviceAndZone(device: device, zone: zone);
+              _controller.setCurrentZone(zone: zone);
               Routefly.pop(context);
             },
           ),
@@ -254,14 +254,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           onFactoryRestore: () async {
             final success = await _controller.onFactoryRestore();
 
-            if(success){
+            if (success) {
               toastification.show(
-              type: ToastificationType.success,
-              style: ToastificationStyle.minimal,
-              autoCloseDuration: const Duration(seconds: 2),
-              title: const Text("Dispositivo restaurado"),
-              closeOnClick: true,
-            );
+                type: ToastificationType.success,
+                style: ToastificationStyle.minimal,
+                autoCloseDuration: const Duration(seconds: 2),
+                title: const Text("Dispositivo restaurado"),
+                closeOnClick: true,
+              );
             }
           },
         ),
@@ -297,13 +297,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           devices: _controller.currentProject.value.devices,
                           zones: _controller.projectZones.value,
                           onChangeActive: _controller.setZoneActive,
-                          onChangeChannel: ({ZoneModel? zone}) {
-                            _controller.setCurrentDeviceAndZone(zone: zone!);
+                          onChangeChannel: (zone) {
+                            _controller.setCurrentZone(zone: zone);
                             _showChannelsBottomSheet(zone: zone);
                           },
                           onChangeVolume: _controller.setVolume,
                           onTapZone: (zone) {
-                            _controller.setCurrentDeviceAndZone(zone: zone);
+                            _controller.setCurrentZone(zone: zone);
                             _tabControler.animateTo(1);
                             setState(() {});
                           },

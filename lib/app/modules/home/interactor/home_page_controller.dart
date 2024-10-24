@@ -42,7 +42,12 @@ class HomePageController extends BaseController with SocketMixin {
           Routefly.replace(routePaths.modules.configs.pages.configs);
           Routefly.pushNavigate(routePaths.modules.configs.pages.configs);
         } else {
-          projectZones.value = currentProject.value.devices.fold(<ZoneModel>[], (pv, d) => pv..addAll(d.groupedZones));
+          projectZones.value = currentProject.value.devices.fold(
+            <ZoneModel>[],
+            (pv, d) => pv..addAll(d.groupedZones),
+          );
+
+          // projectZones.value.sort((a, b) => a.name.compareTo(b.name));
           _settings.lastProjectId = currentProject.value.id;
         }
       }),
@@ -106,32 +111,30 @@ class HomePageController extends BaseController with SocketMixin {
 
   void setPageVisible(bool visible) => _isPageVisible.value = visible;
 
-  Future<void> setCurrentDeviceAndZone({
-    required ZoneModel zone,
-    DeviceModel? device,
-  }) async {
-    try {
-      channels.set(zone.channels);
+  // Future<void> setCurrentDeviceAndZone({
+  //   required ZoneModel zone,
+  //   DeviceModel? device,
+  // }) async {
+  //   try {
+  //     if (device != null) {
+  //       if (await _setCurrentDeviceByMacAdress(mac: device.macAddress)) {
+  //         await run(() => restartSocket(ip: device.ip));
+  //         currentZone.value = zone;
+  //       }
+  //     }
 
-      if (device != null) {
-        if (device.serialNumber != currentDevice.value.serialNumber) {
-          currentDevice.value = device;
-          await run(() => restartSocket(ip: device.ip));
-        }
-      }
+  //     channels.set(zone.channels);
 
-      if (currentDevice.previousValue!.serialNumber != currentDevice.value.serialNumber ||
-          currentZone.value.id != zone.id) {
-        currentZone.value = zone;
-        currentDevice.value = device ?? currentDevice.value;
-      }
-    } catch (exception) {
-      logger.e("Error to set device and Zone --> $exception");
+  //     if (currentZone.value.id != zone.id) {
+  //       currentZone.value = zone;
+  //     }
+  //   } catch (exception) {
+  //     logger.e("Error to set device and Zone --> $exception");
 
-      _setOfflineDeviceState();
-      setError(Exception("Erro ao enviar comando"));
-    }
-  }
+  //     _setOfflineDeviceState();
+  //     setError(Exception("Erro ao enviar comando"));
+  //   }
+  // }
 
   Future<void> setProject(ProjectModel proj) async {
     if (currentProject.value.id == proj.id) {
@@ -151,6 +154,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> setZoneActive(bool active, {ZoneModel? zone}) async {
     currentZone.value = (zone ?? currentZone.value).copyWith(active: active);
+    await _setCurrentDeviceByMacAdress(mac: currentZone.value.macAddress);
 
     _debounceSendCommand(
       MrCmdBuilder.setPower(
@@ -167,7 +171,7 @@ class HomePageController extends BaseController with SocketMixin {
     _updateZonesInProject(zones: [currentZone.value]);
   }
 
-  void setCurrentChannel(ChannelModel channel, {ZoneModel? zone}) {
+  Future<void> setCurrentChannel(ChannelModel channel, {ZoneModel? zone}) async {
     final channelIndex = channels.indexWhere((c) => c.id == channel.id);
     final tempList = List<ChannelModel>.from(channels);
 
@@ -177,6 +181,7 @@ class HomePageController extends BaseController with SocketMixin {
       channels: tempList,
       channel: channel,
     );
+    await _setCurrentDeviceByMacAdress(mac: currentZone.value.macAddress);
 
     _debounceSendCommand(
       MrCmdBuilder.setChannel(
@@ -211,8 +216,9 @@ class HomePageController extends BaseController with SocketMixin {
     _updateZonesInProject(zones: [currentZone.value]);
   }
 
-  void setVolume(int volume, {ZoneModel? zone}) {
+  Future<void> setVolume(int volume, {ZoneModel? zone}) async {
     currentZone.value = (zone ?? currentZone.value).copyWith(volume: volume);
+    await _setCurrentDeviceByMacAdress(mac: currentZone.value.macAddress);
 
     _debounceSendCommand(
       MrCmdBuilder.setVolume(
@@ -378,11 +384,12 @@ class HomePageController extends BaseController with SocketMixin {
     });
   }
 
-  // Future<void> setCurrentZone({required ZoneModel zone}) async {
-  //   currentZone.value = zone;
-  //   channels.value = currentZone.value.channels;
-  //   // currentEqualizer.value = currentZone.value.equalizer;
-  // }
+  Future<void> setCurrentZone({required ZoneModel zone}) async {
+    currentZone.value = zone;
+    channels.value = currentZone.value.channels;
+
+    await _setCurrentDeviceByMacAdress(mac: zone.macAddress);
+  }
 
   void setViewMode({required bool expanded}) {
     expandedViewMode.value = expanded;
@@ -416,6 +423,15 @@ class HomePageController extends BaseController with SocketMixin {
       (p) => p.id == _settings.lastProjectId,
       orElse: () => projects.first,
     );
+  }
+
+  Future<void> _setCurrentDeviceByMacAdress({required String mac}) async {
+    if (mac == currentDevice.value.macAddress) {
+      return;
+    }
+
+    currentDevice.value = currentProject.value.devices.firstWhere((d) => d.macAddress == mac);
+    await run(() => restartSocket(ip: currentDevice.value.ip));
   }
 
   Future<void> _iterateOverDevices({required Function(DeviceModel) function}) async {
@@ -606,6 +622,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> _updateDeviceData(DeviceModel device) async {
     await restartSocket(ip: device.ip);
+    untracked(() => currentDevice.value = device);
 
     final activeInfo = MrCmdBuilder.parseResponseAllZones(await socketSender(
       MrCmdBuilder.getPowerAll(macAddress: device.macAddress),

@@ -18,9 +18,9 @@ class SummaryZonesList extends StatefulWidget {
 
   final List<DeviceModel> devices;
   final List<ZoneModel> zones;
-  final Function(bool, {ZoneModel? zone}) onChangeActive;
-  final Function({ZoneModel? zone}) onChangeChannel;
-  final Function(int, {ZoneModel? zone}) onChangeVolume;
+  final Function(bool, {ZoneModel zone}) onChangeActive;
+  final Function(ZoneModel zone) onChangeChannel;
+  final Function(int, {ZoneModel zone}) onChangeVolume;
   final Function(ZoneModel zone) onTapZone;
 
   @override
@@ -42,15 +42,14 @@ class _SummaryZonesListState extends State<SummaryZonesList> {
             separatorBuilder: (context, index) => const Divider(color: Colors.white30),
             itemBuilder: (context, index) {
               final zone = widget.zones[index];
+              final device = widget.devices.firstWhereOrNull((element) => element.serialNumber == zone.deviceSerial);
 
               return SummaryZoneControls(
-                isDeviceActive:
-                    widget.devices.firstWhereOrNull((element) => element.serialNumber == zone.deviceSerial)?.active ??
-                        false,
+                isDeviceActive: device?.active ?? false,
                 zone: zone,
                 onTapCard: widget.onTapZone,
                 onChangeActive: (value) => widget.onChangeActive(value, zone: zone),
-                onChangeChannel: () => widget.onChangeChannel(zone: zone),
+                onChangeChannel: () => widget.onChangeChannel(zone),
                 onChangeVolume: (value) => widget.onChangeVolume(value, zone: zone),
               );
             },
