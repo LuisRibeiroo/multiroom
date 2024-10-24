@@ -14,6 +14,7 @@ mixin SocketMixin {
   String? _lastIp;
 
   bool get socketInit => _socket != null;
+  String get socketCurrentiP => _ip ?? "";
 
   Future<void> initSocket({required String ip}) async {
     _ip = ip;

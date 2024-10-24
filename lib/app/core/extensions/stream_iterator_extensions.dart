@@ -15,7 +15,7 @@ extension StreamIteratorExt on StreamIterator {
   Future<String> readSync({bool longResponse = false}) async {
     try {
       if (longResponse) {
-        await Future.delayed(Durations.short2);
+        await Future.delayed(Durations.short3);
       }
 
       while (await moveNext().timeout(

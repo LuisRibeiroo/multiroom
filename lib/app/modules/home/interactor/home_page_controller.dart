@@ -63,6 +63,7 @@ class HomePageController extends BaseController with SocketMixin {
           if (currentZone.value.isEmpty == false) {
             if (currentZone.value.id != currentZone.previousValue?.id) {
               _writeDebouncer(() async {
+                await _setCurrentDeviceByMacAdress(mac: currentZone.value.macAddress);
                 await updateEqualizer(newZone: currentZone.peek());
               });
             }
@@ -100,7 +101,6 @@ class HomePageController extends BaseController with SocketMixin {
   final allDevicesOnline = false.asSignal(debugLabel: "allDevicesOnline");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
-  final _updatingData = false.asSignal(debugLabel: "updatingData");
 
   final _isPageVisible = false.asSignal(debugLabel: "homePageVisible");
 
@@ -422,11 +422,13 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> _setCurrentDeviceByMacAdress({required String mac}) async {
-    if (mac == currentDevice.value.macAddress) {
+    final device = currentProject.value.devices.firstWhere((d) => d.macAddress == mac);
+
+    if (mac == currentDevice.value.macAddress && device.ip == socketCurrentiP) {
       return;
     }
 
-    currentDevice.value = currentProject.value.devices.firstWhere((d) => d.macAddress == mac);
+    currentDevice.value = device;
     await run(() => restartSocket(ip: currentDevice.value.ip));
   }
 
@@ -528,7 +530,10 @@ class HomePageController extends BaseController with SocketMixin {
     bool allDevices = false,
   }) async {
     currentProject.value = project ?? _getLastProject();
-    currentDevice.value = currentProject.value.devices.first;
+    currentDevice.value = currentProject.value.devices.firstWhere(
+      (d) => d.serialNumber == currentDevice.value.serialNumber,
+      orElse: () => currentProject.value.devices.first,
+    );
 
     if (currentProject.value.devices.any((d) => d.active)) {
       final zone = currentDevice.value.zones.firstWhere(
@@ -556,19 +561,11 @@ class HomePageController extends BaseController with SocketMixin {
   Future<void> _runUpdateData({required bool allDevices}) async {
     await run(() async {
       try {
-        if (_updatingData.value == false) {
-          await restartSocket(ip: currentDevice.value.ip);
-        }
-
-        _updatingData.value = true;
-
         if (allDevices) {
           await _iterateOverDevices(function: (d) => _updateDeviceData(d));
         } else {
           await _updateDeviceData(currentDevice.value);
         }
-
-        _updatingData.value = false;
       } catch (exception) {
         if (exception is StateError && exception.toString().contains("StreamSink")) {
           try {
@@ -583,8 +580,6 @@ class HomePageController extends BaseController with SocketMixin {
 
         _setOfflineDeviceState();
         setError(Exception("Erro ao tentar comunicação com o Multiroom"));
-
-        _updatingData.value = false;
       }
     });
   }
@@ -616,7 +611,6 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> _updateDeviceData(DeviceModel device) async {
     await restartSocket(ip: device.ip);
-    untracked(() => currentDevice.value = device);
 
     final activeInfo = MrCmdBuilder.parseResponseAllZones(await socketSender(
       MrCmdBuilder.getPowerAll(macAddress: device.macAddress),
