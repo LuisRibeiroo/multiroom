@@ -645,46 +645,6 @@ class HomePageController extends BaseController with SocketMixin {
       balanceResponse: balanceInfo,
     );
 
-    // final frequencies = MrCmdBuilder.parseResponseMulti(await socketSender(
-    //   MrCmdBuilder.getEqualizerAll(macAddress: device.macAddress),
-    //   longRet: true,
-    // ));
-
-    // final equalizer = zone.equalizer;
-    // final newEqualizer = EqualizerModel.custom(
-    //   frequencies: [
-    //     equalizer.frequencies[0].copyWith(value: (int.tryParse(f60) ?? equalizer.frequencies[0].value) ~/ 10),
-    //     equalizer.frequencies[1].copyWith(value: (int.tryParse(f250) ?? equalizer.frequencies[1].value) ~/ 10),
-    //     equalizer.frequencies[2].copyWith(value: (int.tryParse(f1k) ?? equalizer.frequencies[2].value) ~/ 10),
-    //     equalizer.frequencies[3].copyWith(value: (int.tryParse(f3k) ?? equalizer.frequencies[3].value) ~/ 10),
-    //     equalizer.frequencies[4].copyWith(value: (int.tryParse(f6k) ?? equalizer.frequencies[4].value) ~/ 10),
-    //     equalizer.frequencies[5].copyWith(value: (int.tryParse(f16k) ?? equalizer.frequencies[5].value) ~/ 10),
-    //   ],
-    // );
-
-    // final eqIndex = equalizers.indexWhere((e) => e.equalsFrequencies(newEqualizer));
-    // if (eqIndex == -1) {
-    //   equalizers[equalizers.indexWhere((e) => e.name == "Custom")] = newEqualizer;
-    //   currentEqualizer.value = newEqualizer;
-    // } else {
-    //   currentEqualizer.value = equalizers[eqIndex];
-    // }
-
-    // final updatedZone = zone.copyWith(
-    //   active: active.toLowerCase() == "on" ? true : false,
-    //   volume: int.tryParse(volume) ?? zone.volume,
-    //   balance: int.tryParse(balance) ?? zone.balance,
-    //   equalizer: newEqualizer,
-    //   channel: channels.value.firstWhere(
-    //     (c) => c.id.trim() == channelStr.trim(),
-    //     orElse: () => channels.first,
-    //   ),
-    // );
-
-    // if (updateCurrentZone) {
-    //   currentZone.value = updatedZone;
-    // }
-
     final zones = <ZoneModel>[];
 
     for (final zoneData in zonesData) {
