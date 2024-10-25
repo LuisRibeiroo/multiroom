@@ -263,7 +263,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     child: IconButton(
                       onPressed: () => _showAllZonesOffBottomSheet(context),
                       icon: Icon(
-                        Icons.power_off_rounded,
+                        Icons.power_settings_new_rounded,
                         color: context.colorScheme.primary,
                       ),
                     ),

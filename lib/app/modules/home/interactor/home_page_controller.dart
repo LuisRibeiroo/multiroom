@@ -51,13 +51,6 @@ class HomePageController extends BaseController with SocketMixin {
           _settings.lastProjectId = currentProject.value.id;
         }
       }),
-      currentDevice.subscribe((value) async {
-        if (value.isEmpty) {
-          return;
-        }
-
-        _settings.saveDevice(device: currentDevice.value);
-      }),
       effect(() {
         if (expandedViewMode.value) {
           if (currentZone.value.isEmpty == false) {
@@ -331,27 +324,6 @@ class HomePageController extends BaseController with SocketMixin {
     _updateZonesInProject(zones: [currentZone.value]);
   }
 
-  Future<void> onConfirmDisableAllZones() async {
-    await run(
-      setError: true,
-      () async {
-        try {
-          await _iterateOverDevices(function: (d) async {
-            await socketSender(MrCmdBuilder.setPowerAll(
-              macAddress: d.macAddress,
-              active: false,
-            ));
-          });
-
-          await _runUpdateData(allDevices: true);
-        } catch (exception) {
-          logger.e("Erro ao desabilitar todas as zonas --> $exception");
-          setError(Exception("Erro ao enviar comando"));
-        }
-      },
-    );
-  }
-
   void setFrequency(Frequency frequency) {
     final freqIndex = currentEqualizer.value.frequencies.indexWhere((f) => f.id == frequency.id);
     final tempList = List<Frequency>.from(currentEqualizer.value.frequencies);
@@ -440,6 +412,27 @@ class HomePageController extends BaseController with SocketMixin {
     return result;
   }
 
+  Future<void> onConfirmDisableAllZones() async {
+    await run(
+      setError: true,
+      () async {
+        try {
+          await _iterateOverDevices(function: (d) async {
+            await socketSender(MrCmdBuilder.setPowerAll(
+              macAddress: d.macAddress,
+              active: false,
+            ));
+          });
+
+          await _updateSignals(allDevices: true);
+        } catch (exception) {
+          logger.e("Erro ao desabilitar todas as zonas --> $exception");
+          setError(Exception("Erro ao enviar comando"));
+        }
+      },
+    );
+  }
+
   ProjectModel _getLastProject() {
     return projects.firstWhere(
       (p) => p.id == _settings.lastProjectId,
@@ -459,9 +452,14 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> _iterateOverDevices({required Function(DeviceModel) function}) async {
+    final initDevice = currentDevice.value;
+
     for (final device in currentProject.value.devices) {
+      await _setCurrentDeviceByMacAdress(mac: device.macAddress);
       await function(device);
     }
+
+    currentDevice.value = initDevice;
   }
 
   void _setOfflineDeviceState() {
