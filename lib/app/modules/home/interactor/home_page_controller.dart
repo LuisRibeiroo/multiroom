@@ -104,31 +104,6 @@ class HomePageController extends BaseController with SocketMixin {
 
   void setPageVisible(bool visible) => _isPageVisible.value = visible;
 
-  // Future<void> setCurrentDeviceAndZone({
-  //   required ZoneModel zone,
-  //   DeviceModel? device,
-  // }) async {
-  //   try {
-  //     if (device != null) {
-  //       if (await _setCurrentDeviceByMacAdress(mac: device.macAddress)) {
-  //         await run(() => restartSocket(ip: device.ip));
-  //         currentZone.value = zone;
-  //       }
-  //     }
-
-  //     channels.set(zone.channels);
-
-  //     if (currentZone.value.id != zone.id) {
-  //       currentZone.value = zone;
-  //     }
-  //   } catch (exception) {
-  //     logger.e("Error to set device and Zone --> $exception");
-
-  //     _setOfflineDeviceState();
-  //     setError(Exception("Erro ao enviar comando"));
-  //   }
-  // }
-
   Future<void> setProject(ProjectModel proj) async {
     if (currentProject.value.id == proj.id) {
       return;
@@ -683,6 +658,7 @@ class HomePageController extends BaseController with SocketMixin {
     final zones = <ZoneModel>[];
 
     for (final zoneData in zonesData) {
+      
       final zone = device.zones.firstWhereOrNull((z) => z.id == zoneData.zoneId);
 
       if (zone == null) {
@@ -691,7 +667,7 @@ class HomePageController extends BaseController with SocketMixin {
 
       final channel = zone.channels.firstWhere(
         (c) => c.id == zoneData.values.channel,
-        // orElse: () => zone.channels.first,
+        orElse: () => zone.channels.first,
       );
 
       zones.add(zone.copyWith(
