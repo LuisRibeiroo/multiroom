@@ -1,3 +1,4 @@
+import 'package:multiroom/app/core/models/zone_group_model.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
@@ -53,6 +54,7 @@ class EditChannelsPageController extends BaseController {
     if (isEditing.value == false) {
       DeviceModel newDevice = DeviceModel.empty();
       final List<ChannelModel> newChannels = List.from(zone.peek().channels);
+      List<ZoneGroupModel> newGroups = device.value.groups;
 
       final newChannel = ChannelModel.builder(
         index: int.parse(channelId.numbersOnly),
@@ -72,15 +74,17 @@ class EditChannelsPageController extends BaseController {
         final newZones = currentGroup.zones.withReplacement((z) => z.id == newZone.id, newZone);
         final newGroup = currentGroup.copyWith(zones: newZones);
 
-        final newGroups = device.value.groups.withReplacement((g) => g.id == newGroup.id, newGroup);
-        newDevice = device.value.copyWith(groups: newGroups);
-      } else {
-        ZoneWrapperModel wrapper = device.value.zoneWrappers.firstWhere((zw) => zw.id == newZone.wrapperId);
-        wrapper = wrapper.copyWith(zone: newZone);
-
-        final newWrappers = device.value.zoneWrappers.withReplacement((z) => z.id == wrapper.id, wrapper);
-        newDevice = device.value.copyWith(zoneWrappers: newWrappers);
+        newGroups = device.value.groups.withReplacement((g) => g.id == newGroup.id, newGroup);
+        newDevice = device.value.copyWith();
       }
+
+      final wrapper = device.value.zoneWrappers.firstWhere((zw) => zw.id == newZone.wrapperId).copyWith(zone: newZone);
+      final newWrappers = device.value.zoneWrappers.withReplacement((z) => z.id == wrapper.id, wrapper);
+
+      newDevice = device.value.copyWith(
+        zoneWrappers: newWrappers,
+        groups: newGroups,
+      );
 
       zone.value = newZone;
       device.value = newDevice;
