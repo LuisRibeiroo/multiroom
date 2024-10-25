@@ -190,9 +190,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     AppLifecycleListener(
       onResume: () {
-        // if (PlatformChecker.isMobile) {
-        _controller.syncLocalData(allDevices: true);
-        // }
+        if (PlatformChecker.isMobile) {
+          _controller.syncLocalData(allDevices: true);
+        }
       },
     );
 
