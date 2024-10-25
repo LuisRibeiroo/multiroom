@@ -139,19 +139,7 @@ class DeviceModel extends HiveObject {
 
   bool isZoneInGroup(ZoneModel zone) => groups.any((g) => g.zones.containsZone(zone));
 
-  List<ZoneModel> get groupedZones {
-    final temp = zones.where((zone) => groups.map((g) => g.zones.containsZone(zone)).every((v) => !v)).toList();
-
-    for (final g in groups) {
-      if (g.hasZones) {
-        if (temp.where((z) => z.id == g.asZone.id).isEmpty) {
-          temp.add(g.asZone);
-        }
-      }
-    }
-
-    return temp..sort((a, b) => a.id.compareTo(b.id));
-  }
+  List<ZoneModel> get groupedZones => zones.grouped(groups);
 
   DeviceModel copyWith({
     String? serialNumber,

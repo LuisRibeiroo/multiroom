@@ -451,15 +451,22 @@ class HomePageController extends BaseController with SocketMixin {
     await run(() => restartSocket(ip: currentDevice.value.ip));
   }
 
-  Future<void> _iterateOverDevices({required Function(DeviceModel) function}) async {
-    final initDevice = currentDevice.value;
+  Future<void> _iterateOverDevices({
+    required Function(DeviceModel) function,
+    bool initSocket = true,
+  }) async {
+    // final initDevice = currentDevice.value;
 
     for (final device in currentProject.value.devices) {
-      await _setCurrentDeviceByMacAdress(mac: device.macAddress);
+      if (initSocket) {
+        await restartSocket(ip: device.ip);
+      }
+
+      // await _setCurrentDeviceByMacAdress(mac: device.macAddress);
       await function(device);
     }
 
-    currentDevice.value = initDevice;
+    // currentDevice.value = initDevice;
   }
 
   void _setOfflineDeviceState() {
@@ -474,27 +481,29 @@ class HomePageController extends BaseController with SocketMixin {
   Future<void> _updateDevicesState() async {
     currentProject.value = _getLastProject();
 
-    await _iterateOverDevices(function: (d) async {
-      DeviceModel newDevice;
+    await _iterateOverDevices(
+        initSocket: false,
+        function: (d) async {
+          DeviceModel newDevice;
 
-      try {
-        await Socket.connect(
-          d.ip,
-          4998,
-          timeout: const Duration(seconds: 1),
-        ).then((s) => s.close());
+          try {
+            await Socket.connect(
+              d.ip,
+              4998,
+              timeout: const Duration(seconds: 1),
+            ).then((s) => s.close());
 
-        newDevice = d.copyWith(active: true);
-      } catch (exception) {
-        newDevice = d.copyWith(active: false);
-      }
+            newDevice = d.copyWith(active: true);
+          } catch (exception) {
+            newDevice = d.copyWith(active: false);
+          }
 
-      if (currentDevice.value.serialNumber == newDevice.serialNumber) {
-        currentDevice.value = newDevice;
-      }
+          if (currentDevice.value.serialNumber == newDevice.serialNumber) {
+            currentDevice.value = newDevice;
+          }
 
-      _updateDeviceInProject(device: newDevice);
-    });
+          _updateDeviceInProject(device: newDevice);
+        });
   }
 
   Future<void> _updateZonesInProject({required List<ZoneModel> zones}) async {
@@ -678,7 +687,7 @@ class HomePageController extends BaseController with SocketMixin {
 
       final channel = zone.channels.firstWhere(
         (c) => c.id == zoneData.values.channel,
-        orElse: () => zone.channels.first,
+        // orElse: () => zone.channels.first,
       );
 
       zones.add(zone.copyWith(
