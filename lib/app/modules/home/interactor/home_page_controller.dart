@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/utils/constants.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -49,6 +50,7 @@ class HomePageController extends BaseController with SocketMixin {
 
           // projectZones.value.sort((a, b) => a.name.compareTo(b.name));
           _settings.lastProjectId = currentProject.value.id;
+          _settings.saveProject(currentProject.value);
         }
       }),
       effect(() {
@@ -434,6 +436,8 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   ProjectModel _getLastProject() {
+    projects.value = _settings.projects;
+
     return projects.firstWhere(
       (p) => p.id == _settings.lastProjectId,
       orElse: () => projects.first,
@@ -490,7 +494,7 @@ class HomePageController extends BaseController with SocketMixin {
             await Socket.connect(
               d.ip,
               4998,
-              timeout: const Duration(seconds: 1),
+              timeout: const Duration(seconds: readTimeout),
             ).then((s) => s.close());
 
             newDevice = d.copyWith(active: true);
@@ -550,12 +554,13 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   void _updateDeviceInProject({required DeviceModel device}) {
-    currentProject.value = currentProject.value.copyWith(
-      devices: currentProject.value.devices.withReplacement(
-        (d) => d.serialNumber == device.serialNumber,
-        device,
-      ),
+    final newDevices = currentProject.value.devices.withReplacement(
+      (d) => d.serialNumber == device.serialNumber,
+      device,
     );
+
+    currentProject.value = currentProject.value.copyWith(devices: newDevices);
+    _settings.saveProject(currentProject.value);
   }
 
   Future<void> _updateSignals({
