@@ -616,7 +616,11 @@ class HomePageController extends BaseController with SocketMixin {
   }) {
     _writeDebouncer(() async {
       try {
-        await socketSender(cmd);
+        final response = await socketSender(cmd);
+
+        if (response.toUpperCase().contains("ERROR")) {
+          throw Exception("Retorno do comando com erro");
+        }
 
         currentDevice.value = currentDevice.value.copyWith(active: true);
         _updateDeviceInProject(device: currentDevice.value);
