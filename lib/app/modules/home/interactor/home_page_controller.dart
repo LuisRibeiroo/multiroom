@@ -26,7 +26,6 @@ import '../../../core/utils/mr_cmd_builder.dart';
 
 class HomePageController extends BaseController with SocketMixin {
   HomePageController() : super(InitialState()) {
-    projects.value = _settings.projects;
     currentProject.value = _getLastProject();
     expandedViewMode.value = _settings.expandedViewMode;
 
@@ -50,7 +49,7 @@ class HomePageController extends BaseController with SocketMixin {
 
           // projectZones.value.sort((a, b) => a.name.compareTo(b.name));
           _settings.lastProjectId = currentProject.value.id;
-          _settings.saveProject(currentProject.value);
+          //  _settings.saveProject(currentProject.value);
         }
       }),
       effect(() {

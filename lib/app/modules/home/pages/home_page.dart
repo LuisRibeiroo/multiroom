@@ -223,7 +223,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       key: const ValueKey(HomePage),
       onVisibilityChanged: (info) async {
         if (info.visibleFraction == 1) {
-          // _controller.startDeviceMonitor();
           _controller.syncLocalData(allDevices: true);
 
           _controller.setPageVisible(true);
