@@ -1,4 +1,3 @@
-import 'package:multiroom/app/core/models/zone_group_model.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
@@ -9,8 +8,8 @@ import '../../../core/interactor/controllers/base_controller.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
 import '../../../core/models/channel_model.dart';
 import '../../../core/models/device_model.dart';
+import '../../../core/models/zone_group_model.dart';
 import '../../../core/models/zone_model.dart';
-import '../../../core/models/zone_wrapper_model.dart';
 
 class EditChannelsPageController extends BaseController {
   EditChannelsPageController() : super(InitialState());
