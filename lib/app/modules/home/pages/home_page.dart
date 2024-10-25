@@ -275,18 +275,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   value: _controller.allDevicesOnline.value,
                 ),
               ),
-              const VerticalDivider(),
-              Watch(
-                (_) => IconButton(
-                  onPressed: () {
-                    visible.value = !visible.value;
-                  },
-                  icon: Icon(
-                    Icons.search_rounded,
-                    color: context.colorScheme.primary,
-                  ),
-                ),
-              ),
+              // const VerticalDivider(),
+              // Watch(
+              //   (_) => IconButton(
+              //     onPressed: () {
+              //       visible.value = !visible.value;
+              //     },
+              //     icon: Icon(
+              //       Icons.search_rounded,
+              //       color: context.colorScheme.primary,
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -400,18 +400,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
           ),
         ),
-        floatingActionButtonLocation: _controller.expandedViewMode.watch(context)
-            ? FloatingActionButtonLocation.miniStartFloat
-            : FloatingActionButtonLocation.endFloat,
+        // floatingActionButtonLocation: _controller.expandedViewMode.watch(context)
+        //     ? FloatingActionButtonLocation.miniStartFloat
+        //     : FloatingActionButtonLocation.endFloat,
+        // floatingActionButton: _controller.expandedViewMode.watch(context)
+        //     ? FloatingActionButton.small(
+        //         child: const Icon(Icons.arrow_back_rounded),
+        //         onPressed: () => _tabControler.animateTo(0),
+        //       )
+        //     : FloatingActionButton.small(
+        //         child: const Icon(Icons.music_note),
+        //         onPressed: () => {},
+        //       ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
         floatingActionButton: _controller.expandedViewMode.watch(context)
             ? FloatingActionButton.small(
                 child: const Icon(Icons.arrow_back_rounded),
                 onPressed: () => _tabControler.animateTo(0),
               )
-            : FloatingActionButton.small(
-                child: const Icon(Icons.music_note),
-                onPressed: () => {},
-              ),
+            : null,
       ),
     );
   }
