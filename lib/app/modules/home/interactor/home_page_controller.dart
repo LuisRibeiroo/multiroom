@@ -73,6 +73,9 @@ class HomePageController extends BaseController with SocketMixin {
       effect(() {
         allDevicesOnline.value = currentProject.value.devices.every((device) => device.active);
       }),
+      effect(() {
+        anyZoneOnInProject.value = projectZones.any((z) => z.active);
+      }),
     ];
   }
 
@@ -99,6 +102,7 @@ class HomePageController extends BaseController with SocketMixin {
   final currentEqualizer = EqualizerModel.empty().asSignal(debugLabel: "currentEqualizer");
   final expandedViewMode = false.asSignal(debugLabel: "expandedViewMode");
   final allDevicesOnline = false.asSignal(debugLabel: "allDevicesOnline");
+  final anyZoneOnInProject = false.asSignal(debugLabel: "anyZoneOnInProject");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
 
@@ -327,6 +331,27 @@ class HomePageController extends BaseController with SocketMixin {
     _updateZonesInProject(zones: [currentZone.value]);
   }
 
+  Future<void> onConfirmDisableAllZones() async {
+    await run(
+      setError: true,
+      () async {
+        try {
+          await _iterateOverDevices(function: (d) async {
+            await socketSender(MrCmdBuilder.setPowerAll(
+              macAddress: d.macAddress,
+              active: false,
+            ));
+          });
+
+          await _runUpdateData(allDevices: true);
+        } catch (exception) {
+          logger.e("Erro ao desabilitar todas as zonas --> $exception");
+          setError(Exception("Erro ao enviar comando"));
+        }
+      },
+    );
+  }
+
   void setFrequency(Frequency frequency) {
     final freqIndex = currentEqualizer.value.frequencies.indexWhere((f) => f.id == frequency.id);
     final tempList = List<Frequency>.from(currentEqualizer.value.frequencies);
@@ -411,6 +436,7 @@ class HomePageController extends BaseController with SocketMixin {
         }
       },
     );
+
     return result;
   }
 
@@ -474,7 +500,7 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> _updateZonesInProject({required List<ZoneModel> zones}) async {
-    for (ZoneModel zone in zones) {
+    for (final zone in zones) {
       ZoneGroupModel? group;
       final isZoneGrouped = currentDevice.value.isZoneInGroup(zone);
 

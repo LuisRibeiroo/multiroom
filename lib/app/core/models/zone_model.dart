@@ -1,12 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:multiroom/app/core/models/zone_group_model.dart';
 
 import '../enums/mono_side.dart';
+import '../extensions/list_extensions.dart';
 import 'channel_model.dart';
 import 'equalizer_model.dart';
 import 'selectable_model.dart';
+import 'zone_group_model.dart';
 
 part 'zone_model.g.dart';
 
@@ -214,16 +215,19 @@ extension ZoneListExt on List<ZoneModel> {
   }
 
   List<ZoneModel> grouped(List<ZoneGroupModel> groups) {
-    final temp = where((zone) => groups.map((g) => g.zones.containsZone(zone)).every((v) => !v)).toList();
+    final newZones = where((zone) => groups.map((g) => g.zones.containsZone(zone)).every((v) => !v)).toList();
 
     for (final g in groups) {
       if (g.hasZones) {
-        if (temp.where((z) => z.id == g.asZone.id).isEmpty) {
-          temp.add(g.asZone);
+        if (newZones.where((z) => z.id == g.asZone.id).isEmpty) {
+          final currentZone = firstWhere((z) => z.id == g.asZone.id);
+          final updatedGroup = g.copyWith(zones: g.zones.withReplacement((z) => z.id == currentZone.id, currentZone));
+
+          newZones.add(updatedGroup.asZone);
         }
       }
     }
 
-    return temp..sort((a, b) => a.id.compareTo(b.id));
+    return newZones..sort((a, b) => a.id.compareTo(b.id));
   }
 }

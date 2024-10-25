@@ -191,6 +191,12 @@ abstract final class MrCmdBuilder {
   }) =>
       "${MultiroomCommands.mrPwrSet.value},$macAddress,${zone.id},${active ? "on" : "off"}";
 
+  static String setPowerAll({
+    required String macAddress,
+    required bool active,
+  }) =>
+      "${MultiroomCommands.mrPwrSet.value},$macAddress,$allZones,${active ? "on" : "off"}";
+
   static String getVolume({
     required String macAddress,
     required ZoneModel zone,

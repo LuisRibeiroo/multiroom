@@ -73,7 +73,6 @@ class ZoneGroupModel extends Equatable implements SelectableModel {
           name: name,
           isGroup: true,
           groupId: id,
-          
         )
       : ZoneModel.empty();
 

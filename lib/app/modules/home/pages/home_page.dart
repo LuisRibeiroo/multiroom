@@ -20,6 +20,7 @@ import '../../shared/pages/options_menu.dart';
 import '../../widgets/icon_title.dart';
 import '../interactor/home_page_controller.dart';
 import '../widgets/device_info_header.dart';
+import '../widgets/disable_all_zones_bottom_sheet.dart';
 import '../widgets/summary_zones_list.dart';
 import '../widgets/zone_controls.dart';
 
@@ -33,6 +34,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   final _controller = injector.get<HomePageController>();
   late TabController _tabControler;
+
+  final visible = false.asSignal();
 
   void _showDevicesBottomSheet() {
     context.showCustomModalBottomSheet(
@@ -169,6 +172,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return tiles;
   }
 
+  void _showAllZonesOffBottomSheet(BuildContext context) {
+    context.showCustomModalBottomSheet(
+      isScrollControlled: false,
+      child: DisableAllZonesBottomSheet(
+        onConfirm: _controller.onConfirmDisableAllZones,
+      ),
+    );
+  }
+
   @override
   bool get wantKeepAlive => true;
 
@@ -243,8 +255,36 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
               const Spacer(),
               Watch(
+                (_) => AnimatedSwitcher(
+                  duration: Durations.short4,
+                  child: Visibility(
+                    key: ValueKey("DeviceZonesPower_${_controller.allDevicesOnline.value}"),
+                    visible: _controller.anyZoneOnInProject.value,
+                    child: IconButton(
+                      onPressed: () => _showAllZonesOffBottomSheet(context),
+                      icon: Icon(
+                        Icons.power_off_rounded,
+                        color: context.colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Watch(
                 (_) => DeviceStateIndicator(
                   value: _controller.allDevicesOnline.value,
+                ),
+              ),
+              const VerticalDivider(),
+              Watch(
+                (_) => IconButton(
+                  onPressed: () {
+                    visible.value = !visible.value;
+                  },
+                  icon: Icon(
+                    Icons.search_rounded,
+                    color: context.colorScheme.primary,
+                  ),
                 ),
               ),
             ],
@@ -295,20 +335,31 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     onRefresh: () => _controller.syncLocalData(allDevices: true),
                     child: SingleChildScrollView(
                       child: Watch(
-                        (_) => SummaryZonesList(
-                          devices: _controller.currentProject.value.devices,
-                          zones: _controller.projectZones.value,
-                          onChangeActive: _controller.setZoneActive,
-                          onChangeChannel: (zone) {
-                            _controller.setCurrentZone(zone: zone);
-                            _showChannelsBottomSheet(zone: zone);
-                          },
-                          onChangeVolume: _controller.setVolume,
-                          onTapZone: (zone) {
-                            _controller.setCurrentZone(zone: zone);
-                            _tabControler.animateTo(1);
-                            setState(() {});
-                          },
+                        (_) => Column(
+                          children: [
+                            AnimatedSize(
+                              duration: Durations.medium1,
+                              child: Container(
+                                color: Colors.green,
+                                height: visible.value ? 80 : 0,
+                              ),
+                            ),
+                            SummaryZonesList(
+                              devices: _controller.currentProject.value.devices,
+                              zones: _controller.projectZones.value,
+                              onChangeActive: _controller.setZoneActive,
+                              onChangeChannel: (zone) {
+                                _controller.setCurrentZone(zone: zone);
+                                _showChannelsBottomSheet(zone: zone);
+                              },
+                              onChangeVolume: _controller.setVolume,
+                              onTapZone: (zone) {
+                                _controller.setCurrentZone(zone: zone);
+                                _tabControler.animateTo(1);
+                                setState(() {});
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -349,13 +400,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
           ),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
+        floatingActionButtonLocation: _controller.expandedViewMode.watch(context)
+            ? FloatingActionButtonLocation.miniStartFloat
+            : FloatingActionButtonLocation.endFloat,
         floatingActionButton: _controller.expandedViewMode.watch(context)
             ? FloatingActionButton.small(
                 child: const Icon(Icons.arrow_back_rounded),
                 onPressed: () => _tabControler.animateTo(0),
               )
-            : null,
+            : FloatingActionButton.small(
+                child: const Icon(Icons.music_note),
+                onPressed: () => {},
+              ),
       ),
     );
   }
