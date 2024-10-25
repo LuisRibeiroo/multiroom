@@ -101,7 +101,7 @@ class ZonesExpandableCard extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8.0),
                             child: Column(
-                              key: ValueKey(wrapper.isStereo),
+                              key: ValueKey("${wrapper.hashCode}"),
                               children: [
                                 Visibility(
                                   visible: wrapper.isStereo,
