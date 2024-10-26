@@ -621,7 +621,7 @@ class HomePageController extends BaseController with SocketMixin {
       } catch (exception) {
         logger.e("Erro no comando [$cmd] --> $exception");
 
-        _setOfflineDeviceState();
+        _updateDevicesState();
         setError(Exception("Erro ao enviar comando"));
 
         if (exception.toString().contains("Bad state")) {
