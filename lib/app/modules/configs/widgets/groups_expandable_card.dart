@@ -69,6 +69,7 @@ class GroupsExpandableCard extends StatelessWidget {
                             12.asSpace,
                             Expanded(
                               child: TextFormField(
+                                key: ValueKey("${group.id}${group.name}"),
                                 enabled: isEditing && editingGroup.id == group.id,
                                 decoration: const InputDecoration(border: OutlineInputBorder()),
                                 initialValue: group.name.capitalize,
