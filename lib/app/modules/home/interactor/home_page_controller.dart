@@ -455,15 +455,6 @@ class HomePageController extends BaseController with SocketMixin {
     // currentDevice.value = initDevice;
   }
 
-  void _setOfflineDeviceState() {
-    if (currentDevice.value.active) {
-      currentDevice.value = currentDevice.value.copyWith(active: false);
-      _settings.saveDevice(device: currentDevice.value);
-
-      _updateDeviceInProject(device: currentDevice.value);
-    }
-  }
-
   Future<void> _updateDevicesState() async {
     currentProject.value = _getLastProject();
 
@@ -598,7 +589,7 @@ class HomePageController extends BaseController with SocketMixin {
 
         logger.e("Erro ao tentar comunicação com o Multiroom --> $exception");
 
-        _setOfflineDeviceState();
+        _updateDevicesState();
         setError(Exception("Erro ao tentar comunicação com o Multiroom"));
       }
     });
