@@ -205,7 +205,7 @@ class HomePageController extends BaseController with SocketMixin {
     _updateZonesInProject(zones: [currentZone.value]);
   }
 
-  Future<EqualizerModel> updateEqualizer({ZoneModel? newZone}) async {
+  Future<void> updateEqualizer({ZoneModel? newZone}) async {
     final zone = newZone ?? currentZone.value;
     final f60 = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getEqualizer(
@@ -274,27 +274,35 @@ class HomePageController extends BaseController with SocketMixin {
     } else {
       currentEqualizer.value = equalizers[eqIndex];
     }
-
-    return currentEqualizer.value;
   }
 
   Future<void> setEqualizer(EqualizerModel equalizer) async {
-    currentEqualizer.value = equalizers.firstWhere((e) => e.name == equalizer.name);
-    currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
+    try {
+      currentEqualizer.value = equalizers.firstWhere((e) => e.name == equalizer.name);
+      currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
 
-    for (final freq in currentZone.value.equalizer.frequencies) {
-      await socketSender(
-        // TODO: Update to use ALL cmd
-        MrCmdBuilder.setEqualizer(
-          macAddress: currentZone.value.macAddress,
-          zone: currentZone.value,
-          frequency: freq,
-          gain: freq.value,
-        ),
-      );
+      for (final freq in currentZone.value.equalizer.frequencies) {
+        await socketSender(
+          // TODO: Update to use ALL cmd
+          MrCmdBuilder.setEqualizer(
+            macAddress: currentZone.value.macAddress,
+            zone: currentZone.value,
+            frequency: freq,
+            gain: freq.value,
+          ),
+        );
 
-      // Delay to avoid sending commands too fast
-      await Future.delayed(Durations.short2);
+        // Delay to avoid sending commands too fast
+        await Future.delayed(Durations.short2);
+      }
+    } catch (exception) {
+      logger.e("Erro ao configurar equalizador --> $exception");
+
+      _updateDevicesState();
+      setError(Exception("Erro ao enviar comando"));
+
+      currentEqualizer.value = currentEqualizer.previousValue!;
+      currentZone.value = currentZone.previousValue!;
     }
 
     _updateZonesInProject(zones: [currentZone.value]);
@@ -612,7 +620,7 @@ class HomePageController extends BaseController with SocketMixin {
         _updateDeviceInProject(device: currentDevice.value);
       } catch (exception) {
         logger.e("Erro no comando [$cmd] --> $exception");
-        // setError(Exception("Erro no comando [$cmd] --> $exception"));
+
         _setOfflineDeviceState();
         setError(Exception("Erro ao enviar comando"));
 
@@ -658,7 +666,6 @@ class HomePageController extends BaseController with SocketMixin {
     final zones = <ZoneModel>[];
 
     for (final zoneData in zonesData) {
-      
       final zone = device.zones.firstWhereOrNull((z) => z.id == zoneData.zoneId);
 
       if (zone == null) {
