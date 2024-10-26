@@ -55,10 +55,10 @@ class HomePageController extends BaseController with SocketMixin {
       effect(() {
         if (expandedViewMode.value) {
           if (currentZone.value.isEmpty == false) {
-            if (currentZone.value.id != currentZone.previousValue?.id) {
+            if (currentZone.value.hashCode != currentZone.previousValue?.hashCode) {
               _writeDebouncer(() async {
                 await _setCurrentDeviceByMacAdress(mac: currentZone.value.macAddress);
-                await updateEqualizer(newZone: currentZone.peek());
+                await updateEqualizer(updatedZone: currentZone.peek());
               });
             }
           }
@@ -205,8 +205,8 @@ class HomePageController extends BaseController with SocketMixin {
     _updateZonesInProject(zones: [currentZone.value]);
   }
 
-  Future<void> updateEqualizer({ZoneModel? newZone}) async {
-    final zone = newZone ?? currentZone.value;
+  Future<void> updateEqualizer({ZoneModel? updatedZone}) async {
+    final zone = updatedZone ?? currentZone.value;
     final f60 = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
@@ -483,7 +483,10 @@ class HomePageController extends BaseController with SocketMixin {
         });
   }
 
-  Future<void> _updateZonesInProject({required List<ZoneModel> zones}) async {
+  Future<void> _updateZonesInProject({
+    required List<ZoneModel> zones,
+    bool getEqualizer = false,
+  }) async {
     for (final zone in zones) {
       ZoneGroupModel? group;
       final isZoneGrouped = currentDevice.value.isZoneInGroup(zone);
@@ -523,6 +526,11 @@ class HomePageController extends BaseController with SocketMixin {
 
         _updateDeviceInProject(device: currentDevice.value);
       }
+
+      _updateCurrentZone(
+        zone: zone,
+        getEqualizer: getEqualizer,
+      );
     }
   }
 
@@ -534,6 +542,16 @@ class HomePageController extends BaseController with SocketMixin {
 
     currentProject.value = currentProject.value.copyWith(devices: newDevices);
     _settings.saveProject(currentProject.value);
+  }
+
+  Future<void> _updateCurrentZone({required ZoneModel zone, bool getEqualizer = false}) async {
+    if (currentZone.value.deviceSerial == zone.deviceSerial && zone.id == currentZone.value.id) {
+      currentZone.value = zone;
+
+      if (getEqualizer) {
+        await updateEqualizer();
+      }
+    }
   }
 
   Future<void> _updateSignals({
@@ -676,7 +694,10 @@ class HomePageController extends BaseController with SocketMixin {
       ));
     }
 
-    await _updateZonesInProject(zones: zones.grouped(device.groups));
+    await _updateZonesInProject(
+      zones: zones.grouped(device.groups),
+      getEqualizer: expandedViewMode.value,
+    );
   }
 
   void dispose() {

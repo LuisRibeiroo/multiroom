@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
@@ -253,6 +254,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
               ),
               const Spacer(),
+              Visibility(
+                visible: PlatformChecker.isMobile == false && kDebugMode,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.sync_rounded,
+                    color: context.colorScheme.primary,
+                  ),
+                  onPressed: () => _controller.syncLocalData(allDevices: true),
+                ),
+              ),
               Watch(
                 (_) => AnimatedSwitcher(
                   duration: Durations.short4,
@@ -269,11 +280,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   ),
                 ),
               ),
+
               Watch(
-                (_) => DeviceStateIndicator(
-                  value: _controller.allDevicesOnline.value,
+                (_) => GestureDetector(
+                  onDoubleTap: PlatformChecker.isMobile ? () => _controller.syncLocalData(allDevices: true) : null,
+                  child: DeviceStateIndicator(
+                    value: _controller.allDevicesOnline.value,
+                  ),
                 ),
               ),
+
               // const VerticalDivider(),
               // Watch(
               //   (_) => IconButton(
