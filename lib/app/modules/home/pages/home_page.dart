@@ -280,7 +280,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   ),
                 ),
               ),
-
               Watch(
                 (_) => GestureDetector(
                   onDoubleTap: PlatformChecker.isMobile ? () => _controller.syncLocalData(allDevices: true) : null,
@@ -289,19 +288,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   ),
                 ),
               ),
-
-              // const VerticalDivider(),
-              // Watch(
-              //   (_) => IconButton(
-              //     onPressed: () {
-              //       visible.value = !visible.value;
-              //     },
-              //     icon: Icon(
-              //       Icons.search_rounded,
-              //       color: context.colorScheme.primary,
-              //     ),
-              //   ),
-              // ),
+              const VerticalDivider(),
+              Watch(
+                (_) => IconButton(
+                  onPressed: () {
+                    visible.value = !visible.value;
+                  },
+                  icon: Icon(
+                    Icons.search_rounded,
+                    color: context.colorScheme.primary,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -355,13 +353,32 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             AnimatedSize(
                               duration: Durations.medium1,
                               child: Container(
-                                color: Colors.green,
+                                // color: Colors.green,
                                 height: visible.value ? 80 : 0,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      12.asSpace,
+                                      TextFormField(
+                                        decoration: const InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          labelText: "Buscar...",
+                                          hintText: "",
+                                        ),
+                                        initialValue: '',
+                                        onChanged: _controller.applyZoneFilter,
+                                        // onChanged: onChangeProjectName,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                             SummaryZonesList(
                               devices: _controller.currentProject.value.devices,
-                              zones: _controller.projectZones.value,
+                              zones: visible.value ? _controller.projectZonesFiltered.value : _controller.projectZones.value,
                               onChangeActive: _controller.setZoneActive,
                               onChangeChannel: (zone) {
                                 _controller.setCurrentZone(zone: zone);
