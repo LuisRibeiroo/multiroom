@@ -37,6 +37,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   late TabController _tabControler;
 
   final visible = false.asSignal();
+  final textfield = TextEditingController();
+
+  void clearSearch(){
+    textfield.text = "";
+    _controller.applyZoneFilter("");
+  }
 
   void _showDevicesBottomSheet() {
     context.showCustomModalBottomSheet(
@@ -367,8 +373,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                           labelText: "Buscar...",
                                           hintText: "",
                                         ),
-                                        initialValue: '',
+                                        // initialValue: '',
                                         onChanged: _controller.applyZoneFilter,
+                                        controller: textfield,
                                         // onChanged: onChangeProjectName,
                                       ),
                                     ],
@@ -389,6 +396,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                 _controller.setCurrentZone(zone: zone);
                                 _tabControler.animateTo(1);
                                 setState(() {});
+                                visible.value = visible.value && !visible.value;
+                                clearSearch();
                               },
                             ),
                           ],

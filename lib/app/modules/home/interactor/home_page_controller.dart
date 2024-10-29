@@ -46,21 +46,8 @@ class HomePageController extends BaseController with SocketMixin {
             <ZoneModel>[],
             (pv, d) => pv..addAll(d.groupedZones),
           );
-          if (projectZonesFiltered.value.isEmpty) {
-            projectZonesFiltered.value = projectZones.value;
-          } else {
-            List<ZoneModel> result = [];
-            for (var p in projectZones.value) {
-              var find = projectZonesFiltered.value.where((f) => f.id == p.id).toList();
-              if (find.isNotEmpty) {
-                result.add(find[0]);
-              }
-            }
-            if (result.isNotEmpty) {
-              print(result);
-              // projectZonesFiltered.value = result;
-            }
-          }
+
+          projectZonesFiltered.value = projectZones.value.where((z) => z.name.toUpperCase().contains(search)).toList();
 
           // projectZones.value.sort((a, b) => a.name.compareTo(b.name));
           _settings.lastProjectId = currentProject.value.id;
@@ -89,7 +76,7 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   final _settings = injector.get<SettingsContract>();
-
+  String search = '';
   final projectZonesFiltered = listSignal<ZoneModel>([], debugLabel: "projectZonesFiltered");
   final projectZones = listSignal<ZoneModel>([], debugLabel: "projectZones");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
@@ -121,6 +108,7 @@ class HomePageController extends BaseController with SocketMixin {
   void setPageVisible(bool visible) => _isPageVisible.value = visible;
 
   applyZoneFilter(String value) {
+    search = value.toUpperCase();
     var list = projectZones.value.where((z) => z.name.toUpperCase().contains(value.toUpperCase())).toList();
     projectZonesFiltered.value = list;
   }
