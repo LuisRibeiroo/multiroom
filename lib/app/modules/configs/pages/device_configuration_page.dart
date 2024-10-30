@@ -159,6 +159,7 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                       isEditing: _controller.isEditingZone.value,
                       onChangeZoneMode: _controller.onChangeZoneMode,
                       onChangeZoneName: _controller.onChangeZoneName,
+                      onChangeZoneVisible: _controller.onChangeZoneVisible,
                       toggleEditingZone: _controller.toggleEditingZone,
                       onEdtiMaxVolume: _showMaxVolumeEditBottomSheet,
                     ),

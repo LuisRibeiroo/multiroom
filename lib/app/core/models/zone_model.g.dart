@@ -25,6 +25,7 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
       balance: fields[6] as int,
       equalizer: fields[7] as EqualizerModel,
       wrapperId: fields[9] == null ? '' : fields[9] as String,
+      visible: fields[17] as bool,
       side: fields[8] as MonoSide,
       channel: fields[11] == null
           ? const ChannelModel.empty()
@@ -40,7 +41,7 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
   @override
   void write(BinaryWriter writer, ZoneModel obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -70,7 +71,9 @@ class ZoneModelAdapter extends TypeAdapter<ZoneModel> {
       ..writeByte(15)
       ..write(obj.deviceSerial)
       ..writeByte(16)
-      ..write(obj.macAddress);
+      ..write(obj.macAddress)
+      ..writeByte(17)
+      ..write(obj.visible);
   }
 
   @override

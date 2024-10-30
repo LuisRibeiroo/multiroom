@@ -183,6 +183,20 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     editingWrapper.value = editingWrapper.peek().copyWith(zone: zone.copyWith(name: value));
   }
 
+  void onChangeZoneVisible(ZoneWrapperModel wrapper, bool value) {
+    editingWrapper.value = wrapper.copyWith(
+        zone: wrapper.stereoZone.copyWith(visible: value),
+        monoZones: wrapper.monoZones.copyWith(
+            left: wrapper.monoZones.left.copyWith(visible: value),
+            right: wrapper.monoZones.right.copyWith(visible: value)));
+
+    device.value = device.peek().copyWith(
+          zoneWrappers: device.peek().zoneWrappers.map((z) => z.id == wrapper.id ? editingWrapper.value : z).toList(),
+        );
+
+    _updateGroupZones(editingWrapper.value);
+  }
+
   void onChangeGroupName(ZoneGroupModel group, String value) {
     editingGroup.value = editingGroup.value.copyWith(name: value);
   }

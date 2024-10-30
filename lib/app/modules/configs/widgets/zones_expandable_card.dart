@@ -18,6 +18,7 @@ class ZonesExpandableCard extends StatelessWidget {
     required this.isEditing,
     required this.onChangeZoneMode,
     required this.onChangeZoneName,
+    required this.onChangeZoneVisible,
     required this.toggleEditingZone,
     required this.expandableController,
     required this.onEdtiMaxVolume,
@@ -30,6 +31,7 @@ class ZonesExpandableCard extends StatelessWidget {
   final ZoneModel editingZone;
   final Function(ZoneWrapperModel, bool) onChangeZoneMode;
   final Function(ZoneModel, String) onChangeZoneName;
+  final Function(ZoneWrapperModel, bool) onChangeZoneVisible;
   final Function(ZoneWrapperModel, ZoneModel) toggleEditingZone;
   final Function(ZoneWrapperModel) onEdtiMaxVolume;
 
@@ -58,7 +60,8 @@ class ZonesExpandableCard extends StatelessWidget {
               zones.length,
               (idx) {
                 final wrapper = zones[idx];
-
+                print(wrapper.monoZones.left.visible);
+                print(wrapper.monoZones.right.visible);
                 return Card.outlined(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -69,8 +72,11 @@ class ZonesExpandableCard extends StatelessWidget {
                             Expanded(
                               child: ListTile(
                                 title: Text("Zona ${idx + 1}"),
-                                // onTap: () => onChangeZoneMode(wrapper, !wrapper.isStereo),
-                                leading: const Icon(Icons.home_filled),
+                                leading: IconButton(
+                                  icon: Icon(wrapper.stereoZone.visible ? Icons.home_filled : Icons.hide_source),
+                                  onPressed: () => onChangeZoneVisible(wrapper, !wrapper.stereoZone.visible),
+                                ),
+                                // leading: const Icon(Icons.home_filled),
                               ),
                             ),
                             AppSwitch(

@@ -22,6 +22,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     required this.balance,
     required this.equalizer,
     required this.wrapperId,
+    required this.visible,
     this.side = MonoSide.undefined,
     this.channel = const ChannelModel.empty(),
     this.groupId = "",
@@ -55,6 +56,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       channel: ChannelModel.builder(index: 1, name: "Input 1"),
       deviceSerial: deviceSerial,
       macAddress: macAddress,
+      visible: true,
     );
   }
 
@@ -69,6 +71,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       balance: 0,
       equalizer: EqualizerModel.empty(),
       channel: const ChannelModel.empty(),
+      visible: false,
     );
   }
 
@@ -89,6 +92,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       maxVolumeRight: map['maxVolumeRight'],
       deviceSerial: map["deviceSerial"],
       macAddress: map["macAddress"],
+      visible: map['visible']
     );
   }
 
@@ -109,6 +113,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       'maxVolumeRight': maxVolumeRight,
       'deviceSerial': deviceSerial,
       'macAddress': macAddress,
+      'visible': visible,
     };
   }
 
@@ -142,6 +147,8 @@ class ZoneModel extends Equatable implements SelectableModel {
   final String deviceSerial;
   @HiveField(16, defaultValue: "")
   final String macAddress;
+  @HiveField(17)
+  final bool visible;
 
   bool get isEmpty => id == ZoneModel.empty().id;
   bool get isStereo => side == MonoSide.undefined;
@@ -165,6 +172,7 @@ class ZoneModel extends Equatable implements SelectableModel {
     int? maxVolumeRight,
     String? deviceSerial,
     String? macAddress,
+    bool? visible,
   }) {
     return ZoneModel(
       id: id,
@@ -182,6 +190,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       maxVolumeRight: maxVolumeRight ?? this.maxVolumeRight,
       deviceSerial: deviceSerial ?? this.deviceSerial,
       macAddress: macAddress ?? this.macAddress,
+      visible: visible ?? this.visible,
     );
   }
 
@@ -202,6 +211,7 @@ class ZoneModel extends Equatable implements SelectableModel {
         maxVolumeRight,
         deviceSerial,
         macAddress,
+        visible,
       ];
 }
 
