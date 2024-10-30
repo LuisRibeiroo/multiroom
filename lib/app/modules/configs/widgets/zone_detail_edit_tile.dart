@@ -11,6 +11,7 @@ class ZoneDetailEditTile extends StatelessWidget {
     required this.zone,
     required this.isEditing,
     required this.onChangeZoneName,
+    required this.onChangeZoneVisible,
     required this.toggleEditing,
     required this.hideEditButton,
     this.label = "",
@@ -21,6 +22,7 @@ class ZoneDetailEditTile extends StatelessWidget {
   final ZoneModel zone;
   final bool isEditing;
   final Function(ZoneModel, String) onChangeZoneName;
+  final Function(ZoneWrapperModel, ZoneModel, bool) onChangeZoneVisible;
   final Function(ZoneWrapperModel, ZoneModel) toggleEditing;
   final bool hideEditButton;
 
@@ -35,7 +37,9 @@ class ZoneDetailEditTile extends StatelessWidget {
             isEditing: isEditing,
             onChangeValue: (_, value) => onChangeZoneName(zone, value),
             toggleEditing: (_) => toggleEditing(wrapper, zone),
+            toggleZoneVisible: () => onChangeZoneVisible(wrapper, zone, !zone.visible),
             hideEditButton: hideEditButton,
+            hideZone: !zone.visible,
           ),
         ),
       ],

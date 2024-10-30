@@ -183,18 +183,43 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     editingWrapper.value = editingWrapper.peek().copyWith(zone: zone.copyWith(name: value));
   }
 
-  void onChangeZoneVisible(ZoneWrapperModel wrapper, bool value) {
-    editingWrapper.value = wrapper.copyWith(
-        zone: wrapper.stereoZone.copyWith(visible: value),
-        monoZones: wrapper.monoZones.copyWith(
-            left: wrapper.monoZones.left.copyWith(visible: value),
-            right: wrapper.monoZones.right.copyWith(visible: value)));
+  // void onChangeZoneVisible(ZoneWrapperModel wrapper, bool value) {
 
+  //   editingWrapper.value = wrapper.copyWith(
+  //       zone: wrapper.stereoZone.copyWith(visible: value),
+  //       monoZones: wrapper.monoZones.copyWith(
+  //           left: wrapper.monoZones.left.copyWith(visible: value),
+  //           right: wrapper.monoZones.right.copyWith(visible: value)));
+
+  //   device.value = device.peek().copyWith(
+  //         zoneWrappers: device.peek().zoneWrappers.map((z) => z.id == wrapper.id ? editingWrapper.value : z).toList(),
+  //       );
+
+  //   // _updateGroupZones(editingWrapper.value);
+  // }
+  void onChangeZoneVisible(ZoneWrapperModel wrapper, ZoneModel zone, bool value) {
+    if (zone.isStereo) {
+      editingWrapper.value = wrapper.copyWith(
+          zone: wrapper.stereoZone.copyWith(visible: value),
+          monoZones: wrapper.monoZones.copyWith(
+              left: wrapper.monoZones.left.copyWith(visible: value),
+              right: wrapper.monoZones.right.copyWith(visible: value)));
+    } else {
+      if (zone.id.contains('L')) {
+        ZoneWrapperModel newWrapper = wrapper.copyWith(
+            monoZones: wrapper.monoZones.copyWith(left: wrapper.monoZones.left.copyWith(visible: value)));
+
+        editingWrapper.value = newWrapper;
+      } else {
+        ZoneWrapperModel newWrapper = wrapper.copyWith(
+            monoZones: wrapper.monoZones.copyWith(right: wrapper.monoZones.right.copyWith(visible: value)));
+
+        editingWrapper.value = newWrapper;
+      }
+    }
     device.value = device.peek().copyWith(
           zoneWrappers: device.peek().zoneWrappers.map((z) => z.id == wrapper.id ? editingWrapper.value : z).toList(),
         );
-
-    _updateGroupZones(editingWrapper.value);
   }
 
   void onChangeGroupName(ZoneGroupModel group, String value) {

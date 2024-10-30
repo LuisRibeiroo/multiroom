@@ -31,7 +31,7 @@ class ZonesExpandableCard extends StatelessWidget {
   final ZoneModel editingZone;
   final Function(ZoneWrapperModel, bool) onChangeZoneMode;
   final Function(ZoneModel, String) onChangeZoneName;
-  final Function(ZoneWrapperModel, bool) onChangeZoneVisible;
+  final Function(ZoneWrapperModel, ZoneModel, bool) onChangeZoneVisible;
   final Function(ZoneWrapperModel, ZoneModel) toggleEditingZone;
   final Function(ZoneWrapperModel) onEdtiMaxVolume;
 
@@ -70,11 +70,7 @@ class ZonesExpandableCard extends StatelessWidget {
                             Expanded(
                               child: ListTile(
                                 title: Text("Zona ${idx + 1}"),
-                                leading: IconButton(
-                                  icon: Icon(wrapper.stereoZone.visible ? Icons.home_filled : Icons.hide_source),
-                                  onPressed: () => onChangeZoneVisible(wrapper, !wrapper.stereoZone.visible),
-                                ),
-                                // leading: const Icon(Icons.home_filled),
+                                leading: const Icon( Icons.home_filled)
                               ),
                             ),
                             AppSwitch(
@@ -116,6 +112,7 @@ class ZonesExpandableCard extends StatelessWidget {
                                     isEditing: editingWrapper.id == wrapper.id && isEditing,
                                     onChangeZoneName: onChangeZoneName,
                                     toggleEditing: toggleEditingZone,
+                                    onChangeZoneVisible: onChangeZoneVisible
                                   ),
                                 ),
                                 Visibility(
@@ -128,6 +125,7 @@ class ZonesExpandableCard extends StatelessWidget {
                                     isEditing: editingZone.id == wrapper.monoZones.left.id && isEditing,
                                     onChangeZoneName: onChangeZoneName,
                                     toggleEditing: toggleEditingZone,
+                                    onChangeZoneVisible: onChangeZoneVisible
                                   ),
                                 ),
                                 8.asSpace,
@@ -141,6 +139,7 @@ class ZonesExpandableCard extends StatelessWidget {
                                     isEditing: editingZone.id == wrapper.monoZones.right.id && isEditing,
                                     onChangeZoneName: onChangeZoneName,
                                     toggleEditing: toggleEditingZone,
+                                    onChangeZoneVisible: onChangeZoneVisible
                                   ),
                                 ),
                               ],
