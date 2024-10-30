@@ -39,19 +39,23 @@ class _SummaryZonesListState extends State<SummaryZonesList> {
             shrinkWrap: true,
             itemCount: widget.zones.length,
             physics: const NeverScrollableScrollPhysics(),
-            separatorBuilder: (context, index) => const Divider(color: Colors.white30),
+            separatorBuilder: (context, index) => widget.zones[index].visible ? const Divider(color: Colors.white30) : const SizedBox(height: 0),
             itemBuilder: (context, index) {
               final zone = widget.zones[index];
               final device = widget.devices.firstWhereOrNull((element) => element.serialNumber == zone.deviceSerial);
 
-              return SummaryZoneControls(
-                isDeviceActive: device?.active ?? false,
-                zone: zone,
-                onTapCard: widget.onTapZone,
-                onChangeActive: (value) => widget.onChangeActive(value, zone: zone),
-                onChangeChannel: () => widget.onChangeChannel(zone),
-                onChangeVolume: (value) => widget.onChangeVolume(value, zone: zone),
-              );
+              if (zone.visible) {
+                return SummaryZoneControls(
+                  isDeviceActive: device?.active ?? false,
+                  zone: zone,
+                  onTapCard: widget.onTapZone,
+                  onChangeActive: (value) => widget.onChangeActive(value, zone: zone),
+                  onChangeChannel: () => widget.onChangeChannel(zone),
+                  onChangeVolume: (value) => widget.onChangeVolume(value, zone: zone),
+                );
+              }else{
+                return const SizedBox(height: 0);
+              }
             },
           ),
         ),

@@ -359,7 +359,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             AnimatedSize(
                               duration: Durations.medium1,
                               child: Container(
-                                // color: Colors.green,
                                 height: visible.value ? 80 : 0,
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -373,10 +372,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                           labelText: "Buscar...",
                                           hintText: "",
                                         ),
-                                        // initialValue: '',
                                         onChanged: _controller.applyZoneFilter,
                                         controller: textfield,
-                                        // onChanged: onChangeProjectName,
                                       ),
                                     ],
                                   ),

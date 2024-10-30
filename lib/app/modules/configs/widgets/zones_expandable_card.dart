@@ -60,8 +60,6 @@ class ZonesExpandableCard extends StatelessWidget {
               zones.length,
               (idx) {
                 final wrapper = zones[idx];
-                print(wrapper.monoZones.left.visible);
-                print(wrapper.monoZones.right.visible);
                 return Card.outlined(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12.0),

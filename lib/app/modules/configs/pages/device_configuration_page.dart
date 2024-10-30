@@ -49,14 +49,18 @@ class _DeviceConfigurationPageState extends State<DeviceConfigurationPage> {
                 itemBuilder: (_, index) {
                   final zone = _controller.availableZones.value[index];
 
-                  return ListTile(
-                    title: Text(zone.label),
-                    trailing: const Icon(Icons.add_circle_rounded),
-                    onTap: () {
-                      _controller.onAddZoneToGroup(group, zone);
-                      Routefly.pop(context);
-                    },
-                  );
+                  if (zone.visible) {
+                    return ListTile(
+                      title: Text(zone.label),
+                      trailing: const Icon(Icons.add_circle_rounded),
+                      onTap: () {
+                        _controller.onAddZoneToGroup(group, zone);
+                        Routefly.pop(context);
+                      },
+                    );
+                  } else {
+                    return const SizedBox(height: 0);
+                  }
                 },
               ),
             ),
