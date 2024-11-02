@@ -507,21 +507,24 @@ class HomePageController extends BaseController with SocketMixin {
       }
 
       final updatedZone = isZoneGrouped ? zone.copyWith(name: group?.getZone(zone.id).name) : zone;
+      logger.i("[DBG] UPDATE PROJECT --> ${tempDevice.serialNumber} | ${updatedZone.name}");
 
-      logger.i("[DBG] UPDATE PROJECT --> ${tempDevice.serialNumber} | ${isZoneGrouped ? group?.name : zone.name}");
-      final updatedGroup = group?.copyWith(
-        zones: group.zones.withReplacement(
-          (z) => z.id == zone.id,
-          updatedZone,
-        ),
-      );
+      if (isZoneGrouped) {
+        final updatedGroup = group?.copyWith(
+          zones: group.zones.withReplacement(
+            (z) => z.id == zone.id,
+            updatedZone,
+          ),
+        );
 
-      updatedGroups = group == null
-          ? null
-          : tempDevice.groups.withReplacement(
-              (g) => g.id == group!.id,
-              updatedGroup!,
-            );
+        updatedGroups = group == null
+            ? null
+            : tempDevice.groups.withReplacement(
+                (g) => g.id == group!.id,
+                updatedGroup!,
+              );
+      }
+
       final updatedWrapper =
           tempDevice.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId).copyWith(zone: updatedZone);
 
