@@ -527,7 +527,7 @@ class HomePageController extends BaseController with SocketMixin {
         updatedWrapper,
       );
 
-      if (currentDevice.value.serialNumber == zones[0].deviceSerial) {
+      if (currentDevice.value.serialNumber == zone.deviceSerial) {
         currentDevice.value = currentDevice.value.copyWith(
           zoneWrappers: updatedWrappers,
           groups: updatedGroups,
@@ -537,7 +537,7 @@ class HomePageController extends BaseController with SocketMixin {
       }
 
       _updateCurrentZone(
-        zone: zone,
+        zone: updatedZone,
         getEqualizer: getEqualizer,
       );
     }
@@ -639,7 +639,7 @@ class HomePageController extends BaseController with SocketMixin {
       } catch (exception) {
         logger.e("Erro no comando [$cmd] --> $exception");
 
-        _updateDevicesState();
+        await _updateDevicesState();
         setError(Exception("Erro ao enviar comando"));
 
         if (exception.toString().contains("Bad state")) {
