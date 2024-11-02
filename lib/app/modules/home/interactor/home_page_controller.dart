@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/models/zone_wrapper_model.dart';
 import 'package:multiroom/app/core/utils/constants.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
@@ -41,17 +42,6 @@ class HomePageController extends BaseController with SocketMixin {
         if (projects.isEmpty || currentProject.value.devices.isEmpty) {
           Routefly.replace(routePaths.modules.configs.pages.configs);
           Routefly.pushNavigate(routePaths.modules.configs.pages.configs);
-        } else {
-          projectZones.value = currentProject.value.devices.fold(
-            <ZoneModel>[],
-            (pv, d) => pv..addAll(d.groupedZones),
-          );
-
-          projectZonesFiltered.value = projectZones.value.where((z) => z.name.toUpperCase().contains(search)).toList();
-
-          // projectZones.value.sort((a, b) => a.name.compareTo(b.name));
-          _settings.lastProjectId = currentProject.value.id;
-          //  _settings.saveProject(currentProject.value);
         }
       }),
       effect(() {
@@ -72,12 +62,24 @@ class HomePageController extends BaseController with SocketMixin {
       effect(() {
         anyZoneOnInProject.value = projectZones.any((z) => z.active);
       }),
+      currentProject.subscribe((project) {
+        projectZones.value = project.devices.fold(
+          <ZoneModel>[],
+          (pv, d) => pv..addAll(d.groupedZones),
+        );
+
+        filteredProjectZones.value = projectZones.value.where((z) => z.name.toUpperCase().contains(search)).toList();
+
+        // projectZones.value.sort((a, b) => a.name.compareTo(b.name));
+        _settings.lastProjectId = project.id;
+        //  _settings.saveProject(currentProject.value);
+      })
     ];
   }
 
   final _settings = injector.get<SettingsContract>();
   String search = '';
-  final projectZonesFiltered = listSignal<ZoneModel>([], debugLabel: "projectZonesFiltered");
+  final filteredProjectZones = listSignal<ZoneModel>([], debugLabel: "projectZonesFiltered");
   final projectZones = listSignal<ZoneModel>([], debugLabel: "projectZones");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
   final equalizers = listSignal<EqualizerModel>(
@@ -107,10 +109,10 @@ class HomePageController extends BaseController with SocketMixin {
 
   void setPageVisible(bool visible) => _isPageVisible.value = visible;
 
-  applyZoneFilter(String value) {
+  void applyZoneFilter(String value) {
     search = value.toUpperCase();
-    var list = projectZones.value.where((z) => z.name.toUpperCase().contains(value.toUpperCase())).toList();
-    projectZonesFiltered.value = list;
+    final list = projectZones.value.where((z) => z.name.toUpperCase().contains(value.toUpperCase())).toList();
+    filteredProjectZones.value = list;
   }
 
   Future<void> setProject(ProjectModel proj) async {
@@ -490,52 +492,60 @@ class HomePageController extends BaseController with SocketMixin {
   Future<void> _updateZonesInProject({
     required List<ZoneModel> zones,
     bool getEqualizer = false,
+    DeviceModel? device,
   }) async {
+    List<ZoneWrapperModel> updatedWrappers;
+    List<ZoneGroupModel>? updatedGroups;
+    DeviceModel tempDevice = (device ?? currentDevice.value);
+
     for (final zone in zones) {
       ZoneGroupModel? group;
-      final isZoneGrouped = currentDevice.value.isZoneInGroup(zone);
+      final isZoneGrouped = tempDevice.isZoneInGroup(zone);
 
       if (isZoneGrouped) {
-        group = currentDevice.value.groups.firstWhereOrNull((g) => g.zones.containsZone(zone));
+        group = tempDevice.groups.firstWhereOrNull((g) => g.zones.containsZone(zone));
       }
 
       final updatedZone = isZoneGrouped ? zone.copyWith(name: group?.getZone(zone.id).name) : zone;
 
-      logger.i("[DBG] UPDATE PROJECT --> ${isZoneGrouped ? group?.name : zone.name}");
+      logger.i("[DBG] UPDATE PROJECT --> ${tempDevice.serialNumber} | ${isZoneGrouped ? group?.name : zone.name}");
       final updatedGroup = group?.copyWith(
         zones: group.zones.withReplacement(
           (z) => z.id == zone.id,
           updatedZone,
         ),
       );
-      final updatedGroups = group == null
+
+      updatedGroups = group == null
           ? null
-          : currentDevice.value.groups.withReplacement(
+          : tempDevice.groups.withReplacement(
               (g) => g.id == group!.id,
               updatedGroup!,
             );
       final updatedWrapper =
-          currentDevice.value.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId).copyWith(zone: updatedZone);
+          tempDevice.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId).copyWith(zone: updatedZone);
 
-      final updatedWrappers = currentDevice.value.zoneWrappers.withReplacement(
+      updatedWrappers = tempDevice.zoneWrappers.withReplacement(
         (w) => w.id == updatedWrapper.id,
         updatedWrapper,
       );
 
-      if (currentDevice.value.serialNumber == zone.deviceSerial) {
-        currentDevice.value = currentDevice.value.copyWith(
-          zoneWrappers: updatedWrappers,
-          groups: updatedGroups,
-        );
-
-        _updateDeviceInProject(device: currentDevice.value);
-      }
+      tempDevice = tempDevice.copyWith(
+        zoneWrappers: updatedWrappers,
+        groups: updatedGroups,
+      );
 
       _updateCurrentZone(
         zone: updatedZone,
         getEqualizer: getEqualizer,
       );
     }
+
+    if (currentDevice.value.serialNumber == zones.first.deviceSerial) {
+      currentDevice.value = tempDevice;
+    }
+
+    _updateDeviceInProject(device: tempDevice);
   }
 
   void _updateDeviceInProject({required DeviceModel device}) {
@@ -699,6 +709,7 @@ class HomePageController extends BaseController with SocketMixin {
     }
 
     await _updateZonesInProject(
+      device: device,
       zones: zones.grouped(device.groups),
       getEqualizer: expandedViewMode.value,
     );
