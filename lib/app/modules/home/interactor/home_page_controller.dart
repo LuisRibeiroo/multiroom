@@ -3,8 +3,6 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/models/zone_wrapper_model.dart';
-import 'package:multiroom/app/core/utils/constants.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -22,6 +20,8 @@ import '../../../core/models/frequency.dart';
 import '../../../core/models/project_model.dart';
 import '../../../core/models/zone_group_model.dart';
 import '../../../core/models/zone_model.dart';
+import '../../../core/models/zone_wrapper_model.dart';
+import '../../../core/utils/constants.dart';
 import '../../../core/utils/debouncer.dart';
 import '../../../core/utils/mr_cmd_builder.dart';
 
