@@ -347,10 +347,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 controller: _tabControler,
                 children: [
                   RefreshIndicator.adaptive(
-                    triggerMode: RefreshIndicatorTriggerMode.anywhere,
                     key: PageStorageKey("$SummaryZonesList"),
                     onRefresh: () => _controller.syncLocalData(allDevices: true),
                     child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       child: Watch(
                         (_) => Column(
                           children: [
