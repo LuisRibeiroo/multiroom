@@ -36,10 +36,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   final _controller = injector.get<HomePageController>();
   late TabController _tabControler;
 
-  final visible = false.asSignal();
   final textfield = TextEditingController();
 
-  void clearSearch(){
+  void clearSearch() {
     textfield.text = "";
     _controller.applyZoneFilter("");
   }
@@ -298,7 +297,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               Watch(
                 (_) => IconButton(
                   onPressed: () {
-                    visible.value = !visible.value;
+                    _controller.searchIsVisible.value = !_controller.searchIsVisible.value;
                   },
                   icon: Icon(
                     Icons.search_rounded,
@@ -358,8 +357,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           children: [
                             AnimatedSize(
                               duration: Durations.medium1,
-                              child: Container(
-                                height: visible.value ? 80 : 0,
+                              child: SizedBox(
+                                height: _controller.searchIsVisible.value ? 80 : 0,
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                                   child: Column(
@@ -382,7 +381,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             ),
                             SummaryZonesList(
                               devices: _controller.currentProject.value.devices,
-                              zones: visible.value ? _controller.projectZonesFiltered.value : _controller.projectZones.value,
+                              zones: _controller.searchIsVisible.value
+                                  ? _controller.filteredProjectZones.value
+                                  : _controller.projectZones.value,
                               onChangeActive: _controller.setZoneActive,
                               onChangeChannel: (zone) {
                                 _controller.setCurrentZone(zone: zone);
@@ -393,7 +394,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                 _controller.setCurrentZone(zone: zone);
                                 _tabControler.animateTo(1);
                                 setState(() {});
-                                visible.value = visible.value && !visible.value;
+                                _controller.searchIsVisible.value =
+                                    _controller.searchIsVisible.value && !_controller.searchIsVisible.value;
                                 clearSearch();
                               },
                             ),

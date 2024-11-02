@@ -76,7 +76,8 @@ class HomePageController extends BaseController with SocketMixin {
       })
     ];
   }
-
+  
+  final searchIsVisible = false.asSignal(debugLabel: "searchIsVisible");
   final _settings = injector.get<SettingsContract>();
   String search = '';
   final filteredProjectZones = listSignal<ZoneModel>([], debugLabel: "projectZonesFiltered");
