@@ -35,13 +35,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   final _controller = injector.get<HomePageController>();
   late TabController _tabControler;
-
-  final textfield = TextEditingController();
-
-  void clearSearch() {
-    textfield.text = "";
-    _controller.applyZoneFilter("");
-  }
+  late TextEditingController _searchController;
 
   void _showDevicesBottomSheet() {
     context.showCustomModalBottomSheet(
@@ -187,6 +181,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
+  void _clearSearch() {
+    _controller.setSearchText("");
+    _searchController.clear();
+  }
+
   @override
   bool get wantKeepAlive => true;
 
@@ -201,6 +200,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         }
       },
     );
+
+    _searchController = TextEditingController();
 
     _tabControler = TabController(
       vsync: this,
@@ -356,32 +357,36 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         (_) => Column(
                           children: [
                             AnimatedSize(
-                              duration: Durations.medium1,
-                              child: SizedBox(
-                                height: _controller.searchIsVisible.value ? 80 : 0,
+                              duration: Durations.short4,
+                              child: Visibility(
+                                key: ValueKey("SearchBar_${_controller.searchIsVisible.value}"),
+                                visible: _controller.searchIsVisible.value,
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      12.asSpace,
-                                      TextFormField(
-                                        decoration: const InputDecoration(
-                                          border: OutlineInputBorder(),
-                                          labelText: "Buscar...",
-                                          hintText: "",
-                                        ),
-                                        onChanged: _controller.applyZoneFilter,
-                                        controller: textfield,
+                                  padding: const EdgeInsets.all(24.0),
+                                  child: TextFormField(
+                                    decoration: InputDecoration(
+                                      border: const OutlineInputBorder(),
+                                      labelText: "Buscar",
+                                      hintText: "Sala de estar, cozinha...",
+                                      hintStyle: context.textTheme.bodyMedium?.copyWith(color: context.theme.hintColor),
+                                      prefixIcon: Icon(
+                                        Icons.search_rounded,
+                                        color: context.theme.hintColor,
                                       ),
-                                    ],
+                                      suffixIcon: IconButton(
+                                        icon: const Icon(Icons.clear_rounded),
+                                        onPressed: _clearSearch,
+                                      ),
+                                    ),
+                                    onChanged: _controller.setSearchText,
+                                    controller: _searchController,
                                   ),
                                 ),
                               ),
                             ),
                             SummaryZonesList(
                               devices: _controller.currentProject.value.devices,
-                              zones: _controller.searchIsVisible.value
+                              zones: _controller.hasFilteredZones.value
                                   ? _controller.filteredProjectZones.value
                                   : _controller.projectZones.value,
                               onChangeActive: _controller.setZoneActive,
@@ -394,9 +399,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                 _controller.setCurrentZone(zone: zone);
                                 _tabControler.animateTo(1);
                                 setState(() {});
-                                _controller.searchIsVisible.value =
-                                    _controller.searchIsVisible.value && !_controller.searchIsVisible.value;
-                                clearSearch();
+
+                                _controller.searchIsVisible.value = false;
+                                _clearSearch();
                               },
                             ),
                           ],

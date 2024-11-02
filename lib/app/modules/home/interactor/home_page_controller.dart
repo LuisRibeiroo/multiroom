@@ -10,6 +10,7 @@ import '../../../../injector.dart';
 import '../../../../routes.g.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/extensions/list_extensions.dart';
+import '../../../core/extensions/string_extensions.dart';
 import '../../../core/interactor/controllers/base_controller.dart';
 import '../../../core/interactor/controllers/socket_mixin.dart';
 import '../../../core/interactor/repositories/settings_contract.dart';
@@ -62,24 +63,30 @@ class HomePageController extends BaseController with SocketMixin {
       effect(() {
         anyZoneOnInProject.value = projectZones.any((z) => z.active);
       }),
+      effect(() {
+        hasFilteredZones.value =
+            searchIsVisible.value && (searchText.value.isNotNullOrEmpty || filteredProjectZones.isNotEmpty);
+      }),
       currentProject.subscribe((project) {
         projectZones.value = project.devices.fold(
           <ZoneModel>[],
           (pv, d) => pv..addAll(d.groupedZones),
         );
 
-        filteredProjectZones.value = projectZones.value.where((z) => z.name.toUpperCase().contains(search)).toList();
-
         // projectZones.value.sort((a, b) => a.name.compareTo(b.name));
         _settings.lastProjectId = project.id;
         //  _settings.saveProject(currentProject.value);
-      })
+      }),
+      effect(() {
+        filteredProjectZones.value =
+            projectZones.value.where((z) => z.name.toUpperCase().contains(searchText.value)).toList();
+      }),
     ];
   }
-  
-  final searchIsVisible = false.asSignal(debugLabel: "searchIsVisible");
+
   final _settings = injector.get<SettingsContract>();
-  String search = '';
+  final searchIsVisible = false.asSignal(debugLabel: "searchIsVisible");
+  final searchText = "".asSignal(debugLabel: "searchText");
   final filteredProjectZones = listSignal<ZoneModel>([], debugLabel: "projectZonesFiltered");
   final projectZones = listSignal<ZoneModel>([], debugLabel: "projectZones");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
@@ -103,18 +110,13 @@ class HomePageController extends BaseController with SocketMixin {
   final expandedViewMode = false.asSignal(debugLabel: "expandedViewMode");
   final allDevicesOnline = false.asSignal(debugLabel: "allDevicesOnline");
   final anyZoneOnInProject = false.asSignal(debugLabel: "anyZoneOnInProject");
+  final hasFilteredZones = false.asSignal(debugLabel: "hasFilteredZones");
 
   final _writeDebouncer = Debouncer(delay: Durations.short4);
 
   final _isPageVisible = false.asSignal(debugLabel: "homePageVisible");
 
   void setPageVisible(bool visible) => _isPageVisible.value = visible;
-
-  void applyZoneFilter(String value) {
-    search = value.toUpperCase();
-    final list = projectZones.value.where((z) => z.name.toUpperCase().contains(value.toUpperCase())).toList();
-    filteredProjectZones.value = list;
-  }
 
   Future<void> setProject(ProjectModel proj) async {
     if (currentProject.value.id == proj.id) {
@@ -427,6 +429,13 @@ class HomePageController extends BaseController with SocketMixin {
         }
       },
     );
+  }
+
+  void setSearchText(String value) {
+    searchText.value = value.toUpperCase();
+
+    // filteredProjectZones.value =
+    //     projectZones.value.where((z) => z.name.toUpperCase().contains(value.toUpperCase())).toList();
   }
 
   ProjectModel _getLastProject() {
