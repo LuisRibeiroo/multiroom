@@ -450,18 +450,13 @@ class HomePageController extends BaseController with SocketMixin {
     required Function(DeviceModel) function,
     bool initSocket = true,
   }) async {
-    // final initDevice = currentDevice.value;
-
     for (final device in currentProject.value.devices) {
       if (initSocket) {
         await restartSocket(ip: device.ip);
       }
 
-      // await _setCurrentDeviceByMacAdress(mac: device.macAddress);
       await function(device);
     }
-
-    // currentDevice.value = initDevice;
   }
 
   Future<void> _updateDevicesState() async {
