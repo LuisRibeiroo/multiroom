@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/models/zone_wrapper_model.dart';
 import '../../shared/widgets/text_edit_tile.dart';
@@ -30,6 +31,20 @@ class ZoneDetailEditTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
+        AnimatedSize(
+          duration: Durations.short3,
+          child: AnimatedSwitcher(
+            duration: Durations.short3,
+            child: IconButton(
+              key: ValueKey("${zone.id}_${zone.visible}"),
+              onPressed: () => onChangeZoneVisible(wrapper, zone, !zone.visible),
+              icon: Icon(
+                zone.visible ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+              ),
+            ),
+          ),
+        ),
+        6.asSpace,
         Expanded(
           child: TextEditTile(
             itemId: label,
@@ -37,9 +52,7 @@ class ZoneDetailEditTile extends StatelessWidget {
             isEditing: isEditing,
             onChangeValue: (_, value) => onChangeZoneName(zone, value),
             toggleEditing: (_) => toggleEditing(wrapper, zone),
-            toggleZoneVisible: () => onChangeZoneVisible(wrapper, zone, !zone.visible),
             hideEditButton: hideEditButton,
-            hideZone: !zone.visible,
           ),
         ),
       ],
