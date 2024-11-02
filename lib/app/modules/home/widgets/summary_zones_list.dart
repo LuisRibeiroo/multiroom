@@ -52,18 +52,17 @@ class _SummaryZonesListState extends State<SummaryZonesList> {
                 final zone = widget.zones[index];
                 final device = widget.devices.firstWhereOrNull((element) => element.serialNumber == zone.deviceSerial);
 
-                if (zone.visible) {
-                  return SummaryZoneControls(
+                return Visibility(
+                  visible: zone.visible,
+                  child: SummaryZoneControls(
                     isDeviceActive: device?.active ?? false,
                     zone: zone,
                     onTapCard: widget.onTapZone,
                     onChangeActive: (value) => widget.onChangeActive(value, zone: zone),
                     onChangeChannel: () => widget.onChangeChannel(zone),
                     onChangeVolume: (value) => widget.onChangeVolume(value, zone: zone),
-                  );
-                } else {
-                  return const SizedBox(height: 0);
-                }
+                  ),
+                );
               },
             ),
     );
