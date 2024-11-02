@@ -431,12 +431,9 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  void setSearchText(String value) {
-    searchText.value = value.toUpperCase();
+  void setSearchVisibility(bool value) => searchIsVisible.value = value;
 
-    // filteredProjectZones.value =
-    //     projectZones.value.where((z) => z.name.toUpperCase().contains(value.toUpperCase())).toList();
-  }
+  void setSearchText(String value) => searchText.value = value.toUpperCase();
 
   ProjectModel _getLastProject() {
     projects.value = _settings.projects;

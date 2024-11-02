@@ -297,9 +297,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               const VerticalDivider(),
               Watch(
                 (_) => IconButton(
-                  onPressed: () {
-                    _controller.searchIsVisible.value = !_controller.searchIsVisible.value;
-                  },
+                  onPressed: () => _controller.setSearchVisibility(!_controller.searchIsVisible.value),
                   icon: Icon(
                     Icons.search_rounded,
                     color: context.colorScheme.primary,
@@ -400,7 +398,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                 _tabControler.animateTo(1);
                                 setState(() {});
 
-                                _controller.searchIsVisible.value = false;
+                                _controller.setSearchVisibility(false);
                                 _clearSearch();
                               },
                             ),
