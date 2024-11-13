@@ -2,7 +2,7 @@ name: multiroom
 description: "A new Flutter project."
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 2.4.0+28
+version: 2.5.0+29
 
 environment:
   sdk: ">=3.3.3 <4.0.0"
@@ -24,6 +24,7 @@ dependencies:
   dio: ^5.4.3+1
   equatable: ^2.0.5
   expandable: ^5.0.1
+  flutter_expandable_fab: ^2.3.0
   flutter_secure_storage: ^9.2.2
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -81,12 +82,13 @@ flutter_launcher_icons:
   macos:
     generate: true
     image_path: "assets/images/controlArtLogo.png"
-  
+
 flutter:
   uses-material-design: true
 
   assets:
     - assets/
+    - assets/images/music_players/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
