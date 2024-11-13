@@ -3,10 +3,13 @@ import 'package:url_launcher/url_launcher.dart';
 
 abstract class MusicPlayersFabs {
   static Future<void> _launchUrl(String url) async {
-    final uri = Uri.parse(url);
+    final uri = Uri.parse("https://$url");
 
     if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
+      await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
     } else {
       throw 'Could not launch $url';
     }
@@ -21,23 +24,23 @@ abstract class MusicPlayersFabs {
   static final children = [
     FloatingActionButton.extended(
       label: _assetLogo("spotify"),
-      onPressed: () => _launchUrl('https://open.spotify.com'),
+      onPressed: () => _launchUrl('open.spotify.com'),
     ),
     FloatingActionButton.extended(
       label: _assetLogo("deezer"),
-      onPressed: () => _launchUrl('https://deezer.com/br'),
+      onPressed: () => _launchUrl('deezer.com/br'),
     ),
     FloatingActionButton.extended(
       label: _assetLogo("amazon_music"),
-      onPressed: () => _launchUrl('https://music.amazon.com'),
+      onPressed: () => _launchUrl('music.amazon.com'),
     ),
     FloatingActionButton.extended(
       label: _assetLogo("apple_music"),
-      onPressed: () => _launchUrl('https://music.apple.com'),
+      onPressed: () => _launchUrl('music.apple.com'),
     ),
     FloatingActionButton.extended(
       label: _assetLogo("yt_music"),
-      onPressed: () => _launchUrl('https://music.youtube.com'),
+      onPressed: () => _launchUrl('music.youtube.com'),
     ),
   ];
 }
