@@ -66,6 +66,11 @@
 		<key>LSApplicationQueriesSchemes</key>
 		<array>
 			<string>tel</string>
+			<string>spotify</string>
+			<string>deezer</string>
+			<string>amznmp3</string>
+			<string>music</string>
+			<string>youtube-music</string>
 		</array>
 		<key>CFBundleURLTypes</key>
 		<array>

@@ -1,17 +1,45 @@
-import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import "package:external_app_launcher/external_app_launcher.dart";
+import "package:flutter/material.dart";
+import "package:url_launcher/url_launcher.dart";
 
 abstract class MusicPlayersFabs {
-  static Future<void> _launchUrl(String url) async {
-    final uri = Uri.parse("https://$url");
+  static Map<String, ({String android, String ios, String url})> get _packages => {
+        "spotify": (android: "com.spotify.music", ios: "spotify://", url: "open.spotify.com"),
+        "deezer": (android: "deezer.android.app", ios: "deezer://", url: "deezer.com/br"),
+        "amazon_music": (android: "com.amazon.mp3", ios: "amznmp3://", url: "music.amazon.com"),
+        "apple_music": (android: "com.apple.android.music", ios: "music://", url: "music.apple.com"),
+        "yt_music": (
+          android: "com.google.android.apps.youtube.music",
+          ios: "youtube-music://",
+          url: "music.youtube.com"
+        )
+      };
 
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
+  static Future<void> _launchUrl(String app) async {
+    final appInfo = _packages[app]!;
+
+    if (await LaunchApp.isAppInstalled(
+      androidPackageName: appInfo.android,
+      iosUrlScheme: appInfo.ios,
+    )) {
+      await LaunchApp.openApp(
+        androidPackageName: appInfo.android,
+        iosUrlScheme: appInfo.ios,
+        openStore: false,
       );
+
+      return;
     } else {
-      throw 'Could not launch $url';
+      final uri = Uri.parse("https://${appInfo.url}");
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        throw "Could not launch $app";
+      }
     }
   }
 
@@ -24,23 +52,23 @@ abstract class MusicPlayersFabs {
   static final children = [
     FloatingActionButton.extended(
       label: _assetLogo("spotify"),
-      onPressed: () => _launchUrl('open.spotify.com'),
+      onPressed: () => _launchUrl("spotify"),
     ),
     FloatingActionButton.extended(
       label: _assetLogo("deezer"),
-      onPressed: () => _launchUrl('deezer.com/br'),
+      onPressed: () => _launchUrl("deezer"),
     ),
     FloatingActionButton.extended(
       label: _assetLogo("amazon_music"),
-      onPressed: () => _launchUrl('music.amazon.com'),
+      onPressed: () => _launchUrl("amazon_music"),
     ),
     FloatingActionButton.extended(
       label: _assetLogo("apple_music"),
-      onPressed: () => _launchUrl('music.apple.com'),
+      onPressed: () => _launchUrl("apple_music"),
     ),
     FloatingActionButton.extended(
       label: _assetLogo("yt_music"),
-      onPressed: () => _launchUrl('music.youtube.com'),
+      onPressed: () => _launchUrl("yt_music"),
     ),
   ];
 }

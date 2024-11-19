@@ -261,7 +261,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   ),
                 ),
               ),
-              const Spacer(),
+              const Spacer(flex: 2),
               Visibility(
                 visible: PlatformChecker.isMobile == false && kDebugMode,
                 child: IconButton(
@@ -288,6 +288,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   ),
                 ),
               ),
+              const Spacer(),
               Watch(
                 (_) => GestureDetector(
                   onDoubleTap: PlatformChecker.isMobile ? () => _controller.syncLocalData(allDevices: true) : null,
@@ -296,7 +297,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   ),
                 ),
               ),
-              const VerticalDivider(),
+              const Spacer(),
               Watch(
                 (_) => IconButton(
                   onPressed: () => _controller.setSearchVisibility(!_controller.searchIsVisible.value),
