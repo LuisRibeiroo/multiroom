@@ -40,6 +40,11 @@ class DeviceConfigurationPageController extends BaseController with SocketMixin 
     device.value = dev;
     deviceName.value = dev.name;
 
+    // Avoid device communication if it's offline
+    if (device.value.active == false) {
+      return;
+    }
+
     try {
       await initSocket(ip: dev.ip);
       await run(
