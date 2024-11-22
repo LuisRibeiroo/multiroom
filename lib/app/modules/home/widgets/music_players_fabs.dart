@@ -51,22 +51,28 @@ abstract class MusicPlayersFabs {
 
   static final children = [
     FloatingActionButton.extended(
+      heroTag: const ValueKey("spotify"),
       label: _assetLogo("spotify"),
       onPressed: () => _launchUrl("spotify"),
     ),
     FloatingActionButton.extended(
+      heroTag: const ValueKey("deezer"),
+      key: const ValueKey("deezer"),
       label: _assetLogo("deezer"),
       onPressed: () => _launchUrl("deezer"),
     ),
     FloatingActionButton.extended(
+      heroTag: const ValueKey("amazon_music"),
       label: _assetLogo("amazon_music"),
       onPressed: () => _launchUrl("amazon_music"),
     ),
     FloatingActionButton.extended(
+      heroTag: const ValueKey("apple_music"),
       label: _assetLogo("apple_music"),
       onPressed: () => _launchUrl("apple_music"),
     ),
     FloatingActionButton.extended(
+      heroTag: const ValueKey("yt_music"),
       label: _assetLogo("yt_music"),
       onPressed: () => _launchUrl("yt_music"),
     ),
