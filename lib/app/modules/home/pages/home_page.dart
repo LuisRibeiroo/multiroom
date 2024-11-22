@@ -35,6 +35,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  final _fabKey = GlobalKey<ExpandableFabState>();
+
   final _controller = injector.get<HomePageController>();
   late TabController _tabControler;
   late TextEditingController _searchController;
@@ -455,6 +457,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 onPressed: () => _tabControler.animateTo(0),
               )
             : ExpandableFab(
+                key: _fabKey,
                 type: ExpandableFabType.up,
                 pos: ExpandableFabPos.right,
                 openButtonBuilder: DefaultFloatingActionButtonBuilder(
@@ -462,7 +465,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   child: const Icon(Icons.music_note_rounded),
                 ),
                 distance: 65,
-                children: MusicPlayersFabs.children,
+                children: MusicPlayersFabs.children(_fabKey),
               ),
       ),
     );

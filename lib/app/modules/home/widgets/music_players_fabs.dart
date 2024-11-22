@@ -1,5 +1,7 @@
 import "package:external_app_launcher/external_app_launcher.dart";
 import "package:flutter/material.dart";
+import "package:flutter_expandable_fab/flutter_expandable_fab.dart";
+import "package:multiroom/app/core/utils/platform_checker.dart";
 import "package:url_launcher/url_launcher.dart";
 
 abstract class MusicPlayersFabs {
@@ -15,31 +17,45 @@ abstract class MusicPlayersFabs {
         )
       };
 
-  static Future<void> _launchUrl(String app) async {
+  static Future<void> _launchUrl(GlobalKey<ExpandableFabState> key, String app) async {
     final appInfo = _packages[app]!;
 
-    if (await LaunchApp.isAppInstalled(
-      androidPackageName: appInfo.android,
-      iosUrlScheme: appInfo.ios,
-    )) {
-      await LaunchApp.openApp(
+    if (PlatformChecker.isMobile) {
+      if (await LaunchApp.isAppInstalled(
         androidPackageName: appInfo.android,
         iosUrlScheme: appInfo.ios,
-        openStore: false,
-      );
-
-      return;
-    } else {
-      final uri = Uri.parse("https://${appInfo.url}");
-
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
+      )) {
+        await LaunchApp.openApp(
+          androidPackageName: appInfo.android,
+          iosUrlScheme: appInfo.ios,
+          openStore: false,
         );
+
+        return;
       } else {
-        throw "Could not launch $app";
+        _openBrowser(app, appInfo.url);
       }
+    } else {
+      _openBrowser(app, appInfo.url);
+    }
+
+    final state = key.currentState;
+    if (state != null) {
+      debugPrint('isOpen:${state.isOpen}');
+      state.toggle();
+    }
+  }
+
+  static _openBrowser(String appName, String appUrl) async {
+    final uri = Uri.parse("https://$appUrl");
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+    } else {
+      throw "Could not launch $appName";
     }
   }
 
@@ -49,32 +65,32 @@ abstract class MusicPlayersFabs {
         color: Colors.black,
       );
 
-  static final children = [
-    FloatingActionButton.extended(
-      heroTag: const ValueKey("spotify"),
-      label: _assetLogo("spotify"),
-      onPressed: () => _launchUrl("spotify"),
-    ),
-    FloatingActionButton.extended(
-      heroTag: const ValueKey("deezer"),
-      key: const ValueKey("deezer"),
-      label: _assetLogo("deezer"),
-      onPressed: () => _launchUrl("deezer"),
-    ),
-    FloatingActionButton.extended(
-      heroTag: const ValueKey("amazon_music"),
-      label: _assetLogo("amazon_music"),
-      onPressed: () => _launchUrl("amazon_music"),
-    ),
-    FloatingActionButton.extended(
-      heroTag: const ValueKey("apple_music"),
-      label: _assetLogo("apple_music"),
-      onPressed: () => _launchUrl("apple_music"),
-    ),
-    FloatingActionButton.extended(
-      heroTag: const ValueKey("yt_music"),
-      label: _assetLogo("yt_music"),
-      onPressed: () => _launchUrl("yt_music"),
-    ),
-  ];
+  static children(GlobalKey<ExpandableFabState> key) => [
+        FloatingActionButton.extended(
+          heroTag: const ValueKey("spotify"),
+          label: _assetLogo("spotify"),
+          onPressed: () => _launchUrl(key, "spotify"),
+        ),
+        FloatingActionButton.extended(
+          heroTag: const ValueKey("deezer"),
+          key: const ValueKey("deezer"),
+          label: _assetLogo("deezer"),
+          onPressed: () => _launchUrl(key, "deezer"),
+        ),
+        FloatingActionButton.extended(
+          heroTag: const ValueKey("amazon_music"),
+          label: _assetLogo("amazon_music"),
+          onPressed: () => _launchUrl(key, "amazon_music"),
+        ),
+        FloatingActionButton.extended(
+          heroTag: const ValueKey("apple_music"),
+          label: _assetLogo("apple_music"),
+          onPressed: () => _launchUrl(key, "apple_music"),
+        ),
+        FloatingActionButton.extended(
+          heroTag: const ValueKey("yt_music"),
+          label: _assetLogo("yt_music"),
+          onPressed: () => _launchUrl(key, "yt_music"),
+        ),
+      ];
 }
