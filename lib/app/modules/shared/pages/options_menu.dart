@@ -132,6 +132,7 @@ class _OptionsMenuState extends State<OptionsMenu> {
               Padding(
                 padding: const EdgeInsets.only(left: 24, bottom: 24.0, top: 12),
                 child: FloatingActionButton.small(
+                  key: const ValueKey("close_drawer"),
                   onPressed: Scaffold.of(context).closeDrawer,
                   child: const Icon(Icons.arrow_back_rounded),
                 ),

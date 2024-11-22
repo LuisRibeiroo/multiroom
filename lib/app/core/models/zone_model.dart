@@ -17,7 +17,6 @@ class ZoneModel extends Equatable implements SelectableModel {
     required this.id,
     required this.name,
     required this.active,
-    required this.channels,
     required this.volume,
     required this.balance,
     required this.equalizer,
@@ -45,10 +44,6 @@ class ZoneModel extends Equatable implements SelectableModel {
       wrapperId: wrapperId,
       name: name,
       active: true,
-      channels: List.generate(
-        8,
-        (idx) => ChannelModel.builder(index: idx + 1, name: "Input ${idx + 1}"),
-      ),
       volume: 50,
       balance: 50,
       equalizer: EqualizerModel.builder(name: "Custom"),
@@ -66,11 +61,9 @@ class ZoneModel extends Equatable implements SelectableModel {
       wrapperId: '',
       name: '',
       active: false,
-      channels: const [],
       volume: 0,
       balance: 0,
       equalizer: EqualizerModel.empty(),
-      channel: const ChannelModel.empty(),
       visible: false,
     );
   }
@@ -81,7 +74,6 @@ class ZoneModel extends Equatable implements SelectableModel {
       wrapperId: map['wrapperId'],
       name: map['name'],
       active: map['active'],
-      channels: List<ChannelModel>.from(map['channels']?.map((x) => ChannelModel.fromMap(x))),
       volume: map['volume'],
       balance: map['balance'],
       equalizer: EqualizerModel.fromMap(map['equalizer']),
@@ -92,7 +84,7 @@ class ZoneModel extends Equatable implements SelectableModel {
       maxVolumeRight: map['maxVolumeRight'],
       deviceSerial: map["deviceSerial"],
       macAddress: map["macAddress"],
-      visible: map['visible']
+      visible: map['visible'],
     );
   }
 
@@ -102,7 +94,6 @@ class ZoneModel extends Equatable implements SelectableModel {
       'wrapperId': wrapperId,
       'name': name,
       'active': active,
-      'channels': channels.map((x) => x.toMap()).toList(),
       'volume': volume,
       'balance': balance,
       'equalizer': equalizer.toMap(),
@@ -124,30 +115,28 @@ class ZoneModel extends Equatable implements SelectableModel {
   @HiveField(2)
   final bool active;
   @HiveField(3)
-  final List<ChannelModel> channels;
-  @HiveField(5)
   final int volume;
-  @HiveField(6)
+  @HiveField(4)
   final int balance;
-  @HiveField(7)
+  @HiveField(5)
   final EqualizerModel equalizer;
-  @HiveField(8)
+  @HiveField(6)
   final MonoSide side;
-  @HiveField(9, defaultValue: "")
+  @HiveField(7, defaultValue: "")
   final String wrapperId;
-  @HiveField(11, defaultValue: ChannelModel.empty())
+  @HiveField(8)
   final ChannelModel channel;
-  @HiveField(12, defaultValue: "")
+  @HiveField(9, defaultValue: "")
   final String groupId;
-  @HiveField(13, defaultValue: 100)
+  @HiveField(10, defaultValue: 100)
   final int maxVolumeLeft;
-  @HiveField(14, defaultValue: 100)
+  @HiveField(11, defaultValue: 100)
   final int maxVolumeRight;
-  @HiveField(15, defaultValue: "")
+  @HiveField(12, defaultValue: "")
   final String deviceSerial;
-  @HiveField(16, defaultValue: "")
+  @HiveField(13, defaultValue: "")
   final String macAddress;
-  @HiveField(17)
+  @HiveField(14)
   final bool visible;
 
   bool get isEmpty => id == ZoneModel.empty().id;
@@ -160,7 +149,6 @@ class ZoneModel extends Equatable implements SelectableModel {
   ZoneModel copyWith({
     String? name,
     bool? active,
-    List<ChannelModel>? channels,
     int? volume,
     int? balance,
     EqualizerModel? equalizer,
@@ -179,7 +167,6 @@ class ZoneModel extends Equatable implements SelectableModel {
       wrapperId: wrapperId,
       name: name ?? this.name,
       active: active ?? this.active,
-      channels: channels ?? this.channels,
       volume: volume ?? this.volume,
       balance: balance ?? this.balance,
       equalizer: equalizer ?? this.equalizer,
@@ -200,7 +187,6 @@ class ZoneModel extends Equatable implements SelectableModel {
         wrapperId,
         name,
         active,
-        channels,
         volume,
         balance,
         equalizer,

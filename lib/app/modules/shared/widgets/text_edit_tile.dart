@@ -47,7 +47,7 @@ class TextEditTile extends StatelessWidget {
               icon: AnimatedSwitcher(
                 duration: Durations.short3,
                 child: Icon(
-                  key: ValueKey(isEditing),
+                  key: ValueKey("${itemId}_$isEditing"),
                   isEditing ? Icons.check_rounded : Icons.edit_rounded,
                 ),
               ),

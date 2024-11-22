@@ -41,7 +41,7 @@ class EditChannelsPageController extends BaseController {
     } else {
       isEditing.value = true;
       editingChannelId.value = channelId;
-      editingChannelName.value = zone.value.channels
+      editingChannelName.value = device.value.channels
           .firstWhere(
             (c) => c.id == channelId,
           )
@@ -52,7 +52,7 @@ class EditChannelsPageController extends BaseController {
 
     if (isEditing.value == false) {
       DeviceModel newDevice = DeviceModel.empty();
-      final List<ChannelModel> newChannels = List.from(zone.peek().channels);
+      final List<ChannelModel> newChannels = List.from(device.peek().channels);
       List<ZoneGroupModel> newGroups = device.value.groups;
 
       final newChannel = ChannelModel.builder(
@@ -62,10 +62,6 @@ class EditChannelsPageController extends BaseController {
 
       final newZone = zone.value.copyWith(
         channel: zone.value.channel.id == newChannel.id ? newChannel : zone.value.channel,
-        channels: newChannels.withReplacement(
-          (c) => c.id == channelId,
-          newChannel,
-        ),
       );
 
       if (device.value.isZoneInGroup(newZone)) {
@@ -74,7 +70,6 @@ class EditChannelsPageController extends BaseController {
         final newGroup = currentGroup.copyWith(zones: newZones);
 
         newGroups = device.value.groups.withReplacement((g) => g.id == newGroup.id, newGroup);
-        newDevice = device.value.copyWith();
       }
 
       final wrapper = device.value.zoneWrappers.firstWhere((zw) => zw.id == newZone.wrapperId).copyWith(zone: newZone);
@@ -83,6 +78,10 @@ class EditChannelsPageController extends BaseController {
       newDevice = device.value.copyWith(
         zoneWrappers: newWrappers,
         groups: newGroups,
+        channels: newChannels.withReplacement(
+          (c) => c.id == channelId,
+          newChannel,
+        ),
       );
 
       zone.value = newZone;

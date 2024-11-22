@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         (_) => SelectableListView(
           title: "Canais",
           icon: Icons.music_note,
-          options: (zone ?? _controller.currentZone.value).channels,
+          options: _controller.currentDevice.value.channels,
           onSelect: zone != null
               ? (ChannelModel c) => _controller.setCurrentChannel(c, zone: zone)
               : _controller.setCurrentChannel,

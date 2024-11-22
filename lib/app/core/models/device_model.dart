@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 
 import '../enums/device_type.dart';
+import 'channel_model.dart';
 import 'zone_group_model.dart';
 import 'zone_model.dart';
 import 'zone_wrapper_model.dart';
@@ -21,6 +22,7 @@ class DeviceModel extends HiveObject {
     this.active = true,
     required this.projectName,
     required this.projectId,
+    required this.channels,
   });
 
   factory DeviceModel.empty() {
@@ -35,6 +37,7 @@ class DeviceModel extends HiveObject {
       type: DeviceType.master,
       projectName: "",
       projectId: "",
+      channels: const [],
     );
   }
 
@@ -70,6 +73,10 @@ class DeviceModel extends HiveObject {
       version: version ?? "",
       type: type ?? DeviceType.master,
       ip: ip,
+      channels: List.generate(
+        8,
+        (idx) => ChannelModel.builder(index: idx + 1, name: "Input ${idx + 1}"),
+      ),
     );
   }
 
@@ -86,6 +93,7 @@ class DeviceModel extends HiveObject {
       version: map['version'],
       type: DeviceType.values[map['type']],
       active: map['active'],
+      channels: List<ChannelModel>.from(map['channels']?.map((x) => ChannelModel.fromMap(x))),
     );
   }
 
@@ -102,6 +110,7 @@ class DeviceModel extends HiveObject {
       'version': version,
       'type': type.index,
       'active': active,
+      'channels': channels.map((x) => x.toMap()).toList(),
     };
   }
 
@@ -127,6 +136,8 @@ class DeviceModel extends HiveObject {
   final String projectId;
   @HiveField(10)
   final String macAddress;
+  @HiveField(11)
+  final List<ChannelModel> channels;
 
   bool get isEmpty =>
       serialNumber == DeviceModel.empty().serialNumber &&
@@ -153,6 +164,7 @@ class DeviceModel extends HiveObject {
     bool? active,
     String? projectName,
     String? projectId,
+    List<ChannelModel>? channels,
   }) {
     return DeviceModel(
       serialNumber: serialNumber ?? this.serialNumber,
@@ -166,11 +178,12 @@ class DeviceModel extends HiveObject {
       active: active ?? this.active,
       projectName: projectName ?? this.projectName,
       projectId: projectId ?? this.projectId,
+      channels: channels ?? this.channels,
     );
   }
 
   @override
   String toString() {
-    return 'DeviceModel(serialNumber: $serialNumber, name: $name, ip: $ip, projectId: $projectId, projectName: $projectName, zoneWrappers: $zoneWrappers, groups: $groups, version: $version, type: $type, projectId: $projectId, active: $active, macAddress: $macAddress)';
+    return 'DeviceModel(serialNumber: $serialNumber, name: $name, ip: $ip, macAddress: $macAddress, projectId: $projectId, projectName: $projectName, zoneWrappers: $zoneWrappers, groups: $groups, version: $version, type: $type, projectId: $projectId, active: $active, channels: $channels)';
   }
 }

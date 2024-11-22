@@ -28,13 +28,14 @@ class DeviceModelAdapter extends TypeAdapter<DeviceModel> {
       active: fields[8] as bool,
       projectName: fields[7] as String,
       projectId: fields[9] as String,
+      channels: (fields[11] as List).cast<ChannelModel>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, DeviceModel obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.serialNumber)
       ..writeByte(1)
@@ -56,7 +57,9 @@ class DeviceModelAdapter extends TypeAdapter<DeviceModel> {
       ..writeByte(9)
       ..write(obj.projectId)
       ..writeByte(10)
-      ..write(obj.macAddress);
+      ..write(obj.macAddress)
+      ..writeByte(11)
+      ..write(obj.channels);
   }
 
   @override

@@ -36,14 +36,14 @@ class _EditChannelsPageState extends State<EditChannelsPage> {
         state: _controller.state,
         child: Scaffold(
           appBar: AppBar(
-            title: Text("${_controller.zone.value.name} - Canais"),
+            title: Text("${_controller.device.value.name} - Canais"),
           ),
           body: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-            itemCount: _controller.zone.value.channels.length,
+            itemCount: _controller.device.value.channels.length,
             separatorBuilder: (_, __) => 12.asSpace,
             itemBuilder: (_, index) {
-              final current = _controller.zone.value.channels[index];
+              final current = _controller.device.value.channels[index];
 
               return Watch(
                 (_) => TextEditTile(

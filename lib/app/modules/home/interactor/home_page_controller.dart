@@ -154,7 +154,7 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> setCurrentChannel(ChannelModel channel, {ZoneModel? zone}) async {
-    final channels = (zone ?? currentZone.value).channels;
+    final channels = currentDevice.value.channels;
 
     final channelIndex = channels.indexWhere((c) => c.id == channel.id);
     final tempList = List<ChannelModel>.from(channels);
@@ -162,7 +162,6 @@ class HomePageController extends BaseController with SocketMixin {
     tempList[channelIndex] = channel;
 
     currentZone.value = (zone ?? currentZone.value).copyWith(
-      channels: tempList,
       channel: channel,
     );
     await _setCurrentDeviceByMacAdress(mac: currentZone.value.macAddress);
@@ -601,9 +600,9 @@ class HomePageController extends BaseController with SocketMixin {
       }
 
       currentZone.value = currentZone.value.copyWith(
-        channel: currentZone.value.channels.firstWhere(
+        channel: currentDevice.value.channels.firstWhere(
           (c) => c.id == currentZone.value.channel.id,
-          orElse: () => currentZone.value.channels.first,
+          orElse: () => currentDevice.value.channels.first,
         ),
       );
 
@@ -705,9 +704,9 @@ class HomePageController extends BaseController with SocketMixin {
         continue;
       }
 
-      final channel = zone.channels.firstWhere(
+      final channel = device.channels.firstWhere(
         (c) => c.id == zoneData.values.channel,
-        orElse: () => zone.channels.first,
+        orElse: () => device.channels.first,
       );
 
       zones.add(zone.copyWith(
