@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:toastification/toastification.dart';
@@ -105,7 +106,9 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
                     behavior: HitTestBehavior.opaque,
                     onTap: widget.onTap,
                     onDoubleTap: () {
-                      widget.state.value = InitialState();
+                      if (kDebugMode) {
+                        widget.state.value = InitialState();
+                      }
                     },
                     child: const Center(
                       child: CircularProgressIndicator(),
