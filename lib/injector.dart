@@ -4,7 +4,7 @@ import 'app/core/interactor/controllers/device_monitor_controller.dart';
 import 'app/core/interactor/controllers/loading_overlay_controller.dart';
 import 'app/modules/configs/controllers/configs_page_controller.dart';
 import 'app/modules/configs/controllers/device_configuration_page_controller.dart';
-import 'app/modules/home/interactor/edit_channels_page_controller.dart';
+import 'app/modules/home/interactor/edit_channels_bottom_sheet_controller.dart';
 import 'app/modules/home/interactor/edit_zones_page_controller.dart';
 import 'app/modules/home/interactor/home_page_controller.dart';
 import 'app/modules/scanner/interactor/controllers/scanner_page_controller.dart';
@@ -16,7 +16,7 @@ final injector = AutoInjector(
     i.addSingleton(DeviceMonitorController.new);
     i.add(OptionsBottomSheetController.new);
     i.add(ImportDataPageController.new);
-    i.add(EditChannelsPageController.new);
+    i.add(EditChannelsBottomSheetController.new);
     i.add(EditZonesPageController.new);
     i.add(LoadingOverlayController.new);
     i.add(ScannerPageController.new);

@@ -4,12 +4,11 @@ import 'package:routefly/routefly.dart';
 
 import 'app/modules/configs/pages/configs_page.dart' as a0;
 import 'app/modules/configs/pages/device_configuration_page.dart' as a1;
-import 'app/modules/home/pages/edit_channels_page.dart' as a2;
-import 'app/modules/home/pages/edit_zones_page.dart' as a3;
-import 'app/modules/home/pages/home_page.dart' as a4;
-import 'app/modules/scanner/pages/scanner_page.dart' as a5;
-import 'app/modules/shared/pages/import_data_page.dart' as a6;
-import 'app/modules/startup/pages/startup_page.dart' as a7;
+import 'app/modules/home/pages/edit_zones_page.dart' as a2;
+import 'app/modules/home/pages/home_page.dart' as a3;
+import 'app/modules/scanner/pages/scanner_page.dart' as a4;
+import 'app/modules/shared/pages/import_data_page.dart' as a5;
+import 'app/modules/startup/pages/startup_page.dart' as a6;
 
 List<RouteEntity> get routes => [
       RouteEntity(
@@ -31,21 +30,12 @@ List<RouteEntity> get routes => [
         ),
       ),
       RouteEntity(
-        key: '/modules/home/pages/edit_channels',
-        uri: Uri.parse('/modules/home/pages/edit_channels'),
-        routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
-          ctx,
-          settings,
-          const a2.EditChannelsPage(),
-        ),
-      ),
-      RouteEntity(
         key: '/modules/home/pages/edit_zones',
         uri: Uri.parse('/modules/home/pages/edit_zones'),
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a3.EditZonesPage(),
+          const a2.EditZonesPage(),
         ),
       ),
       RouteEntity(
@@ -54,7 +44,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a4.HomePage(),
+          const a3.HomePage(),
         ),
       ),
       RouteEntity(
@@ -63,7 +53,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a5.ScannerPage(),
+          const a4.ScannerPage(),
         ),
       ),
       RouteEntity(
@@ -72,7 +62,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a6.ImportDataPage(),
+          const a5.ImportDataPage(),
         ),
       ),
       RouteEntity(
@@ -81,7 +71,7 @@ List<RouteEntity> get routes => [
         routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
           ctx,
           settings,
-          const a7.StartupPage(),
+          const a6.StartupPage(),
         ),
       ),
     ];
@@ -102,7 +92,6 @@ const routePaths = (
       path: '/modules/home',
       pages: (
         path: '/modules/home/pages',
-        editChannels: '/modules/home/pages/edit_channels',
         editZones: '/modules/home/pages/edit_zones',
         home: '/modules/home/pages/home',
       ),

@@ -11,7 +11,6 @@ import '../../../../injector.dart';
 import '../../../../routes.g.dart';
 import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
-import '../../../core/models/channel_model.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/utils/platform_checker.dart';
 import '../../../core/widgets/device_state_indicator.dart';
@@ -24,6 +23,7 @@ import '../widgets/device_info_header.dart';
 import '../widgets/disable_all_zones_bottom_sheet.dart';
 import '../widgets/summary_zones_list.dart';
 import '../widgets/zone_controls.dart';
+import 'edit_channels_bottom_sheet.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -87,32 +87,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   void _showChannelsBottomSheet({ZoneModel? zone}) {
-    context.showCustomModalBottomSheet(
-      isScrollControlled: false,
-      child: Watch(
-        (_) => SelectableListView(
-          title: "Canais",
-          icon: Icons.music_note,
-          options: _controller.currentDevice.value.channels,
-          onSelect: zone != null
-              ? (ChannelModel c) => _controller.setCurrentChannel(c, zone: zone)
-              : _controller.setCurrentChannel,
-          selectedOption: _controller.currentZone.value.channel,
-          onTapEdit: () {
-            Routefly.pop(context);
-
-            Routefly.push(
-              routePaths.modules.home.pages.editChannels,
-              arguments: {
-                "project": _controller.currentProject.value,
-                "device": _controller.currentDevice.value,
-                "zone": _controller.currentZone.value,
-              },
-            );
-          },
-        ),
-      ),
-    );
+    context
+        .showCustomModalBottomSheet(
+          isScrollControlled: false,
+          child: Watch(
+            (_) => EditChannelsBottomSheet(
+              onSelect: _controller.setCurrentChannel,
+              device: _controller.currentDevice.value,
+              zone: zone ?? _controller.currentZone.value,
+            ),
+          ),
+        )
+        .then((_) => _controller.syncLocalData(awaitUpdate: false));
   }
 
   void _showEqualizersBottomSheet() {

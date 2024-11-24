@@ -1,0 +1,119 @@
+import 'package:flutter/material.dart';
+import 'package:signals/signals_flutter.dart';
+
+import '../../../../injector.dart';
+import '../../../core/extensions/number_extensions.dart';
+import '../../../core/models/channel_model.dart';
+import '../../../core/models/device_model.dart';
+import '../../../core/models/zone_model.dart';
+import '../../../core/widgets/selectable_list_view.dart';
+import '../../shared/widgets/text_edit_tile.dart';
+import '../../widgets/icon_title.dart';
+import '../interactor/edit_channels_bottom_sheet_controller.dart';
+
+class EditChannelsBottomSheet extends StatefulWidget {
+  const EditChannelsBottomSheet({
+    super.key,
+    required this.onSelect,
+    required this.device,
+    required this.zone,
+  });
+
+  final DeviceModel device;
+  final ZoneModel zone;
+  final Function(ChannelModel channel, {ZoneModel? zone}) onSelect;
+
+  @override
+  State<EditChannelsBottomSheet> createState() => _EditChannelsBottomSheetState();
+}
+
+class _EditChannelsBottomSheetState extends State<EditChannelsBottomSheet> {
+  final _controller = injector.get<EditChannelsBottomSheetController>();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller.init(
+      device: widget.device,
+      zone: widget.zone,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Watch(
+      (_) => Column(
+        children: [
+          Stack(
+            children: [
+              const IconTitle(
+                title: "Canais",
+                icon: Icons.music_note,
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: AnimatedSwitcher(
+                    duration: Durations.short3,
+                    child: Visibility.maintain(
+                      key: ValueKey("EditButtonKey_${_controller.isEditingChannel.value}"),
+                      visible: _controller.isEditingChannel.value == false,
+                      child: IconButton(
+                        icon: AnimatedSwitcher(
+                          duration: Durations.short3,
+                          child: Icon(_controller.isEditMode.value ? Icons.check_rounded : Icons.edit_rounded),
+                        ),
+                        onPressed: _controller.toggleEditMode,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: Durations.short3,
+              child: _controller.isEditMode.value
+                  ? ListView.separated(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                      itemCount: _controller.device.value.channels.length,
+                      separatorBuilder: (_, __) => 12.asSpace,
+                      itemBuilder: (_, index) {
+                        final current = _controller.device.value.channels[index];
+
+                        return Watch(
+                          (_) => TextEditTile(
+                            itemId: current.id,
+                            initialValue: current.name,
+                            isEditing:
+                                _controller.isEditingChannel.value && _controller.editingChannelId.value == current.id,
+                            onChangeValue: _controller.onChangeChannelName,
+                            toggleEditing: _controller.toggleEditingChannel,
+                            hideEditButton:
+                                _controller.isEditingChannel.value && _controller.editingChannelId.value != current.id,
+                          ),
+                        );
+                      },
+                    )
+                  : SelectableListView(
+                      options: _controller.device.value.channels,
+                      onSelect: (c) => widget.onSelect(c, zone: _controller.zone.value),
+                      selectedOption: _controller.zone.value.channel,
+                      onTapEdit: _controller.toggleEditMode,
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
+}

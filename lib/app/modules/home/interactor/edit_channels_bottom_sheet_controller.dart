@@ -11,14 +11,15 @@ import '../../../core/models/device_model.dart';
 import '../../../core/models/zone_group_model.dart';
 import '../../../core/models/zone_model.dart';
 
-class EditChannelsPageController extends BaseController {
-  EditChannelsPageController() : super(InitialState());
+class EditChannelsBottomSheetController extends BaseController {
+  EditChannelsBottomSheetController() : super(InitialState());
 
   final _settings = injector.get<SettingsContract>();
 
   final device = DeviceModel.empty().asSignal(debugLabel: "device");
   final zone = ZoneModel.empty().asSignal(debugLabel: "zone");
-  final isEditing = false.asSignal(debugLabel: "isEditingChannel");
+  final isEditMode = false.asSignal(debugLabel: "isEditMode");
+  final isEditingChannel = false.asSignal(debugLabel: "isEditingChannel");
   final editingChannelId = "".asSignal(debugLabel: "editingChannelId");
   final editingChannelName = "".asSignal(debugLabel: "editingChannelName");
 
@@ -30,16 +31,20 @@ class EditChannelsPageController extends BaseController {
     this.zone.value = zone;
   }
 
+  void toggleEditMode() {
+    isEditMode.value = !isEditMode.value;
+  }
+
   void onChangeChannelName(String chanelId, String value) {
     editingChannelId.value = chanelId;
     editingChannelName.value = value;
   }
 
-  void toggleEditing(String channelId) {
+  void toggleEditingChannel(String channelId) {
     if (editingChannelId.value == channelId) {
-      isEditing.value = !isEditing.value;
+      isEditingChannel.value = !isEditingChannel.value;
     } else {
-      isEditing.value = true;
+      isEditingChannel.value = true;
       editingChannelId.value = channelId;
       editingChannelName.value = device.value.channels
           .firstWhere(
@@ -50,7 +55,7 @@ class EditChannelsPageController extends BaseController {
       return;
     }
 
-    if (isEditing.value == false) {
+    if (isEditingChannel.value == false) {
       DeviceModel newDevice = DeviceModel.empty();
       final List<ChannelModel> newChannels = List.from(device.peek().channels);
       List<ZoneGroupModel> newGroups = device.value.groups;
@@ -99,7 +104,7 @@ class EditChannelsPageController extends BaseController {
 
     device.value = device.initialValue;
     zone.value = zone.initialValue;
-    isEditing.value = isEditing.initialValue;
+    isEditingChannel.value = isEditingChannel.initialValue;
     editingChannelId.value = editingChannelId.initialValue;
     editingChannelName.value = editingChannelName.initialValue;
   }
