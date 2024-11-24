@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:routefly/routefly.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:toastification/toastification.dart';
@@ -23,7 +22,6 @@ import '../../widgets/icon_title.dart';
 import '../interactor/home_page_controller.dart';
 import '../widgets/device_info_header.dart';
 import '../widgets/disable_all_zones_bottom_sheet.dart';
-import '../widgets/music_players_fabs.dart';
 import '../widgets/summary_zones_list.dart';
 import '../widgets/zone_controls.dart';
 
@@ -35,7 +33,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
-  final _fabKey = GlobalKey<ExpandableFabState>();
+  // final _fabKey = GlobalKey<ExpandableFabState>();
 
   final _controller = injector.get<HomePageController>();
   late TabController _tabControler;
@@ -448,25 +446,32 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
           ),
         ),
-        floatingActionButtonLocation: _controller.expandedViewMode.watch(context)
-            ? FloatingActionButtonLocation.miniStartFloat
-            : ExpandableFab.location,
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
         floatingActionButton: _controller.expandedViewMode.watch(context)
             ? FloatingActionButton.small(
                 child: const Icon(Icons.arrow_back_rounded),
                 onPressed: () => _tabControler.animateTo(0),
               )
-            : ExpandableFab(
-                key: _fabKey,
-                type: ExpandableFabType.up,
-                pos: ExpandableFabPos.right,
-                openButtonBuilder: DefaultFloatingActionButtonBuilder(
-                  fabSize: ExpandableFabSize.regular,
-                  child: const Icon(Icons.music_note_rounded),
-                ),
-                distance: 65,
-                children: MusicPlayersFabs.children(_fabKey),
-              ),
+            : null,
+        // floatingActionButtonLocation: _controller.expandedViewMode.watch(context)
+        //     ? FloatingActionButtonLocation.miniStartFloat
+        //     : ExpandableFab.location,
+        // floatingActionButton: _controller.expandedViewMode.watch(context)
+        //     ? FloatingActionButton.small(
+        //         child: const Icon(Icons.arrow_back_rounded),
+        //         onPressed: () => _tabControler.animateTo(0),
+        //       )
+        //     : ExpandableFab(
+        //         key: _fabKey,
+        //         type: ExpandableFabType.up,
+        //         pos: ExpandableFabPos.right,
+        //         openButtonBuilder: DefaultFloatingActionButtonBuilder(
+        //           fabSize: ExpandableFabSize.regular,
+        //           child: const Icon(Icons.music_note_rounded),
+        //         ),
+        //         distance: 65,
+        //         children: MusicPlayersFabs.children(_fabKey),
+        //       ),
       ),
     );
   }
