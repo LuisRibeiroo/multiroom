@@ -21,7 +21,7 @@ class EditChannelsBottomSheet extends StatefulWidget {
 
   final DeviceModel device;
   final ZoneModel zone;
-  final Function(ChannelModel channel, {ZoneModel? zone}) onSelect;
+  final Function(ChannelModel channel, ZoneModel zone) onSelect;
 
   @override
   State<EditChannelsBottomSheet> createState() => _EditChannelsBottomSheetState();
@@ -100,7 +100,7 @@ class _EditChannelsBottomSheetState extends State<EditChannelsBottomSheet> {
                     )
                   : SelectableListView(
                       options: _controller.device.value.channels,
-                      onSelect: (c) => widget.onSelect(c, zone: _controller.zone.value),
+                      onSelect: (c) => widget.onSelect(c, _controller.zone.value),
                       selectedOption: _controller.zone.value.channel,
                       onTapEdit: _controller.toggleEditMode,
                     ),

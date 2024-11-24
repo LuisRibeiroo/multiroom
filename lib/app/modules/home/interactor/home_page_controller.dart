@@ -153,7 +153,7 @@ class HomePageController extends BaseController with SocketMixin {
     _updateZonesInProject(zones: [currentZone.value]);
   }
 
-  Future<void> setCurrentChannel(ChannelModel channel, {ZoneModel? zone}) async {
+  Future<void> setCurrentChannel(ChannelModel channel, ZoneModel zone) async {
     final channels = currentDevice.value.channels;
 
     final channelIndex = channels.indexWhere((c) => c.id == channel.id);
@@ -161,19 +161,18 @@ class HomePageController extends BaseController with SocketMixin {
 
     tempList[channelIndex] = channel;
 
-    currentZone.value = (zone ?? currentZone.value).copyWith(
-      channel: channel,
-    );
+    currentZone.value = zone;
+    currentZone.value = currentZone.value.copyWith(channel: channel);
     await _setCurrentDeviceByMacAdress(mac: currentZone.value.macAddress);
 
     _debounceSendCommand(
       MrCmdBuilder.setChannel(
-        macAddress: zone?.macAddress ?? currentZone.value.macAddress,
-        zone: zone ?? currentZone.value,
+        macAddress: currentZone.value.macAddress,
+        zone: currentZone.value,
         channel: channel,
       ),
       onError: () {
-        currentZone.value = currentZone.previousValue!;
+        currentZone.value = zone;
         _updateZonesInProject(zones: [currentZone.value]);
       },
     );
