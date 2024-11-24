@@ -19,7 +19,7 @@ class SummaryZonesList extends StatefulWidget {
 
   final List<DeviceModel> devices;
   final List<ZoneModel> zones;
-  final Function(bool, {ZoneModel zone}) onChangeActive;
+  final Function(bool, ZoneModel zone) onChangeActive;
   final Function(ZoneModel zone) onChangeChannel;
   final Function(int, {ZoneModel zone}) onChangeVolume;
   final Function(ZoneModel zone) onTapZone;
@@ -58,7 +58,7 @@ class _SummaryZonesListState extends State<SummaryZonesList> {
                     isDeviceActive: device?.active ?? false,
                     zone: zone,
                     onTapCard: widget.onTapZone,
-                    onChangeActive: (value) => widget.onChangeActive(value, zone: zone),
+                    onChangeActive: (value) => widget.onChangeActive(value, zone),
                     onChangeChannel: () => widget.onChangeChannel(zone),
                     onChangeVolume: (value) => widget.onChangeVolume(value, zone: zone),
                   ),

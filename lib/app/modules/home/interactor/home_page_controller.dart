@@ -134,18 +134,18 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  Future<void> setZoneActive(bool active, {ZoneModel? zone}) async {
-    currentZone.value = (zone ?? currentZone.value).copyWith(active: active);
+  Future<void> setZoneActive(bool active, ZoneModel zone) async {
+    currentZone.value = zone.copyWith(active: active);
     await _setCurrentDeviceByMacAdress(mac: currentZone.value.macAddress);
 
     _debounceSendCommand(
       MrCmdBuilder.setPower(
-        macAddress: zone?.macAddress ?? currentZone.value.macAddress,
-        zone: zone ?? currentZone.value,
+        macAddress: currentZone.value.macAddress,
+        zone: currentZone.value,
         active: active,
       ),
       onError: () {
-        currentZone.value = currentZone.previousValue!;
+        currentZone.value = zone;
         _updateZonesInProject(zones: [currentZone.value]);
       },
     );

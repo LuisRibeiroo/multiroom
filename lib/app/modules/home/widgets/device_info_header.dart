@@ -27,7 +27,7 @@ class DeviceInfoHeader extends StatelessWidget {
   final Function() onChangeChannel;
   final Function() onChangeDevice;
   final Function() onChangeProject;
-  final Function(bool) onChangeActive;
+  final Function(bool, ZoneModel) onChangeActive;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class DeviceInfoHeader extends StatelessWidget {
                 12.asSpace,
                 AppSwitch(
                   value: currentZone.active,
-                  onChangeActive: onChangeActive,
+                  onChangeActive: (value) => onChangeActive(value, currentZone),
                 ),
               ],
             ),
