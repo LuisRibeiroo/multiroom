@@ -1,12 +1,16 @@
 import 'package:signals/signals_flutter.dart';
 
+import '../../../../injector.dart';
 import '../../enums/page_state.dart';
 import '../../utils/constants.dart';
 import 'base_controller.dart';
+import 'device_monitor_controller.dart';
 import 'socket_mixin.dart';
 
 class LoadingOverlayController extends BaseController with SocketMixin {
   LoadingOverlayController() : super(InitialState());
+
+  final _monitorController = injector.get<DeviceMonitorController>();
 
   final pageState = Signal<PageState>(InitialState(), debugLabel: "overlayPageState");
   final errorCounter = 0.asSignal(debugLabel: "errorCounter");
@@ -31,8 +35,12 @@ class LoadingOverlayController extends BaseController with SocketMixin {
     this.pageState.value = pageState.value;
 
     try {
+      _monitorController.startDeviceMonitor(callerName: runtimeType.toString());
+
       await restartSocket(ip: currentIp);
       logger.i("[DBG] Device [$currentIp] -> ONLINE");
+
+      _monitorController.stopDeviceMonitor();
 
       pageState.value = const SuccessState(data: null);
       this.pageState.value = pageState.value;

@@ -46,6 +46,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
 
         try {
           final (serialNumber, firmware, _) = DatagramDataParser.getSerialMacAndFirmware(datagram.data);
+          logger.d("MONITOR [$_callerName] --> $serialNumber -> ${datagram.address.address}");
 
           if (updateIp) {
             _updateDeviceIpAndFirmware(
@@ -105,7 +106,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
 
     final interval =
         Duration(milliseconds: ((cycleDuration ?? defaultScanDuration).clamp(defaultScanDuration, 20) * 1000).toInt());
-    // logger.i("MONITOR [$_callerName] --> START [${interval.inMilliseconds}ms]");
+    logger.i("MONITOR [$_callerName] --> START [${interval.inMilliseconds}ms]");
 
     scanDevices(
       updateActives: true,
@@ -143,7 +144,7 @@ class DeviceMonitorController extends BaseController with UdpMixin {
     _timer?.cancel();
     _timer = null;
 
-    // logger.i("MONITOR [$_callerName] --> STOP");
+    logger.i("MONITOR [$_callerName] --> STOP");
     isRunning = false;
   }
 
