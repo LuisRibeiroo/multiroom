@@ -316,6 +316,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           key: const ValueKey("HomePage_Key"),
           state: _controller.state,
           currentIp: _controller.currentDevice.value.ip,
+          macAddress: _controller.currentDevice.value.macAddress,
           onTap: () {
             toastification.dismissAll(delayForAnimation: false);
             toastification.show(

@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+import 'package:multiroom/app/core/interactor/repositories/settings_contract.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
@@ -11,6 +13,7 @@ class LoadingOverlayController extends BaseController with SocketMixin {
   LoadingOverlayController() : super(InitialState());
 
   final _monitorController = injector.get<DeviceMonitorController>();
+  final _settings = injector.get<SettingsContract>();
 
   final pageState = Signal<PageState>(InitialState(), debugLabel: "overlayPageState");
   final errorCounter = 0.asSignal(debugLabel: "errorCounter");
@@ -30,6 +33,7 @@ class LoadingOverlayController extends BaseController with SocketMixin {
   Future<void> checkDeviceAvailability({
     required Signal<PageState> pageState,
     required String currentIp,
+    required String macAddress,
   }) async {
     pageState.value = LoadingState();
     this.pageState.value = pageState.value;
@@ -48,11 +52,15 @@ class LoadingOverlayController extends BaseController with SocketMixin {
       await Future.delayed(const Duration(seconds: defaultScanDuration ~/ 2));
 
       if (_needPulling) {
-        logger.i("[DBG] Check availability at [$currentIp]");
+        final device = _settings.devices.firstWhereOrNull((d) => d.macAddress == macAddress);
+        final newIp = device?.ip ?? currentIp;
+
+        logger.i("[DBG] Check availability at [$newIp]");
 
         await checkDeviceAvailability(
           pageState: pageState,
-          currentIp: currentIp,
+          currentIp: newIp,
+          macAddress: macAddress,
         );
       }
     }

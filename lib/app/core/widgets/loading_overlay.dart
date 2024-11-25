@@ -17,6 +17,7 @@ class LoadingOverlay extends StatefulWidget {
     this.dismissible = false,
     this.loadingWidget,
     this.currentIp = "",
+    this.macAddress = "",
     this.onTap,
     this.onSuccessState,
   });
@@ -26,6 +27,7 @@ class LoadingOverlay extends StatefulWidget {
   final bool dismissible;
   final Widget? loadingWidget;
   final String currentIp;
+  final String macAddress;
   final Function()? onTap;
   final Function()? onSuccessState;
 
@@ -65,6 +67,7 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
               _controller.checkDeviceAvailability(
                 pageState: widget.state,
                 currentIp: widget.currentIp,
+                macAddress: widget.macAddress,
               );
             }
           } else {
