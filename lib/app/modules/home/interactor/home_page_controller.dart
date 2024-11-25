@@ -144,6 +144,7 @@ class HomePageController extends BaseController with SocketMixin {
         zone: currentZone.value,
         active: active,
       ),
+      debounce: false,
       onError: () {
         currentZone.value = zone;
         _updateZonesInProject(zones: [currentZone.value]);
@@ -154,15 +155,7 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> setCurrentChannel(ChannelModel channel, ZoneModel zone) async {
-    final channels = currentDevice.value.channels;
-
-    final channelIndex = channels.indexWhere((c) => c.id == channel.id);
-    final tempList = List<ChannelModel>.from(channels);
-
-    tempList[channelIndex] = channel;
-
-    currentZone.value = zone;
-    currentZone.value = currentZone.value.copyWith(channel: channel);
+    currentZone.value = zone.copyWith(channel: channel);
     await _setCurrentDeviceByMacAdress(mac: currentZone.value.macAddress);
 
     _debounceSendCommand(
@@ -171,6 +164,7 @@ class HomePageController extends BaseController with SocketMixin {
         zone: currentZone.value,
         channel: channel,
       ),
+      debounce: false,
       onError: () {
         currentZone.value = zone;
         _updateZonesInProject(zones: [currentZone.value]);
@@ -637,9 +631,10 @@ class HomePageController extends BaseController with SocketMixin {
 
   void _debounceSendCommand(
     String cmd, {
+    bool debounce = true,
     required Function() onError,
   }) {
-    _writeDebouncer(() async {
+    function() async {
       try {
         final response = await socketSender(cmd);
 
@@ -661,7 +656,13 @@ class HomePageController extends BaseController with SocketMixin {
 
         onError();
       }
-    });
+    }
+
+    if (debounce) {
+      _writeDebouncer(function);
+    } else {
+      function();
+    }
   }
 
   Future<void> _updateDeviceData(DeviceModel device) async {
