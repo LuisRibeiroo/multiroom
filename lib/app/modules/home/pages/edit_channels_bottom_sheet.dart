@@ -48,6 +48,7 @@ class _EditChannelsBottomSheetState extends State<EditChannelsBottomSheet> {
   Widget build(BuildContext context) {
     return Watch(
       (_) => Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Stack(
             children: [
@@ -73,7 +74,7 @@ class _EditChannelsBottomSheetState extends State<EditChannelsBottomSheet> {
               ),
             ],
           ),
-          Expanded(
+          Flexible(
             child: AnimatedSwitcher(
               duration: Durations.short3,
               child: _controller.isEditMode.value

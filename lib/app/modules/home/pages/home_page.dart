@@ -89,7 +89,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void _showChannelsBottomSheet({ZoneModel? zone}) {
     context
         .showCustomModalBottomSheet(
-          isScrollControlled: false,
+          // isScrollControlled: false,
           child: Watch(
             (_) => EditChannelsBottomSheet(
               onSelect: _controller.setCurrentChannel,
