@@ -154,7 +154,12 @@ class HomePageController extends BaseController with SocketMixin {
     _updateZonesInProject(zones: [currentZone.value]);
   }
 
-  Future<void> setCurrentChannel(ChannelModel channel, ZoneModel zone) async {
+  Future<void> setCurrentChannel(
+    ChannelModel channel,
+    ZoneModel zone,
+    List<ChannelModel> channels,
+  ) async {
+    currentDevice.value = currentDevice.value.copyWith(channels: channels);
     currentZone.value = zone.copyWith(channel: channel);
     await _setCurrentDeviceByMacAdress(mac: currentZone.value.macAddress);
 

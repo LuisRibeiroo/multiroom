@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
+import '../../../core/extensions/build_context_extensions.dart';
 import '../../../core/extensions/number_extensions.dart';
 import '../../../core/models/channel_model.dart';
 import '../../../core/models/device_model.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/widgets/selectable_list_view.dart';
-import '../../shared/widgets/text_edit_tile.dart';
 import '../../widgets/icon_title.dart';
 import '../interactor/edit_channels_bottom_sheet_controller.dart';
 
@@ -21,7 +21,11 @@ class EditChannelsBottomSheet extends StatefulWidget {
 
   final DeviceModel device;
   final ZoneModel zone;
-  final Function(ChannelModel channel, ZoneModel zone) onSelect;
+  final Function(
+    ChannelModel channel,
+    ZoneModel zone,
+    List<ChannelModel> channels,
+  ) onSelect;
 
   @override
   State<EditChannelsBottomSheet> createState() => _EditChannelsBottomSheetState();
@@ -57,16 +61,12 @@ class _EditChannelsBottomSheetState extends State<EditChannelsBottomSheet> {
                   padding: const EdgeInsets.only(right: 12.0),
                   child: AnimatedSwitcher(
                     duration: Durations.short3,
-                    child: Visibility.maintain(
-                      key: ValueKey("EditButtonKey_${_controller.isEditingChannel.value}"),
-                      visible: _controller.isEditingChannel.value == false,
-                      child: IconButton(
-                        icon: AnimatedSwitcher(
-                          duration: Durations.short3,
-                          child: Icon(_controller.isEditMode.value ? Icons.check_rounded : Icons.edit_rounded),
-                        ),
-                        onPressed: _controller.toggleEditMode,
+                    child: IconButton(
+                      icon: AnimatedSwitcher(
+                        duration: Durations.short3,
+                        child: Icon(_controller.isEditMode.value ? Icons.check_rounded : Icons.edit_rounded),
                       ),
+                      onPressed: _controller.toggleEditMode,
                     ),
                   ),
                 ),
@@ -85,22 +85,25 @@ class _EditChannelsBottomSheetState extends State<EditChannelsBottomSheet> {
                         final current = _controller.device.value.channels[index];
 
                         return Watch(
-                          (_) => TextEditTile(
-                            itemId: current.id,
+                          (_) => TextFormField(
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              labelText: current.id,
+                            ),
                             initialValue: current.name,
-                            isEditing:
-                                _controller.isEditingChannel.value && _controller.editingChannelId.value == current.id,
-                            onChangeValue: _controller.onChangeChannelName,
-                            toggleEditing: _controller.toggleEditingChannel,
-                            hideEditButton:
-                                _controller.isEditingChannel.value && _controller.editingChannelId.value != current.id,
+                            onChanged: (v) => _controller.onChangeChannelName(current.id, v),
+                            style: context.textTheme.titleSmall,
                           ),
                         );
                       },
                     )
                   : SelectableListView(
                       options: _controller.device.value.channels,
-                      onSelect: (c) => widget.onSelect(c, _controller.zone.value),
+                      onSelect: (c) => widget.onSelect(
+                        c,
+                        _controller.zone.value,
+                        _controller.device.value.channels,
+                      ),
                       selectedOption: _controller.zone.value.channel,
                       onTapEdit: _controller.toggleEditMode,
                     ),
