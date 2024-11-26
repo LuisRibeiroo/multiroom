@@ -218,6 +218,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> updateEqualizer({ZoneModel? updatedZone}) async {
     final zone = updatedZone ?? currentZone.value;
+
     final f60 = MrCmdBuilder.parseResponseSingle(await socketSender(
       MrCmdBuilder.getEqualizer(
         macAddress: zone.macAddress,
@@ -308,12 +309,11 @@ class HomePageController extends BaseController with SocketMixin {
       }
     } catch (exception) {
       logger.e("Erro ao configurar equalizador --> $exception");
+      currentEqualizer.value = currentEqualizer.previousValue!;
+      currentZone.value = currentZone.previousValue!;
 
       _updateDevicesState();
       setError(Exception("Erro ao enviar comando"));
-
-      currentEqualizer.value = currentEqualizer.previousValue!;
-      currentZone.value = currentZone.previousValue!;
     }
 
     _updateZonesInProject(zones: [currentZone.value]);
@@ -510,14 +510,14 @@ class HomePageController extends BaseController with SocketMixin {
         group = tempDevice.groups.firstWhereOrNull((g) => g.zones.containsZone(zone));
       }
 
-      final updatedZone = isZoneGrouped ? zone.copyWith(name: group?.getZone(zone.id).name) : zone;
-      logger.i("[DBG] UPDATE PROJECT --> ${tempDevice.serialNumber} | ${updatedZone.name}");
+      // final updatedZone = isZoneGrouped ? zone.copyWith(name: group?.getZone(zone.id).name) : zone;
+      logger.i("[DBG] UPDATE PROJECT --> ${tempDevice.serialNumber} | ${zone.name}");
 
       if (isZoneGrouped) {
         final updatedGroup = group?.copyWith(
           zones: group.zones.withReplacement(
             (z) => z.id == zone.id,
-            updatedZone,
+            zone,
           ),
         );
 
@@ -529,8 +529,7 @@ class HomePageController extends BaseController with SocketMixin {
               );
       }
 
-      final updatedWrapper =
-          tempDevice.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId).copyWith(zone: updatedZone);
+      final updatedWrapper = tempDevice.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId).copyWith(zone: zone);
 
       updatedWrappers = tempDevice.zoneWrappers.withReplacement(
         (w) => w.id == updatedWrapper.id,
@@ -543,7 +542,7 @@ class HomePageController extends BaseController with SocketMixin {
       );
 
       _updateCurrentZone(
-        zone: updatedZone,
+        zone: zone,
         getEqualizer: getEqualizer,
       );
     }
