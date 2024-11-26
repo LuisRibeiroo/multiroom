@@ -1,7 +1,5 @@
-import "package:external_app_launcher/external_app_launcher.dart";
 import "package:flutter/material.dart";
 import "package:flutter_expandable_fab/flutter_expandable_fab.dart";
-import "package:multiroom/app/core/utils/platform_checker.dart";
 import "package:url_launcher/url_launcher.dart";
 
 abstract class MusicPlayersFabs {
@@ -20,24 +18,24 @@ abstract class MusicPlayersFabs {
   static Future<void> _launchUrl(GlobalKey<ExpandableFabState> key, String app) async {
     final appInfo = _packages[app]!;
 
-    if (PlatformChecker.isMobile) {
-      if (await LaunchApp.isAppInstalled(
-        androidPackageName: appInfo.android,
-        iosUrlScheme: appInfo.ios,
-      )) {
-        await LaunchApp.openApp(
-          androidPackageName: appInfo.android,
-          iosUrlScheme: appInfo.ios,
-          openStore: false,
-        );
+    // if (PlatformChecker.isMobile) {
+    //   if (await LaunchApp.isAppInstalled(
+    //     androidPackageName: appInfo.android,
+    //     iosUrlScheme: appInfo.ios,
+    //   )) {
+    //     await LaunchApp.openApp(
+    //       androidPackageName: appInfo.android,
+    //       iosUrlScheme: appInfo.ios,
+    //       openStore: false,
+    //     );
 
-        return;
-      } else {
-        _openBrowser(app, appInfo.url);
-      }
-    } else {
-      _openBrowser(app, appInfo.url);
-    }
+    //     return;
+    //   } else {
+    //     _openBrowser(app, appInfo.url);
+    //   }
+    // } else {
+    _openBrowser(app, appInfo.url);
+    // }
 
     final state = key.currentState;
     if (state != null) {

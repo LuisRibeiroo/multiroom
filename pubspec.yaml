@@ -24,7 +24,7 @@ dependencies:
   dio: ^5.4.3+1
   equatable: ^2.0.5
   expandable: ^5.0.1
-  external_app_launcher: ^4.0.0
+  # external_app_launcher: ^4.0.0
   flutter_expandable_fab: ^2.3.0
   flutter_secure_storage: ^9.2.2
   hive: ^2.2.3
