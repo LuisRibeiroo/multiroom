@@ -418,7 +418,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           ZoneControls(
                             currentZone: _controller.currentZone.value,
                             currentEqualizer: _controller.currentEqualizer.value,
-                            equalizers: _controller.equalizers.value,
+                            equalizers: _controller.equalizers,
                             onChangeBalance: _controller.setBalance,
                             onChangeVolume: _controller.setVolume,
                             onUpdateFrequency: _controller.setFrequency,

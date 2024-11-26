@@ -90,18 +90,15 @@ class HomePageController extends BaseController with SocketMixin {
   final filteredProjectZones = listSignal<ZoneModel>([], debugLabel: "projectZonesFiltered");
   final projectZones = listSignal<ZoneModel>([], debugLabel: "projectZones");
   final projects = listSignal<ProjectModel>([], debugLabel: "projects");
-  final equalizers = listSignal<EqualizerModel>(
-    [
-      EqualizerModel.builder(name: "Rock", v60: 2, v250: 0, v1k: 1, v3k: 2, v6k: 2, v16k: 1),
-      EqualizerModel.builder(name: "Pop", v60: 2, v250: 1, v1k: 2, v3k: 3, v6k: 2, v16k: 2),
-      EqualizerModel.builder(name: "Clássico", v60: 1, v250: 0, v1k: 1, v3k: 2, v6k: 1, v16k: 1),
-      EqualizerModel.builder(name: "Jazz", v60: 1, v250: 0, v1k: 2, v3k: 3, v6k: 2, v16k: 1),
-      EqualizerModel.builder(name: "Dance Music", v60: 4, v250: 2, v1k: 0, v3k: 3, v6k: 3, v16k: 2),
-      EqualizerModel.builder(name: "Flat", v60: 0, v250: 0, v1k: 0, v3k: 0, v6k: 0, v16k: 0),
-      EqualizerModel.builder(name: "Custom"),
-    ],
-    debugLabel: "equalizers",
-  );
+  final equalizers = <EqualizerModel>[
+    EqualizerModel.builder(name: "Rock", v60: 2, v250: 0, v1k: 1, v3k: 2, v6k: 2, v16k: 1),
+    EqualizerModel.builder(name: "Pop", v60: 2, v250: 1, v1k: 2, v3k: 3, v6k: 2, v16k: 2),
+    EqualizerModel.builder(name: "Clássico", v60: 1, v250: 0, v1k: 1, v3k: 2, v6k: 1, v16k: 1),
+    EqualizerModel.builder(name: "Jazz", v60: 1, v250: 0, v1k: 2, v3k: 3, v6k: 2, v16k: 1),
+    EqualizerModel.builder(name: "Dance Music", v60: 4, v250: 2, v1k: 0, v3k: 3, v6k: 3, v16k: 2),
+    EqualizerModel.builder(name: "Flat", v60: 0, v250: 0, v1k: 0, v3k: 0, v6k: 0, v16k: 0),
+    EqualizerModel.builder(name: "Custom"),
+  ];
 
   final currentProject = ProjectModel.empty().asSignal(debugLabel: "currentProject");
   final currentDevice = DeviceModel.empty().asSignal(debugLabel: "currentDevice");
@@ -289,34 +286,36 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> setEqualizer(EqualizerModel equalizer) async {
-    try {
-      currentEqualizer.value = equalizers.firstWhere((e) => e.name == equalizer.name);
-      currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
+    await run(() async {
+      try {
+        for (final freq in equalizer.frequencies) {
+          await socketSender(
+            // TODO: Update to use ALL cmd
+            MrCmdBuilder.setEqualizer(
+              macAddress: currentZone.value.macAddress,
+              zone: currentZone.value,
+              frequency: freq,
+              gain: freq.value,
+            ),
+          );
 
-      for (final freq in currentZone.value.equalizer.frequencies) {
-        await socketSender(
-          // TODO: Update to use ALL cmd
-          MrCmdBuilder.setEqualizer(
-            macAddress: currentZone.value.macAddress,
-            zone: currentZone.value,
-            frequency: freq,
-            gain: freq.value,
-          ),
-        );
+          // Delay to avoid sending commands too fast
+          await Future.delayed(Durations.short2);
+        }
 
-        // Delay to avoid sending commands too fast
-        await Future.delayed(Durations.short2);
+        currentEqualizer.value = equalizer;
+        currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
+      } catch (exception) {
+        logger.e("Erro ao configurar equalizador --> $exception");
+        currentEqualizer.value = currentEqualizer.previousValue!;
+        currentZone.value = currentZone.previousValue!;
+
+        _updateDevicesState();
+        setError(Exception("Erro ao enviar comando"));
       }
-    } catch (exception) {
-      logger.e("Erro ao configurar equalizador --> $exception");
-      currentEqualizer.value = currentEqualizer.previousValue!;
-      currentZone.value = currentZone.previousValue!;
 
-      _updateDevicesState();
-      setError(Exception("Erro ao enviar comando"));
-    }
-
-    _updateZonesInProject(zones: [currentZone.value]);
+      _updateZonesInProject(zones: [currentZone.value]);
+    });
   }
 
   void setFrequency(Frequency frequency) {
