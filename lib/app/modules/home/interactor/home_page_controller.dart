@@ -39,7 +39,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     currentEqualizer.value = equalizers.last;
 
-    _future();
+    _openSocketConnections();
 
     disposables["$runtimeType"] = [
       effect(() {
@@ -144,6 +144,7 @@ class HomePageController extends BaseController with SocketMixin {
         zone: currentZone.value,
         active: active,
       ),
+      macAddress: currentZone.value.macAddress,
       debounce: false,
       onError: () {
         currentZone.value = zone;
@@ -169,6 +170,7 @@ class HomePageController extends BaseController with SocketMixin {
         zone: currentZone.value,
         channel: channel,
       ),
+      macAddress: currentZone.value.macAddress,
       debounce: false,
       onError: () {
         currentZone.value = zone;
@@ -188,6 +190,7 @@ class HomePageController extends BaseController with SocketMixin {
         zone: currentZone.value,
         balance: balance,
       ),
+      macAddress: currentZone.value.macAddress,
       onError: () {
         currentZone.value = currentZone.previousValue!;
         _updateZonesInProject(zones: [currentZone.value]);
@@ -207,6 +210,7 @@ class HomePageController extends BaseController with SocketMixin {
         zone: zone ?? currentZone.value,
         volume: volume,
       ),
+      macAddress: currentZone.value.macAddress,
       onError: () {
         currentZone.value = currentZone.previousValue!;
         _updateZonesInProject(zones: [currentZone.value]);
@@ -337,6 +341,7 @@ class HomePageController extends BaseController with SocketMixin {
         frequency: frequency,
         gain: frequency.value,
       ),
+      macAddress: currentZone.value.macAddress,
       onError: () {
         currentEqualizer.value = currentEqualizer.previousValue!;
         currentZone.value = currentZone.previousValue!;
@@ -362,15 +367,15 @@ class HomePageController extends BaseController with SocketMixin {
         return;
       }
 
-      // if (allDevices) {
-      //   await _updateDevicesState();
-      // }
+      if (allDevices) {
+        await _updateDevicesState();
+      }
 
-      // if (awaitUpdate) {
-      //   await _updateSignals(allDevices: allDevices);
-      // } else {
-      //   _updateSignals(allDevices: allDevices);
-      // }
+      if (awaitUpdate) {
+        await _updateSignals(allDevices: allDevices);
+      } else {
+        _updateSignals(allDevices: allDevices);
+      }
     });
   }
 
@@ -433,13 +438,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   void setSearchText(String value) => searchText.value = value.toUpperCase();
 
-  Future<void> _future() async {
-    // var t = await restartSocket(ip: "192.168.0.19");
-
-    // t.listenString((data) {
-    //   print("DATA --> $data");
-    // });
-
+  Future<void> _openSocketConnections() async {
     for (final device in currentProject.value.devices) {
       final socket = await initSocket(ip: device.ip);
 
@@ -452,17 +451,7 @@ class HomePageController extends BaseController with SocketMixin {
       });
     }
 
-    connections.listenAll(
-      onData: (data) {
-        final t = MrCmdBuilder.parseResponseAsync(data);
-
-        _updateDeviceBasedOnResponse(t);
-      },
-    );
-  }
-
-  Future<void> sendTestData() async {
-    _getDeviceData(currentDevice.value);
+    connections.listenAll(onData: _updateDeviceBasedOnResponse);
   }
 
   ProjectModel _getLastProject() {
@@ -482,7 +471,14 @@ class HomePageController extends BaseController with SocketMixin {
     }
 
     currentDevice.value = device;
-    await run(() => restartSocket(ip: currentDevice.value.ip));
+    // await run(() async {
+    //   connections.updateSocket(
+    //     ip: currentDevice.value.ip,
+    //     socket: await restartSocket(ip: currentDevice.value.ip),
+    //   );
+
+    //   connections.listenTo(ip: currentDevice.value.ip, onData: _updateDeviceBasedOnResponse);
+    // });
   }
 
   Future<void> _iterateOverDevices({
@@ -490,9 +486,14 @@ class HomePageController extends BaseController with SocketMixin {
     bool initSocket = true,
   }) async {
     for (final device in currentProject.value.devices) {
-      if (initSocket) {
-        await restartSocket(ip: device.ip);
-      }
+      // if (initSocket) {
+      //   connections.updateSocket(
+      //     ip: device.ip,
+      //     socket: await restartSocket(ip: device.ip),
+      //   );
+
+      //   connections.listenTo(ip: device.ip, onData: _updateDeviceBasedOnResponse);
+      // }
 
       await function(device);
     }
@@ -644,19 +645,24 @@ class HomePageController extends BaseController with SocketMixin {
     await run(() async {
       try {
         if (allDevices) {
-          await _iterateOverDevices(function: (d) => _updateDeviceData(d));
+          await _iterateOverDevices(function: (d) => _getDeviceData(d));
         } else {
-          await _updateDeviceData(currentDevice.value);
+          await _getDeviceData(currentDevice.value);
         }
       } catch (exception) {
-        if (exception is StateError && exception.toString().contains("StreamSink")) {
-          try {
-            await restartSocket(ip: currentDevice.value.ip);
+        // if (exception is StateError && exception.toString().contains("StreamSink")) {
+        //   try {
+        //     connections.updateSocket(
+        //       ip: currentDevice.value.ip,
+        //       socket: await restartSocket(ip: currentDevice.value.ip),
+        //     );
 
-            await _runUpdateData(allDevices: allDevices);
-            return;
-          } catch (_) {}
-        }
+        //     connections.listenTo(ip: currentDevice.value.ip, onData: _updateDeviceBasedOnResponse);
+
+        //     await _runUpdateData(allDevices: allDevices);
+        //     return;
+        //   } catch (_) {}
+        // }
 
         logger.e("Erro ao tentar comunicação com o Multiroom --> $exception");
 
@@ -670,26 +676,27 @@ class HomePageController extends BaseController with SocketMixin {
     String cmd, {
     bool debounce = true,
     required Function() onError,
+    required String macAddress,
   }) {
     function() async {
       try {
-        final response = await socketSender(cmd);
+        connections.send(cmd: cmd, macAddress: macAddress);
 
-        if (response.toUpperCase().contains("ERROR")) {
-          throw Exception("Retorno do comando com erro");
-        }
-
-        currentDevice.value = currentDevice.value.copyWith(active: true);
-        _updateDeviceInProject(device: currentDevice.value);
+        // _updateDeviceInProject(device: currentDevice.value);
       } catch (exception) {
         logger.e("Erro no comando [$cmd] --> $exception");
 
         await _updateDevicesState();
         setError(Exception("Erro ao enviar comando"));
 
-        if (exception.toString().contains("Bad state")) {
-          await restartSocket(ip: currentDevice.value.ip);
-        }
+        // if (exception.toString().contains("Bad state")) {
+        //   connections.updateSocket(
+        //     ip: currentDevice.value.ip,
+        //     socket: await restartSocket(ip: currentDevice.value.ip),
+        //   );
+
+        //   connections.listenTo(ip: currentDevice.value.ip, onData: _updateDeviceBasedOnResponse);
+        // }
 
         onError();
       }
@@ -761,12 +768,17 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  Future<void> _updateDeviceBasedOnResponse(List<AllZonesParsedResponse> zonesResponse) async {
-    final device = currentProject.value.devices.firstWhereOrNull(
-      (d) => d.macAddress.toLowerCase() == zonesResponse.first.macAddress.toLowerCase(),
-    );
+  Future<void> _updateDeviceBasedOnResponse(String data) async {
+    final zonesResponse = MrCmdBuilder.parseResponse(data);
+
+    final device = currentProject.value.devices
+        .firstWhereOrNull(
+          (d) => d.macAddress.toLowerCase() == zonesResponse.first.macAddress.toLowerCase(),
+        )
+        ?.copyWith(active: true);
 
     if (device == null) {
+      logger.d("[DBG] Received response from unknown device at current project --> ${zonesResponse.first.macAddress}");
       return;
     }
 

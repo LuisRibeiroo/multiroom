@@ -15,11 +15,19 @@ extension SocketExtensions on Socket {
     _logger.i("[DBG] >>> $data");
   }
 
-  void listenString(void Function(String) onData) {
+  void listenString({
+    required void Function(String) onData,
+    void Function(String)? onError,
+  }) {
     listen((data) {
       final decoded = String.fromCharCodes(data);
       final clean = decoded.replaceAll("\r", "");
       _logger.i("[DBG] <<< $clean");
+
+      if (clean.toUpperCase().contains("ERROR")) {
+        onError?.call(clean);
+        return;
+      }
 
       onData(clean);
     });

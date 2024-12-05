@@ -255,8 +255,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     Icons.sync_rounded,
                     color: context.colorScheme.primary,
                   ),
-                  // onPressed: () => _controller.syncLocalData(allDevices: true),
-                  onPressed: () => _controller.sendTestData(),
+                  onPressed: () => _controller.syncLocalData(allDevices: true),
                 ),
               ),
               Watch(

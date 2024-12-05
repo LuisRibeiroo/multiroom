@@ -172,7 +172,7 @@ abstract final class MrCmdBuilder {
     return ret;
   }
 
-  static List<AllZonesParsedResponse> parseResponseAsync(String response) {
+  static List<AllZonesParsedResponse> parseResponse(String response) {
     if (RegExp(r"(\r\n|\r|\n)").allMatches(response).length > 1) {
       return parseResponseAllZones(response);
     } else {
