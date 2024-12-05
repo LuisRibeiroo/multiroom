@@ -455,7 +455,8 @@ class HomePageController extends BaseController with SocketMixin {
     connections.listenAll(
       onData: (data) {
         final t = MrCmdBuilder.parseResponseAsync(data);
-        print(t);
+
+        _updateDeviceBasedOnResponse(t);
       },
     );
   }
@@ -760,31 +761,69 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
+  Future<void> _updateDeviceBasedOnResponse(List<AllZonesParsedResponse> zonesResponse) async {
+    final device = currentProject.value.devices.firstWhereOrNull(
+      (d) => d.macAddress.toLowerCase() == zonesResponse.first.macAddress.toLowerCase(),
+    );
+
+    if (device == null) {
+      return;
+    }
+
+    final zonesData = ZoneData.buildBasedOnResponse(response: zonesResponse);
+    List<ZoneModel> zones = device.zones;
+
+    for (final zoneData in zonesData) {
+      final zone = device.zones.firstWhereOrNull((z) => z.id == zoneData.zoneId);
+
+      if (zone == null) {
+        continue;
+      }
+
+      ChannelModel? channel;
+
+      if (zoneData.values.channel != null) {
+        channel = device.channels.firstWhere(
+          (c) => c.id == zoneData.values.channel,
+          orElse: () => device.channels.first,
+        );
+      }
+
+      zones = zones.withReplacement(
+        (z) => z.id == zone.id,
+        zone.copyWith(
+          active: zoneData.values.power,
+          volume: zoneData.values.volume,
+          channel: channel,
+          balance: zoneData.values.balance,
+        ),
+      );
+    }
+
+    await _updateZonesInProject(
+      device: device,
+      zones: zones.grouped(device.groups),
+      getEqualizer: expandedViewMode.value,
+    );
+  }
+
   Future<void> _getDeviceData(DeviceModel device) async {
-    // connections.send(
-    //   ip: device.ip,
-    //   cmd: MrCmdBuilder.getPowerAll(macAddress: device.macAddress),
-    // );
-    // connections.send(
-    //   ip: device.ip,
-    //   cmd: MrCmdBuilder.getChannelAll(macAddress: device.macAddress),
-    // );
-    // connections.send(
-    //   ip: device.ip,
-    //   cmd: MrCmdBuilder.getVolumeAll(macAddress: device.macAddress),
-    // );
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getPowerAll(macAddress: device.macAddress),
+    );
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getChannelAll(macAddress: device.macAddress),
+    );
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getVolumeAll(macAddress: device.macAddress),
+    );
     connections.send(
       ip: device.ip,
       cmd: MrCmdBuilder.getBalanceAll(macAddress: device.macAddress),
     );
-
-    // connections.send(
-    //   ip: device.ip,
-    //   cmd: MrCmdBuilder.getGroup(
-    //     macAddress: device.macAddress,
-    //     groupId: 1,
-    //   ),
-    // );
   }
 
   void dispose() {

@@ -1,5 +1,6 @@
 import '../enums/device_type.dart';
 import '../enums/multiroom_commands.dart';
+import '../enums/zone_data_type.dart';
 import '../enums/zone_mode.dart';
 import '../extensions/string_extensions.dart';
 import '../models/channel_model.dart';
@@ -19,13 +20,14 @@ typedef AllZonesParsedResponse = ({
   String zoneId,
   String response,
   String macAddress,
+  MultiroomCommands cmd,
 });
 
 typedef ZoneDataResponse = ({
-  bool power,
-  String channel,
-  int volume,
-  int balance,
+  bool? power,
+  String? channel,
+  int? volume,
+  int? balance,
 });
 
 final class ZoneData {
@@ -48,6 +50,43 @@ final class ZoneData {
         volume: int.tryParse(volumeResponse.response) ?? 0,
         balance: int.tryParse(balanceResponse.response) ?? 0,
       ),
+    );
+  }
+
+  factory ZoneData._fromZonesInfo({
+    required ZoneDataType type,
+    required AllZonesParsedResponse zonesResponse,
+  }) {
+    final values = switch (type) {
+      ZoneDataType.power => (
+          power: zonesResponse.response.toLowerCase() == "on",
+          channel: null,
+          volume: null,
+          balance: null,
+        ),
+      ZoneDataType.channel => (
+          power: null,
+          channel: zonesResponse.response,
+          volume: null,
+          balance: null,
+        ),
+      ZoneDataType.volume => (
+          power: null,
+          channel: null,
+          volume: int.tryParse(zonesResponse.response) ?? 0,
+          balance: null,
+        ),
+      ZoneDataType.balance => (
+          power: null,
+          channel: null,
+          volume: null,
+          balance: int.tryParse(zonesResponse.response) ?? 0,
+        ),
+    };
+
+    return ZoneData._(
+      zoneId: zonesResponse.zoneId,
+      values: values,
     );
   }
 
@@ -79,6 +118,31 @@ final class ZoneData {
 
     return ret;
   }
+
+  static List<ZoneData> buildBasedOnResponse({
+    required List<AllZonesParsedResponse> response,
+  }) {
+    final ret = <ZoneData>[];
+
+    for (var i = 0; i < response.length; i++) {
+      final type = switch (response[i].cmd) {
+        MultiroomCommands.mrPwrGet => ZoneDataType.power,
+        MultiroomCommands.mrZoneChannelSet => ZoneDataType.channel,
+        MultiroomCommands.mrVolSet => ZoneDataType.volume,
+        MultiroomCommands.mrBalSet => ZoneDataType.balance,
+        _ => ZoneDataType.channel,
+      };
+
+      ret.add(
+        ZoneData._fromZonesInfo(
+          type: type,
+          zonesResponse: response[i],
+        ),
+      );
+    }
+
+    return ret;
+  }
 }
 
 abstract final class MrCmdBuilder {
@@ -101,6 +165,7 @@ abstract final class MrCmdBuilder {
         zoneId: parsed.params,
         response: parsed.response,
         macAddress: parsed.macAddress,
+        cmd: MultiroomCommands.fromString(parsed.cmd)!,
       ));
     }
 
@@ -108,7 +173,7 @@ abstract final class MrCmdBuilder {
   }
 
   static List<AllZonesParsedResponse> parseResponseAsync(String response) {
-    if (response.allMatches("\n").length > 1) {
+    if (RegExp(r"(\r\n|\r|\n)").allMatches(response).length > 1) {
       return parseResponseAllZones(response);
     } else {
       final single = response.startsWith(MultiroomCommands.mrGroupSet.value) == false;
@@ -119,6 +184,7 @@ abstract final class MrCmdBuilder {
           zoneId: parsed.params,
           response: parsed.response,
           macAddress: parsed.macAddress,
+          cmd: MultiroomCommands.fromString(parsed.cmd)!,
         )
       ];
     }
