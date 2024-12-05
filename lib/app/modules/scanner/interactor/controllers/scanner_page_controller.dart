@@ -170,13 +170,16 @@ class ScannerPageController extends BaseController with SocketMixin {
     }
   }
 
-  void stopUdpServer() {
+  void stopUdpServer({bool restartMonitor = true}) {
     if (_udpServer?.closed == false) {
       _udpServer?.close();
     }
 
     _isUdpListening.value = false;
-    startDeviceMonitor();
+
+    if (restartMonitor) {
+      startDeviceMonitor();
+    }
   }
 
   void clearNetworkDevices() => networkDevices.clear();
@@ -300,7 +303,8 @@ class ScannerPageController extends BaseController with SocketMixin {
     mixinDispose();
 
     _clearEmptyProjects();
-    stopUdpServer();
+    stopUdpServer(restartMonitor: false);
+    _monitor.stopDeviceMonitor(stopServer: true);
 
     _isUdpListening.value = _isUdpListening.initialValue;
     deviceType.value = deviceType.initialValue;
