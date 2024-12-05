@@ -57,6 +57,12 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
     }
   }
 
+  Future<void> cancelAll() async {
+    for (final connection in values) {
+      connection.socket.close();
+    }
+  }
+
   void updateSocket({required String ip, required Socket socket}) {
     if (this[ip] == null) {
       throw Exception("Conexão não encontrada");

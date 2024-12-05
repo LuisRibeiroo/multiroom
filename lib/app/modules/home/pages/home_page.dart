@@ -87,18 +87,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   void _showChannelsBottomSheet({ZoneModel? zone}) {
-    context
-        .showCustomModalBottomSheet(
-          // isScrollControlled: false,
-          child: Watch(
-            (_) => EditChannelsBottomSheet(
-              onSelect: _controller.setCurrentChannel,
-              device: _controller.currentDevice.value,
-              zone: zone ?? _controller.currentZone.value,
-            ),
-          ),
-        )
-        .then((_) => _controller.syncLocalData(awaitUpdate: false));
+    context.showCustomModalBottomSheet(
+      // isScrollControlled: false,
+      child: Watch(
+        (_) => EditChannelsBottomSheet(
+          onSelect: _controller.setCurrentChannel,
+          device: _controller.currentDevice.value,
+          zone: zone ?? _controller.currentZone.value,
+        ),
+      ),
+    );
   }
 
   void _showEqualizersBottomSheet() {
@@ -181,13 +179,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
 
-    AppLifecycleListener(
-      onResume: () {
-        if (PlatformChecker.isMobile) {
-          _controller.syncLocalData(allDevices: true);
-        }
-      },
-    );
+    // AppLifecycleListener(
+    //   onResume: () {
+    //     if (PlatformChecker.isMobile) {
+    //       _controller.syncLocalData(allDevices: true);
+    //     }
+    //   },
+    // );
 
     _searchController = TextEditingController();
 
@@ -218,11 +216,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       key: const ValueKey(HomePage),
       onVisibilityChanged: (info) async {
         if (info.visibleFraction == 1) {
-          _controller.syncLocalData(allDevices: true);
-
+          _controller.openSocketConnections();
           _controller.setPageVisible(true);
         } else {
           _controller.setPageVisible(false);
+          _controller.closeConnections();
         }
       },
       child: Scaffold(

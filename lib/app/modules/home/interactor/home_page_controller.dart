@@ -39,8 +39,6 @@ class HomePageController extends BaseController with SocketMixin {
 
     currentEqualizer.value = equalizers.last;
 
-    _openSocketConnections();
-
     disposables["$runtimeType"] = [
       effect(() {
         if (projects.isEmpty || currentProject.value.devices.isEmpty) {
@@ -438,7 +436,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   void setSearchText(String value) => searchText.value = value.toUpperCase();
 
-  Future<void> _openSocketConnections() async {
+  Future<void> openSocketConnections() async {
     for (final device in currentProject.value.devices) {
       final socket = await initSocket(ip: device.ip);
 
@@ -453,6 +451,8 @@ class HomePageController extends BaseController with SocketMixin {
 
     connections.listenAll(onData: _updateDeviceBasedOnResponse);
   }
+
+  void closeConnections() => connections.cancelAll();
 
   ProjectModel _getLastProject() {
     projects.value = _settings.projects;
