@@ -19,6 +19,7 @@ import '../../../core/models/device_model.dart';
 import '../../../core/models/equalizer_model.dart';
 import '../../../core/models/frequency.dart';
 import '../../../core/models/project_model.dart';
+import '../../../core/models/socket_connection.dart';
 import '../../../core/models/zone_group_model.dart';
 import '../../../core/models/zone_model.dart';
 import '../../../core/models/zone_wrapper_model.dart';
@@ -37,6 +38,8 @@ class HomePageController extends BaseController with SocketMixin {
     }
 
     currentEqualizer.value = equalizers.last;
+
+    _future();
 
     disposables["$runtimeType"] = [
       effect(() {
@@ -352,7 +355,6 @@ class HomePageController extends BaseController with SocketMixin {
     // if (state.value is LoadingState) {
     //   return;
     // }
-
     await run(() async {
       projects.value = _settings.projects;
 
@@ -360,15 +362,15 @@ class HomePageController extends BaseController with SocketMixin {
         return;
       }
 
-      if (allDevices) {
-        await _updateDevicesState();
-      }
+      // if (allDevices) {
+      //   await _updateDevicesState();
+      // }
 
-      if (awaitUpdate) {
-        await _updateSignals(allDevices: allDevices);
-      } else {
-        _updateSignals(allDevices: allDevices);
-      }
+      // if (awaitUpdate) {
+      //   await _updateSignals(allDevices: allDevices);
+      // } else {
+      //   _updateSignals(allDevices: allDevices);
+      // }
     });
   }
 
@@ -430,6 +432,37 @@ class HomePageController extends BaseController with SocketMixin {
   void setSearchVisibility(bool value) => searchIsVisible.value = value;
 
   void setSearchText(String value) => searchText.value = value.toUpperCase();
+
+  Future<void> _future() async {
+    // var t = await restartSocket(ip: "192.168.0.19");
+
+    // t.listenString((data) {
+    //   print("DATA --> $data");
+    // });
+
+    for (final device in currentProject.value.devices) {
+      final socket = await initSocket(ip: device.ip);
+
+      connections.addAll({
+        device.ip: SocketConnection(
+          ip: device.ip,
+          macAddress: device.macAddress,
+          socket: socket,
+        ),
+      });
+    }
+
+    connections.listenAll(
+      onData: (data) {
+        final t = MrCmdBuilder.parseResponseAsync(data);
+        print(t);
+      },
+    );
+  }
+
+  Future<void> sendTestData() async {
+    _getDeviceData(currentDevice.value);
+  }
 
   ProjectModel _getLastProject() {
     projects.value = _settings.projects;
@@ -725,6 +758,33 @@ class HomePageController extends BaseController with SocketMixin {
       zones: zones.grouped(device.groups),
       getEqualizer: expandedViewMode.value,
     );
+  }
+
+  Future<void> _getDeviceData(DeviceModel device) async {
+    // connections.send(
+    //   ip: device.ip,
+    //   cmd: MrCmdBuilder.getPowerAll(macAddress: device.macAddress),
+    // );
+    // connections.send(
+    //   ip: device.ip,
+    //   cmd: MrCmdBuilder.getChannelAll(macAddress: device.macAddress),
+    // );
+    // connections.send(
+    //   ip: device.ip,
+    //   cmd: MrCmdBuilder.getVolumeAll(macAddress: device.macAddress),
+    // );
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getBalanceAll(macAddress: device.macAddress),
+    );
+
+    // connections.send(
+    //   ip: device.ip,
+    //   cmd: MrCmdBuilder.getGroup(
+    //     macAddress: device.macAddress,
+    //     groupId: 1,
+    //   ),
+    // );
   }
 
   void dispose() {

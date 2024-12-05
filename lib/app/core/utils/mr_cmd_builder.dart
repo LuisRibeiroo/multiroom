@@ -13,12 +13,12 @@ typedef MrResponse = ({
   String macAddress,
   String params,
   String response,
-  String? frequency,
 });
 
 typedef AllZonesParsedResponse = ({
   String zoneId,
   String response,
+  String macAddress,
 });
 
 typedef ZoneDataResponse = ({
@@ -84,11 +84,9 @@ final class ZoneData {
 abstract final class MrCmdBuilder {
   static const allZones = "ZALL";
 
-  static String parseResponseSingle(String response) =>
-      MrCmdBuilder.parseCompleteResponse(response, single: true).response;
+  static String parseResponseSingle(String response) => _parseCompleteResponse(response, single: true).response;
 
-  static String parseResponseMulti(String response) =>
-      MrCmdBuilder.parseCompleteResponse(response, single: false).response;
+  static String parseResponseMulti(String response) => _parseCompleteResponse(response, single: false).response;
 
   static List<AllZonesParsedResponse> parseResponseAllZones(String response) {
     final ret = <AllZonesParsedResponse>[];
@@ -98,24 +96,43 @@ abstract final class MrCmdBuilder {
         continue;
       }
 
-      final parsed = MrCmdBuilder.parseCompleteResponse(line, single: true);
-      ret.add((zoneId: parsed.params, response: parsed.response));
+      final parsed = _parseCompleteResponse(line, single: true);
+      ret.add((
+        zoneId: parsed.params,
+        response: parsed.response,
+        macAddress: parsed.macAddress,
+      ));
     }
 
     return ret;
   }
 
-  static MrResponse parseCompleteResponse(String response, {required bool single}) {
+  static List<AllZonesParsedResponse> parseResponseAsync(String response) {
+    if (response.allMatches("\n").length > 1) {
+      return parseResponseAllZones(response);
+    } else {
+      final single = response.startsWith(MultiroomCommands.mrGroupSet.value) == false;
+      final parsed = _parseCompleteResponse(response, single: single);
+
+      return [
+        (
+          zoneId: parsed.params,
+          response: parsed.response,
+          macAddress: parsed.macAddress,
+        )
+      ];
+    }
+  }
+
+  static MrResponse _parseCompleteResponse(String response, {required bool single}) {
     final ret = response.split(",");
 
     return (
       cmd: ret.first.removeSpecialChars,
       macAddress: ret[1].removeSpecialChars,
       params: ret[2].removeSpecialChars,
-      // response: ret.last.removeSpecialChars,
       response:
           single ? ret.last.removeSpecialChars : ret.getRange(3, ret.length).map((e) => e.removeSpecialChars).join(","),
-      frequency: null,
     );
   }
 

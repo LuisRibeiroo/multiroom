@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:multiroom/app/core/models/socket_connection.dart';
 import 'package:signals/signals_flutter.dart';
 
 import '../../enums/page_state.dart';
@@ -15,6 +16,8 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
       autoDispose: true,
     );
   }
+
+  final connections = <String, SocketConnection>{};
 
   final logger = Logger(
     printer: SimplePrinter(

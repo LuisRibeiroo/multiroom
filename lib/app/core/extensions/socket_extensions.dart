@@ -14,4 +14,14 @@ extension SocketExtensions on Socket {
     write("$data\r\n");
     _logger.i("[DBG] >>> $data");
   }
+
+  void listenString(void Function(String) onData) {
+    listen((data) {
+      final decoded = String.fromCharCodes(data);
+      final clean = decoded.replaceAll("\r", "");
+      _logger.i("[DBG] <<< $clean");
+
+      onData(clean);
+    });
+  }
 }
