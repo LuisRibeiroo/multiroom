@@ -659,15 +659,15 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   void _getDeviceData(DeviceModel device) {
-    // connections.send(
-    //   ip: device.ip,
-    //   cmd: MrCmdBuilder.getPowerAll(macAddress: device.macAddress),
-    // );
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getPowerAll(macAddress: device.macAddress),
+    );
 
-    // connections.send(
-    //   ip: device.ip,
-    //   cmd: MrCmdBuilder.getChannelAll(macAddress: device.macAddress),
-    // );
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getChannelAll(macAddress: device.macAddress),
+    );
 
     connections.send(
       ip: device.ip,
@@ -679,7 +679,9 @@ class HomePageController extends BaseController with SocketMixin {
       cmd: MrCmdBuilder.getBalanceAll(macAddress: device.macAddress),
     );
 
-    _getEqualizer();
+    if (expandedViewMode.value) {
+      _getEqualizer();
+    }
   }
 
   Future<void> _getEqualizer() async {
