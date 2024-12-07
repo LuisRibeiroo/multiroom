@@ -24,7 +24,7 @@ extension SocketExtensions on Socket {
       final clean = decoded.replaceAll("\r", "");
       _logger.i("[DBG] <<< $clean");
 
-      if (clean.toUpperCase().contains("ERROR")) {
+      if (clean.toUpperCase().contains("ERROR") && clean.contains("zone_mode_error") == false) {
         onError?.call(clean);
         return;
       }

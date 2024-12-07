@@ -1,4 +1,6 @@
+import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
+import 'package:multiroom/app/core/extensions/list_extensions.dart';
 
 import '../enums/device_type.dart';
 import 'channel_model.dart';
@@ -151,6 +153,51 @@ class DeviceModel extends HiveObject {
   bool isZoneInGroup(ZoneModel zone) => groups.any((g) => g.zones.containsZone(zone));
 
   List<ZoneModel> get groupedZones => zones.grouped(groups);
+
+  DeviceModel updateZones(List<ZoneModel> zones) {
+    List<ZoneWrapperModel> updatedWrappers;
+    List<ZoneGroupModel>? updatedGroups;
+    DeviceModel tempDevice = this;
+
+    for (final zone in zones) {
+      ZoneGroupModel? group;
+      final isZoneGrouped = tempDevice.isZoneInGroup(zone);
+
+      if (isZoneGrouped) {
+        group = tempDevice.groups.firstWhereOrNull((g) => g.zones.containsZone(zone));
+      }
+
+      if (isZoneGrouped) {
+        final updatedGroup = group?.copyWith(
+          zones: group.zones.withReplacement(
+            (z) => z.id == zone.id,
+            zone,
+          ),
+        );
+
+        updatedGroups = group == null
+            ? null
+            : tempDevice.groups.withReplacement(
+                (g) => g.id == group!.id,
+                updatedGroup!,
+              );
+      }
+
+      final updatedWrapper = tempDevice.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId).copyWith(zone: zone);
+
+      updatedWrappers = tempDevice.zoneWrappers.withReplacement(
+        (w) => w.id == updatedWrapper.id,
+        updatedWrapper,
+      );
+
+      tempDevice = tempDevice.copyWith(
+        zoneWrappers: updatedWrappers,
+        groups: updatedGroups,
+      );
+    }
+
+    return tempDevice;
+  }
 
   DeviceModel copyWith({
     String? serialNumber,

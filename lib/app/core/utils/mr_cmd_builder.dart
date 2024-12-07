@@ -18,7 +18,7 @@ typedef MrResponse = ({
 
 typedef AllZonesParsedResponse = ({
   String zoneId,
-  String response,
+  String data,
   String macAddress,
   MultiroomCommands cmd,
 });
@@ -45,10 +45,10 @@ final class ZoneData {
     return ZoneData._(
       zoneId: powerResponse.zoneId,
       values: (
-        power: powerResponse.response.toLowerCase() == "on",
-        channel: channelResponse.response,
-        volume: int.tryParse(volumeResponse.response) ?? 0,
-        balance: int.tryParse(balanceResponse.response) ?? 0,
+        power: powerResponse.data.toLowerCase() == "on",
+        channel: channelResponse.data,
+        volume: int.tryParse(volumeResponse.data) ?? 0,
+        balance: int.tryParse(balanceResponse.data) ?? 0,
       ),
     );
   }
@@ -59,28 +59,28 @@ final class ZoneData {
   }) {
     final values = switch (type) {
       ZoneDataType.power => (
-          power: zonesResponse.response.toLowerCase() == "on",
+          power: zonesResponse.data.toLowerCase() == "on",
           channel: null,
           volume: null,
           balance: null,
         ),
       ZoneDataType.channel => (
           power: null,
-          channel: zonesResponse.response,
+          channel: zonesResponse.data,
           volume: null,
           balance: null,
         ),
       ZoneDataType.volume => (
           power: null,
           channel: null,
-          volume: int.tryParse(zonesResponse.response) ?? 0,
+          volume: int.tryParse(zonesResponse.data) ?? 0,
           balance: null,
         ),
       ZoneDataType.balance => (
           power: null,
           channel: null,
           volume: null,
-          balance: int.tryParse(zonesResponse.response) ?? 0,
+          balance: int.tryParse(zonesResponse.data) ?? 0,
         ),
     };
 
@@ -119,27 +119,21 @@ final class ZoneData {
     return ret;
   }
 
-  static List<ZoneData> buildBasedOnResponse({
-    required List<AllZonesParsedResponse> response,
+  static ZoneData fromResponse({
+    required AllZonesParsedResponse response,
   }) {
-    final ret = <ZoneData>[];
+    final type = switch (response.cmd) {
+      MultiroomCommands.mrPwrSet => ZoneDataType.power,
+      MultiroomCommands.mrZoneChannelSet => ZoneDataType.channel,
+      MultiroomCommands.mrVolSet => ZoneDataType.volume,
+      MultiroomCommands.mrBalSet => ZoneDataType.balance,
+      _ => ZoneDataType.channel,
+    };
 
-    for (var i = 0; i < response.length; i++) {
-      final type = switch (response[i].cmd) {
-        MultiroomCommands.mrPwrGet => ZoneDataType.power,
-        MultiroomCommands.mrZoneChannelSet => ZoneDataType.channel,
-        MultiroomCommands.mrVolSet => ZoneDataType.volume,
-        MultiroomCommands.mrBalSet => ZoneDataType.balance,
-        _ => ZoneDataType.channel,
-      };
-
-      ret.add(
-        ZoneData._fromZonesInfo(
-          type: type,
-          zonesResponse: response[i],
-        ),
-      );
-    }
+    final ret = ZoneData._fromZonesInfo(
+      type: type,
+      zonesResponse: response,
+    );
 
     return ret;
   }
@@ -148,9 +142,9 @@ final class ZoneData {
 abstract final class MrCmdBuilder {
   static const allZones = "ZALL";
 
-  static String parseResponseSingle(String response) => _parseCompleteResponse(response, single: true).response;
+  static String parseResponseSingle(String response) => _parseMrResponse(response, single: true).response;
 
-  static String parseResponseMulti(String response) => _parseCompleteResponse(response, single: false).response;
+  static String parseResponseMulti(String response) => _parseMrResponse(response, single: false).response;
 
   static List<AllZonesParsedResponse> parseResponseAllZones(String response) {
     final ret = <AllZonesParsedResponse>[];
@@ -160,11 +154,11 @@ abstract final class MrCmdBuilder {
         continue;
       }
 
-      final parsed = _parseCompleteResponse(line, single: true);
+      final parsed = _parseMrResponse(line, single: true);
       ret.add((
         zoneId: parsed.params,
-        response: parsed.response,
-        macAddress: parsed.macAddress,
+        data: parsed.response,
+        macAddress: parsed.macAddress.toLowerCase(),
         cmd: MultiroomCommands.fromString(parsed.cmd)!,
       ));
     }
@@ -177,29 +171,38 @@ abstract final class MrCmdBuilder {
       return parseResponseAllZones(response);
     } else {
       final single = response.startsWith(MultiroomCommands.mrGroupSet.value) == false;
-      final parsed = _parseCompleteResponse(response, single: single);
+      final parsed = _parseMrResponse(response, single: single);
 
       return [
         (
           zoneId: parsed.params,
-          response: parsed.response,
-          macAddress: parsed.macAddress,
+          data: parsed.response,
+          macAddress: parsed.macAddress.toLowerCase(),
           cmd: MultiroomCommands.fromString(parsed.cmd)!,
         )
       ];
     }
   }
 
-  static MrResponse _parseCompleteResponse(String response, {required bool single}) {
+  static MrResponse _parseMrResponse(String response, {required bool single}) {
     final ret = response.split(",");
 
-    return (
-      cmd: ret.first.removeSpecialChars,
-      macAddress: ret[1].removeSpecialChars,
-      params: ret[2].removeSpecialChars,
-      response:
-          single ? ret.last.removeSpecialChars : ret.getRange(3, ret.length).map((e) => e.removeSpecialChars).join(","),
-    );
+    return switch (ret.length) {
+      2 => (
+          cmd: ret.first.removeSpecialChars,
+          macAddress: ret[1].removeSpecialChars.toLowerCase(),
+          params: "",
+          response: "",
+        ),
+      _ => (
+          cmd: ret.first.removeSpecialChars,
+          macAddress: ret[1].removeSpecialChars.toLowerCase(),
+          params: ret[2].removeSpecialChars,
+          response: single
+              ? ret.last.removeSpecialChars
+              : ret.getRange(3, ret.length).map((e) => e.removeSpecialChars).join(","),
+        )
+    };
   }
 
   static int fromDbToPercent(String value) =>

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:logger/logger.dart';
 
 import '../extensions/socket_extensions.dart';
 import '../extensions/string_extensions.dart';
@@ -42,6 +43,12 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
     }
 
     connection.socket.listenString(onData: onData, onError: onError);
+
+    Logger(
+        printer: SimplePrinter(
+      printTime: true,
+      colors: false,
+    )).d("[SOCKET] listening on IP [$ip]");
   }
 
   Future<void> listenAll({
