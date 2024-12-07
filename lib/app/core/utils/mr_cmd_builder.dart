@@ -28,6 +28,7 @@ typedef ZoneDataResponse = ({
   String? channel,
   int? volume,
   int? balance,
+  int? equalizer,
 });
 
 final class ZoneData {
@@ -35,23 +36,6 @@ final class ZoneData {
     required this.zoneId,
     required this.values,
   });
-
-  factory ZoneData._fromAllZonesInfo({
-    required AllZonesParsedResponse powerResponse,
-    required AllZonesParsedResponse channelResponse,
-    required AllZonesParsedResponse volumeResponse,
-    required AllZonesParsedResponse balanceResponse,
-  }) {
-    return ZoneData._(
-      zoneId: powerResponse.zoneId,
-      values: (
-        power: powerResponse.data.toLowerCase() == "on",
-        channel: channelResponse.data,
-        volume: int.tryParse(volumeResponse.data) ?? 0,
-        balance: int.tryParse(balanceResponse.data) ?? 0,
-      ),
-    );
-  }
 
   factory ZoneData._fromZonesInfo({
     required ZoneDataType type,
@@ -63,24 +47,35 @@ final class ZoneData {
           channel: null,
           volume: null,
           balance: null,
+          equalizer: null,
         ),
       ZoneDataType.channel => (
           power: null,
           channel: zonesResponse.data,
           volume: null,
           balance: null,
+          equalizer: null,
         ),
       ZoneDataType.volume => (
           power: null,
           channel: null,
           volume: int.tryParse(zonesResponse.data) ?? 0,
           balance: null,
+          equalizer: null,
         ),
       ZoneDataType.balance => (
           power: null,
           channel: null,
           volume: null,
           balance: int.tryParse(zonesResponse.data) ?? 0,
+          equalizer: null,
+        ),
+      ZoneDataType.equalizer => (
+          power: null,
+          channel: null,
+          volume: null,
+          balance: null,
+          equalizer: int.tryParse(zonesResponse.data) ?? 0,
         ),
     };
 
@@ -93,32 +88,6 @@ final class ZoneData {
   final String zoneId;
   final ZoneDataResponse values;
 
-  static List<ZoneData> buildAllZones({
-    required List<AllZonesParsedResponse> powerResponse,
-    required List<AllZonesParsedResponse> channelResponse,
-    required List<AllZonesParsedResponse> volumeResponse,
-    required List<AllZonesParsedResponse> balanceResponse,
-  }) {
-    if (powerResponse.length != channelResponse.length || powerResponse.length != volumeResponse.length) {
-      throw Exception("All responses need to be same lenght");
-    }
-
-    final ret = <ZoneData>[];
-
-    for (var i = 0; i < powerResponse.length; i++) {
-      ret.add(
-        ZoneData._fromAllZonesInfo(
-          powerResponse: powerResponse[i],
-          channelResponse: channelResponse[i],
-          volumeResponse: volumeResponse[i],
-          balanceResponse: balanceResponse[i],
-        ),
-      );
-    }
-
-    return ret;
-  }
-
   static ZoneData fromResponse({
     required AllZonesParsedResponse response,
   }) {
@@ -127,6 +96,7 @@ final class ZoneData {
       MultiroomCommands.mrZoneChannelSet => ZoneDataType.channel,
       MultiroomCommands.mrVolSet => ZoneDataType.volume,
       MultiroomCommands.mrBalSet => ZoneDataType.balance,
+      MultiroomCommands.mrEqSet => ZoneDataType.equalizer,
       _ => ZoneDataType.channel,
     };
 
@@ -146,16 +116,20 @@ abstract final class MrCmdBuilder {
 
   static String parseResponseMulti(String response) => _parseMrResponse(response, single: false).response;
 
-  static List<AllZonesParsedResponse> parseResponseAllZones(String response) {
-    final ret = <AllZonesParsedResponse>[];
+  static List<AllZonesParsedResponse> parseResponse(String response) {
+    final allZonesResponses = <AllZonesParsedResponse>[];
 
-    for (final line in response.split("\n")) {
+    for (final line in response.split(RegExp(r"(\r\n|\r|\n)"))) {
       if (line.isNullOrEmpty) {
         continue;
       }
 
-      final parsed = _parseMrResponse(line, single: true);
-      ret.add((
+      final single = response.startsWith(MultiroomCommands.mrGroupSet.value) == false &&
+          response.startsWith(MultiroomCommands.mrEqSet.value) == false;
+
+      final parsed = _parseMrResponse(line, single: single);
+
+      allZonesResponses.add((
         zoneId: parsed.params,
         data: parsed.response,
         macAddress: parsed.macAddress.toLowerCase(),
@@ -163,25 +137,7 @@ abstract final class MrCmdBuilder {
       ));
     }
 
-    return ret;
-  }
-
-  static List<AllZonesParsedResponse> parseResponse(String response) {
-    if (RegExp(r"(\r\n|\r|\n)").allMatches(response).length > 1) {
-      return parseResponseAllZones(response);
-    } else {
-      final single = response.startsWith(MultiroomCommands.mrGroupSet.value) == false;
-      final parsed = _parseMrResponse(response, single: single);
-
-      return [
-        (
-          zoneId: parsed.params,
-          data: parsed.response,
-          macAddress: parsed.macAddress.toLowerCase(),
-          cmd: MultiroomCommands.fromString(parsed.cmd)!,
-        )
-      ];
-    }
+    return allZonesResponses;
   }
 
   static MrResponse _parseMrResponse(String response, {required bool single}) {

@@ -21,7 +21,7 @@ final class SocketConnection {
 extension SocketConnectionExt on Map<String, SocketConnection> {
   String _getIp(String macAddress) {
     final connection = values.firstWhereOrNull(
-      (element) => element.macAddress == macAddress,
+      (element) => element.macAddress.toUpperCase() == macAddress.toUpperCase(),
     );
 
     if (connection == null) {

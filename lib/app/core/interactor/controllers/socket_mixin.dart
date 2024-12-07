@@ -2,12 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import '../../extensions/socket_extensions.dart';
+import '../../extensions/stream_iterator_extensions.dart';
 import '../../extensions/string_extensions.dart';
 
 mixin SocketMixin {
   Socket? _socket;
   StreamIterator? _streamIterator;
-  final bool _lastCmdError = false;
+  bool _lastCmdError = false;
   String? _ip;
   String? _lastIp;
 
@@ -45,28 +46,28 @@ mixin SocketMixin {
     // )).d("MOCK CMD --> [$cmd]");
     // return "mr_cmd=OK";
 
-    // if (_lastIp != _ip) {
-    //   _lastCmdError = false;
-    // }
+    if (_lastIp != _ip) {
+      _lastCmdError = false;
+    }
 
-    // if (_lastCmdError && _ip.isNotNullOrEmpty) {
-    //   await restartSocket(ip: _ip!);
-    // }
+    if (_lastCmdError && _ip.isNotNullOrEmpty) {
+      await restartSocket(ip: _ip!);
+    }
 
-    // _lastIp = _ip;
-    // _lastCmdError = true;
+    _lastIp = _ip;
+    _lastCmdError = true;
 
-    // if (_socket == null || _streamIterator == null) {
-    //   throw Exception("É necessário incializar o socket");
-    // }
+    if (_socket == null || _streamIterator == null) {
+      throw Exception("É necessário incializar o socket");
+    }
 
-    // _socket!.writeLog(cmd);
+    _socket!.writeLog(cmd);
 
-    // final data = await _streamIterator!.readSync(longResponse: longRet);
+    final data = await _streamIterator!.readSync(longResponse: longRet);
 
-    // _lastCmdError = false;
+    _lastCmdError = false;
 
-    return "";
+    return data;
   }
 
   void mixinDispose() {

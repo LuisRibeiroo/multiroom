@@ -19,6 +19,17 @@ class Frequency extends Equatable {
     );
   }
 
+  factory Frequency.fromValue({
+    required String id,
+    required String value,
+  }) {
+    return Frequency(
+      id: id,
+      name: _bands[id] ?? "",
+      value: int.tryParse(value) ?? 0,
+    );
+  }
+
   factory Frequency.fromMap(Map<String, dynamic> map) {
     return Frequency(
       id: map["id"],
@@ -44,12 +55,12 @@ class Frequency extends Equatable {
     int v16k = 0,
   ]) =>
       [
-        Frequency(id: "B1", name: "60", value: v60),
-        Frequency(id: "B2", name: "250", value: v250),
-        Frequency(id: "B3", name: "1k", value: v1k),
-        Frequency(id: "B4", name: "3k", value: v3k),
-        Frequency(id: "B5", name: "6k", value: v6k),
-        Frequency(id: "B6", name: "16k", value: v16k),
+        Frequency(id: "B1", name: _bands["B1"]!, value: v60),
+        Frequency(id: "B2", name: _bands["B2"]!, value: v250),
+        Frequency(id: "B3", name: _bands["B3"]!, value: v1k),
+        Frequency(id: "B4", name: _bands["B4"]!, value: v3k),
+        Frequency(id: "B5", name: _bands["B5"]!, value: v6k),
+        Frequency(id: "B6", name: _bands["B6"]!, value: v16k),
       ];
 
   @HiveField(0)
@@ -69,6 +80,15 @@ class Frequency extends Equatable {
       value: value ?? this.value,
     );
   }
+
+  static const _bands = {
+    "B1": "60",
+    "B2": "250",
+    "B3": "1k",
+    "B4": "3k",
+    "B5": "6k",
+    "B6": "16k",
+  };
 
   @override
   List<Object?> get props => [
