@@ -700,6 +700,14 @@ class HomePageController extends BaseController with SocketMixin {
         ),
       );
     }
+
+    // connections.send(
+    //   macAddress: zone.macAddress,
+    //   cmd: MrCmdBuilder.getEqualizerAll(
+    //     macAddress: zone.macAddress,
+    //     zone: zone,
+    //   ),
+    // );
   }
 
   EqualizerModel _updateEqualizer({
