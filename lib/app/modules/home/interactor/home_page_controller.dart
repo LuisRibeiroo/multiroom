@@ -386,7 +386,10 @@ class HomePageController extends BaseController with SocketMixin {
     connections.listenAll(onData: _updateDeviceBasedOnResponse);
   }
 
-  void closeConnections() => connections.cancelAll();
+  void closeConnections() {
+    connections.cancelAll();
+    logger.d("[DBG] All connections closed");
+  }
 
   ProjectModel _getLastProject() {
     projects.value = _settings.projects;

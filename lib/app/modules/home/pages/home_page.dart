@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -179,13 +180,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
 
-    // AppLifecycleListener(
-    //   onResume: () {
-    //     if (PlatformChecker.isMobile) {
-    //       _controller.syncLocalData(allDevices: true);
-    //     }
-    //   },
-    // );
+    AppLifecycleListener(
+      onHide: () {
+        if (PlatformChecker.isMobile) {
+          _controller.closeConnections();
+        }
+      },
+      onResume: () async {
+        if (PlatformChecker.isMobile) {
+          await _controller.openSocketConnections();
+          _controller.syncLocalData();
+        }
+      },
+      onExitRequested: () async {
+        _controller.closeConnections();
+
+        return AppExitResponse.exit;
+      },
+      onDetach: _controller.closeConnections,
+    );
 
     _searchController = TextEditingController();
 
