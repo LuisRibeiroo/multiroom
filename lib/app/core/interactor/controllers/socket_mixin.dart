@@ -25,7 +25,7 @@ mixin SocketMixin {
       timeout: const Duration(seconds: 2),
     );
 
-    // _streamIterator = StreamIterator(_socket!);
+    _streamIterator = StreamIterator(_socket!);
 
     return _socket!;
   }
