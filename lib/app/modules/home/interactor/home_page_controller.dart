@@ -683,11 +683,11 @@ class HomePageController extends BaseController with SocketMixin {
     );
 
     if (expandedViewMode.value) {
-      _getEqualizer();
+      getEqualizer();
     }
   }
 
-  Future<void> _getEqualizer() async {
+  Future<void> getEqualizer() async {
     final zone = currentZone.value;
 
     for (final freq in zone.equalizer.frequencies) {
