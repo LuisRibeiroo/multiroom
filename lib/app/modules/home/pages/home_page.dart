@@ -217,6 +217,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       onVisibilityChanged: (info) async {
         if (info.visibleFraction == 1) {
           _controller.openSocketConnections();
+          _controller.syncLocalData();
           _controller.setPageVisible(true);
         } else {
           _controller.setPageVisible(false);
