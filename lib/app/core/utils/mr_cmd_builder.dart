@@ -134,7 +134,7 @@ abstract final class MrCmdBuilder {
     final allZonesResponses = <AllZonesParsedResponse>[];
 
     for (final line in response.split(RegExp(r"(\r\n|\r|\n)"))) {
-      if (line.isNullOrEmpty || line.startsWith("mr_") == false) {
+      if (line.isNullOrEmpty || (line.startsWith("mr_") == false && line.contains(',') == false)) {
         continue;
       }
 
