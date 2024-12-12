@@ -138,16 +138,15 @@ abstract final class MrCmdBuilder {
         continue;
       }
 
-      final single = response.startsWith(MultiroomCommands.mrGroupSet.value) == false &&
-          response.startsWith(MultiroomCommands.mrEqSet.value) == false;
+      final cmd = MultiroomCommands.fromString(response)!;
 
-      final parsed = _parseMrResponse(line, single: single);
+      final parsed = _parseMrResponse(line, single: cmd.singleResponse);
 
       allZonesResponses.add((
         zoneId: parsed.params,
         data: parsed.response,
         macAddress: parsed.macAddress.toLowerCase(),
-        cmd: MultiroomCommands.fromString(parsed.cmd)!,
+        cmd: cmd,
       ));
     }
 

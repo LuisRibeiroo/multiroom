@@ -47,20 +47,29 @@ class Frequency extends Equatable {
   }
 
   static List<Frequency> build([
-    int v60 = 0,
-    int v250 = 0,
-    int v1k = 0,
-    int v3k = 0,
-    int v6k = 0,
-    int v16k = 0,
+    int b1 = 0,
+    int b2 = 0,
+    int b3 = 0,
+    int b4 = 0,
+    int b5 = 0,
+    int b6 = 0,
   ]) =>
       [
-        Frequency(id: "B1", name: _bands["B1"]!, value: v60),
-        Frequency(id: "B2", name: _bands["B2"]!, value: v250),
-        Frequency(id: "B3", name: _bands["B3"]!, value: v1k),
-        Frequency(id: "B4", name: _bands["B4"]!, value: v3k),
-        Frequency(id: "B5", name: _bands["B5"]!, value: v6k),
-        Frequency(id: "B6", name: _bands["B6"]!, value: v16k),
+        Frequency(id: "B1", name: _bands["B1"]!, value: b1),
+        Frequency(id: "B2", name: _bands["B2"]!, value: b2),
+        Frequency(id: "B3", name: _bands["B3"]!, value: b3),
+        Frequency(id: "B4", name: _bands["B4"]!, value: b4),
+        Frequency(id: "B5", name: _bands["B5"]!, value: b5),
+        Frequency(id: "B6", name: _bands["B6"]!, value: b6),
+      ];
+
+  static List<Frequency> buildFromList(List<int> list) => [
+        Frequency(id: "B1", name: _bands["B1"]!, value: list[0]),
+        Frequency(id: "B2", name: _bands["B2"]!, value: list[1]),
+        Frequency(id: "B3", name: _bands["B3"]!, value: list[2]),
+        Frequency(id: "B4", name: _bands["B4"]!, value: list[3]),
+        Frequency(id: "B5", name: _bands["B5"]!, value: list[4]),
+        Frequency(id: "B6", name: _bands["B6"]!, value: list[5]),
       ];
 
   @HiveField(0)

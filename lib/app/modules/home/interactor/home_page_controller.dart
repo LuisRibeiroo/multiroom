@@ -391,7 +391,7 @@ class HomePageController extends BaseController with SocketMixin {
     }
 
     connections.listenAll(
-      onData: _updateDeviceBasedOnResponse,
+      onData: _handleAsyncResponse,
       onError: _handleSocketError,
     );
   }
@@ -418,7 +418,7 @@ class HomePageController extends BaseController with SocketMixin {
 
     connections.listenTo(
       ip: currentDevice.value.ip,
-      onData: _updateDeviceBasedOnResponse,
+      onData: _handleAsyncResponse,
       onError: _handleSocketError,
     );
   }
@@ -585,7 +585,7 @@ class HomePageController extends BaseController with SocketMixin {
             socket: await restartSocket(ip: currentDevice.value.ip),
           );
 
-          connections.listenTo(ip: currentDevice.value.ip, onData: _updateDeviceBasedOnResponse);
+          connections.listenTo(ip: currentDevice.value.ip, onData: _handleAsyncResponse);
         }
 
         onError();
@@ -599,7 +599,7 @@ class HomePageController extends BaseController with SocketMixin {
     }
   }
 
-  void _updateDeviceBasedOnResponse(String data) {
+  void _handleAsyncResponse(String data) {
     final mrResponses = MrCmdBuilder.parseResponse(data);
 
     final updatedDevices = <String, DeviceModel>{};
@@ -641,6 +641,15 @@ class HomePageController extends BaseController with SocketMixin {
               value: data.last,
             )
           ],
+        );
+      } else if (response.cmd == MultiroomCommands.mrEqSetAll) {
+        final data = response.data.split(",");
+
+        equalizer = _updateEqualizer(
+          zone: zone,
+          frequencies: Frequency.buildFromList(
+            List.generate(6, (index) => int.tryParse(data[index]) ?? 0),
+          ),
         );
       }
 
@@ -708,24 +717,13 @@ class HomePageController extends BaseController with SocketMixin {
   Future<void> getEqualizer() async {
     final zone = currentZone.value;
 
-    for (final freq in zone.equalizer.frequencies) {
-      connections.send(
+    connections.send(
+      macAddress: zone.macAddress,
+      cmd: MrCmdBuilder.getEqualizerAll(
         macAddress: zone.macAddress,
-        cmd: MrCmdBuilder.getEqualizer(
-          macAddress: zone.macAddress,
-          zone: zone,
-          frequency: freq,
-        ),
-      );
-    }
-
-    // connections.send(
-    //   macAddress: zone.macAddress,
-    //   cmd: MrCmdBuilder.getEqualizerAll(
-    //     macAddress: zone.macAddress,
-    //     zone: zone,
-    //   ),
-    // );
+        zone: zone,
+      ),
+    );
   }
 
   EqualizerModel _updateEqualizer({
