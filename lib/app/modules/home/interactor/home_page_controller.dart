@@ -673,33 +673,29 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   void _getDeviceData(DeviceModel device) {
-    try {
-      connections.send(
-        ip: device.ip,
-        cmd: MrCmdBuilder.getPowerAll(macAddress: device.macAddress),
-      );
-    } catch (exception) {
-      print(exception.toString());
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getPowerAll(macAddress: device.macAddress),
+    );
+
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getChannelAll(macAddress: device.macAddress),
+    );
+
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getVolumeAll(macAddress: device.macAddress),
+    );
+
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getBalanceAll(macAddress: device.macAddress),
+    );
+
+    if (expandedViewMode.value) {
+      getEqualizer();
     }
-
-    // connections.send(
-    //   ip: device.ip,
-    //   cmd: MrCmdBuilder.getChannelAll(macAddress: device.macAddress),
-    // );
-
-    // connections.send(
-    //   ip: device.ip,
-    //   cmd: MrCmdBuilder.getVolumeAll(macAddress: device.macAddress),
-    // );
-
-    // connections.send(
-    //   ip: device.ip,
-    //   cmd: MrCmdBuilder.getBalanceAll(macAddress: device.macAddress),
-    // );
-
-    // if (expandedViewMode.value) {
-    //   getEqualizer();
-    // }
   }
 
   Future<void> getEqualizer() async {
