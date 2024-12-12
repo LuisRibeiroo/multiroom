@@ -1,9 +1,6 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:logger/logger.dart';
-
-import '../utils/constants.dart';
 
 final _logger = Logger(
     printer: SimplePrinter(
@@ -19,12 +16,7 @@ extension SocketExtensions on Socket {
     //   onTimeout: () => throw TimeoutException("App timeout"),
     // );
 
-    try {
-      write("$data\r\n");
-    } catch (exception) {
-      print(exception.toString());
-    }
-
+    write("$data\r\n");
     _logger.i("[DBG] >>> $data");
   }
 
@@ -46,8 +38,7 @@ extension SocketExtensions on Socket {
         onData(clean);
       },
       onError: (e) {
-        print(e);
-        onError?.call("ERROR");
+        onError?.call(e.toString());
       },
     );
   }

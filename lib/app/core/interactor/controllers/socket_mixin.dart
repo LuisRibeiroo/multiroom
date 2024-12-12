@@ -27,8 +27,6 @@ mixin SocketMixin {
 
     _streamIterator = StreamIterator(_socket!);
 
-    _socket?.setOption(SocketOption.tcpNoDelay, true);
-
     return _socket!;
   }
 

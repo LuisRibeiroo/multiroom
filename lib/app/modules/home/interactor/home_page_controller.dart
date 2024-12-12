@@ -383,7 +383,10 @@ class HomePageController extends BaseController with SocketMixin {
       });
     }
 
-    connections.listenAll(onData: _updateDeviceBasedOnResponse);
+    connections.listenAll(
+      onData: _updateDeviceBasedOnResponse,
+      onError: _handleSocketError,
+    );
   }
 
   void closeConnections() {
@@ -398,6 +401,28 @@ class HomePageController extends BaseController with SocketMixin {
       (p) => p.id == _settings.lastProjectId,
       orElse: () => projects.first,
     );
+  }
+
+  Future<void> _restartConnection({required String ip}) async {
+    connections.updateSocket(
+      ip: currentDevice.value.ip,
+      socket: await restartSocket(ip: currentDevice.value.ip),
+    );
+
+    connections.listenTo(
+      ip: currentDevice.value.ip,
+      onData: _updateDeviceBasedOnResponse,
+      onError: _handleSocketError,
+    );
+  }
+
+  Future<void> _handleSocketError(String msg) async {
+    _updateDevicesState();
+
+    logger.e("Erro ao enviar comando --> [$msg]");
+    setError(Exception("Erro ao enviar comando"));
+
+    // await _restartConnection(ip: ip);
   }
 
   Future<void> _setCurrentDeviceByMacAdress({required String mac}) async {
@@ -524,20 +549,6 @@ class HomePageController extends BaseController with SocketMixin {
           _getDeviceData(currentDevice.value);
         }
       } catch (exception) {
-        // if (exception is StateError && exception.toString().contains("StreamSink")) {
-        //   try {
-        //     connections.updateSocket(
-        //       ip: currentDevice.value.ip,
-        //       socket: await restartSocket(ip: currentDevice.value.ip),
-        //     );
-
-        //     connections.listenTo(ip: currentDevice.value.ip, onData: _updateDeviceBasedOnResponse);
-
-        //     await _runUpdateData(allDevices: allDevices);
-        //     return;
-        //   } catch (_) {}
-        // }
-
         logger.e("Erro ao tentar comunicação com o Multiroom --> $exception");
 
         _updateDevicesState();

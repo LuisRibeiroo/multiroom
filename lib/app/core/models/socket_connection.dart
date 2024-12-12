@@ -42,7 +42,10 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
       throw Exception("Conexão não encontrada");
     }
 
-    connection.socket.listenString(onData: onData, onError: onError);
+    connection.socket.listenString(
+      onData: onData,
+      onError: onError,
+    );
 
     Logger(
         printer: SimplePrinter(
