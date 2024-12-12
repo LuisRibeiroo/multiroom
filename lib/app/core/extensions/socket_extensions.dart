@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:logger/logger.dart';
+
+import '../utils/constants.dart';
 
 final _logger = Logger(
     printer: SimplePrinter(
@@ -11,7 +14,17 @@ final _logger = Logger(
 extension SocketExtensions on Socket {
   void writeLog(String data) {
     // Do not remove \r\n, they're line terminators for Multiroom
-    write("$data\r\n");
+    // Future.value(() => write("$data\r\n")).timeout(
+    //   const Duration(seconds: readTimeout),
+    //   onTimeout: () => throw TimeoutException("App timeout"),
+    // );
+
+    try {
+      write("$data\r\n");
+    } catch (exception) {
+      print(exception.toString());
+    }
+
     _logger.i("[DBG] >>> $data");
   }
 
@@ -19,17 +32,23 @@ extension SocketExtensions on Socket {
     required void Function(String) onData,
     void Function(String)? onError,
   }) {
-    listen((data) {
-      final decoded = String.fromCharCodes(data);
-      final clean = decoded.replaceAll("\r", "");
-      _logger.i("[DBG] <<< $clean");
+    listen(
+      (data) {
+        final decoded = String.fromCharCodes(data);
+        final clean = decoded.replaceAll("\r", "");
+        _logger.i("[DBG] <<< $clean");
 
-      if (clean.toUpperCase().contains("ERROR") && clean.contains("zone_mode_error") == false) {
-        onError?.call(clean);
-        return;
-      }
+        if (clean.toUpperCase().contains("ERROR") && clean.contains("zone_mode_error") == false) {
+          onError?.call(clean);
+          return;
+        }
 
-      onData(clean);
-    });
+        onData(clean);
+      },
+      onError: (e) {
+        print(e);
+        onError?.call("ERROR");
+      },
+    );
   }
 }
