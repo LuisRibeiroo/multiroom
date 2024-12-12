@@ -370,17 +370,24 @@ class HomePageController extends BaseController with SocketMixin {
   void setSearchText(String value) => searchText.value = value.toUpperCase();
 
   Future<void> openSocketConnections() async {
-    for (final device in currentProject.value.devices) {
-      final socket = await initSocket(ip: device.ip);
-      logger.d("[DBG] Socket open on address: [${device.ip}]");
+    currentProject.value = _getLastProject();
 
-      connections.addAll({
-        device.ip: SocketConnection(
-          ip: device.ip,
-          macAddress: device.macAddress,
-          socket: socket,
-        ),
-      });
+    for (final device in currentProject.value.devices) {
+      try {
+        final socket = await initSocket(ip: device.ip);
+        logger.d("[DBG] Socket open on address: [${device.ip}]");
+
+        connections.addAll({
+          device.ip: SocketConnection(
+            ip: device.ip,
+            macAddress: device.macAddress,
+            socket: socket,
+          ),
+        });
+      } catch (exception) {
+        logger.d("[DBG] Error to open socket on [${device.ip}]");
+        throw Exception("Erro ao abrir conexão com o Multiroom");
+      }
     }
 
     connections.listenAll(
