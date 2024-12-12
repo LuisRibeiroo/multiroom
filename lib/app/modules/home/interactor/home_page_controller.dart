@@ -423,13 +423,15 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  Future<void> _handleSocketError(String msg) async {
+  Future<void> _handleSocketError(String msg, String ip) async {
     _updateDevicesState();
 
-    logger.e("Erro ao enviar comando --> $msg");
+    logger.e("Socket Error --> $msg");
     setError(Exception("Erro ao enviar comando"));
 
-    // await _restartConnection(ip: ip);
+    try {
+      await _restartConnection(ip: ip);
+    } catch (_) {}
   }
 
   Future<void> _setCurrentDeviceByMacAdress({required String mac}) async {

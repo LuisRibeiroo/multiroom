@@ -47,7 +47,7 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
   Future<void> listenTo({
     required String ip,
     required void Function(String) onData,
-    void Function(String)? onError,
+    void Function(String, String)? onError,
   }) async {
     final connection = this[ip];
 
@@ -63,15 +63,15 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
           }
           onData(data);
         } catch (exception) {
-          onError?.call(exception.toString());
+          onError?.call(exception.toString(), connection.socket.address.address);
         }
       },
-      onError: onError,
+      onError: (msg) => onError?.call(msg, connection.socket.address.address),
     );
 
     connection.errorSignal.subscribe((error) {
       if (error.isNotNullOrEmpty) {
-        onError?.call(error);
+        onError?.call(error, connection.socket.address.address);
       }
     });
 
@@ -84,7 +84,7 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
 
   Future<void> listenAll({
     required void Function(String) onData,
-    void Function(String)? onError,
+    void Function(String, String)? onError,
   }) async {
     for (final connection in values) {
       listenTo(

@@ -25,18 +25,31 @@ extension SocketExtensions on Socket {
     void Function(String)? onError,
   }) {
     try {
+      String buff = "";
+
       listen(
         (data) {
           final decoded = String.fromCharCodes(data);
           final clean = decoded.replaceAll("\r", "");
+
           _logger.i("[DBG] <<< $clean");
 
-          if (clean.toUpperCase().contains("ERROR") && clean.contains("zone_mode_error") == false) {
-            onError?.call(clean);
+          final lfRegex = RegExp(r"(\r\n|\r|\n)", dotAll: true);
+
+          if (lfRegex.hasMatch(clean) && clean.endsWith("\n")) {
+            buff += clean;
+          } else {
+            buff = clean;
             return;
           }
 
-          onData(clean);
+          if (buff.toUpperCase().contains("ERROR") && buff.contains("zone_mode_error") == false) {
+            onError?.call(buff);
+            return;
+          }
+
+          onData(buff);
+          buff = "";
         },
         onError: (e) {
           onError?.call(e.toString());

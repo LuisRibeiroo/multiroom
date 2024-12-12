@@ -134,11 +134,15 @@ abstract final class MrCmdBuilder {
     final allZonesResponses = <AllZonesParsedResponse>[];
 
     for (final line in response.split(RegExp(r"(\r\n|\r|\n)"))) {
-      if (line.isNullOrEmpty || (line.startsWith("mr_") == false && line.contains(',') == false)) {
+      if (line.isNullOrEmpty || line.startsWith("mr_") == false || line.contains(',') == false) {
         continue;
       }
 
-      final cmd = MultiroomCommands.fromString(line)!;
+      final cmd = MultiroomCommands.fromString(line);
+
+      if (cmd == null) {
+        continue;
+      }
 
       final parsed = _parseMrResponse(line, single: cmd.singleResponse);
 
