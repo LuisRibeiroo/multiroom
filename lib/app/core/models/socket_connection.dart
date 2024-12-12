@@ -58,9 +58,9 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
     connection.socket.listenString(
       onData: (data) {
         try {
-          final mrResponse = MrCmdBuilder.parseResponse(data).first;
-
-          connection.addResponse(mrResponse.cmd);
+          for (final cmd in MrCmdBuilder.parseResponse(data).groupedByCmd()) {
+            connection.addResponse(cmd);
+          }
           onData(data);
         } catch (exception) {
           onError?.call(exception.toString());

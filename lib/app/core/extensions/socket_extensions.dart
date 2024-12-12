@@ -24,22 +24,28 @@ extension SocketExtensions on Socket {
     required void Function(String) onData,
     void Function(String)? onError,
   }) {
-    listen(
-      (data) {
-        final decoded = String.fromCharCodes(data);
-        final clean = decoded.replaceAll("\r", "");
-        _logger.i("[DBG] <<< $clean");
+    try {
+      listen(
+        (data) {
+          final decoded = String.fromCharCodes(data);
+          final clean = decoded.replaceAll("\r", "");
+          _logger.i("[DBG] <<< $clean");
 
-        if (clean.toUpperCase().contains("ERROR") && clean.contains("zone_mode_error") == false) {
-          onError?.call(clean);
-          return;
-        }
+          if (clean.toUpperCase().contains("ERROR") && clean.contains("zone_mode_error") == false) {
+            onError?.call(clean);
+            return;
+          }
 
-        onData(clean);
-      },
-      onError: (e) {
-        onError?.call(e.toString());
-      },
-    );
+          onData(clean);
+        },
+        onError: (e) {
+          onError?.call(e.toString());
+        },
+      );
+    } on StateError catch (exception) {
+      if (exception.message != 'Stream has already been listened to.') {
+        rethrow;
+      }
+    }
   }
 }

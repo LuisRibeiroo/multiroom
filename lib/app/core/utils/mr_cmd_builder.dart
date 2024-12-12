@@ -31,6 +31,20 @@ typedef ZoneDataResponse = ({
   int? equalizer,
 });
 
+extension AllZonesParsedResponseExt on List<AllZonesParsedResponse> {
+  List<MultiroomCommands> groupedByCmd() {
+    final ret = <MultiroomCommands>[];
+
+    for (final response in this) {
+      if (ret.contains(response.cmd) == false) {
+        ret.add(response.cmd);
+      }
+    }
+
+    return ret;
+  }
+}
+
 final class ZoneData {
   const ZoneData._({
     required this.zoneId,
