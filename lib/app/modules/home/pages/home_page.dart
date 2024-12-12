@@ -340,7 +340,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               closeOnClick: true,
             );
           },
-          onSuccessState: () {
+          onSuccessState: () async {
+            await _controller.openSocketConnections();
             _controller.syncLocalData(allDevices: true);
           },
           child: SafeArea(
