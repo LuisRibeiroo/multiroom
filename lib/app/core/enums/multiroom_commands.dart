@@ -32,6 +32,10 @@ enum MultiroomCommands {
   final String value;
 
   static MultiroomCommands? fromString(String value) {
+    if (value.contains(",")) {
+      value = value.split(",").first;
+    }
+
     for (final v in MultiroomCommands.values) {
       if (v.value == value) {
         return v;
@@ -39,5 +43,21 @@ enum MultiroomCommands {
     }
 
     return null;
+  }
+
+  MultiroomCommands asSet() {
+    return switch (this) {
+      mrZoneChannelGet => mrZoneChannelSet,
+      mrVolGet => mrVolSet,
+      mrBalGet => mrBalSet,
+      mrEqGet => mrEqSet,
+      mrPwrGet => mrPwrSet,
+      mrEqGetAll => mrEqSetAll,
+      mrExpModeGet => mrExpModeSet,
+      mrZoneModeGet => mrZoneModeSet,
+      mrGroupGet => mrGroupSet,
+      mrVolMaxGet => mrVolMaxSet,
+      _ => this,
+    };
   }
 }

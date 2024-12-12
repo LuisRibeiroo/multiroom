@@ -3,11 +3,14 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:logger/logger.dart';
 
+import '../enums/multiroom_commands.dart';
 import '../extensions/socket_extensions.dart';
 import '../extensions/string_extensions.dart';
+import '../interactor/repositories/socket_commands_respository.dart';
+import '../utils/mr_cmd_builder.dart';
 
 final class SocketConnection {
-  const SocketConnection({
+  SocketConnection({
     required this.ip,
     required this.macAddress,
     required this.socket,
@@ -16,6 +19,16 @@ final class SocketConnection {
   final String ip;
   final String macAddress;
   final Socket socket;
+  final SocketCommandsRespository _commandsRespository = SocketCommandsRespository();
+  late final errorSignal = _commandsRespository.errorSignal;
+
+  void addCommand(MultiroomCommands cmd) {
+    _commandsRespository.addCommand(macAddress, cmd);
+  }
+
+  void addResponse(MultiroomCommands cmd) {
+    _commandsRespository.addResponse(macAddress, cmd);
+  }
 }
 
 extension SocketConnectionExt on Map<String, SocketConnection> {
@@ -43,9 +56,24 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
     }
 
     connection.socket.listenString(
-      onData: onData,
+      onData: (data) {
+        try {
+          final mrResponse = MrCmdBuilder.parseResponse(data).first;
+
+          connection.addResponse(mrResponse.cmd);
+          onData(data);
+        } catch (exception) {
+          onError?.call(exception.toString());
+        }
+      },
       onError: onError,
     );
+
+    connection.errorSignal.subscribe((error) {
+      if (error.isNotNullOrEmpty) {
+        onError?.call(error);
+      }
+    });
 
     Logger(
         printer: SimplePrinter(
@@ -107,6 +135,7 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
       }
 
       connection.socket.writeLog(cmd);
+      connection.addCommand(MultiroomCommands.fromString(cmd)!);
     } catch (exception) {
       connection?.socket.close();
       throw Exception("Enviar comando [$ip][$cmd] -> $exception");
