@@ -386,7 +386,7 @@ class HomePageController extends BaseController with SocketMixin {
         });
       } catch (exception) {
         logger.d("[DBG] Error to open socket on [${device.ip}]");
-        throw Exception("Erro ao abrir conexão com o Multiroom");
+        setError(Exception("Erro ao abrir conexão com o Multiroom"));
       }
     }
 
