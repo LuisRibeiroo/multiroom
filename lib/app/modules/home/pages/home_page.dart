@@ -258,7 +258,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           _controller.currentProject.value.name,
                         ),
                       ),
-                      8.asSpace,
                       const Icon(Icons.arrow_drop_down_rounded),
                     ],
                   ),
@@ -268,6 +267,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               Visibility(
                 visible: PlatformChecker.isMobile == false && kDebugMode,
                 child: IconButton(
+                  visualDensity: VisualDensity.compact,
                   icon: Icon(
                     Icons.sync_rounded,
                     color: context.colorScheme.primary,
@@ -282,6 +282,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     key: ValueKey("DeviceZonesPower_${_controller.allDevicesOnline.value}"),
                     visible: _controller.anyZoneOnInProject.value,
                     child: IconButton(
+                      visualDensity: VisualDensity.compact,
                       onPressed: () => _showAllZonesOffBottomSheet(context),
                       icon: Icon(
                         Icons.power_settings_new_rounded,
@@ -303,6 +304,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               const Spacer(),
               Watch(
                 (_) => IconButton(
+                  visualDensity: VisualDensity.compact,
                   onPressed: () => _controller.setSearchVisibility(!_controller.searchIsVisible.value),
                   icon: Icon(
                     Icons.search_rounded,
