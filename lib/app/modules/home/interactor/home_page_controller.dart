@@ -562,8 +562,9 @@ class HomePageController extends BaseController with SocketMixin {
       } catch (exception) {
         logger.e("Erro ao tentar comunicação com o Multiroom --> $exception");
 
-        _updateDevicesState();
         setError(Exception("Erro ao tentar comunicação com o Multiroom"));
+
+        _handleBadStateConnection(exceptionMessage: exception.toString());
       }
     });
   }
@@ -580,24 +581,12 @@ class HomePageController extends BaseController with SocketMixin {
       } catch (exception) {
         logger.e("Erro no comando [$cmd] --> $exception");
 
-        await _updateDevicesState();
         setError(Exception("Erro ao enviar comando"));
 
-        if (exception.toString().contains("Bad state")) {
-          connections.updateSocket(
-            ip: currentDevice.value.ip,
-            socket: await restartSocket(ip: currentDevice.value.ip),
-          );
-
-          connections.listenTo(
-            ip: currentDevice.value.ip,
-            onData: _handleAsyncResponse,
-            onError: (msg, ip) {
-              _handleSocketError(msg, ip);
-              onError();
-            },
-          );
-        }
+        _handleBadStateConnection(
+          exceptionMessage: exception.toString(),
+          errorCalback: onError,
+        );
 
         onError();
       }
@@ -607,6 +596,29 @@ class HomePageController extends BaseController with SocketMixin {
       _writeDebouncer(function);
     } else {
       function();
+    }
+  }
+
+  Future<void> _handleBadStateConnection({
+    required String exceptionMessage,
+    Function()? errorCalback,
+  }) async {
+    await _updateDevicesState();
+
+    if (exceptionMessage.contains("Bad state")) {
+      connections.updateSocket(
+        ip: currentDevice.value.ip,
+        socket: await restartSocket(ip: currentDevice.value.ip),
+      );
+
+      connections.listenTo(
+        ip: currentDevice.value.ip,
+        onData: _handleAsyncResponse,
+        onError: (msg, ip) {
+          _handleSocketError(msg, ip);
+          errorCalback?.call();
+        },
+      );
     }
   }
 
