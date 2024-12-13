@@ -120,10 +120,12 @@ class HomePageController extends BaseController with SocketMixin {
       return;
     }
 
+    await connections.cancelAll();
+
     _settings.lastProjectId = proj.id;
-    state.value = const SuccessState(data: null);
 
     await _updateDevicesState();
+    await openSocketConnections();
     await _updateSignals(
       project: proj,
       allDevices: true,
@@ -428,11 +430,11 @@ class HomePageController extends BaseController with SocketMixin {
     logger.e("Socket Error --> $msg");
     setError(Exception("Erro ao enviar comando"));
 
-    try {
-      await _restartConnection(ip: ip);
-    } catch (_) {
-      print('Error to restart connection');
-    }
+    // try {
+    //   await _restartConnection(ip: ip);
+    // } catch (_) {
+    //   print('Error to restart connection');
+    // }
   }
 
   Future<void> _setCurrentDeviceByMacAdress({required String mac}) async {
