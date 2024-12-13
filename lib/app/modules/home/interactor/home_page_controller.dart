@@ -375,16 +375,26 @@ class HomePageController extends BaseController with SocketMixin {
 
     for (final device in currentProject.value.devices) {
       try {
-        final socket = await initSocket(ip: device.ip);
-        logger.d("[DBG] Socket open on address: [${device.ip}]");
+        if (connections.containsKey(device.ip) && connections[device.ip]!.isListening) {
+          logger.d("[DBG] Ignoring open socket to [${device.ip}]");
 
-        connections.addAll({
-          device.ip: SocketConnection(
-            ip: device.ip,
-            macAddress: device.macAddress,
-            socket: socket,
-          ),
-        });
+          continue;
+        }
+
+        if (connections.containsKey(device.ip)) {
+          await _restartConnection(ip: device.ip);
+        } else {
+          final socket = await initSocket(ip: device.ip);
+          logger.d("[DBG] Socket open on address [${device.ip}]");
+
+          connections.addAll({
+            device.ip: SocketConnection(
+              ip: device.ip,
+              macAddress: device.macAddress,
+              socket: socket,
+            ),
+          });
+        }
       } catch (exception) {
         logger.d("[DBG] Error to open socket on [${device.ip}]");
         setError(Exception("Erro ao abrir conexão com o Multiroom"));
@@ -412,13 +422,15 @@ class HomePageController extends BaseController with SocketMixin {
   }
 
   Future<void> _restartConnection({required String ip}) async {
+    logger.d("[DBG] Socket restart [$ip]");
+
     connections.updateSocket(
-      ip: currentDevice.value.ip,
-      socket: await restartSocket(ip: currentDevice.value.ip),
+      ip: ip,
+      socket: await restartSocket(ip: ip),
     );
 
     connections.listenTo(
-      ip: currentDevice.value.ip,
+      ip: ip,
       onData: _handleAsyncResponse,
       onError: _handleSocketError,
     );
@@ -430,11 +442,11 @@ class HomePageController extends BaseController with SocketMixin {
     logger.e("Socket Error --> $msg");
     setError(Exception("Erro ao enviar comando"));
 
-    // try {
-    //   await _restartConnection(ip: ip);
-    // } catch (_) {
-    //   print('Error to restart connection');
-    // }
+    try {
+      await _restartConnection(ip: ip);
+    } catch (_) {
+      print('Error to restart connection');
+    }
   }
 
   Future<void> _setCurrentDeviceByMacAdress({required String mac}) async {

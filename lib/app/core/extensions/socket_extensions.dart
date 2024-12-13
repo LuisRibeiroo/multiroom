@@ -28,6 +28,7 @@ extension SocketExtensions on Socket {
       String buff = "";
 
       listen(
+        cancelOnError: true,
         (data) {
           final decoded = String.fromCharCodes(data);
           final clean = decoded.replaceAll("\r", "");

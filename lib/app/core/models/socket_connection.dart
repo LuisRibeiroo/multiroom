@@ -19,8 +19,12 @@ final class SocketConnection {
   final String ip;
   final String macAddress;
   final Socket socket;
-  final SocketCommandsRespository _commandsRespository = SocketCommandsRespository();
+
+  bool get isListening => _isListening;
   late final errorSignal = _commandsRespository.errorSignal;
+
+  bool _isListening = false;
+  final SocketCommandsRespository _commandsRespository = SocketCommandsRespository();
 
   void addCommand(MultiroomCommands cmd) {
     _commandsRespository.addCommand(macAddress, cmd);
@@ -55,6 +59,10 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
       throw Exception("Conexão não encontrada");
     }
 
+    if (connection._isListening) {
+      return;
+    }
+
     connection.socket.listenString(
       onData: (data) {
         try {
@@ -68,11 +76,14 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
       },
       onError: (msg) => onError?.call(msg, ip),
     );
+    connection._isListening = true;
 
     connection.errorSignal.subscribe((error) {
-      if (error.isNotNullOrEmpty) {
-        onError?.call(error, ip);
+      if (error == connection.errorSignal.previousValue || error.isNullOrEmpty) {
+        return;
       }
+
+      onError?.call(error, ip);
     });
 
     Logger(

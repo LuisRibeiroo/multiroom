@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/utils/constants.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:toastification/toastification.dart';
 
@@ -20,6 +21,7 @@ class LoadingOverlay extends StatefulWidget {
     this.macAddress = "",
     this.onTap,
     this.onSuccessState,
+    this.onErrorState,
   });
 
   final Signal<PageState> state;
@@ -30,6 +32,7 @@ class LoadingOverlay extends StatefulWidget {
   final String macAddress;
   final Function()? onTap;
   final Function()? onSuccessState;
+  final Function()? onErrorState;
 
   @override
   State<LoadingOverlay> createState() => _LoadingOverlayState();
@@ -62,6 +65,8 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
             );
 
             if (_controller.errorCounter.peek() > 1) {
+              widget.onErrorState?.call();
+
               _controller.startPulling();
 
               _controller.checkDeviceAvailability(
@@ -72,12 +77,17 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
             }
           } else {
             if (_controller.pageState.value is SuccessState) {
-              untracked(() {
-                _controller.resetErrorCounter();
-                _controller.stopPulling();
-              });
+              Future.delayed(
+                const Duration(seconds: readTimeout + 1),
+                () async {
+                  untracked(() {
+                    _controller.resetErrorCounter();
+                    _controller.stopPulling();
+                  });
 
-              widget.onSuccessState?.call();
+                  widget.onSuccessState?.call();
+                },
+              );
             }
           }
         })

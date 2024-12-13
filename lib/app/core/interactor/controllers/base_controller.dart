@@ -62,7 +62,6 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
 
   Future<R> run<R>(
     Function action, {
-    bool setSucces = false,
     bool setError = false,
   }) async {
     try {
@@ -70,7 +69,7 @@ abstract class BaseController<T extends PageState> implements ValueListenable<Pa
 
       final result = await action();
 
-      _update(setSucces ? SuccessState(data: result) : InitialState());
+      _update(InitialState());
 
       return result as R;
     } catch (e) {
