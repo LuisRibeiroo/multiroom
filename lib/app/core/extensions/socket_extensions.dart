@@ -55,8 +55,8 @@ extension SocketExtensions on Socket {
           onError?.call(e.toString());
         },
       );
-    } on StateError catch (exception) {
-      if (exception.message != 'Stream has already been listened to.') {
+    } catch (exception) {
+      if (exception.toString().contains('Stream has already been listened to.') == false) {
         rethrow;
       }
     }

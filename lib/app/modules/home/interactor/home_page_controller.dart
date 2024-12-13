@@ -124,7 +124,6 @@ class HomePageController extends BaseController with SocketMixin {
     state.value = const SuccessState(data: null);
 
     await _updateDevicesState();
-
     await _updateSignals(
       project: proj,
       allDevices: true,
@@ -468,7 +467,11 @@ class HomePageController extends BaseController with SocketMixin {
               d.ip,
               4998,
               timeout: const Duration(seconds: readTimeout),
-            ).then((s) => s.close());
+            ).then(
+              (s) => s
+                ..close()
+                ..destroy(),
+            );
 
             newDevice = d.copyWith(active: true);
           } catch (exception) {

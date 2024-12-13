@@ -32,7 +32,9 @@ mixin SocketMixin {
 
   Future<Socket> restartSocket({required String ip}) async {
     if (_socket != null) {
-      _socket!.close();
+      _socket!
+        ..close()
+        ..destroy();
     }
 
     return initSocket(ip: ip);
@@ -71,7 +73,9 @@ mixin SocketMixin {
   }
 
   void mixinDispose() {
-    _socket?.close();
+    _socket
+      ?..close()
+      ..destroy();
     _streamIterator?.cancel();
 
     _socket = null;

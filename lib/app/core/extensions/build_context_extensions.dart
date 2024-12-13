@@ -12,10 +12,10 @@ extension ContextExt on BuildContext {
     required Widget child,
     bool isScrollControlled = true,
     bool isDismissible = true,
-  }) {
+  }) async {
     final maxHeight = isScrollControlled ? .8 : .5;
 
-    return showModalBottomSheet<T>(
+    return await showModalBottomSheet<T>(
       context: this,
       isDismissible: isDismissible,
       isScrollControlled: isScrollControlled,

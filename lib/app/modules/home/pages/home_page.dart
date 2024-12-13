@@ -90,15 +90,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void _showChannelsBottomSheet({ZoneModel? zone}) {
     context
         .showCustomModalBottomSheet(
-          child: Watch(
-            (_) => EditChannelsBottomSheet(
-              onSelect: _controller.setCurrentChannel,
-              device: _controller.currentDevice.value,
-              zone: zone ?? _controller.currentZone.value,
-            ),
-          ),
-        )
-        .then((_) => _controller.syncLocalData(awaitUpdate: false));
+      child: Watch(
+        (_) => EditChannelsBottomSheet(
+          onSelect: _controller.setCurrentChannel,
+          device: _controller.currentDevice.value,
+          zone: zone ?? _controller.currentZone.value,
+        ),
+      ),
+    )
+        .then((shouldUpdate) {
+      if (shouldUpdate != null && shouldUpdate) {
+        _controller.syncLocalData(awaitUpdate: false);
+      }
+    });
   }
 
   void _showEqualizersBottomSheet() {

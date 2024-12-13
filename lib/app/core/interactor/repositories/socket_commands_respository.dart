@@ -35,7 +35,7 @@ final class SocketCommandsRespository {
             if (_receivedCommands.contains(key)) {
               _receivedCommands.remove(key);
             } else {
-              errorSignal.value = "Cmd Timeout [$macAddress][$cmd]";
+              errorSignal.value = "Cmd Timeout [$macAddress][${cmd.value}]";
             }
 
             _timers.delete(key);

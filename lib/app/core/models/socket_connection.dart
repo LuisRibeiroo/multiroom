@@ -137,7 +137,9 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
       connection.socket.writeLog(cmd);
       connection.addCommand(MultiroomCommands.fromString(cmd)!);
     } catch (exception) {
-      connection?.socket.close();
+      connection?.socket
+        ?..close()
+        ..destroy();
       throw Exception("Enviar comando [$ip][$cmd] -> $exception");
     }
   }
