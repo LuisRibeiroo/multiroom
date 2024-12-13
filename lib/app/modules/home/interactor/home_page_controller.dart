@@ -561,10 +561,9 @@ class HomePageController extends BaseController with SocketMixin {
         }
       } catch (exception) {
         logger.e("Erro ao tentar comunicação com o Multiroom --> $exception");
-
         setError(Exception("Erro ao tentar comunicação com o Multiroom"));
 
-        _handleBadStateConnection(exceptionMessage: exception.toString());
+        await _handleBadStateConnection(exceptionMessage: exception.toString());
       }
     });
   }
@@ -583,7 +582,7 @@ class HomePageController extends BaseController with SocketMixin {
 
         setError(Exception("Erro ao enviar comando"));
 
-        _handleBadStateConnection(
+        await _handleBadStateConnection(
           exceptionMessage: exception.toString(),
           errorCalback: onError,
         );
