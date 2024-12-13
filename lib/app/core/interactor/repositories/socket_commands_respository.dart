@@ -36,6 +36,10 @@ final class SocketCommandsRespository {
               _receivedCommands.remove(key);
             } else {
               errorSignal.value = "Cmd Timeout [$macAddress][${cmd.value}]";
+
+              Future.delayed(const Duration(seconds: 1), () {
+                errorSignal.value = '';
+              });
             }
 
             _timers.delete(key);
