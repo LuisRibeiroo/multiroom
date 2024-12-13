@@ -398,8 +398,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                               },
                               onChangeVolume: _controller.setVolume,
                               onTapZone: (zone) {
-                                _controller.getEqualizer();
                                 _controller.setCurrentZone(zone: zone);
+                                _controller.getEqualizer();
                                 _tabControler.animateTo(1);
                                 setState(() {});
 
