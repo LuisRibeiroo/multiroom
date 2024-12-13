@@ -63,15 +63,15 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
           }
           onData(data);
         } catch (exception) {
-          onError?.call(exception.toString(), connection.socket.address.address);
+          onError?.call(exception.toString(), ip);
         }
       },
-      onError: (msg) => onError?.call(msg, connection.socket.address.address),
+      onError: (msg) => onError?.call(msg, ip),
     );
 
     connection.errorSignal.subscribe((error) {
       if (error.isNotNullOrEmpty) {
-        onError?.call(error, connection.socket.address.address);
+        onError?.call(error, ip);
       }
     });
 
@@ -100,6 +100,8 @@ extension SocketConnectionExt on Map<String, SocketConnection> {
       connection.socket.close();
       connection.socket.destroy();
     }
+
+    clear();
   }
 
   void updateSocket({required String ip, required Socket socket}) {
