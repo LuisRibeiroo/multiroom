@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart' show Durations;
 import 'package:signals/signals_flutter.dart';
 
 import '../../enums/multiroom_commands.dart';
@@ -16,6 +17,8 @@ final class _CommandTimerCallback {
   final MultiroomCommands cmd;
   late final Timer timer;
 }
+
+String _toKey(String macAddress, MultiroomCommands cmd) => "${macAddress}_${cmd.asSet().value}";
 
 final class SocketCommandsRespository {
   final errorSignal = ''.asSignal();
@@ -37,7 +40,7 @@ final class SocketCommandsRespository {
             } else {
               errorSignal.value = "Cmd Timeout [$macAddress][${cmd.value}]";
 
-              Future.delayed(const Duration(seconds: 1), () {
+              Future.delayed(Durations.long2, () {
                 errorSignal.value = '';
               });
             }
@@ -50,15 +53,20 @@ final class SocketCommandsRespository {
   }
 
   void addResponse(String macAddress, MultiroomCommands cmd) {
-    _receivedCommands.add(_toKey(macAddress, cmd));
-  }
+    final key = _toKey(macAddress, cmd);
 
-  String _toKey(String macAddress, MultiroomCommands cmd) => "${macAddress}_${cmd.asSet()}";
+    if (_receivedCommands.contains(key)) {
+      _receivedCommands.remove(key);
+      _timers.delete(key);
+    } else {
+      _receivedCommands.add(key);
+    }
+  }
 }
 
 extension _TimerExtension on Map<String, _CommandTimerCallback> {
   String build(_CommandTimerCallback callback) {
-    final key = "${callback.macAddress}_${callback.cmd}_${callback.hashCode}";
+    final key = _toKey(callback.macAddress, callback.cmd);
 
     if (containsKey(key)) {
       this[key]!.timer.cancel();
