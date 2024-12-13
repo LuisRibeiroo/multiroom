@@ -283,9 +283,6 @@ class HomePageController extends BaseController with SocketMixin {
     bool awaitUpdate = true,
     bool allDevices = false,
   }) async {
-    // if (state.value is LoadingState) {
-    //   return;
-    // }
     await run(() async {
       projects.value = _settings.projects;
 
@@ -319,11 +316,12 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<bool> onFactoryRestore() async {
     var result = false;
+
     await run(
       setError: true,
       () async {
         try {
-          await _iterateOverDevices(function: (device) async {
+          await _iterateOverDevices(function: (device) {
             connections.send(
               ip: device.ip,
               cmd: MrCmdBuilder.setDefaultParams(macAddress: device.macAddress),
@@ -347,7 +345,7 @@ class HomePageController extends BaseController with SocketMixin {
       setError: true,
       () async {
         try {
-          await _iterateOverDevices(function: (d) async {
+          await _iterateOverDevices(function: (d) {
             connections.send(
               ip: d.ip,
               cmd: MrCmdBuilder.setPowerAll(
@@ -356,8 +354,6 @@ class HomePageController extends BaseController with SocketMixin {
               ),
             );
           });
-
-          await _updateSignals(allDevices: true);
         } catch (exception) {
           logger.e("Erro ao desabilitar todas as zonas --> $exception");
           setError(Exception("Erro ao enviar comando"));
