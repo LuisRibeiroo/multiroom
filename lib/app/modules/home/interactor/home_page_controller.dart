@@ -431,7 +431,9 @@ class HomePageController extends BaseController with SocketMixin {
 
     try {
       await _restartConnection(ip: ip);
-    } catch (_) {}
+    } catch (_) {
+      print('Error to restart connection');
+    }
   }
 
   Future<void> _setCurrentDeviceByMacAdress({required String mac}) async {
@@ -587,7 +589,14 @@ class HomePageController extends BaseController with SocketMixin {
             socket: await restartSocket(ip: currentDevice.value.ip),
           );
 
-          connections.listenTo(ip: currentDevice.value.ip, onData: _handleAsyncResponse);
+          connections.listenTo(
+            ip: currentDevice.value.ip,
+            onData: _handleAsyncResponse,
+            onError: (msg, ip) {
+              _handleSocketError(msg, ip);
+              onError();
+            },
+          );
         }
 
         onError();
