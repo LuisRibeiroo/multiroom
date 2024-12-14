@@ -58,7 +58,7 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
             toastification.show(
               title:
                   Text((_controller.pageState.value as ErrorState).exception.toString().replaceAll("Exception: ", "")),
-              autoCloseDuration: const Duration(seconds: 4),
+              autoCloseDuration: const Duration(seconds: 2),
               style: ToastificationStyle.minimal,
               type: ToastificationType.error,
               closeOnClick: true,
