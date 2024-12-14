@@ -244,6 +244,11 @@ class HomePageController extends BaseController with SocketMixin {
         currentZone.value = currentZone.previousValue!;
 
         _updateDevicesState();
+
+        currentDevice.value = _getDeviceInProject(
+          mac: currentZone.value.macAddress,
+          orElse: currentDevice.value,
+        )!;
         setError(Exception("Erro ao enviar comando"));
       }
 
@@ -320,8 +325,12 @@ class HomePageController extends BaseController with SocketMixin {
     await run(
       setError: true,
       () async {
+        DeviceModel current = currentDevice.value;
+
         try {
           await _iterateOverDevices(function: (device) {
+            current = device;
+
             connections.send(
               ip: device.ip,
               cmd: MrCmdBuilder.setDefaultParams(macAddress: device.macAddress),
@@ -331,7 +340,10 @@ class HomePageController extends BaseController with SocketMixin {
           result = true;
         } catch (exception) {
           logger.e("Erro ao resetar dispositivo --> $exception");
+
+          currentDevice.value = _getDeviceInProject(mac: current.macAddress)!;
           setError(Exception("Erro ao enviar comando"));
+
           result = false;
         }
       },
@@ -344,8 +356,12 @@ class HomePageController extends BaseController with SocketMixin {
     await run(
       setError: true,
       () async {
+        DeviceModel current = currentDevice.value;
+
         try {
           await _iterateOverDevices(function: (d) {
+            current = d;
+
             connections.send(
               ip: d.ip,
               cmd: MrCmdBuilder.setPowerAll(
@@ -356,6 +372,8 @@ class HomePageController extends BaseController with SocketMixin {
           });
         } catch (exception) {
           logger.e("Erro ao desabilitar todas as zonas --> $exception");
+
+          currentDevice.value = _getDeviceInProject(mac: current.macAddress)!;
           setError(Exception("Erro ao enviar comando"));
         }
       },
@@ -393,6 +411,7 @@ class HomePageController extends BaseController with SocketMixin {
         }
       } catch (exception) {
         logger.d("[DBG] Error to open socket on [${device.ip}]");
+        currentDevice.value = _getDeviceInProject(mac: device.macAddress)!;
         setError(Exception("Erro ao abrir conexão com o Multiroom"));
       }
     }
@@ -436,13 +455,11 @@ class HomePageController extends BaseController with SocketMixin {
     _updateDevicesState();
 
     logger.e("Socket Error --> $msg");
+
+    currentDevice.value = _getDeviceInProject(ip: ip)!;
     setError(Exception("Erro ao enviar comando"));
 
-    try {
-      await _restartConnection(ip: ip);
-    } catch (_) {
-      print('Error to restart connection');
-    }
+    _restartConnection(ip: ip).ignore();
   }
 
   Future<void> _setCurrentDeviceByMacAdress({required String mac}) async {
@@ -566,17 +583,24 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> _runUpdateData({required bool allDevices}) async {
     await run(() async {
+      DeviceModel current = currentDevice.value;
+
       try {
         if (allDevices) {
-          await _iterateOverDevices(function: (d) => _getDeviceData(d));
+          await _iterateOverDevices(function: (d) {
+            current = d;
+            _getDeviceData(d);
+          });
         } else {
           _getDeviceData(currentDevice.value);
         }
       } catch (exception) {
         logger.e("Erro ao tentar comunicação com o Multiroom --> $exception");
+
+        currentDevice.value = _getDeviceInProject(ip: current.ip)!;
         setError(Exception("Erro ao tentar comunicação com o Multiroom"));
 
-        await _handleBadStateConnection(exceptionMessage: exception.toString());
+        // await _handleBadStateConnection(exceptionMessage: exception.toString());
       }
     });
   }
@@ -593,12 +617,13 @@ class HomePageController extends BaseController with SocketMixin {
       } catch (exception) {
         logger.e("Erro no comando [$cmd] --> $exception");
 
+        currentDevice.value = _getDeviceInProject(mac: macAddress)!;
         setError(Exception("Erro ao enviar comando"));
 
-        await _handleBadStateConnection(
-          exceptionMessage: exception.toString(),
-          errorCalback: onError,
-        );
+        // await _handleBadStateConnection(
+        //   exceptionMessage: exception.toString(),
+        //   errorCalback: onError,
+        // );
 
         onError();
       }
@@ -642,8 +667,8 @@ class HomePageController extends BaseController with SocketMixin {
     for (final response in mrResponses) {
       logger.d("[DBG] -> [${response.macAddress}][${response.cmd.value}][${response.zoneId}][${response.data}]");
 
-      final device =
-          (updatedDevices[response.macAddress] ?? _getDeviceInProject(response.macAddress))?.copyWith(active: true);
+      final device = (updatedDevices[response.macAddress] ?? _getDeviceInProject(mac: response.macAddress))
+          ?.copyWith(active: true);
 
       if (device == null) {
         logger.d(
@@ -719,8 +744,11 @@ class HomePageController extends BaseController with SocketMixin {
     }
   }
 
-  DeviceModel? _getDeviceInProject(String mac) {
-    return currentProject.value.devices.firstWhereOrNull(((d) => d.macAddress.toUpperCase() == mac.toUpperCase()));
+  DeviceModel? _getDeviceInProject({String mac = "", String ip = "", DeviceModel? orElse}) {
+    return currentProject.value.devices.firstWhereOrNull(
+          (d) => d.macAddress.toUpperCase() == mac.toUpperCase() || d.ip.toUpperCase() == ip.toUpperCase(),
+        ) ??
+        orElse;
   }
 
   void _getDeviceData(DeviceModel device) {
