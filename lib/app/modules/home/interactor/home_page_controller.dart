@@ -126,10 +126,9 @@ class HomePageController extends BaseController with SocketMixin {
 
     state.value = const SuccessState(data: null);
 
-    // await _updateDevicesState();
-    // await openSocketConnections();
-    // await _updateSignals(
-    //   project: proj,
+    // state.value = InitialState();
+    // await syncLocalData(
+    //   awaitUpdate: true,
     //   allDevices: true,
     // );
   }
