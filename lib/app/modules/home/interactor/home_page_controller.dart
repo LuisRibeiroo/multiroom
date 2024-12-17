@@ -292,6 +292,7 @@ class HomePageController extends BaseController with SocketMixin {
   }) async {
     await run(() async {
       projects.value = _settings.projects;
+      logger.d("[DBG] Sync local data [awaitUpdate: $awaitUpdate][allDevices: $allDevices]");
 
       if (projects.isEmpty) {
         return;
@@ -438,7 +439,10 @@ class HomePageController extends BaseController with SocketMixin {
     );
   }
 
-  Future<void> _restartConnection({required String ip}) async {
+  Future<void> _restartConnection({
+    required String ip,
+    Function()? errorCalback,
+  }) async {
     logger.d("[DBG] Socket restart [$ip]");
 
     connections.updateSocket(
@@ -449,7 +453,10 @@ class HomePageController extends BaseController with SocketMixin {
     connections.listenTo(
       ip: ip,
       onData: _handleAsyncResponse,
-      onError: _handleSocketError,
+      onError: (msg, ip) {
+        _handleSocketError(msg, ip);
+        errorCalback?.call();
+      },
     );
   }
 
@@ -602,7 +609,7 @@ class HomePageController extends BaseController with SocketMixin {
         currentDevice.value = _getDeviceInProject(ip: current.ip)!;
         setError(Exception("Erro ao tentar comunicação com o Multiroom"));
 
-        // await _handleBadStateConnection(exceptionMessage: exception.toString());
+        await _handleBadStateConnection(exceptionMessage: exception.toString());
       }
     });
   }
@@ -622,10 +629,10 @@ class HomePageController extends BaseController with SocketMixin {
         currentDevice.value = _getDeviceInProject(mac: macAddress)!;
         setError(Exception("Erro ao enviar comando"));
 
-        // await _handleBadStateConnection(
-        //   exceptionMessage: exception.toString(),
-        //   errorCalback: onError,
-        // );
+        await _handleBadStateConnection(
+          exceptionMessage: exception.toString(),
+          errorCalback: onError,
+        );
 
         onError();
       }
@@ -645,18 +652,9 @@ class HomePageController extends BaseController with SocketMixin {
     await _updateDevicesState();
 
     if (exceptionMessage.contains("Bad state")) {
-      connections.updateSocket(
+      await _restartConnection(
         ip: currentDevice.value.ip,
-        socket: await restartSocket(ip: currentDevice.value.ip),
-      );
-
-      connections.listenTo(
-        ip: currentDevice.value.ip,
-        onData: _handleAsyncResponse,
-        onError: (msg, ip) {
-          _handleSocketError(msg, ip);
-          errorCalback?.call();
-        },
+        errorCalback: errorCalback,
       );
     }
   }
