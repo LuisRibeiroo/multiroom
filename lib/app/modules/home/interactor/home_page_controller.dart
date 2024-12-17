@@ -124,12 +124,14 @@ class HomePageController extends BaseController with SocketMixin {
 
     _settings.lastProjectId = proj.id;
 
-    await _updateDevicesState();
-    await openSocketConnections();
-    await _updateSignals(
-      project: proj,
-      allDevices: true,
-    );
+    state.value = const SuccessState(data: null);
+
+    // await _updateDevicesState();
+    // await openSocketConnections();
+    // await _updateSignals(
+    //   project: proj,
+    //   allDevices: true,
+    // );
   }
 
   Future<void> setZoneActive(bool active, ZoneModel zone) async {

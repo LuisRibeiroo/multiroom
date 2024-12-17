@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:multiroom/app/core/utils/constants.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:toastification/toastification.dart';
 
@@ -77,17 +76,23 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
             }
           } else {
             if (_controller.pageState.value is SuccessState) {
-              Future.delayed(
-                const Duration(seconds: readTimeout + 1),
-                () async {
-                  untracked(() {
-                    _controller.resetErrorCounter();
-                    _controller.stopPulling();
-                  });
+              // Future.delayed(
+              //   const Duration(seconds: readTimeout + 1),
+              //   () async {
+              //     untracked(() {
+              //       _controller.resetErrorCounter();
+              //       _controller.stopPulling();
+              //     });
 
-                  widget.onSuccessState?.call();
-                },
-              );
+              //     widget.onSuccessState?.call();
+              //   },
+              // );
+              untracked(() {
+                _controller.resetErrorCounter();
+                _controller.stopPulling();
+              });
+
+              widget.onSuccessState?.call();
             }
           }
         })
@@ -121,6 +126,7 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
                     onDoubleTap: () {
                       if (kDebugMode) {
                         widget.state.value = InitialState();
+                        _controller.stopPulling();
                       }
                     },
                     child: const Center(
