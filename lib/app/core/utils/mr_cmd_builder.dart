@@ -1,5 +1,6 @@
 import '../enums/device_type.dart';
 import '../enums/multiroom_commands.dart';
+import '../enums/zone_data_type.dart';
 import '../enums/zone_mode.dart';
 import '../extensions/string_extensions.dart';
 import '../models/channel_model.dart';
@@ -13,20 +14,36 @@ typedef MrResponse = ({
   String macAddress,
   String params,
   String response,
-  String? frequency,
 });
 
 typedef AllZonesParsedResponse = ({
   String zoneId,
-  String response,
+  String data,
+  String macAddress,
+  MultiroomCommands cmd,
 });
 
 typedef ZoneDataResponse = ({
-  bool power,
-  String channel,
-  int volume,
-  int balance,
+  bool? power,
+  String? channel,
+  int? volume,
+  int? balance,
+  int? equalizer,
 });
+
+extension AllZonesParsedResponseExt on List<AllZonesParsedResponse> {
+  List<MultiroomCommands> groupedByCmd() {
+    final ret = <MultiroomCommands>[];
+
+    for (final response in this) {
+      if (ret.contains(response.cmd) == false) {
+        ret.add(response.cmd);
+      }
+    }
+
+    return ret;
+  }
+}
 
 final class ZoneData {
   const ZoneData._({
@@ -34,48 +51,73 @@ final class ZoneData {
     required this.values,
   });
 
-  factory ZoneData._fromAllZonesInfo({
-    required AllZonesParsedResponse powerResponse,
-    required AllZonesParsedResponse channelResponse,
-    required AllZonesParsedResponse volumeResponse,
-    required AllZonesParsedResponse balanceResponse,
+  factory ZoneData._fromZonesInfo({
+    required ZoneDataType type,
+    required AllZonesParsedResponse zonesResponse,
   }) {
+    final values = switch (type) {
+      ZoneDataType.power => (
+          power: zonesResponse.data.toLowerCase() == "on",
+          channel: null,
+          volume: null,
+          balance: null,
+          equalizer: null,
+        ),
+      ZoneDataType.channel => (
+          power: null,
+          channel: zonesResponse.data,
+          volume: null,
+          balance: null,
+          equalizer: null,
+        ),
+      ZoneDataType.volume => (
+          power: null,
+          channel: null,
+          volume: int.tryParse(zonesResponse.data) ?? 0,
+          balance: null,
+          equalizer: null,
+        ),
+      ZoneDataType.balance => (
+          power: null,
+          channel: null,
+          volume: null,
+          balance: int.tryParse(zonesResponse.data) ?? 0,
+          equalizer: null,
+        ),
+      ZoneDataType.equalizer => (
+          power: null,
+          channel: null,
+          volume: null,
+          balance: null,
+          equalizer: int.tryParse(zonesResponse.data) ?? 0,
+        ),
+    };
+
     return ZoneData._(
-      zoneId: powerResponse.zoneId,
-      values: (
-        power: powerResponse.response.toLowerCase() == "on",
-        channel: channelResponse.response,
-        volume: int.tryParse(volumeResponse.response) ?? 0,
-        balance: int.tryParse(balanceResponse.response) ?? 0,
-      ),
+      zoneId: zonesResponse.zoneId,
+      values: values,
     );
   }
 
   final String zoneId;
   final ZoneDataResponse values;
 
-  static List<ZoneData> buildAllZones({
-    required List<AllZonesParsedResponse> powerResponse,
-    required List<AllZonesParsedResponse> channelResponse,
-    required List<AllZonesParsedResponse> volumeResponse,
-    required List<AllZonesParsedResponse> balanceResponse,
+  static ZoneData fromResponse({
+    required AllZonesParsedResponse response,
   }) {
-    if (powerResponse.length != channelResponse.length || powerResponse.length != volumeResponse.length) {
-      throw Exception("All responses need to be same lenght");
-    }
+    final type = switch (response.cmd) {
+      MultiroomCommands.mrPwrSet => ZoneDataType.power,
+      MultiroomCommands.mrZoneChannelSet => ZoneDataType.channel,
+      MultiroomCommands.mrVolSet => ZoneDataType.volume,
+      MultiroomCommands.mrBalSet => ZoneDataType.balance,
+      MultiroomCommands.mrEqSet => ZoneDataType.equalizer,
+      _ => ZoneDataType.channel,
+    };
 
-    final ret = <ZoneData>[];
-
-    for (var i = 0; i < powerResponse.length; i++) {
-      ret.add(
-        ZoneData._fromAllZonesInfo(
-          powerResponse: powerResponse[i],
-          channelResponse: channelResponse[i],
-          volumeResponse: volumeResponse[i],
-          balanceResponse: balanceResponse[i],
-        ),
-      );
-    }
+    final ret = ZoneData._fromZonesInfo(
+      type: type,
+      zonesResponse: response,
+    );
 
     return ret;
   }
@@ -84,39 +126,56 @@ final class ZoneData {
 abstract final class MrCmdBuilder {
   static const allZones = "ZALL";
 
-  static String parseResponseSingle(String response) =>
-      MrCmdBuilder.parseCompleteResponse(response, single: true).response;
+  static String parseResponseSingle(String response) => _parseMrResponse(response, single: true).response;
 
-  static String parseResponseMulti(String response) =>
-      MrCmdBuilder.parseCompleteResponse(response, single: false).response;
+  static String parseResponseMulti(String response) => _parseMrResponse(response, single: false).response;
 
-  static List<AllZonesParsedResponse> parseResponseAllZones(String response) {
-    final ret = <AllZonesParsedResponse>[];
+  static List<AllZonesParsedResponse> parseResponse(String response) {
+    final allZonesResponses = <AllZonesParsedResponse>[];
 
-    for (final line in response.split("\n")) {
-      if (line.isNullOrEmpty) {
+    for (final line in response.split(RegExp(r"(\r\n|\r|\n)"))) {
+      if (line.isNullOrEmpty || line.startsWith("mr_") == false || line.contains(',') == false) {
         continue;
       }
 
-      final parsed = MrCmdBuilder.parseCompleteResponse(line, single: true);
-      ret.add((zoneId: parsed.params, response: parsed.response));
+      final cmd = MultiroomCommands.fromString(line);
+
+      if (cmd == null) {
+        continue;
+      }
+
+      final parsed = _parseMrResponse(line, single: cmd.singleResponse);
+
+      allZonesResponses.add((
+        zoneId: parsed.params,
+        data: parsed.response,
+        macAddress: parsed.macAddress.toLowerCase(),
+        cmd: MultiroomCommands.fromString(parsed.cmd)!,
+      ));
     }
 
-    return ret;
+    return allZonesResponses;
   }
 
-  static MrResponse parseCompleteResponse(String response, {required bool single}) {
+  static MrResponse _parseMrResponse(String response, {required bool single}) {
     final ret = response.split(",");
 
-    return (
-      cmd: ret.first.removeSpecialChars,
-      macAddress: ret[1].removeSpecialChars,
-      params: ret[2].removeSpecialChars,
-      // response: ret.last.removeSpecialChars,
-      response:
-          single ? ret.last.removeSpecialChars : ret.getRange(3, ret.length).map((e) => e.removeSpecialChars).join(","),
-      frequency: null,
-    );
+    return switch (ret.length) {
+      2 => (
+          cmd: ret.first.removeSpecialChars,
+          macAddress: ret[1].removeSpecialChars.toLowerCase(),
+          params: "",
+          response: "",
+        ),
+      _ => (
+          cmd: ret.first.removeSpecialChars,
+          macAddress: ret[1].removeSpecialChars.toLowerCase(),
+          params: ret[2].removeSpecialChars,
+          response: single
+              ? ret.last.removeSpecialChars
+              : ret.getRange(3, ret.length).map((e) => e.removeSpecialChars).join(","),
+        )
+    };
   }
 
   static int fromDbToPercent(String value) =>

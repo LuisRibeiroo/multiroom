@@ -8,6 +8,7 @@ import 'package:signals/signals_flutter.dart';
 
 import '../../../../injector.dart';
 import '../../../../routes.g.dart';
+import '../../../core/enums/multiroom_commands.dart';
 import '../../../core/enums/page_state.dart';
 import '../../../core/extensions/list_extensions.dart';
 import '../../../core/extensions/string_extensions.dart';
@@ -19,9 +20,8 @@ import '../../../core/models/device_model.dart';
 import '../../../core/models/equalizer_model.dart';
 import '../../../core/models/frequency.dart';
 import '../../../core/models/project_model.dart';
-import '../../../core/models/zone_group_model.dart';
+import '../../../core/models/socket_connection.dart';
 import '../../../core/models/zone_model.dart';
-import '../../../core/models/zone_wrapper_model.dart';
 import '../../../core/utils/constants.dart';
 import '../../../core/utils/debouncer.dart';
 import '../../../core/utils/mr_cmd_builder.dart';
@@ -45,18 +45,18 @@ class HomePageController extends BaseController with SocketMixin {
           Routefly.pushNavigate(routePaths.modules.configs.pages.configs);
         }
       }),
-      effect(() {
-        if (expandedViewMode.value) {
-          if (currentZone.value.isEmpty == false) {
-            if (currentZone.value.hashCode != currentZone.previousValue?.hashCode) {
-              _writeDebouncer(() async {
-                await _setCurrentDeviceByMacAdress(mac: currentZone.value.macAddress);
-                await updateEqualizer(updatedZone: currentZone.peek());
-              });
-            }
-          }
-        }
-      }),
+      // effect(() {
+      //   if (expandedViewMode.value) {
+      //     if (currentZone.value.isEmpty == false) {
+      //       if (currentZone.value.hashCode != currentZone.previousValue?.hashCode) {
+      //         _writeDebouncer(() async {
+      //           await _setCurrentDeviceByMacAdress(mac: currentZone.value.macAddress);
+      //           await _getEqualizer(updatedZone: currentZone.peek());
+      //         });
+      //       }
+      //     }
+      //   }
+      // }),
       effect(() {
         allDevicesOnline.value = currentProject.value.devices.every((device) => device.active);
       }),
@@ -120,15 +120,17 @@ class HomePageController extends BaseController with SocketMixin {
       return;
     }
 
+    await connections.cancelAll();
+
     _settings.lastProjectId = proj.id;
+
     state.value = const SuccessState(data: null);
 
-    await _updateDevicesState();
-
-    await _updateSignals(
-      project: proj,
-      allDevices: true,
-    );
+    // state.value = InitialState();
+    // await syncLocalData(
+    //   awaitUpdate: true,
+    //   allDevices: true,
+    // );
   }
 
   Future<void> setZoneActive(bool active, ZoneModel zone) async {
@@ -141,6 +143,7 @@ class HomePageController extends BaseController with SocketMixin {
         zone: currentZone.value,
         active: active,
       ),
+      macAddress: currentZone.value.macAddress,
       debounce: false,
       onError: () {
         currentZone.value = zone;
@@ -166,6 +169,7 @@ class HomePageController extends BaseController with SocketMixin {
         zone: currentZone.value,
         channel: channel,
       ),
+      macAddress: currentZone.value.macAddress,
       debounce: false,
       onError: () {
         currentZone.value = zone;
@@ -185,6 +189,7 @@ class HomePageController extends BaseController with SocketMixin {
         zone: currentZone.value,
         balance: balance,
       ),
+      macAddress: currentZone.value.macAddress,
       onError: () {
         currentZone.value = currentZone.previousValue!;
         _updateZonesInProject(zones: [currentZone.value]);
@@ -204,6 +209,7 @@ class HomePageController extends BaseController with SocketMixin {
         zone: zone ?? currentZone.value,
         volume: volume,
       ),
+      macAddress: currentZone.value.macAddress,
       onError: () {
         currentZone.value = currentZone.previousValue!;
         _updateZonesInProject(zones: [currentZone.value]);
@@ -213,85 +219,13 @@ class HomePageController extends BaseController with SocketMixin {
     _updateZonesInProject(zones: [currentZone.value]);
   }
 
-  Future<void> updateEqualizer({ZoneModel? updatedZone}) async {
-    final zone = updatedZone ?? currentZone.value;
-
-    final f60 = MrCmdBuilder.parseResponseSingle(await socketSender(
-      MrCmdBuilder.getEqualizer(
-        macAddress: zone.macAddress,
-        zone: zone,
-        frequency: zone.equalizer.frequencies[0],
-      ),
-    ));
-
-    final f250 = MrCmdBuilder.parseResponseSingle(await socketSender(
-      MrCmdBuilder.getEqualizer(
-        macAddress: zone.macAddress,
-        zone: zone,
-        frequency: zone.equalizer.frequencies[1],
-      ),
-    ));
-
-    final f1k = MrCmdBuilder.parseResponseSingle(await socketSender(
-      MrCmdBuilder.getEqualizer(
-        macAddress: zone.macAddress,
-        zone: zone,
-        frequency: zone.equalizer.frequencies[2],
-      ),
-    ));
-
-    final f3k = MrCmdBuilder.parseResponseSingle(await socketSender(
-      MrCmdBuilder.getEqualizer(
-        macAddress: zone.macAddress,
-        zone: zone,
-        frequency: zone.equalizer.frequencies[3],
-      ),
-    ));
-
-    final f6k = MrCmdBuilder.parseResponseSingle(await socketSender(
-      MrCmdBuilder.getEqualizer(
-        macAddress: zone.macAddress,
-        zone: zone,
-        frequency: zone.equalizer.frequencies[4],
-      ),
-    ));
-
-    final f16k = MrCmdBuilder.parseResponseSingle(await socketSender(
-      MrCmdBuilder.getEqualizer(
-        macAddress: zone.macAddress,
-        zone: zone,
-        frequency: zone.equalizer.frequencies[5],
-      ),
-    ));
-
-    final equalizer = zone.equalizer;
-    final newEqualizer = EqualizerModel.custom(
-      frequencies: [
-        equalizer.frequencies[0].copyWith(value: (int.tryParse(f60) ?? equalizer.frequencies[0].value) ~/ 10),
-        equalizer.frequencies[1].copyWith(value: (int.tryParse(f250) ?? equalizer.frequencies[1].value) ~/ 10),
-        equalizer.frequencies[2].copyWith(value: (int.tryParse(f1k) ?? equalizer.frequencies[2].value) ~/ 10),
-        equalizer.frequencies[3].copyWith(value: (int.tryParse(f3k) ?? equalizer.frequencies[3].value) ~/ 10),
-        equalizer.frequencies[4].copyWith(value: (int.tryParse(f6k) ?? equalizer.frequencies[4].value) ~/ 10),
-        equalizer.frequencies[5].copyWith(value: (int.tryParse(f16k) ?? equalizer.frequencies[5].value) ~/ 10),
-      ],
-    );
-
-    final eqIndex = equalizers.indexWhere((e) => e.equalsFrequencies(newEqualizer));
-    if (eqIndex == -1) {
-      equalizers[equalizers.indexWhere((e) => e.name == "Custom")] = newEqualizer;
-      currentEqualizer.value = newEqualizer;
-    } else {
-      currentEqualizer.value = equalizers[eqIndex];
-    }
-  }
-
   Future<void> setEqualizer(EqualizerModel equalizer) async {
     await run(() async {
       try {
         for (final freq in equalizer.frequencies) {
-          await socketSender(
-            // TODO: Update to use ALL cmd
-            MrCmdBuilder.setEqualizer(
+          connections.send(
+            macAddress: currentZone.value.macAddress,
+            cmd: MrCmdBuilder.setEqualizer(
               macAddress: currentZone.value.macAddress,
               zone: currentZone.value,
               frequency: freq,
@@ -303,14 +237,19 @@ class HomePageController extends BaseController with SocketMixin {
           await Future.delayed(Durations.short2);
         }
 
-        currentEqualizer.value = equalizer;
-        currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
+        // currentEqualizer.value = equalizer;
+        // currentZone.value = currentZone.value.copyWith(equalizer: currentEqualizer.value);
       } catch (exception) {
         logger.e("Erro ao configurar equalizador --> $exception");
         currentEqualizer.value = currentEqualizer.previousValue!;
         currentZone.value = currentZone.previousValue!;
 
         _updateDevicesState();
+
+        currentDevice.value = _getDeviceInProject(
+          mac: currentZone.value.macAddress,
+          orElse: currentDevice.value,
+        )!;
         setError(Exception("Erro ao enviar comando"));
       }
 
@@ -334,6 +273,7 @@ class HomePageController extends BaseController with SocketMixin {
         frequency: frequency,
         gain: frequency.value,
       ),
+      macAddress: currentZone.value.macAddress,
       onError: () {
         currentEqualizer.value = currentEqualizer.previousValue!;
         currentZone.value = currentZone.previousValue!;
@@ -349,12 +289,9 @@ class HomePageController extends BaseController with SocketMixin {
     bool awaitUpdate = true,
     bool allDevices = false,
   }) async {
-    // if (state.value is LoadingState) {
-    //   return;
-    // }
-
     await run(() async {
       projects.value = _settings.projects;
+      logger.d("[DBG] Sync local data [awaitUpdate: $awaitUpdate][allDevices: $allDevices]");
 
       if (projects.isEmpty) {
         return;
@@ -374,6 +311,7 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> setCurrentZone({required ZoneModel zone}) async {
     currentZone.value = zone;
+    currentEqualizer.value = zone.equalizer;
 
     await _setCurrentDeviceByMacAdress(mac: zone.macAddress);
   }
@@ -385,19 +323,29 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<bool> onFactoryRestore() async {
     var result = false;
+
     await run(
       setError: true,
       () async {
+        DeviceModel current = currentDevice.value;
+
         try {
-          await _iterateOverDevices(function: (device) async {
-            await socketSender(MrCmdBuilder.setDefaultParams(macAddress: device.macAddress));
+          await _iterateOverDevices(function: (device) {
+            current = device;
+
+            connections.send(
+              ip: device.ip,
+              cmd: MrCmdBuilder.setDefaultParams(macAddress: device.macAddress),
+            );
           });
 
-          await _updateSignals(allDevices: true);
           result = true;
         } catch (exception) {
           logger.e("Erro ao resetar dispositivo --> $exception");
+
+          currentDevice.value = _getDeviceInProject(mac: current.macAddress)!;
           setError(Exception("Erro ao enviar comando"));
+
           result = false;
         }
       },
@@ -410,17 +358,24 @@ class HomePageController extends BaseController with SocketMixin {
     await run(
       setError: true,
       () async {
-        try {
-          await _iterateOverDevices(function: (d) async {
-            await socketSender(MrCmdBuilder.setPowerAll(
-              macAddress: d.macAddress,
-              active: false,
-            ));
-          });
+        DeviceModel current = currentDevice.value;
 
-          await _updateSignals(allDevices: true);
+        try {
+          await _iterateOverDevices(function: (d) {
+            current = d;
+
+            connections.send(
+              ip: d.ip,
+              cmd: MrCmdBuilder.setPowerAll(
+                macAddress: d.macAddress,
+                active: false,
+              ),
+            );
+          });
         } catch (exception) {
           logger.e("Erro ao desabilitar todas as zonas --> $exception");
+
+          currentDevice.value = _getDeviceInProject(mac: current.macAddress)!;
           setError(Exception("Erro ao enviar comando"));
         }
       },
@@ -431,6 +386,49 @@ class HomePageController extends BaseController with SocketMixin {
 
   void setSearchText(String value) => searchText.value = value.toUpperCase();
 
+  Future<void> openSocketConnections() async {
+    currentProject.value = _getLastProject();
+
+    for (final device in currentProject.value.devices) {
+      try {
+        if (connections.containsKey(device.ip) && connections[device.ip]!.isListening) {
+          logger.d("[DBG] Ignoring open socket to [${device.ip}]");
+
+          continue;
+        }
+
+        if (connections.containsKey(device.ip)) {
+          await _restartConnection(ip: device.ip);
+        } else {
+          final socket = await initSocket(ip: device.ip);
+          logger.d("[DBG] Socket open on address [${device.ip}]");
+
+          connections.addAll({
+            device.ip: SocketConnection(
+              ip: device.ip,
+              macAddress: device.macAddress,
+              socket: socket,
+            ),
+          });
+        }
+      } catch (exception) {
+        logger.d("[DBG] Error to open socket on [${device.ip}]");
+        currentDevice.value = _getDeviceInProject(mac: device.macAddress)!;
+        setError(Exception("Erro ao abrir conexão com o Multiroom"));
+      }
+    }
+
+    connections.listenAll(
+      onData: _handleAsyncResponse,
+      onError: _handleSocketError,
+    );
+  }
+
+  void closeConnections() {
+    connections.cancelAll();
+    logger.d("[DBG] All connections closed");
+  }
+
   ProjectModel _getLastProject() {
     projects.value = _settings.projects;
 
@@ -438,6 +436,38 @@ class HomePageController extends BaseController with SocketMixin {
       (p) => p.id == _settings.lastProjectId,
       orElse: () => projects.first,
     );
+  }
+
+  Future<void> _restartConnection({
+    required String ip,
+    Function()? errorCalback,
+  }) async {
+    logger.d("[DBG] Socket restart [$ip]");
+
+    connections.updateSocket(
+      ip: ip,
+      socket: await restartSocket(ip: ip),
+    );
+
+    connections.listenTo(
+      ip: ip,
+      onData: _handleAsyncResponse,
+      onError: (msg, ip) {
+        _handleSocketError(msg, ip);
+        errorCalback?.call();
+      },
+    );
+  }
+
+  Future<void> _handleSocketError(String msg, String ip) async {
+    _updateDevicesState();
+
+    logger.e("Socket Error --> $msg");
+
+    currentDevice.value = _getDeviceInProject(ip: ip)!;
+    setError(Exception("Erro ao enviar comando"));
+
+    _restartConnection(ip: ip).ignore();
   }
 
   Future<void> _setCurrentDeviceByMacAdress({required String mac}) async {
@@ -448,7 +478,6 @@ class HomePageController extends BaseController with SocketMixin {
     }
 
     currentDevice.value = device;
-    await run(() => restartSocket(ip: currentDevice.value.ip));
   }
 
   Future<void> _iterateOverDevices({
@@ -456,10 +485,6 @@ class HomePageController extends BaseController with SocketMixin {
     bool initSocket = true,
   }) async {
     for (final device in currentProject.value.devices) {
-      if (initSocket) {
-        await restartSocket(ip: device.ip);
-      }
-
       await function(device);
     }
   }
@@ -477,7 +502,11 @@ class HomePageController extends BaseController with SocketMixin {
               d.ip,
               4998,
               timeout: const Duration(seconds: readTimeout),
-            ).then((s) => s.close());
+            ).then(
+              (s) => s
+                ..close()
+                ..destroy(),
+            );
 
             newDevice = d.copyWith(active: true);
           } catch (exception) {
@@ -497,60 +526,17 @@ class HomePageController extends BaseController with SocketMixin {
     bool getEqualizer = false,
     DeviceModel? device,
   }) async {
-    List<ZoneWrapperModel> updatedWrappers;
-    List<ZoneGroupModel>? updatedGroups;
-    DeviceModel tempDevice = (device ?? currentDevice.value);
+    final newDevice = (device ?? currentDevice.value).updateZones(zones);
 
     for (final zone in zones) {
-      ZoneGroupModel? group;
-      final isZoneGrouped = tempDevice.isZoneInGroup(zone);
-
-      if (isZoneGrouped) {
-        group = tempDevice.groups.firstWhereOrNull((g) => g.zones.containsZone(zone));
-      }
-
-      // final updatedZone = isZoneGrouped ? zone.copyWith(name: group?.getZone(zone.id).name) : zone;
-      logger.i("[DBG] UPDATE PROJECT --> ${tempDevice.serialNumber} | ${zone.name}");
-
-      if (isZoneGrouped) {
-        final updatedGroup = group?.copyWith(
-          zones: group.zones.withReplacement(
-            (z) => z.id == zone.id,
-            zone,
-          ),
-        );
-
-        updatedGroups = group == null
-            ? null
-            : tempDevice.groups.withReplacement(
-                (g) => g.id == group!.id,
-                updatedGroup!,
-              );
-      }
-
-      final updatedWrapper = tempDevice.zoneWrappers.firstWhere((w) => w.id == zone.wrapperId).copyWith(zone: zone);
-
-      updatedWrappers = tempDevice.zoneWrappers.withReplacement(
-        (w) => w.id == updatedWrapper.id,
-        updatedWrapper,
-      );
-
-      tempDevice = tempDevice.copyWith(
-        zoneWrappers: updatedWrappers,
-        groups: updatedGroups,
-      );
-
-      _updateCurrentZone(
-        zone: zone,
-        getEqualizer: getEqualizer,
-      );
+      _updateCurrentZone(zone: zone);
     }
 
     if (currentDevice.value.serialNumber == zones.first.deviceSerial) {
-      currentDevice.value = tempDevice;
+      currentDevice.value = newDevice;
     }
 
-    _updateDeviceInProject(device: tempDevice);
+    _updateDeviceInProject(device: newDevice);
   }
 
   void _updateDeviceInProject({required DeviceModel device}) {
@@ -563,13 +549,10 @@ class HomePageController extends BaseController with SocketMixin {
     _settings.saveProject(currentProject.value);
   }
 
-  Future<void> _updateCurrentZone({required ZoneModel zone, bool getEqualizer = false}) async {
+  Future<void> _updateCurrentZone({required ZoneModel zone}) async {
     if (currentZone.value.deviceSerial == zone.deviceSerial && zone.id == currentZone.value.id) {
       currentZone.value = zone;
-
-      if (getEqualizer) {
-        await updateEqualizer();
-      }
+      currentEqualizer.value = zone.equalizer;
     }
   }
 
@@ -608,26 +591,24 @@ class HomePageController extends BaseController with SocketMixin {
 
   Future<void> _runUpdateData({required bool allDevices}) async {
     await run(() async {
+      DeviceModel current = currentDevice.value;
+
       try {
         if (allDevices) {
-          await _iterateOverDevices(function: (d) => _updateDeviceData(d));
+          await _iterateOverDevices(function: (d) {
+            current = d;
+            _getDeviceData(d);
+          });
         } else {
-          await _updateDeviceData(currentDevice.value);
+          _getDeviceData(currentDevice.value);
         }
       } catch (exception) {
-        if (exception is StateError && exception.toString().contains("StreamSink")) {
-          try {
-            await restartSocket(ip: currentDevice.value.ip);
-
-            await _runUpdateData(allDevices: allDevices);
-            return;
-          } catch (_) {}
-        }
-
         logger.e("Erro ao tentar comunicação com o Multiroom --> $exception");
 
-        _updateDevicesState();
+        currentDevice.value = _getDeviceInProject(ip: current.ip)!;
         setError(Exception("Erro ao tentar comunicação com o Multiroom"));
+
+        await _handleBadStateConnection(exceptionMessage: exception.toString());
       }
     });
   }
@@ -636,26 +617,21 @@ class HomePageController extends BaseController with SocketMixin {
     String cmd, {
     bool debounce = true,
     required Function() onError,
+    required String macAddress,
   }) {
     function() async {
       try {
-        final response = await socketSender(cmd);
-
-        if (response.toUpperCase().contains("ERROR")) {
-          throw Exception("Retorno do comando com erro");
-        }
-
-        currentDevice.value = currentDevice.value.copyWith(active: true);
-        _updateDeviceInProject(device: currentDevice.value);
+        connections.send(cmd: cmd, macAddress: macAddress);
       } catch (exception) {
         logger.e("Erro no comando [$cmd] --> $exception");
 
-        await _updateDevicesState();
+        currentDevice.value = _getDeviceInProject(mac: macAddress)!;
         setError(Exception("Erro ao enviar comando"));
 
-        if (exception.toString().contains("Bad state")) {
-          await restartSocket(ip: currentDevice.value.ip);
-        }
+        await _handleBadStateConnection(
+          exceptionMessage: exception.toString(),
+          errorCalback: onError,
+        );
 
         onError();
       }
@@ -668,63 +644,170 @@ class HomePageController extends BaseController with SocketMixin {
     }
   }
 
-  Future<void> _updateDeviceData(DeviceModel device) async {
-    await restartSocket(ip: device.ip);
+  Future<void> _handleBadStateConnection({
+    required String exceptionMessage,
+    Function()? errorCalback,
+  }) async {
+    await _updateDevicesState();
 
-    final activeInfo = MrCmdBuilder.parseResponseAllZones(await socketSender(
-      MrCmdBuilder.getPowerAll(macAddress: device.macAddress),
-      longRet: true,
-    ));
+    if (exceptionMessage.contains("Bad state")) {
+      await _restartConnection(
+        ip: currentDevice.value.ip,
+        errorCalback: errorCalback,
+      );
+    }
+  }
 
-    final channelInfo = MrCmdBuilder.parseResponseAllZones(await socketSender(
-      MrCmdBuilder.getChannelAll(macAddress: device.macAddress),
-      longRet: true,
-    ));
+  void _handleAsyncResponse(String data) {
+    final mrResponses = MrCmdBuilder.parseResponse(data);
 
-    final volumeInfo = MrCmdBuilder.parseResponseAllZones(await socketSender(
-      MrCmdBuilder.getVolumeAll(macAddress: device.macAddress),
-      longRet: true,
-    ));
+    final updatedDevices = <String, DeviceModel>{};
 
-    final balanceInfo = MrCmdBuilder.parseResponseAllZones(await socketSender(
-      MrCmdBuilder.getBalanceAll(macAddress: device.macAddress),
-      longRet: true,
-    ));
+    for (final response in mrResponses) {
+      logger.d("[DBG] -> [${response.macAddress}][${response.cmd.value}][${response.zoneId}][${response.data}]");
 
-    final zonesData = ZoneData.buildAllZones(
-      powerResponse: activeInfo,
-      volumeResponse: volumeInfo,
-      channelResponse: channelInfo,
-      balanceResponse: balanceInfo,
-    );
+      final device = (updatedDevices[response.macAddress] ?? _getDeviceInProject(mac: response.macAddress))
+          ?.copyWith(active: true);
 
-    final zones = <ZoneModel>[];
+      if (device == null) {
+        logger.d(
+            "[DBG] Received response from unknown device at current project --> [${response.macAddress}][${response.cmd}]");
+        continue;
+      }
 
-    for (final zoneData in zonesData) {
+      if (response.cmd == MultiroomCommands.mrParDefaultSet) {
+        _getDeviceData(device);
+        continue;
+      }
+
+      List<ZoneModel> zones = device.zones;
+      final zoneData = ZoneData.fromResponse(response: response);
       final zone = device.zones.firstWhereOrNull((z) => z.id == zoneData.zoneId);
 
       if (zone == null) {
         continue;
       }
 
-      final channel = device.channels.firstWhere(
-        (c) => c.id == zoneData.values.channel,
-        orElse: () => device.channels.first,
+      EqualizerModel? equalizer;
+      if (response.cmd == MultiroomCommands.mrEqSet) {
+        final data = response.data.split(",");
+
+        equalizer = _updateEqualizer(
+          zone: zone,
+          frequencies: [
+            Frequency.fromValue(
+              id: data.first,
+              value: data.last,
+            )
+          ],
+        );
+      } else if (response.cmd == MultiroomCommands.mrEqSetAll) {
+        final data = response.data.split(",");
+
+        equalizer = _updateEqualizer(
+          zone: zone,
+          frequencies: Frequency.buildFromList(
+            List.generate(6, (index) => int.tryParse(data[index]) ?? 0),
+          ),
+        );
+      }
+
+      ChannelModel? channel;
+      if (response.cmd == MultiroomCommands.mrZoneChannelSet) {
+        channel = device.channels.firstWhere(
+          (c) => c.id == zoneData.values.channel,
+          orElse: () => device.channels.first,
+        );
+      }
+
+      zones = zones.withReplacement(
+        (z) => z.id == zone.id,
+        zone.copyWith(
+          active: zoneData.values.power,
+          volume: zoneData.values.volume,
+          balance: zoneData.values.balance,
+          channel: channel,
+          equalizer: equalizer,
+        ),
       );
 
-      zones.add(zone.copyWith(
-        active: zoneData.values.power,
-        volume: zoneData.values.volume,
-        channel: channel,
-        balance: zoneData.values.balance,
-      ));
+      updatedDevices[device.macAddress] = device.updateZones(zones);
     }
 
-    await _updateZonesInProject(
-      device: device,
-      zones: zones.grouped(device.groups),
-      getEqualizer: expandedViewMode.value,
+    for (final dev in updatedDevices.values) {
+      _updateZonesInProject(
+        device: dev,
+        zones: dev.zones.grouped(dev.groups),
+        getEqualizer: expandedViewMode.value,
+      );
+    }
+  }
+
+  DeviceModel? _getDeviceInProject({String mac = "", String ip = "", DeviceModel? orElse}) {
+    return currentProject.value.devices.firstWhereOrNull(
+          (d) => d.macAddress.toUpperCase() == mac.toUpperCase() || d.ip.toUpperCase() == ip.toUpperCase(),
+        ) ??
+        orElse;
+  }
+
+  void _getDeviceData(DeviceModel device) {
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getPowerAll(macAddress: device.macAddress),
     );
+
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getChannelAll(macAddress: device.macAddress),
+    );
+
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getVolumeAll(macAddress: device.macAddress),
+    );
+
+    connections.send(
+      ip: device.ip,
+      cmd: MrCmdBuilder.getBalanceAll(macAddress: device.macAddress),
+    );
+
+    if (expandedViewMode.value) {
+      getEqualizer();
+    }
+  }
+
+  Future<void> getEqualizer() async {
+    final zone = currentZone.value;
+
+    connections.send(
+      macAddress: zone.macAddress,
+      cmd: MrCmdBuilder.getEqualizerAll(
+        macAddress: zone.macAddress,
+        zone: zone,
+      ),
+    );
+  }
+
+  EqualizerModel _updateEqualizer({
+    required ZoneModel zone,
+    required List<Frequency> frequencies,
+  }) {
+    List<Frequency> newFrequencies = zone.equalizer.frequencies;
+
+    for (final freq in frequencies) {
+      newFrequencies = newFrequencies.withReplacement((f) => f.id == freq.id, freq.copyWith(value: freq.value ~/ 10));
+    }
+
+    final newEqualizer = EqualizerModel.custom(frequencies: newFrequencies);
+
+    final eqIndex = equalizers.indexWhere((e) => e.equalsFrequencies(newEqualizer));
+    if (eqIndex == -1) {
+      equalizers[equalizers.indexWhere((e) => e.name == "Custom")] = newEqualizer;
+
+      return newEqualizer;
+    } else {
+      return equalizers[eqIndex];
+    }
   }
 
   void dispose() {

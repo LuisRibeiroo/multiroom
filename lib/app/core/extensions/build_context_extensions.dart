@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multiroom/app/core/extensions/number_extensions.dart';
 
 extension ContextExt on BuildContext {
   ThemeData get theme => Theme.of(this);
@@ -12,13 +13,14 @@ extension ContextExt on BuildContext {
     required Widget child,
     bool isScrollControlled = true,
     bool isDismissible = true,
-  }) {
+  }) async {
     final maxHeight = isScrollControlled ? .8 : .5;
 
-    return showModalBottomSheet<T>(
+    return await showModalBottomSheet<T>(
       context: this,
       isDismissible: isDismissible,
       isScrollControlled: isScrollControlled,
+      enableDrag: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -27,20 +29,7 @@ extension ContextExt on BuildContext {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 22),
-              child: Container(
-                height: 4,
-                width: 32,
-                decoration: BoxDecoration(
-                  color: theme.dividerColor,
-                  borderRadius: const BorderRadius.horizontal(
-                    left: Radius.circular(12),
-                    right: Radius.circular(12),
-                  ),
-                ),
-              ),
-            ),
+            22.asSpace,
             ConstrainedBox(
               constraints: BoxConstraints(
                 // minHeight: size.height * .2,

@@ -19,6 +19,17 @@ class Frequency extends Equatable {
     );
   }
 
+  factory Frequency.fromValue({
+    required String id,
+    required String value,
+  }) {
+    return Frequency(
+      id: id,
+      name: _bands[id] ?? "",
+      value: int.tryParse(value) ?? 0,
+    );
+  }
+
   factory Frequency.fromMap(Map<String, dynamic> map) {
     return Frequency(
       id: map["id"],
@@ -36,20 +47,29 @@ class Frequency extends Equatable {
   }
 
   static List<Frequency> build([
-    int v60 = 0,
-    int v250 = 0,
-    int v1k = 0,
-    int v3k = 0,
-    int v6k = 0,
-    int v16k = 0,
+    int b1 = 0,
+    int b2 = 0,
+    int b3 = 0,
+    int b4 = 0,
+    int b5 = 0,
+    int b6 = 0,
   ]) =>
       [
-        Frequency(id: "B1", name: "60", value: v60),
-        Frequency(id: "B2", name: "250", value: v250),
-        Frequency(id: "B3", name: "1k", value: v1k),
-        Frequency(id: "B4", name: "3k", value: v3k),
-        Frequency(id: "B5", name: "6k", value: v6k),
-        Frequency(id: "B6", name: "16k", value: v16k),
+        Frequency(id: "B1", name: _bands["B1"]!, value: b1),
+        Frequency(id: "B2", name: _bands["B2"]!, value: b2),
+        Frequency(id: "B3", name: _bands["B3"]!, value: b3),
+        Frequency(id: "B4", name: _bands["B4"]!, value: b4),
+        Frequency(id: "B5", name: _bands["B5"]!, value: b5),
+        Frequency(id: "B6", name: _bands["B6"]!, value: b6),
+      ];
+
+  static List<Frequency> buildFromList(List<int> list) => [
+        Frequency(id: "B1", name: _bands["B1"]!, value: list[0]),
+        Frequency(id: "B2", name: _bands["B2"]!, value: list[1]),
+        Frequency(id: "B3", name: _bands["B3"]!, value: list[2]),
+        Frequency(id: "B4", name: _bands["B4"]!, value: list[3]),
+        Frequency(id: "B5", name: _bands["B5"]!, value: list[4]),
+        Frequency(id: "B6", name: _bands["B6"]!, value: list[5]),
       ];
 
   @HiveField(0)
@@ -69,6 +89,15 @@ class Frequency extends Equatable {
       value: value ?? this.value,
     );
   }
+
+  static const _bands = {
+    "B1": "60",
+    "B2": "250",
+    "B3": "1k",
+    "B4": "3k",
+    "B5": "6k",
+    "B6": "16k",
+  };
 
   @override
   List<Object?> get props => [

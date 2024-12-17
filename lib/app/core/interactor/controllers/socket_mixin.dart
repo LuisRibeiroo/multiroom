@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:multiroom/app/core/extensions/string_extensions.dart';
-
 import '../../extensions/socket_extensions.dart';
 import '../../extensions/stream_iterator_extensions.dart';
+import '../../extensions/string_extensions.dart';
 
 mixin SocketMixin {
   Socket? _socket;
@@ -16,7 +15,7 @@ mixin SocketMixin {
   bool get socketInit => _socket != null;
   String get socketCurrentiP => _ip ?? "";
 
-  Future<void> initSocket({required String ip}) async {
+  Future<Socket> initSocket({required String ip}) async {
     _ip = ip;
     _lastIp = _ip;
 
@@ -27,14 +26,18 @@ mixin SocketMixin {
     );
 
     _streamIterator = StreamIterator(_socket!);
+
+    return _socket!;
   }
 
-  Future<void> restartSocket({required String ip}) async {
+  Future<Socket> restartSocket({required String ip}) async {
     if (_socket != null) {
-      _socket!.close();
+      _socket!
+        ..close()
+        ..destroy();
     }
 
-    await initSocket(ip: ip);
+    return initSocket(ip: ip);
   }
 
   Future<String> socketSender(String cmd, {bool longRet = false}) async {
@@ -70,7 +73,9 @@ mixin SocketMixin {
   }
 
   void mixinDispose() {
-    _socket?.close();
+    _socket
+      ?..close()
+      ..destroy();
     _streamIterator?.cancel();
 
     _socket = null;

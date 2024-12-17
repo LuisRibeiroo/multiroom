@@ -20,6 +20,7 @@ class LoadingOverlay extends StatefulWidget {
     this.macAddress = "",
     this.onTap,
     this.onSuccessState,
+    this.onErrorState,
   });
 
   final Signal<PageState> state;
@@ -30,6 +31,7 @@ class LoadingOverlay extends StatefulWidget {
   final String macAddress;
   final Function()? onTap;
   final Function()? onSuccessState;
+  final Function()? onErrorState;
 
   @override
   State<LoadingOverlay> createState() => _LoadingOverlayState();
@@ -55,13 +57,15 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
             toastification.show(
               title:
                   Text((_controller.pageState.value as ErrorState).exception.toString().replaceAll("Exception: ", "")),
-              autoCloseDuration: const Duration(seconds: 4),
+              autoCloseDuration: const Duration(seconds: 2),
               style: ToastificationStyle.minimal,
               type: ToastificationType.error,
               closeOnClick: true,
             );
 
             if (_controller.errorCounter.peek() > 1) {
+              widget.onErrorState?.call();
+
               _controller.startPulling();
 
               _controller.checkDeviceAvailability(
@@ -72,6 +76,20 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
             }
           } else {
             if (_controller.pageState.value is SuccessState) {
+              // Future.delayed(
+              //   const Duration(seconds: readTimeout + 1),
+              //   () async {
+              //     untracked(() {
+              //       _controller.resetErrorCounter();
+              //       _controller.stopPulling();
+              //     });
+
+              //     widget.onSuccessState?.call();
+              //   },
+              // );
+
+              toastification.dismissAll();
+
               untracked(() {
                 _controller.resetErrorCounter();
                 _controller.stopPulling();
@@ -111,6 +129,7 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
                     onDoubleTap: () {
                       if (kDebugMode) {
                         widget.state.value = InitialState();
+                        _controller.stopPulling();
                       }
                     },
                     child: const Center(

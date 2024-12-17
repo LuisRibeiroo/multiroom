@@ -21,6 +21,7 @@ class EditChannelsBottomSheetController extends BaseController {
   final zone = ZoneModel.empty().asSignal(debugLabel: "zone");
   final isEditMode = false.asSignal(debugLabel: "isEditMode");
   final channels = mapSignal(<String, String>{}, debugLabel: "channels");
+  final shouldUpdate = false.asSignal(debugLabel: "shouldUpdate");
 
   void init({
     required DeviceModel device,
@@ -81,6 +82,8 @@ class EditChannelsBottomSheetController extends BaseController {
 
   void onChangeChannelName(String chanelId, String value) {
     channels[chanelId] = value;
+
+    shouldUpdate.value = true;
   }
 
   void dispose() {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -89,16 +90,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void _showChannelsBottomSheet({ZoneModel? zone}) {
     context
         .showCustomModalBottomSheet(
-          // isScrollControlled: false,
-          child: Watch(
-            (_) => EditChannelsBottomSheet(
-              onSelect: _controller.setCurrentChannel,
-              device: _controller.currentDevice.value,
-              zone: zone ?? _controller.currentZone.value,
-            ),
-          ),
-        )
-        .then((_) => _controller.syncLocalData(awaitUpdate: false));
+      child: Watch(
+        (_) => EditChannelsBottomSheet(
+          onSelect: _controller.setCurrentChannel,
+          device: _controller.currentDevice.value,
+          zone: zone ?? _controller.currentZone.value,
+        ),
+      ),
+    )
+        .then((shouldUpdate) {
+      if (shouldUpdate != null && shouldUpdate) {
+        _controller.syncLocalData(awaitUpdate: false);
+      }
+    });
   }
 
   void _showEqualizersBottomSheet() {
@@ -182,11 +186,23 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.initState();
 
     AppLifecycleListener(
-      onResume: () {
+      onHide: () {
         if (PlatformChecker.isMobile) {
-          _controller.syncLocalData(allDevices: true);
+          _controller.closeConnections();
         }
       },
+      onResume: () async {
+        if (PlatformChecker.isMobile) {
+          await _controller.openSocketConnections();
+          _controller.syncLocalData();
+        }
+      },
+      onExitRequested: () async {
+        _controller.closeConnections();
+
+        return AppExitResponse.exit;
+      },
+      onDetach: _controller.closeConnections,
     );
 
     _searchController = TextEditingController();
@@ -218,11 +234,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       key: const ValueKey(HomePage),
       onVisibilityChanged: (info) async {
         if (info.visibleFraction == 1) {
-          _controller.syncLocalData(allDevices: true);
-
+          await _controller.openSocketConnections();
+          _controller.syncLocalData();
           _controller.setPageVisible(true);
         } else {
           _controller.setPageVisible(false);
+          _controller.closeConnections();
         }
       },
       child: Scaffold(
@@ -241,7 +258,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           _controller.currentProject.value.name,
                         ),
                       ),
-                      8.asSpace,
                       const Icon(Icons.arrow_drop_down_rounded),
                     ],
                   ),
@@ -251,6 +267,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               Visibility(
                 visible: PlatformChecker.isMobile == false && kDebugMode,
                 child: IconButton(
+                  visualDensity: VisualDensity.compact,
                   icon: Icon(
                     Icons.sync_rounded,
                     color: context.colorScheme.primary,
@@ -265,6 +282,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     key: ValueKey("DeviceZonesPower_${_controller.allDevicesOnline.value}"),
                     visible: _controller.anyZoneOnInProject.value,
                     child: IconButton(
+                      visualDensity: VisualDensity.compact,
                       onPressed: () => _showAllZonesOffBottomSheet(context),
                       icon: Icon(
                         Icons.power_settings_new_rounded,
@@ -286,6 +304,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               const Spacer(),
               Watch(
                 (_) => IconButton(
+                  visualDensity: VisualDensity.compact,
                   onPressed: () => _controller.setSearchVisibility(!_controller.searchIsVisible.value),
                   icon: Icon(
                     Icons.search_rounded,
@@ -312,123 +331,131 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             }
           },
         ),
-        body: LoadingOverlay(
-          key: const ValueKey("HomePage_Key"),
-          state: _controller.state,
-          currentIp: _controller.currentDevice.value.ip,
-          macAddress: _controller.currentDevice.value.macAddress,
-          onTap: () {
-            toastification.dismissAll(delayForAnimation: false);
-            toastification.show(
-              title: const Text("Dispositivo offline"),
-              description: const Text("Os controles serão liberados quando houver nova comunicação"),
-              autoCloseDuration: const Duration(seconds: 2),
-              style: ToastificationStyle.minimal,
-              type: ToastificationType.info,
-              closeOnClick: true,
-            );
-          },
-          onSuccessState: () {
-            _controller.syncLocalData(allDevices: true);
-          },
-          child: SafeArea(
-            child: Watch(
-              (_) => TabBarView(
-                controller: _tabControler,
-                children: [
-                  RefreshIndicator.adaptive(
-                    key: PageStorageKey("$SummaryZonesList"),
-                    onRefresh: () => _controller.syncLocalData(allDevices: true),
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Watch(
-                        (_) => Column(
-                          children: [
-                            AnimatedSize(
-                              duration: Durations.short4,
-                              child: Visibility(
-                                key: ValueKey("SearchBar_${_controller.searchIsVisible.value}"),
-                                visible: _controller.searchIsVisible.value,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(24.0),
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                      border: const OutlineInputBorder(),
-                                      labelText: "Buscar",
-                                      hintText: "Sala de estar, cozinha...",
-                                      hintStyle: context.textTheme.bodyMedium?.copyWith(color: context.theme.hintColor),
-                                      prefixIcon: Icon(
-                                        Icons.search_rounded,
-                                        color: context.theme.hintColor,
+        body: Watch(
+          (_) => LoadingOverlay(
+            key: const ValueKey("HomePage_Key"),
+            state: _controller.state,
+            currentIp: _controller.currentDevice.value.ip,
+            macAddress: _controller.currentDevice.value.macAddress,
+            onTap: () {
+              toastification.dismissAll(delayForAnimation: false);
+              toastification.show(
+                title: const Text("Dispositivo offline"),
+                description: const Text("Os controles serão liberados quando houver nova comunicação"),
+                autoCloseDuration: const Duration(seconds: 2),
+                style: ToastificationStyle.minimal,
+                type: ToastificationType.info,
+                closeOnClick: true,
+              );
+            },
+            onSuccessState: () async {
+              await _controller.openSocketConnections();
+              await _controller.syncLocalData(allDevices: true);
+            },
+            onErrorState: () {
+              _controller.closeConnections();
+            },
+            child: SafeArea(
+              child: Watch(
+                (_) => TabBarView(
+                  controller: _tabControler,
+                  children: [
+                    RefreshIndicator.adaptive(
+                      key: PageStorageKey("$SummaryZonesList"),
+                      onRefresh: () => _controller.syncLocalData(allDevices: true),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Watch(
+                          (_) => Column(
+                            children: [
+                              AnimatedSize(
+                                duration: Durations.short4,
+                                child: Visibility(
+                                  key: ValueKey("SearchBar_${_controller.searchIsVisible.value}"),
+                                  visible: _controller.searchIsVisible.value,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(24.0),
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+                                        border: const OutlineInputBorder(),
+                                        labelText: "Buscar",
+                                        hintText: "Sala de estar, cozinha...",
+                                        hintStyle:
+                                            context.textTheme.bodyMedium?.copyWith(color: context.theme.hintColor),
+                                        prefixIcon: Icon(
+                                          Icons.search_rounded,
+                                          color: context.theme.hintColor,
+                                        ),
+                                        suffixIcon: IconButton(
+                                          icon: const Icon(Icons.clear_rounded),
+                                          onPressed: _clearSearch,
+                                        ),
                                       ),
-                                      suffixIcon: IconButton(
-                                        icon: const Icon(Icons.clear_rounded),
-                                        onPressed: _clearSearch,
-                                      ),
+                                      onChanged: _controller.setSearchText,
+                                      controller: _searchController,
                                     ),
-                                    onChanged: _controller.setSearchText,
-                                    controller: _searchController,
                                   ),
                                 ),
                               ),
-                            ),
-                            SummaryZonesList(
-                              devices: _controller.currentProject.value.devices,
-                              zones: _controller.hasFilteredZones.value
-                                  ? _controller.filteredProjectZones.value
-                                  : _controller.projectZones.value,
-                              onChangeActive: _controller.setZoneActive,
-                              onChangeChannel: (zone) {
-                                _controller.setCurrentZone(zone: zone);
-                                _showChannelsBottomSheet(zone: zone);
-                              },
-                              onChangeVolume: _controller.setVolume,
-                              onTapZone: (zone) {
-                                _controller.setCurrentZone(zone: zone);
-                                _tabControler.animateTo(1);
-                                setState(() {});
+                              SummaryZonesList(
+                                devices: _controller.currentProject.value.devices,
+                                zones: _controller.hasFilteredZones.value
+                                    ? _controller.filteredProjectZones.value
+                                    : _controller.projectZones.value,
+                                onChangeActive: _controller.setZoneActive,
+                                onChangeChannel: (zone) {
+                                  _controller.setCurrentZone(zone: zone);
+                                  _showChannelsBottomSheet(zone: zone);
+                                },
+                                onChangeVolume: _controller.setVolume,
+                                onTapZone: (zone) {
+                                  _controller.setCurrentZone(zone: zone);
+                                  _controller.getEqualizer();
+                                  _tabControler.animateTo(1);
+                                  setState(() {});
 
-                                _controller.setSearchVisibility(false);
-                                _clearSearch();
-                              },
+                                  _controller.setSearchVisibility(false);
+                                  _clearSearch();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    RefreshIndicator.adaptive(
+                      key: PageStorageKey("$DeviceInfoHeader"),
+                      onRefresh: () => _controller.syncLocalData(allDevices: true),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            DeviceInfoHeader(
+                              project: _controller.currentProject.value,
+                              deviceName: _controller.currentDevice.value.name,
+                              currentZone: _controller.currentZone.value,
+                              currentChannel: _controller.currentZone.value.channel,
+                              onChangeActive: _controller.setZoneActive,
+                              onChangeDevice: _showDevicesBottomSheet,
+                              onChangeChannel: _showChannelsBottomSheet,
+                              onChangeProject: _showProjectsBottomSheet,
+                            ),
+                            12.asSpace,
+                            ZoneControls(
+                              currentZone: _controller.currentZone.value,
+                              currentEqualizer: _controller.currentEqualizer.value,
+                              equalizers: _controller.equalizers,
+                              onChangeBalance: _controller.setBalance,
+                              onChangeVolume: _controller.setVolume,
+                              onUpdateFrequency: _controller.setFrequency,
+                              onChangeEqualizer: _showEqualizersBottomSheet,
                             ),
                           ],
                         ),
                       ),
                     ),
-                  ),
-                  RefreshIndicator.adaptive(
-                    key: PageStorageKey("$DeviceInfoHeader"),
-                    onRefresh: () => _controller.syncLocalData(allDevices: true),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          DeviceInfoHeader(
-                            project: _controller.currentProject.value,
-                            deviceName: _controller.currentDevice.value.name,
-                            currentZone: _controller.currentZone.value,
-                            currentChannel: _controller.currentZone.value.channel,
-                            onChangeActive: _controller.setZoneActive,
-                            onChangeDevice: _showDevicesBottomSheet,
-                            onChangeChannel: _showChannelsBottomSheet,
-                            onChangeProject: _showProjectsBottomSheet,
-                          ),
-                          12.asSpace,
-                          ZoneControls(
-                            currentZone: _controller.currentZone.value,
-                            currentEqualizer: _controller.currentEqualizer.value,
-                            equalizers: _controller.equalizers,
-                            onChangeBalance: _controller.setBalance,
-                            onChangeVolume: _controller.setVolume,
-                            onUpdateFrequency: _controller.setFrequency,
-                            onChangeEqualizer: _showEqualizersBottomSheet,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

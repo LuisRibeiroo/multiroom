@@ -144,7 +144,7 @@ class _ScannerPageState extends State<ScannerPage> {
           _controller.setPageVisible(true);
         } else {
           _controller.setPageVisible(false);
-          _controller.stopUdpServer();
+          _controller.stopUdpServer(restartMonitor: false);
         }
       },
       child: LoadingOverlay(

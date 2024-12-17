@@ -19,8 +19,8 @@ class DeviceStateIndicator extends StatelessWidget {
         current: value,
         first: false,
         second: true,
-        height: 32,
-        indicatorSize: const Size.square(28),
+        height: 28,
+        indicatorSize: const Size.square(24),
         style: ToggleStyle(
           indicatorColor: context.colorScheme.inversePrimary,
           borderColor: context.colorScheme.inversePrimary,
