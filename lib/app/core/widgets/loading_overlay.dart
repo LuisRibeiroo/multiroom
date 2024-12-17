@@ -87,6 +87,9 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
               //     widget.onSuccessState?.call();
               //   },
               // );
+
+              toastification.dismissAll();
+
               untracked(() {
                 _controller.resetErrorCounter();
                 _controller.stopPulling();
